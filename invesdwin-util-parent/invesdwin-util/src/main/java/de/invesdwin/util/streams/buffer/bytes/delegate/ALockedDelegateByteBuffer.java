@@ -54,7 +54,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public void putChar(final int index, final char value) {
         lock.lock();
         try {
-            super.putCharReverse(index, value);
+            super.putChar(index, value);
         } finally {
             lock.unlock();
         }
@@ -64,7 +64,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public void putCharReverse(final int index, final char value) {
         lock.lock();
         try {
-            super.putChar(index, value);
+            super.putCharReverse(index, value);
         } finally {
             lock.unlock();
         }
@@ -74,7 +74,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public void putDouble(final int index, final double value) {
         lock.lock();
         try {
-            super.putDoubleReverse(index, value);
+            super.putDouble(index, value);
         } finally {
             lock.unlock();
         }
@@ -84,7 +84,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public void putDoubleReverse(final int index, final double value) {
         lock.lock();
         try {
-            super.putDouble(index, value);
+            super.putDoubleReverse(index, value);
         } finally {
             lock.unlock();
         }
@@ -94,7 +94,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public void putFloat(final int index, final float value) {
         lock.lock();
         try {
-            super.putFloatReverse(index, value);
+            super.putFloat(index, value);
         } finally {
             lock.unlock();
         }
@@ -104,7 +104,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public void putFloatReverse(final int index, final float value) {
         lock.lock();
         try {
-            super.putFloat(index, value);
+            super.putFloatReverse(index, value);
         } finally {
             lock.unlock();
         }
@@ -114,7 +114,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public void putInt(final int index, final int value) {
         lock.lock();
         try {
-            super.putIntReverse(index, value);
+            super.putInt(index, value);
         } finally {
             lock.unlock();
         }
@@ -124,7 +124,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public void putIntReverse(final int index, final int value) {
         lock.lock();
         try {
-            super.putInt(index, value);
+            super.putIntReverse(index, value);
         } finally {
             lock.unlock();
         }
@@ -134,7 +134,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public void putLong(final int index, final long value) {
         lock.lock();
         try {
-            super.putLongReverse(index, value);
+            super.putLong(index, value);
         } finally {
             lock.unlock();
         }
@@ -144,7 +144,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public void putLongReverse(final int index, final long value) {
         lock.lock();
         try {
-            super.putLong(index, value);
+            super.putLongReverse(index, value);
         } finally {
             lock.unlock();
         }
@@ -154,7 +154,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public void putShort(final int index, final short value) {
         lock.lock();
         try {
-            super.putShortReverse(index, value);
+            super.putShort(index, value);
         } finally {
             lock.unlock();
         }
@@ -164,7 +164,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public void putShortReverse(final int index, final short value) {
         lock.lock();
         try {
-            super.putShort(index, value);
+            super.putShortReverse(index, value);
         } finally {
             lock.unlock();
         }
@@ -174,7 +174,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public char getChar(final int index) {
         lock.lock();
         try {
-            return super.getCharReverse(index);
+            return super.getChar(index);
         } finally {
             lock.unlock();
         }
@@ -184,7 +184,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public char getCharReverse(final int index) {
         lock.lock();
         try {
-            return super.getChar(index);
+            return super.getCharReverse(index);
         } finally {
             lock.unlock();
         }
@@ -194,7 +194,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public double getDouble(final int index) {
         lock.lock();
         try {
-            return super.getDoubleReverse(index);
+            return super.getDouble(index);
         } finally {
             lock.unlock();
         }
@@ -204,7 +204,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public double getDoubleReverse(final int index) {
         lock.lock();
         try {
-            return super.getDouble(index);
+            return super.getDoubleReverse(index);
         } finally {
             lock.unlock();
         }
@@ -214,7 +214,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public float getFloat(final int index) {
         lock.lock();
         try {
-            return super.getFloatReverse(index);
+            return super.getFloat(index);
         } finally {
             lock.unlock();
         }
@@ -224,7 +224,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public float getFloatReverse(final int index) {
         lock.lock();
         try {
-            return super.getFloat(index);
+            return super.getFloatReverse(index);
         } finally {
             lock.unlock();
         }
@@ -234,7 +234,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public int getInt(final int index) {
         lock.lock();
         try {
-            return super.getIntReverse(index);
+            return super.getInt(index);
         } finally {
             lock.unlock();
         }
@@ -244,7 +244,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public int getIntReverse(final int index) {
         lock.lock();
         try {
-            return super.getInt(index);
+            return super.getIntReverse(index);
         } finally {
             lock.unlock();
         }
@@ -254,7 +254,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public long getLong(final int index) {
         lock.lock();
         try {
-            return super.getLongReverse(index);
+            return super.getLong(index);
         } finally {
             lock.unlock();
         }
@@ -264,7 +264,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public long getLongReverse(final int index) {
         lock.lock();
         try {
-            return super.getLong(index);
+            return super.getLongReverse(index);
         } finally {
             lock.unlock();
         }
@@ -274,7 +274,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public short getShort(final int index) {
         lock.lock();
         try {
-            return super.getShortReverse(index);
+            return super.getShort(index);
         } finally {
             lock.unlock();
         }
@@ -284,7 +284,7 @@ public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
     public short getShortReverse(final int index) {
         lock.lock();
         try {
-            return super.getShort(index);
+            return super.getShortReverse(index);
         } finally {
             lock.unlock();
         }

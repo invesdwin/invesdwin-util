@@ -40,122 +40,122 @@ public abstract class ADelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void putChar(final int index, final char value) {
-        getDelegate().putCharReverse(index, value);
-    }
-
-    @Override
-    public void putCharReverse(final int index, final char value) {
         getDelegate().putChar(index, value);
     }
 
     @Override
-    public void putDouble(final int index, final double value) {
-        getDelegate().putDoubleReverse(index, value);
+    public void putCharReverse(final int index, final char value) {
+        getDelegate().putCharReverse(index, value);
     }
 
     @Override
-    public void putDoubleReverse(final int index, final double value) {
+    public void putDouble(final int index, final double value) {
         getDelegate().putDouble(index, value);
     }
 
     @Override
-    public void putFloat(final int index, final float value) {
-        getDelegate().putFloatReverse(index, value);
+    public void putDoubleReverse(final int index, final double value) {
+        getDelegate().putDoubleReverse(index, value);
     }
 
     @Override
-    public void putFloatReverse(final int index, final float value) {
+    public void putFloat(final int index, final float value) {
         getDelegate().putFloat(index, value);
     }
 
     @Override
-    public void putInt(final int index, final int value) {
-        getDelegate().putIntReverse(index, value);
+    public void putFloatReverse(final int index, final float value) {
+        getDelegate().putFloatReverse(index, value);
     }
 
     @Override
-    public void putIntReverse(final int index, final int value) {
+    public void putInt(final int index, final int value) {
         getDelegate().putInt(index, value);
     }
 
     @Override
-    public void putLong(final int index, final long value) {
-        getDelegate().putLongReverse(index, value);
+    public void putIntReverse(final int index, final int value) {
+        getDelegate().putIntReverse(index, value);
     }
 
     @Override
-    public void putLongReverse(final int index, final long value) {
+    public void putLong(final int index, final long value) {
         getDelegate().putLong(index, value);
     }
 
     @Override
-    public void putShort(final int index, final short value) {
-        getDelegate().putShortReverse(index, value);
+    public void putLongReverse(final int index, final long value) {
+        getDelegate().putLongReverse(index, value);
     }
 
     @Override
-    public void putShortReverse(final int index, final short value) {
+    public void putShort(final int index, final short value) {
         getDelegate().putShort(index, value);
     }
 
     @Override
-    public char getChar(final int index) {
-        return getDelegate().getCharReverse(index);
+    public void putShortReverse(final int index, final short value) {
+        getDelegate().putShortReverse(index, value);
     }
 
     @Override
-    public char getCharReverse(final int index) {
+    public char getChar(final int index) {
         return getDelegate().getChar(index);
     }
 
     @Override
-    public double getDouble(final int index) {
-        return getDelegate().getDoubleReverse(index);
+    public char getCharReverse(final int index) {
+        return getDelegate().getCharReverse(index);
     }
 
     @Override
-    public double getDoubleReverse(final int index) {
+    public double getDouble(final int index) {
         return getDelegate().getDouble(index);
     }
 
     @Override
-    public float getFloat(final int index) {
-        return getDelegate().getFloatReverse(index);
+    public double getDoubleReverse(final int index) {
+        return getDelegate().getDoubleReverse(index);
     }
 
     @Override
-    public float getFloatReverse(final int index) {
+    public float getFloat(final int index) {
         return getDelegate().getFloat(index);
     }
 
     @Override
-    public int getInt(final int index) {
-        return getDelegate().getIntReverse(index);
+    public float getFloatReverse(final int index) {
+        return getDelegate().getFloatReverse(index);
     }
 
     @Override
-    public int getIntReverse(final int index) {
+    public int getInt(final int index) {
         return getDelegate().getInt(index);
     }
 
     @Override
-    public long getLong(final int index) {
-        return getDelegate().getLongReverse(index);
+    public int getIntReverse(final int index) {
+        return getDelegate().getIntReverse(index);
     }
 
     @Override
-    public long getLongReverse(final int index) {
+    public long getLong(final int index) {
         return getDelegate().getLong(index);
     }
 
     @Override
+    public long getLongReverse(final int index) {
+        return getDelegate().getLongReverse(index);
+    }
+
+    @Override
     public short getShort(final int index) {
-        return getDelegate().getShortReverse(index);
+        return getDelegate().getShort(index);
     }
 
     @Override
     public short getShortReverse(final int index) {
-        return getDelegate().getShort(index);
+        return getDelegate().getShortReverse(index);
     }
 
     /////////////////// delegates ////////////////////////////
