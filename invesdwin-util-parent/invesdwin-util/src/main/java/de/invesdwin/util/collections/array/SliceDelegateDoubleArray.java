@@ -71,7 +71,7 @@ public class SliceDelegateDoubleArray implements IDoubleArray {
     }
 
     @Override
-    public int toBuffer(final IByteBuffer buffer) {
+    public int getBuffer(final IByteBuffer buffer) {
         throw new UnsupportedOperationException();
     }
 

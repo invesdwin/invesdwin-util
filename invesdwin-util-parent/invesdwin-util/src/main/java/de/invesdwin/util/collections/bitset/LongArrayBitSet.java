@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.bitset;
 
+import java.io.IOException;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.array.ILongArray;
@@ -178,9 +180,9 @@ public class LongArrayBitSet implements IBitSet {
     }
 
     @Override
-    public int toBuffer(final IByteBuffer buffer) {
+    public int getBuffer(final IByteBuffer buffer) throws IOException {
         buffer.putInt(BufferBooleanArray.LENGTH_INDEX, expectedSize);
-        return bitSet.getWords().toBuffer(buffer.sliceFrom(BufferBooleanArray.ARRAY_INDEX));
+        return bitSet.getWords().getBuffer(buffer.sliceFrom(BufferBooleanArray.ARRAY_INDEX));
     }
 
 }

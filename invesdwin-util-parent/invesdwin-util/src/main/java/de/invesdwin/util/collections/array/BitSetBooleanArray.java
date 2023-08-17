@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.array;
 
+import java.io.IOException;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
@@ -84,8 +86,8 @@ public class BitSetBooleanArray implements IBooleanArray {
     }
 
     @Override
-    public int toBuffer(final IByteBuffer buffer) {
-        return bitSet.toBuffer(buffer);
+    public int getBuffer(final IByteBuffer buffer) throws IOException {
+        return bitSet.getBuffer(buffer);
     }
 
 }

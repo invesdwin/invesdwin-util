@@ -66,7 +66,7 @@ public final class EmptyGenericArray<E> implements IGenericArray<E> {
     }
 
     @Override
-    public int toBuffer(final IByteBuffer buffer) {
+    public int getBuffer(final IByteBuffer buffer) {
         return 0;
     }
 

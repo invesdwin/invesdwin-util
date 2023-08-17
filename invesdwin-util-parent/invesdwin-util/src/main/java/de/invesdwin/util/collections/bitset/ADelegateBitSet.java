@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.bitset;
 
+import java.io.IOException;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -92,8 +94,8 @@ public abstract class ADelegateBitSet implements IBitSet {
     }
 
     @Override
-    public int toBuffer(final IByteBuffer buffer) {
-        return getDelegate().toBuffer(buffer);
+    public int getBuffer(final IByteBuffer buffer) throws IOException {
+        return getDelegate().getBuffer(buffer);
     }
 
 }

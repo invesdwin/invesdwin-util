@@ -138,17 +138,17 @@ public class FakeAllocatorBuffer implements IByteBuffer {
 
     @Override
     public void getBytes(final int index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {
-        //noop
+        dstBuffer.checkLimit(dstIndex + length);
     }
 
     @Override
     public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
-        //noop
+        dstBuffer.ensureCapacity(dstIndex + length);
     }
 
     @Override
     public void getBytes(final int index, final IMemoryBuffer dstBuffer, final long dstIndex, final int length) {
-        //noop
+        dstBuffer.ensureCapacity(dstIndex + length);
     }
 
     @Override
@@ -359,17 +359,23 @@ public class FakeAllocatorBuffer implements IByteBuffer {
 
     @Override
     public void getBytesTo(final int index, final DataOutput dst, final int length) throws IOException {
-        //noop
+        for (int i = 0; i < length; i++) {
+            dst.writeByte(0);
+        }
     }
 
     @Override
     public void getBytesTo(final int index, final OutputStream dst, final int length) throws IOException {
-        //noop
+        for (int i = 0; i < length; i++) {
+            dst.write(0);
+        }
     }
 
     @Override
     public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
-        //noop
+        for (int i = 0; i < length; i++) {
+            dst.write(ZeroByteBuffer.ZERO_BYTE_BUFFER);
+        }
     }
 
     @Override

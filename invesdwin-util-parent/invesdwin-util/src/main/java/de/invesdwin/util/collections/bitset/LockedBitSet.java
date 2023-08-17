@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.bitset;
 
+import java.io.IOException;
+
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.ILock;
@@ -198,10 +200,10 @@ public class LockedBitSet implements IBitSet {
     }
 
     @Override
-    public int toBuffer(final IByteBuffer buffer) {
+    public int getBuffer(final IByteBuffer buffer) throws IOException {
         lock.lock();
         try {
-            return delegate.toBuffer(buffer);
+            return delegate.getBuffer(buffer);
         } finally {
             lock.unlock();
         }

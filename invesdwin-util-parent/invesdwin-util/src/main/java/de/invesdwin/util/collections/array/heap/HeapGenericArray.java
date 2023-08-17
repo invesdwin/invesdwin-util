@@ -82,7 +82,7 @@ public class HeapGenericArray<E> implements IGenericArray<E> {
     }
 
     @Override
-    public int toBuffer(final IByteBuffer buffer) {
+    public int getBuffer(final IByteBuffer buffer) {
         throw new UnsupportedOperationException();
     }
 

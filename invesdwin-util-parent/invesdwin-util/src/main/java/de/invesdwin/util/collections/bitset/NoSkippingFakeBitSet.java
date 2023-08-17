@@ -92,7 +92,7 @@ public final class NoSkippingFakeBitSet implements IBitSet {
     }
 
     @Override
-    public int toBuffer(final IByteBuffer buffer) {
+    public int getBuffer(final IByteBuffer buffer) {
         throw new UnsupportedOperationException();
     }
 }

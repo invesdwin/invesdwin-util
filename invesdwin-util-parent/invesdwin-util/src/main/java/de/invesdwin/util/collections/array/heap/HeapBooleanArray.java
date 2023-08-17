@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.array.heap;
 
+import java.io.IOException;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
@@ -83,13 +85,13 @@ public class HeapBooleanArray implements IBooleanArray {
     }
 
     @Override
-    public int toBuffer(final IByteBuffer buffer) {
+    public int getBuffer(final IByteBuffer buffer) throws IOException {
         //always save as long array
         final BitSetBooleanArray delegate = new BitSetBooleanArray(size());
         for (int i = 0; i < size(); i++) {
             delegate.set(i, get(i));
         }
-        return delegate.toBuffer(buffer);
+        return delegate.getBuffer(buffer);
     }
 
 }

@@ -30,6 +30,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
 
     private final MemoryMappedFileFinalizer finalizer;
     private final AtomicInteger refCount = new AtomicInteger();
+    private final int identity;
 
     /**
      * Constructs a new memory mapped file.
@@ -45,6 +46,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
             throws IOException {
         this.finalizer = new MemoryMappedFileFinalizer(path, offset, length, readOnly);
         this.finalizer.register(this);
+        this.identity = System.identityHashCode(this);
     }
 
     @Override

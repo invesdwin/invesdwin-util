@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.array.buffer;
 
+import java.io.IOException;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
@@ -11,9 +13,10 @@ import de.invesdwin.util.collections.bitset.LongArrayBitSetBase;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.IByteBufferProvider;
 
 @NotThreadSafe
-public class BufferBooleanArray implements IBooleanArray {
+public class BufferBooleanArray implements IBooleanArray, IByteBufferProvider {
 
     public static final int LENGTH_INDEX = 0;
     public static final int LENGTH_SIZE = Integer.BYTES;
@@ -86,9 +89,14 @@ public class BufferBooleanArray implements IBooleanArray {
     }
 
     @Override
-    public int toBuffer(final IByteBuffer buffer) {
-        this.buffer.getBytes(0, buffer);
-        return this.buffer.capacity();
+    public int getBuffer(final IByteBuffer dst) throws IOException {
+        buffer.putBytes(0, dst);
+        return buffer.capacity();
+    }
+
+    @Override
+    public IByteBuffer asBuffer() throws IOException {
+        return buffer;
     }
 
 }

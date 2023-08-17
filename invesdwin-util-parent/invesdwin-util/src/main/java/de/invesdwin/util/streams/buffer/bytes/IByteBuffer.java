@@ -542,10 +542,4 @@ public interface IByteBuffer extends IByteBufferProvider, Cloneable, IPrimitiveA
         return capacity();
     }
 
-    @Override
-    default int toBuffer(final IByteBuffer buffer) {
-        putBytes(0, buffer);
-        return capacity();
-    }
-
 }

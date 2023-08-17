@@ -82,7 +82,7 @@ public class HeapDoubleArray implements IDoubleArray {
     }
 
     @Override
-    public int toBuffer(final IByteBuffer buffer) {
+    public int getBuffer(final IByteBuffer buffer) {
         for (int i = 0; i < size(); i++) {
             buffer.putDouble(i * Double.BYTES, get(i));
         }

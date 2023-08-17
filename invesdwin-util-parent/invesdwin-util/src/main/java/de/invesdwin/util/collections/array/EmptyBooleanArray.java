@@ -61,7 +61,7 @@ public final class EmptyBooleanArray implements IBooleanArray {
     }
 
     @Override
-    public int toBuffer(final IByteBuffer buffer) {
+    public int getBuffer(final IByteBuffer buffer) {
         return 0;
     }
 

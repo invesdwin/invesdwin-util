@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.bitset;
 
+import java.io.IOException;
+
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 public interface IBitSet {
@@ -50,6 +52,6 @@ public interface IBitSet {
 
     void getBooleans(int srcPos, IBitSet dest, int destPos, int length);
 
-    int toBuffer(IByteBuffer buffer);
+    int getBuffer(IByteBuffer buffer) throws IOException;
 
 }

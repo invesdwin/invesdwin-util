@@ -193,7 +193,7 @@ public class JavaBitSet implements IBitSet {
 
     @SuppressWarnings("restriction")
     @Override
-    public int toBuffer(final IByteBuffer buffer) {
+    public int getBuffer(final IByteBuffer buffer) {
         buffer.putInt(BufferBooleanArray.LENGTH_INDEX, expectedSize);
         long[] words = (long[]) Reflections.getUnsafe().getObject(bitSet, BitSets.BITSET_WORDS_OFFSET);
         final int wordsInUse = (int) Reflections.getUnsafe().getObject(bitSet, BitSets.BITSET_WORDS_IN_USE_OFFSET);
@@ -201,7 +201,7 @@ public class JavaBitSet implements IBitSet {
             words = Arrays.copyOfRange(words, 0, wordsInUse);
         }
         final HeapLongArray delegate = new HeapLongArray(words);
-        return delegate.toBuffer(buffer.sliceFrom(BufferBooleanArray.ARRAY_INDEX));
+        return delegate.getBuffer(buffer.sliceFrom(BufferBooleanArray.ARRAY_INDEX));
     }
 
 }

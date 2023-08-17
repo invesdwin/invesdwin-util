@@ -61,7 +61,7 @@ public final class EmptyIntegerArray implements IIntegerArray {
     }
 
     @Override
-    public int toBuffer(final IByteBuffer buffer) {
+    public int getBuffer(final IByteBuffer buffer) {
         return 0;
     }
 

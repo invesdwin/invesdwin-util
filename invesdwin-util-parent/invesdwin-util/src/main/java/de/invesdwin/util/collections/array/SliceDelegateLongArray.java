@@ -71,7 +71,7 @@ public class SliceDelegateLongArray implements ILongArray {
     }
 
     @Override
-    public int toBuffer(final IByteBuffer buffer) {
+    public int getBuffer(final IByteBuffer buffer) {
         throw new UnsupportedOperationException();
     }
 
