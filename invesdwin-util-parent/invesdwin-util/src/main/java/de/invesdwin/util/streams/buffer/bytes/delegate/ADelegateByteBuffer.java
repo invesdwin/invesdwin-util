@@ -16,10 +16,15 @@ import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
 @NotThreadSafe
 public abstract class ADelegateByteBuffer implements IByteBuffer {
+
+    private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
     @Override
     public boolean isReadOnly() {
@@ -295,14 +300,21 @@ public abstract class ADelegateByteBuffer implements IByteBuffer {
         return getDelegate().asByteArrayCopy(index, length);
     }
 
+    protected IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
+        if (mutableSliceFactory == null) {
+            mutableSliceFactory = IMutableSlicedDelegateByteBufferFactory.newInstance(this);
+        }
+        return mutableSliceFactory;
+    }
+
     @Override
     public IByteBuffer sliceFrom(final int index) {
-        return getDelegate().sliceFrom(index);
+        return getMutableSliceFactory().sliceFrom(index);
     }
 
     @Override
     public IByteBuffer slice(final int index, final int length) {
-        return getDelegate().slice(index, length);
+        return getMutableSliceFactory().slice(index, length);
     }
 
     @Override
@@ -310,7 +322,7 @@ public abstract class ADelegateByteBuffer implements IByteBuffer {
         if (index == 0) {
             return this;
         } else {
-            return getDelegate().newSliceFrom(index);
+            return new SlicedFromDelegateByteBuffer(this, index);
         }
     }
 
@@ -319,7 +331,7 @@ public abstract class ADelegateByteBuffer implements IByteBuffer {
         if (index == 0 && length == capacity()) {
             return this;
         } else {
-            return getDelegate().newSlice(index, length);
+            return new SlicedDelegateByteBuffer(this, index, length);
         }
     }
 

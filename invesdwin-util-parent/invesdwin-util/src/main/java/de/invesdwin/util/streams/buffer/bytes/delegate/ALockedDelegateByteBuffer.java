@@ -15,12 +15,14 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.streams.PreLockedDelegateInputStream;
+import de.invesdwin.util.streams.PreLockedDelegateOutputStream;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
 @ThreadSafe
-public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
+public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {
 
     private final ILock lock;
 
@@ -32,19 +34,17 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public boolean isReadOnly() {
         lock.lock();
         try {
-            return getDelegate().isReadOnly();
+            return super.isReadOnly();
         } finally {
             lock.unlock();
         }
     }
 
-    protected abstract IByteBuffer getDelegate();
-
     @Override
     public ByteOrder getOrder() {
         lock.lock();
         try {
-            return getDelegate().getOrder();
+            return super.getOrder();
         } finally {
             lock.unlock();
         }
@@ -54,7 +54,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putChar(final int index, final char value) {
         lock.lock();
         try {
-            getDelegate().putCharReverse(index, value);
+            super.putCharReverse(index, value);
         } finally {
             lock.unlock();
         }
@@ -64,7 +64,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putCharReverse(final int index, final char value) {
         lock.lock();
         try {
-            getDelegate().putChar(index, value);
+            super.putChar(index, value);
         } finally {
             lock.unlock();
         }
@@ -74,7 +74,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putDouble(final int index, final double value) {
         lock.lock();
         try {
-            getDelegate().putDoubleReverse(index, value);
+            super.putDoubleReverse(index, value);
         } finally {
             lock.unlock();
         }
@@ -84,7 +84,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putDoubleReverse(final int index, final double value) {
         lock.lock();
         try {
-            getDelegate().putDouble(index, value);
+            super.putDouble(index, value);
         } finally {
             lock.unlock();
         }
@@ -94,7 +94,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putFloat(final int index, final float value) {
         lock.lock();
         try {
-            getDelegate().putFloatReverse(index, value);
+            super.putFloatReverse(index, value);
         } finally {
             lock.unlock();
         }
@@ -104,7 +104,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putFloatReverse(final int index, final float value) {
         lock.lock();
         try {
-            getDelegate().putFloat(index, value);
+            super.putFloat(index, value);
         } finally {
             lock.unlock();
         }
@@ -114,7 +114,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putInt(final int index, final int value) {
         lock.lock();
         try {
-            getDelegate().putIntReverse(index, value);
+            super.putIntReverse(index, value);
         } finally {
             lock.unlock();
         }
@@ -124,7 +124,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putIntReverse(final int index, final int value) {
         lock.lock();
         try {
-            getDelegate().putInt(index, value);
+            super.putInt(index, value);
         } finally {
             lock.unlock();
         }
@@ -134,7 +134,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putLong(final int index, final long value) {
         lock.lock();
         try {
-            getDelegate().putLongReverse(index, value);
+            super.putLongReverse(index, value);
         } finally {
             lock.unlock();
         }
@@ -144,7 +144,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putLongReverse(final int index, final long value) {
         lock.lock();
         try {
-            getDelegate().putLong(index, value);
+            super.putLong(index, value);
         } finally {
             lock.unlock();
         }
@@ -154,7 +154,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putShort(final int index, final short value) {
         lock.lock();
         try {
-            getDelegate().putShortReverse(index, value);
+            super.putShortReverse(index, value);
         } finally {
             lock.unlock();
         }
@@ -164,7 +164,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putShortReverse(final int index, final short value) {
         lock.lock();
         try {
-            getDelegate().putShort(index, value);
+            super.putShort(index, value);
         } finally {
             lock.unlock();
         }
@@ -174,7 +174,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public char getChar(final int index) {
         lock.lock();
         try {
-            return getDelegate().getCharReverse(index);
+            return super.getCharReverse(index);
         } finally {
             lock.unlock();
         }
@@ -184,7 +184,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public char getCharReverse(final int index) {
         lock.lock();
         try {
-            return getDelegate().getChar(index);
+            return super.getChar(index);
         } finally {
             lock.unlock();
         }
@@ -194,7 +194,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public double getDouble(final int index) {
         lock.lock();
         try {
-            return getDelegate().getDoubleReverse(index);
+            return super.getDoubleReverse(index);
         } finally {
             lock.unlock();
         }
@@ -204,7 +204,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public double getDoubleReverse(final int index) {
         lock.lock();
         try {
-            return getDelegate().getDouble(index);
+            return super.getDouble(index);
         } finally {
             lock.unlock();
         }
@@ -214,7 +214,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public float getFloat(final int index) {
         lock.lock();
         try {
-            return getDelegate().getFloatReverse(index);
+            return super.getFloatReverse(index);
         } finally {
             lock.unlock();
         }
@@ -224,7 +224,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public float getFloatReverse(final int index) {
         lock.lock();
         try {
-            return getDelegate().getFloat(index);
+            return super.getFloat(index);
         } finally {
             lock.unlock();
         }
@@ -234,7 +234,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public int getInt(final int index) {
         lock.lock();
         try {
-            return getDelegate().getIntReverse(index);
+            return super.getIntReverse(index);
         } finally {
             lock.unlock();
         }
@@ -244,7 +244,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public int getIntReverse(final int index) {
         lock.lock();
         try {
-            return getDelegate().getInt(index);
+            return super.getInt(index);
         } finally {
             lock.unlock();
         }
@@ -254,7 +254,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public long getLong(final int index) {
         lock.lock();
         try {
-            return getDelegate().getLongReverse(index);
+            return super.getLongReverse(index);
         } finally {
             lock.unlock();
         }
@@ -264,7 +264,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public long getLongReverse(final int index) {
         lock.lock();
         try {
-            return getDelegate().getLong(index);
+            return super.getLong(index);
         } finally {
             lock.unlock();
         }
@@ -274,7 +274,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public short getShort(final int index) {
         lock.lock();
         try {
-            return getDelegate().getShortReverse(index);
+            return super.getShortReverse(index);
         } finally {
             lock.unlock();
         }
@@ -284,7 +284,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public short getShortReverse(final int index) {
         lock.lock();
         try {
-            return getDelegate().getShort(index);
+            return super.getShort(index);
         } finally {
             lock.unlock();
         }
@@ -296,7 +296,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putByte(final int index, final byte value) {
         lock.lock();
         try {
-            getDelegate().putByte(index, value);
+            super.putByte(index, value);
         } finally {
             lock.unlock();
         }
@@ -306,7 +306,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public byte getByte(final int index) {
         lock.lock();
         try {
-            return getDelegate().getByte(index);
+            return super.getByte(index);
         } finally {
             lock.unlock();
         }
@@ -316,7 +316,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public long addressOffset() {
         lock.lock();
         try {
-            return getDelegate().addressOffset();
+            return super.addressOffset();
         } finally {
             lock.unlock();
         }
@@ -326,7 +326,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public MutableDirectBuffer directBuffer() {
         lock.lock();
         try {
-            return getDelegate().directBuffer();
+            return super.directBuffer();
         } finally {
             lock.unlock();
         }
@@ -336,7 +336,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public MutableDirectBuffer asDirectBuffer() {
         lock.lock();
         try {
-            return getDelegate().asDirectBuffer();
+            return super.asDirectBuffer();
         } finally {
             lock.unlock();
         }
@@ -346,7 +346,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
         lock.lock();
         try {
-            return getDelegate().asDirectBuffer(index, length);
+            return super.asDirectBuffer(index, length);
         } finally {
             lock.unlock();
         }
@@ -356,7 +356,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public IMemoryBuffer asMemoryBuffer() {
         lock.lock();
         try {
-            return getDelegate().asMemoryBuffer();
+            return super.asMemoryBuffer();
         } finally {
             lock.unlock();
         }
@@ -366,7 +366,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public IMemoryBuffer asMemoryBufferFrom(final int index) {
         lock.lock();
         try {
-            return getDelegate().asMemoryBufferFrom(index);
+            return super.asMemoryBufferFrom(index);
         } finally {
             lock.unlock();
         }
@@ -376,7 +376,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public IMemoryBuffer asMemoryBuffer(final int index, final int length) {
         lock.lock();
         try {
-            return getDelegate().asMemoryBuffer(index, length);
+            return super.asMemoryBuffer(index, length);
         } finally {
             lock.unlock();
         }
@@ -386,7 +386,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public byte[] byteArray() {
         lock.lock();
         try {
-            return getDelegate().byteArray();
+            return super.byteArray();
         } finally {
             lock.unlock();
         }
@@ -396,7 +396,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public java.nio.ByteBuffer nioByteBuffer() {
         lock.lock();
         try {
-            return getDelegate().nioByteBuffer();
+            return super.nioByteBuffer();
         } finally {
             lock.unlock();
         }
@@ -406,7 +406,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public int capacity() {
         lock.lock();
         try {
-            return getDelegate().capacity();
+            return super.capacity();
         } finally {
             lock.unlock();
         }
@@ -416,7 +416,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void getBytes(final int index, final byte[] dst, final int srcIndex, final int length) {
         lock.lock();
         try {
-            getDelegate().getBytes(index, dst, srcIndex, length);
+            super.getBytes(index, dst, srcIndex, length);
         } finally {
             lock.unlock();
         }
@@ -426,7 +426,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void getBytes(final int index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {
         lock.lock();
         try {
-            getDelegate().getBytes(index, dstBuffer, dstIndex, length);
+            super.getBytes(index, dstBuffer, dstIndex, length);
         } finally {
             lock.unlock();
         }
@@ -436,7 +436,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
         lock.lock();
         try {
-            getDelegate().getBytes(index, dstBuffer, dstIndex, length);
+            super.getBytes(index, dstBuffer, dstIndex, length);
         } finally {
             lock.unlock();
         }
@@ -446,7 +446,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void getBytes(final int index, final IMemoryBuffer dstBuffer, final long dstIndex, final int length) {
         lock.lock();
         try {
-            getDelegate().getBytes(index, dstBuffer, dstIndex, length);
+            super.getBytes(index, dstBuffer, dstIndex, length);
         } finally {
             lock.unlock();
         }
@@ -456,7 +456,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void getBytes(final int index, final java.nio.ByteBuffer dstBuffer, final int dstIndex, final int length) {
         lock.lock();
         try {
-            getDelegate().getBytes(index, dstBuffer, dstIndex, length);
+            super.getBytes(index, dstBuffer, dstIndex, length);
         } finally {
             lock.unlock();
         }
@@ -466,7 +466,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public int wrapAdjustment() {
         lock.lock();
         try {
-            return getDelegate().wrapAdjustment();
+            return super.wrapAdjustment();
         } finally {
             lock.unlock();
         }
@@ -476,7 +476,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public boolean isExpandable() {
         lock.lock();
         try {
-            return getDelegate().isExpandable();
+            return super.isExpandable();
         } finally {
             lock.unlock();
         }
@@ -486,7 +486,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
         lock.lock();
         try {
-            getDelegate().putBytes(index, src, srcIndex, length);
+            super.putBytes(index, src, srcIndex, length);
         } finally {
             lock.unlock();
         }
@@ -496,7 +496,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
         lock.lock();
         try {
-            getDelegate().putBytes(srcIndex, srcBuffer, srcIndex, length);
+            super.putBytes(srcIndex, srcBuffer, srcIndex, length);
         } finally {
             lock.unlock();
         }
@@ -506,7 +506,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
         lock.lock();
         try {
-            getDelegate().putBytes(srcIndex, srcBuffer, srcIndex, length);
+            super.putBytes(srcIndex, srcBuffer, srcIndex, length);
         } finally {
             lock.unlock();
         }
@@ -516,7 +516,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
         lock.lock();
         try {
-            getDelegate().putBytes(index, srcBuffer, srcIndex, length);
+            super.putBytes(index, srcBuffer, srcIndex, length);
         } finally {
             lock.unlock();
         }
@@ -526,7 +526,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putBytes(final int index, final IMemoryBuffer srcBuffer, final long srcIndex, final int length) {
         lock.lock();
         try {
-            getDelegate().putBytes(index, srcBuffer, srcIndex, length);
+            super.putBytes(index, srcBuffer, srcIndex, length);
         } finally {
             lock.unlock();
         }
@@ -535,28 +535,20 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     @Override
     public InputStream asInputStream(final int index, final int length) {
         lock.lock();
-        try {
-            return getDelegate().asInputStream(index, length);
-        } finally {
-            lock.unlock();
-        }
+        return new PreLockedDelegateInputStream(lock, super.asInputStream(index, length));
     }
 
     @Override
     public OutputStream asOutputStream(final int index, final int length) {
         lock.lock();
-        try {
-            return getDelegate().asOutputStream(index, length);
-        } finally {
-            lock.unlock();
-        }
+        return new PreLockedDelegateOutputStream(lock, super.asOutputStream(index, length));
     }
 
     @Override
     public byte[] asByteArray(final int index, final int length) {
         lock.lock();
         try {
-            return getDelegate().asByteArray(index, length);
+            return super.asByteArray(index, length);
         } finally {
             lock.unlock();
         }
@@ -566,57 +558,9 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public byte[] asByteArrayCopy(final int index, final int length) {
         lock.lock();
         try {
-            return getDelegate().asByteArrayCopy(index, length);
+            return super.asByteArrayCopy(index, length);
         } finally {
             lock.unlock();
-        }
-    }
-
-    @Override
-    public IByteBuffer sliceFrom(final int index) {
-        lock.lock();
-        try {
-            return getDelegate().sliceFrom(index);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public IByteBuffer slice(final int index, final int length) {
-        lock.lock();
-        try {
-            return getDelegate().slice(index, length);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public IByteBuffer newSliceFrom(final int index) {
-        if (index == 0) {
-            return this;
-        } else {
-            lock.lock();
-            try {
-                return getDelegate().newSliceFrom(index);
-            } finally {
-                lock.unlock();
-            }
-        }
-    }
-
-    @Override
-    public IByteBuffer newSlice(final int index, final int length) {
-        if (index == 0 && length == capacity()) {
-            return this;
-        } else {
-            lock.lock();
-            try {
-                return getDelegate().newSlice(index, length);
-            } finally {
-                lock.unlock();
-            }
         }
     }
 
@@ -624,7 +568,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public String getStringAsciii(final int index, final int size) {
         lock.lock();
         try {
-            return getDelegate().getStringAsciii(index, size);
+            return super.getStringAsciii(index, size);
         } finally {
             lock.unlock();
         }
@@ -634,7 +578,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void getStringAsciii(final int index, final int length, final Appendable dst) {
         lock.lock();
         try {
-            getDelegate().getStringAsciii(index, length, dst);
+            super.getStringAsciii(index, length, dst);
         } finally {
             lock.unlock();
         }
@@ -644,7 +588,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
         lock.lock();
         try {
-            getDelegate().putStringAsciii(index, value, valueIndex, length);
+            super.putStringAsciii(index, value, valueIndex, length);
         } finally {
             lock.unlock();
         }
@@ -654,7 +598,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public String getStringUtf8(final int index, final int length) {
         lock.lock();
         try {
-            return getDelegate().getStringUtf8(index, length);
+            return super.getStringUtf8(index, length);
         } finally {
             lock.unlock();
         }
@@ -664,7 +608,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public int putStringUtf8(final int index, final String value) {
         lock.lock();
         try {
-            return getDelegate().putStringUtf8(index, value);
+            return super.putStringUtf8(index, value);
         } finally {
             lock.unlock();
         }
@@ -674,7 +618,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void getStringUtf8(final int index, final int length, final Appendable dst) {
         lock.lock();
         try {
-            getDelegate().getStringUtf8(index, length, dst);
+            super.getStringUtf8(index, length, dst);
         } finally {
             lock.unlock();
         }
@@ -684,7 +628,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void getBytesTo(final int index, final DataOutput dst, final int length) throws IOException {
         lock.lock();
         try {
-            getDelegate().getBytesTo(index, dst, length);
+            super.getBytesTo(index, dst, length);
         } finally {
             lock.unlock();
         }
@@ -694,7 +638,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void getBytesTo(final int index, final OutputStream dst, final int length) throws IOException {
         lock.lock();
         try {
-            getDelegate().getBytesTo(index, dst, length);
+            super.getBytesTo(index, dst, length);
         } finally {
             lock.unlock();
         }
@@ -704,7 +648,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putBytesTo(final int index, final DataInput src, final int length) throws IOException {
         lock.lock();
         try {
-            getDelegate().putBytesTo(index, src, length);
+            super.putBytesTo(index, src, length);
         } finally {
             lock.unlock();
         }
@@ -714,7 +658,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
         lock.lock();
         try {
-            getDelegate().putBytesTo(index, src, length);
+            super.putBytesTo(index, src, length);
         } finally {
             lock.unlock();
         }
@@ -728,7 +672,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
         }
         lock.lock();
         try {
-            return getDelegate().unwrap(type);
+            return super.unwrap(type);
         } finally {
             lock.unlock();
         }
@@ -738,7 +682,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public java.nio.ByteBuffer asNioByteBuffer(final int index, final int length) {
         lock.lock();
         try {
-            return getDelegate().asNioByteBuffer(index, length);
+            return super.asNioByteBuffer(index, length);
         } finally {
             lock.unlock();
         }
@@ -748,7 +692,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
         lock.lock();
         try {
-            getDelegate().getBytesTo(index, dst, length);
+            super.getBytesTo(index, dst, length);
         } finally {
             lock.unlock();
         }
@@ -758,7 +702,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
         lock.lock();
         try {
-            getDelegate().putBytesTo(index, src, length);
+            super.putBytesTo(index, src, length);
         } finally {
             lock.unlock();
         }
@@ -775,7 +719,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
         //CHECKSTYLE:ON
         lock.lock();
         try {
-            return getDelegate().clone();
+            return super.clone();
         } finally {
             lock.unlock();
         }
@@ -785,7 +729,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public IByteBuffer clone(final int index, final int length) {
         lock.lock();
         try {
-            return getDelegate().clone(index, length);
+            return super.clone(index, length);
         } finally {
             lock.unlock();
         }
@@ -795,7 +739,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public IByteBuffer ensureCapacity(final int desiredCapacity) {
         lock.lock();
         try {
-            getDelegate().ensureCapacity(desiredCapacity);
+            super.ensureCapacity(desiredCapacity);
         } finally {
             lock.unlock();
         }
@@ -806,7 +750,7 @@ public abstract class ALockedDelegateByteBuffer implements IByteBuffer {
     public void clear(final byte value, final int index, final int length) {
         lock.lock();
         try {
-            getDelegate().clear(value, index, length);
+            super.clear(value, index, length);
         } finally {
             lock.unlock();
         }
