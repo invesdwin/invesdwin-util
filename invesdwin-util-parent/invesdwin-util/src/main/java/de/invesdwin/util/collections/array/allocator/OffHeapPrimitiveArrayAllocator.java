@@ -72,7 +72,7 @@ public final class OffHeapPrimitiveArrayAllocator implements IPrimitiveArrayAllo
 
     @Override
     public IBooleanArray newBooleanArray(final String id, final int size) {
-        return new BufferBooleanArray(ByteBuffers.allocateDirect((BitSets.wordIndex(size) + 1) * Long.BYTES));
+        return new BufferBooleanArray(ByteBuffers.allocateDirect((BitSets.wordIndex(size) + 1) * Long.BYTES), size);
     }
 
     @Override

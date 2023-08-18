@@ -10,10 +10,9 @@ import de.invesdwin.util.collections.array.SliceDelegateDoubleArray;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.IByteBufferProvider;
 
 @NotThreadSafe
-public class BufferDoubleArray implements IDoubleArray, IByteBufferProvider {
+public class BufferDoubleArray implements IDoubleArray {
 
     private final IByteBuffer buffer;
 
@@ -80,11 +79,6 @@ public class BufferDoubleArray implements IDoubleArray, IByteBufferProvider {
     public int getBuffer(final IByteBuffer dst) throws IOException {
         buffer.getBytes(0, dst, 0, buffer.capacity());
         return buffer.capacity();
-    }
-
-    @Override
-    public IByteBuffer asBuffer() throws IOException {
-        return buffer;
     }
 
 }

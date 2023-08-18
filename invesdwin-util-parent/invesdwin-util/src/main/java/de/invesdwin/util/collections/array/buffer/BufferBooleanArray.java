@@ -13,10 +13,9 @@ import de.invesdwin.util.collections.bitset.LongArrayBitSetBase;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.IByteBufferProvider;
 
 @NotThreadSafe
-public class BufferBooleanArray implements IBooleanArray, IByteBufferProvider {
+public class BufferBooleanArray implements IBooleanArray {
 
     public static final int LENGTH_INDEX = 0;
     public static final int LENGTH_SIZE = Integer.BYTES;
@@ -31,6 +30,12 @@ public class BufferBooleanArray implements IBooleanArray, IByteBufferProvider {
         final int expectedSize = buffer.getInt(LENGTH_INDEX);
         final LongArrayBitSetBase bitSet = new LongArrayBitSetBase(new BufferLongArray(buffer.sliceFrom(ARRAY_INDEX)),
                 expectedSize);
+        this.delegate = new BitSetBooleanArray(new LongArrayBitSet(bitSet, expectedSize));
+    }
+
+    public BufferBooleanArray(final IByteBuffer buffer, final int expectedSize) {
+        this.buffer = buffer;
+        final LongArrayBitSetBase bitSet = new LongArrayBitSetBase(new BufferLongArray(buffer), expectedSize);
         this.delegate = new BitSetBooleanArray(new LongArrayBitSet(bitSet, expectedSize));
     }
 
@@ -90,13 +95,9 @@ public class BufferBooleanArray implements IBooleanArray, IByteBufferProvider {
 
     @Override
     public int getBuffer(final IByteBuffer dst) throws IOException {
-        buffer.getBytes(0, dst, 0, buffer.capacity());
-        return buffer.capacity();
-    }
-
-    @Override
-    public IByteBuffer asBuffer() throws IOException {
-        return buffer;
+        dst.putInt(LENGTH_INDEX, delegate.getBitSet().getExpectedSize());
+        buffer.getBytes(0, dst, ARRAY_INDEX, buffer.capacity());
+        return ARRAY_INDEX + buffer.capacity();
     }
 
 }
