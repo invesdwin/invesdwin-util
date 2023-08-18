@@ -28,6 +28,7 @@ import de.invesdwin.util.streams.buffer.memory.extend.UnsafeMemoryBuffer;
 @NotThreadSafe
 public class MemoryMappedFile implements IMemoryMappedFile {
 
+    private final boolean readOnly;
     private final MemoryMappedFileFinalizer finalizer;
     private final AtomicInteger refCount = new AtomicInteger();
 
@@ -43,6 +44,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
      */
     public MemoryMappedFile(final String path, final long offset, final long length, final boolean readOnly)
             throws IOException {
+        this.readOnly = readOnly;
         this.finalizer = new MemoryMappedFileFinalizer(path, offset, length, readOnly);
         this.finalizer.register(this);
     }
@@ -88,7 +90,9 @@ public class MemoryMappedFile implements IMemoryMappedFile {
 
     @Override
     public void close() {
-        finalizer.close();
+        if (readOnly) {
+            finalizer.close();
+        }
     }
 
     @Override
@@ -108,7 +112,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
         private final long offset;
         private final long address;
         private final long length;
-        private boolean cleaned;
+        private volatile boolean cleaned;
 
         private MemoryMappedFileFinalizer(final String path, final long offset, final long length,
                 final boolean readOnly) throws IOException {
@@ -128,8 +132,8 @@ public class MemoryMappedFile implements IMemoryMappedFile {
 
         @Override
         protected void clean() {
-            IoUtil.unmap(null, address, this.length);
             cleaned = true;
+            IoUtil.unmap(null, address, this.length);
         }
 
         @Override
