@@ -7,6 +7,7 @@ import de.invesdwin.util.collections.array.IDoubleArray;
 import de.invesdwin.util.collections.array.IIntegerArray;
 import de.invesdwin.util.collections.array.ILongArray;
 import de.invesdwin.util.collections.bitset.IBitSet;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
@@ -78,6 +79,25 @@ public class PrefixedPrimitiveArrayAllocator implements IPrimitiveArrayAllocator
     @Override
     public ILongArray newLongArray(final String id, final int size) {
         return delegate.newLongArray(prefix + id, size);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj instanceof PrefixedPrimitiveArrayAllocator) {
+            final PrefixedPrimitiveArrayAllocator cObj = (PrefixedPrimitiveArrayAllocator) obj;
+            return Objects.equals(prefix, cObj.prefix) && Objects.equals(delegate, cObj.delegate);
+        }
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(PrefixedPrimitiveArrayAllocator.class, prefix, delegate);
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).addValue(prefix).with(delegate).toString();
     }
 
     @SuppressWarnings("unchecked")
