@@ -2,9 +2,10 @@ package de.invesdwin.util.collections.bitset;
 
 import java.io.IOException;
 
+import de.invesdwin.util.collections.array.IPrimitiveArray;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
-public interface IBitSet {
+public interface IBitSet extends IPrimitiveArray {
 
     void add(int index);
 
@@ -42,8 +43,6 @@ public interface IBitSet {
 
     int getTrueCount();
 
-    int getExpectedSize();
-
     boolean isEmpty();
 
     ISkippingIndexProvider newSkippingIndexProvider();
@@ -52,6 +51,7 @@ public interface IBitSet {
 
     void getBooleans(int srcPos, IBitSet dest, int destPos, int length);
 
+    @Override
     int getBuffer(IByteBuffer buffer) throws IOException;
 
 }

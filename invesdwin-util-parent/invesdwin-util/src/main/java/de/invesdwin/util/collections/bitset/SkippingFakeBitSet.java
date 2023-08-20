@@ -39,7 +39,7 @@ public final class SkippingFakeBitSet implements IBitSet {
     }
 
     @Override
-    public int getExpectedSize() {
+    public int size() {
         throw new UnsupportedOperationException();
     }
 

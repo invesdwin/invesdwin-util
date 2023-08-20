@@ -10,12 +10,12 @@ public class BooleanArrayBitSet implements IBitSet {
     private final boolean[] bitSet;
     private int trueCount = 0;
 
-    public BooleanArrayBitSet(final int expectedSize) {
-        this.bitSet = new boolean[expectedSize];
+    public BooleanArrayBitSet(final int size) {
+        this.bitSet = new boolean[size];
     }
 
     @Override
-    public int getExpectedSize() {
+    public int size() {
         return bitSet.length;
     }
 

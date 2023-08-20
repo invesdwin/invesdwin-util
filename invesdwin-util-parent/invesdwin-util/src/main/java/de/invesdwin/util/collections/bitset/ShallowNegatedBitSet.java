@@ -12,7 +12,7 @@ public class ShallowNegatedBitSet implements IBitSet {
 
     public ShallowNegatedBitSet(final IBitSet delegate) {
         this.delegate = delegate;
-        this.trueCount = delegate.getExpectedSize() - delegate.getTrueCount();
+        this.trueCount = delegate.size() - delegate.getTrueCount();
     }
 
     @Override
@@ -81,8 +81,8 @@ public class ShallowNegatedBitSet implements IBitSet {
     }
 
     @Override
-    public int getExpectedSize() {
-        return delegate.getExpectedSize();
+    public int size() {
+        return delegate.size();
     }
 
     @Override

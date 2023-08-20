@@ -15,12 +15,12 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 public class JavaBitSet implements IBitSet {
 
     private final BitSet bitSet;
-    private final int expectedSize;
+    private final int size;
     private int trueCount = 0;
 
-    public JavaBitSet(final BitSet bitSet, final int expectedSize) {
+    public JavaBitSet(final BitSet bitSet, final int size) {
         this.bitSet = bitSet;
-        this.expectedSize = expectedSize;
+        this.size = size;
         this.trueCount = -1;
     }
 
@@ -30,7 +30,7 @@ public class JavaBitSet implements IBitSet {
         } else {
             this.bitSet = new BitSet(expectedSize);
         }
-        this.expectedSize = expectedSize;
+        this.size = expectedSize;
         //leaving trueCount explicitly at 0 so that add works properly
     }
 
@@ -71,7 +71,7 @@ public class JavaBitSet implements IBitSet {
             final JavaBitSet cOther = (JavaBitSet) other.unwrap();
             combined.and(cOther.bitSet);
         }
-        return new JavaBitSet(combined, expectedSize);
+        return new JavaBitSet(combined, size);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class JavaBitSet implements IBitSet {
             final JavaBitSet cOther = (JavaBitSet) other.unwrap();
             BitSets.andRangeFast(combined, cOther.bitSet, fromInclusive, toExclusive);
         }
-        return new JavaBitSet(combined, expectedSize);
+        return new JavaBitSet(combined, size);
     }
 
     @Override
@@ -99,7 +99,7 @@ public class JavaBitSet implements IBitSet {
             final JavaBitSet cOther = (JavaBitSet) other.unwrap();
             combined.or(cOther.bitSet);
         }
-        return new JavaBitSet(combined, expectedSize);
+        return new JavaBitSet(combined, size);
     }
 
     @Override
@@ -113,14 +113,14 @@ public class JavaBitSet implements IBitSet {
             final JavaBitSet cOther = (JavaBitSet) other.unwrap();
             BitSets.orRangeFast(combined, cOther.bitSet, fromInclusive, toExclusive);
         }
-        return new JavaBitSet(combined, expectedSize);
+        return new JavaBitSet(combined, size);
     }
 
     @Override
     public IBitSet negate() {
         final BitSet negated = (BitSet) bitSet.clone();
-        negated.flip(0, expectedSize);
-        return new JavaBitSet(negated, expectedSize);
+        negated.flip(0, size);
+        return new JavaBitSet(negated, size);
     }
 
     @Override
@@ -149,8 +149,8 @@ public class JavaBitSet implements IBitSet {
     }
 
     @Override
-    public int getExpectedSize() {
-        return expectedSize;
+    public int size() {
+        return size;
     }
 
     @Override
@@ -194,7 +194,7 @@ public class JavaBitSet implements IBitSet {
     @SuppressWarnings("restriction")
     @Override
     public int getBuffer(final IByteBuffer buffer) {
-        buffer.putInt(BufferBooleanArray.LENGTH_INDEX, expectedSize);
+        buffer.putInt(BufferBooleanArray.LENGTH_INDEX, size);
         long[] words = (long[]) Reflections.getUnsafe().getObject(bitSet, BitSets.BITSET_WORDS_OFFSET);
         final int wordsInUse = (int) Reflections.getUnsafe().getObject(bitSet, BitSets.BITSET_WORDS_IN_USE_OFFSET);
         if (words.length > wordsInUse) {

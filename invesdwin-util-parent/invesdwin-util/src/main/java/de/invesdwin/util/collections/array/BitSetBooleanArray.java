@@ -37,7 +37,7 @@ public class BitSetBooleanArray implements IBooleanArray {
 
     @Override
     public int size() {
-        return bitSet.getExpectedSize();
+        return bitSet.size();
     }
 
     @Override

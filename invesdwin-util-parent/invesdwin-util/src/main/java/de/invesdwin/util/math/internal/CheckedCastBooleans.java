@@ -18,8 +18,7 @@ import de.invesdwin.util.math.decimal.ADecimal;
 @Immutable
 public final class CheckedCastBooleans {
 
-    private CheckedCastBooleans() {
-    }
+    private CheckedCastBooleans() {}
 
     public static boolean checkedCast(final Object value) {
         if (value instanceof Number) {
@@ -345,7 +344,7 @@ public final class CheckedCastBooleans {
         if (value == null) {
             return null;
         }
-        final boolean[] vector = new boolean[value.getExpectedSize()];
+        final boolean[] vector = new boolean[value.size()];
         for (int i = 0; i < vector.length; i++) {
             vector[i] = checkedCast(value.contains(i));
         }

@@ -97,8 +97,8 @@ public final class SliceDelegateBitSet implements IBitSet {
     }
 
     @Override
-    public int getExpectedSize() {
-        return Integers.min(delegate.getExpectedSize() - from, length);
+    public int size() {
+        return Integers.min(delegate.size() - from, length);
     }
 
     @Override
@@ -127,7 +127,7 @@ public final class SliceDelegateBitSet implements IBitSet {
     }
 
     public static IBitSet of(final IBitSet delegate, final int from, final int length) {
-        if (from == 0 && length == delegate.getExpectedSize()) {
+        if (from == 0 && length == delegate.size()) {
             return delegate;
         } else {
             return new SliceDelegateBitSet(delegate, from, length);

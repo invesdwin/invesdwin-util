@@ -69,8 +69,8 @@ public abstract class ADelegateBitSet implements IBitSet {
     }
 
     @Override
-    public int getExpectedSize() {
-        return getDelegate().getExpectedSize();
+    public int size() {
+        return getDelegate().size();
     }
 
     @Override

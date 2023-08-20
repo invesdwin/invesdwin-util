@@ -6,6 +6,8 @@ import de.invesdwin.util.collections.array.IBooleanArray;
 import de.invesdwin.util.collections.array.IDoubleArray;
 import de.invesdwin.util.collections.array.IIntegerArray;
 import de.invesdwin.util.collections.array.ILongArray;
+import de.invesdwin.util.collections.attributes.AttributesMap;
+import de.invesdwin.util.collections.attributes.IAttributesMap;
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -15,6 +17,7 @@ public class PrefixedPrimitiveArrayAllocator implements IPrimitiveArrayAllocator
 
     private final IPrimitiveArrayAllocator delegate;
     private final String prefix;
+    private AttributesMap attributes;
 
     public PrefixedPrimitiveArrayAllocator(final IPrimitiveArrayAllocator delegate, final String prefix) {
         this.delegate = delegate;
@@ -97,7 +100,7 @@ public class PrefixedPrimitiveArrayAllocator implements IPrimitiveArrayAllocator
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).addValue(prefix).with(delegate).toString();
+        return Objects.toStringHelper(this).addValue(prefix).addValue(delegate).toString();
     }
 
     @SuppressWarnings("unchecked")
@@ -108,6 +111,18 @@ public class PrefixedPrimitiveArrayAllocator implements IPrimitiveArrayAllocator
         } else {
             return delegate.unwrap(type);
         }
+    }
+
+    @Override
+    public IAttributesMap getAttributes() {
+        if (attributes == null) {
+            synchronized (this) {
+                if (attributes == null) {
+                    attributes = new AttributesMap();
+                }
+            }
+        }
+        return attributes;
     }
 
 }

@@ -25,18 +25,21 @@ public class LongArrayBitSetBase {
     private static final long WORD_MASK = 0xffffffffffffffffL;
 
     private final ILongArray words;
+    private final int size;
 
-    public LongArrayBitSetBase(final int nbits) {
+    public LongArrayBitSetBase(final int size) {
         // nbits can't be negative; size 0 is OK
-        if (nbits < 0) {
-            throw new NegativeArraySizeException("nbits < 0: " + nbits);
+        if (size < 0) {
+            throw new NegativeArraySizeException("nbits < 0: " + size);
         }
 
-        words = ILongArray.newInstance(wordIndex(nbits - 1) + 1);
+        words = ILongArray.newInstance(wordIndex(size - 1) + 1);
+        this.size = size;
     }
 
-    public LongArrayBitSetBase(final ILongArray words, final int expectedSize) {
+    public LongArrayBitSetBase(final ILongArray words, final int size) {
         this.words = words;
+        this.size = size;
     }
 
     public ILongArray getWords() {
@@ -441,7 +444,7 @@ public class LongArrayBitSetBase {
     }
 
     public int size() {
-        return words.size() * BITS_PER_WORD;
+        return size;
     }
 
     @Override

@@ -95,7 +95,7 @@ public class EmptyBitSet implements IBitSet {
     }
 
     @Override
-    public int getExpectedSize() {
+    public int size() {
         return 0;
     }
 

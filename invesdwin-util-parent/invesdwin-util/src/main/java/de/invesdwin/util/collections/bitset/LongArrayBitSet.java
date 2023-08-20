@@ -12,18 +12,18 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 public class LongArrayBitSet implements IBitSet {
 
     private final LongArrayBitSetBase bitSet;
-    private final int expectedSize;
+    private final int size;
     private int trueCount = 0;
 
-    public LongArrayBitSet(final LongArrayBitSetBase bitSet, final int expectedSize) {
+    public LongArrayBitSet(final LongArrayBitSetBase bitSet, final int size) {
         this.bitSet = bitSet;
-        this.expectedSize = expectedSize;
+        this.size = size;
         this.trueCount = -1;
     }
 
-    public LongArrayBitSet(final int expectedSize) {
-        this.bitSet = new LongArrayBitSetBase(expectedSize);
-        this.expectedSize = expectedSize;
+    public LongArrayBitSet(final int size) {
+        this.bitSet = new LongArrayBitSetBase(size);
+        this.size = size;
         //leaving trueCount explicitly at 0 so that add works properly
     }
 
@@ -56,7 +56,7 @@ public class LongArrayBitSet implements IBitSet {
     @Override
     public IBitSet and(final IBitSet... others) {
         final LongArrayBitSetBase combined = new LongArrayBitSetBase(
-                ILongArray.newInstance(bitSet.getWords().asArrayCopy()), expectedSize);
+                ILongArray.newInstance(bitSet.getWords().asArrayCopy()), size);
         for (int i = 0; i < others.length; i++) {
             final IBitSet other = others[i];
             if (other.isEmpty() || combined.isEmpty()) {
@@ -65,13 +65,13 @@ public class LongArrayBitSet implements IBitSet {
             final LongArrayBitSet cOther = (LongArrayBitSet) other.unwrap();
             combined.and(cOther.bitSet);
         }
-        return new LongArrayBitSet(combined, expectedSize);
+        return new LongArrayBitSet(combined, size);
     }
 
     @Override
     public IBitSet andRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
         final LongArrayBitSetBase combined = new LongArrayBitSetBase(
-                ILongArray.newInstance(bitSet.getWords().asArrayCopy()), expectedSize);
+                ILongArray.newInstance(bitSet.getWords().asArrayCopy()), size);
         for (int i = 0; i < others.length; i++) {
             final IBitSet other = others[i];
             if (other.isEmpty() || combined.isEmpty()) {
@@ -80,13 +80,13 @@ public class LongArrayBitSet implements IBitSet {
             final LongArrayBitSet cOther = (LongArrayBitSet) other.unwrap();
             combined.andRangeFast(cOther.bitSet, fromInclusive, toExclusive);
         }
-        return new LongArrayBitSet(combined, expectedSize);
+        return new LongArrayBitSet(combined, size);
     }
 
     @Override
     public IBitSet or(final IBitSet... others) {
         final LongArrayBitSetBase combined = new LongArrayBitSetBase(
-                ILongArray.newInstance(bitSet.getWords().asArrayCopy()), expectedSize);
+                ILongArray.newInstance(bitSet.getWords().asArrayCopy()), size);
         for (int i = 0; i < others.length; i++) {
             final IBitSet other = others[i];
             if (other.isEmpty() || combined.isEmpty()) {
@@ -95,13 +95,13 @@ public class LongArrayBitSet implements IBitSet {
             final LongArrayBitSet cOther = (LongArrayBitSet) other.unwrap();
             combined.or(cOther.bitSet);
         }
-        return new LongArrayBitSet(combined, expectedSize);
+        return new LongArrayBitSet(combined, size);
     }
 
     @Override
     public IBitSet orRange(final int fromInclusive, final int toExclusive, final IBitSet[] others) {
         final LongArrayBitSetBase combined = new LongArrayBitSetBase(
-                ILongArray.newInstance(bitSet.getWords().asArrayCopy()), expectedSize);
+                ILongArray.newInstance(bitSet.getWords().asArrayCopy()), size);
         for (int i = 0; i < others.length; i++) {
             final IBitSet other = others[i];
             if (other.isEmpty() || combined.isEmpty()) {
@@ -110,15 +110,15 @@ public class LongArrayBitSet implements IBitSet {
             final LongArrayBitSet cOther = (LongArrayBitSet) other.unwrap();
             combined.orRangeFast(cOther.bitSet, fromInclusive, toExclusive);
         }
-        return new LongArrayBitSet(combined, expectedSize);
+        return new LongArrayBitSet(combined, size);
     }
 
     @Override
     public IBitSet negate() {
         final LongArrayBitSetBase negated = new LongArrayBitSetBase(
-                ILongArray.newInstance(bitSet.getWords().asArrayCopy()), expectedSize);
-        negated.flip(0, expectedSize);
-        return new LongArrayBitSet(negated, expectedSize);
+                ILongArray.newInstance(bitSet.getWords().asArrayCopy()), size);
+        negated.flip(0, size);
+        return new LongArrayBitSet(negated, size);
     }
 
     @Override
@@ -147,8 +147,8 @@ public class LongArrayBitSet implements IBitSet {
     }
 
     @Override
-    public int getExpectedSize() {
-        return expectedSize;
+    public int size() {
+        return size;
     }
 
     @Override
@@ -181,7 +181,7 @@ public class LongArrayBitSet implements IBitSet {
 
     @Override
     public int getBuffer(final IByteBuffer buffer) throws IOException {
-        buffer.putInt(BufferBooleanArray.LENGTH_INDEX, expectedSize);
+        buffer.putInt(BufferBooleanArray.LENGTH_INDEX, size);
         return bitSet.getWords().getBuffer(buffer.sliceFrom(BufferBooleanArray.ARRAY_INDEX));
     }
 

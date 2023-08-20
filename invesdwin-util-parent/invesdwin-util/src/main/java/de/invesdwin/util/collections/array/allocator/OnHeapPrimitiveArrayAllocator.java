@@ -6,6 +6,8 @@ import de.invesdwin.util.collections.array.IBooleanArray;
 import de.invesdwin.util.collections.array.IDoubleArray;
 import de.invesdwin.util.collections.array.IIntegerArray;
 import de.invesdwin.util.collections.array.ILongArray;
+import de.invesdwin.util.collections.attributes.AttributesMap;
+import de.invesdwin.util.collections.attributes.IAttributesMap;
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.Objects;
@@ -16,6 +18,7 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 public final class OnHeapPrimitiveArrayAllocator implements IPrimitiveArrayAllocator {
 
     public static final OnHeapPrimitiveArrayAllocator INSTANCE = new OnHeapPrimitiveArrayAllocator();
+    private AttributesMap attributes;
 
     private OnHeapPrimitiveArrayAllocator() {}
 
@@ -102,6 +105,18 @@ public final class OnHeapPrimitiveArrayAllocator implements IPrimitiveArrayAlloc
         } else {
             return null;
         }
+    }
+
+    @Override
+    public IAttributesMap getAttributes() {
+        if (attributes == null) {
+            synchronized (this) {
+                if (attributes == null) {
+                    attributes = new AttributesMap();
+                }
+            }
+        }
+        return attributes;
     }
 
 }

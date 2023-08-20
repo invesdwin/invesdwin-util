@@ -10,12 +10,12 @@ import it.unimi.dsi.fastutil.booleans.BooleanList;
 public class BooleanListBitSet implements IBitSet {
 
     private final BooleanList bitSet;
-    private final int expectedSize;
+    private final int size;
     private int trueCount = 0;
 
-    public BooleanListBitSet(final int expectedSize) {
-        this.bitSet = new BooleanArrayList(expectedSize);
-        this.expectedSize = expectedSize;
+    public BooleanListBitSet(final int size) {
+        this.bitSet = new BooleanArrayList(size);
+        this.size = size;
     }
 
     @Override
@@ -89,8 +89,8 @@ public class BooleanListBitSet implements IBitSet {
     }
 
     @Override
-    public int getExpectedSize() {
-        return expectedSize;
+    public int size() {
+        return size;
     }
 
     @Override

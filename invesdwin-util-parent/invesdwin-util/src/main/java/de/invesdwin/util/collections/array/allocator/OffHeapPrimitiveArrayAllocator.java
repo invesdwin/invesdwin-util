@@ -10,6 +10,8 @@ import de.invesdwin.util.collections.array.buffer.BufferBooleanArray;
 import de.invesdwin.util.collections.array.buffer.BufferDoubleArray;
 import de.invesdwin.util.collections.array.buffer.BufferIntegerArray;
 import de.invesdwin.util.collections.array.buffer.BufferLongArray;
+import de.invesdwin.util.collections.attributes.AttributesMap;
+import de.invesdwin.util.collections.attributes.IAttributesMap;
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.bitset.LongArrayBitSet;
 import de.invesdwin.util.collections.bitset.LongArrayBitSetBase;
@@ -22,6 +24,7 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 public final class OffHeapPrimitiveArrayAllocator implements IPrimitiveArrayAllocator {
 
     public static final OffHeapPrimitiveArrayAllocator INSTANCE = new OffHeapPrimitiveArrayAllocator();
+    private AttributesMap attributes;
 
     private OffHeapPrimitiveArrayAllocator() {}
 
@@ -109,6 +112,18 @@ public final class OffHeapPrimitiveArrayAllocator implements IPrimitiveArrayAllo
         } else {
             return null;
         }
+    }
+
+    @Override
+    public IAttributesMap getAttributes() {
+        if (attributes == null) {
+            synchronized (this) {
+                if (attributes == null) {
+                    attributes = new AttributesMap();
+                }
+            }
+        }
+        return attributes;
     }
 
 }

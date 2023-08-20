@@ -95,7 +95,7 @@ public class BufferBooleanArray implements IBooleanArray {
 
     @Override
     public int getBuffer(final IByteBuffer dst) throws IOException {
-        dst.putInt(LENGTH_INDEX, delegate.getBitSet().getExpectedSize());
+        dst.putInt(LENGTH_INDEX, delegate.getBitSet().size());
         buffer.getBytes(0, dst, ARRAY_INDEX, buffer.capacity());
         return ARRAY_INDEX + buffer.capacity();
     }

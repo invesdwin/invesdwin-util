@@ -36,7 +36,7 @@ public interface IBooleanArray extends IPrimitiveArray {
     }
 
     static IBooleanArray newInstance(final IBitSet values) {
-        if (values.getExpectedSize() == 0) {
+        if (values.size() == 0) {
             return EmptyBooleanArray.INSTANCE;
         }
         return new BitSetBooleanArray(values);

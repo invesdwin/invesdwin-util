@@ -75,10 +75,10 @@ public class LockedBitSet implements IBitSet {
     }
 
     @Override
-    public int getExpectedSize() {
+    public int size() {
         lock.lock();
         try {
-            return delegate.getExpectedSize();
+            return delegate.size();
         } finally {
             lock.unlock();
         }

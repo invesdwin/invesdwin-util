@@ -4,6 +4,7 @@ import de.invesdwin.util.collections.array.IBooleanArray;
 import de.invesdwin.util.collections.array.IDoubleArray;
 import de.invesdwin.util.collections.array.IIntegerArray;
 import de.invesdwin.util.collections.array.ILongArray;
+import de.invesdwin.util.collections.attributes.IAttributesMap;
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -34,5 +35,7 @@ public interface IPrimitiveArrayAllocator {
     ILongArray newLongArray(String id, int size);
 
     <T> T unwrap(Class<T> type);
+
+    IAttributesMap getAttributes();
 
 }
