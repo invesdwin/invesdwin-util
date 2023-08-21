@@ -14,8 +14,14 @@ public class HeapGenericArray<E> implements IGenericArray<E> {
 
     private final E[] values;
 
-    public HeapGenericArray(final int size) {
-        this.values = (E[]) new Object[size];
+    @SuppressWarnings("unchecked")
+    public HeapGenericArray(final Class<E> type, final int size) {
+        this.values = (E[]) Arrays.newInstance(type, size);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public HeapGenericArray(final E[] emptyArray, final int size) {
+        this((Class) emptyArray.getClass().getComponentType(), size);
     }
 
     public HeapGenericArray(final E[] values) {

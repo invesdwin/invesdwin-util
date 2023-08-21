@@ -20,11 +20,18 @@ public interface IGenericArray<E> extends IPrimitiveArray {
 
     void getGenerics(int srcPos, IGenericArray<E> dest, int destPos, int length);
 
-    static <T> IGenericArray<T> newInstance(final int size) {
+    static <T> IGenericArray<T> newInstance(final Class<T> type, final int size) {
         if (size == 0) {
             return EmptyGenericArray.getInstance();
         }
-        return new HeapGenericArray<T>(size);
+        return new HeapGenericArray<T>(type, size);
+    }
+
+    static <T> IGenericArray<T> newInstance(final T[] emptyArray, final int size) {
+        if (size == 0) {
+            return EmptyGenericArray.getInstance();
+        }
+        return new HeapGenericArray<T>(emptyArray, size);
     }
 
     static <T> IGenericArray<T> newInstance(final T[] values) {
