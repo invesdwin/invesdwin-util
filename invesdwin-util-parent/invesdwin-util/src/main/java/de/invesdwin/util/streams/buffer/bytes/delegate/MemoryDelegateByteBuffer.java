@@ -445,4 +445,9 @@ public class MemoryDelegateByteBuffer implements IByteBuffer {
     public void clear(final byte value, final int index, final int length) {
         delegate.clear(value, index, length);
     }
+
+    @Override
+    public IByteBuffer asImmutableSlice() {
+        return this;
+    }
 }

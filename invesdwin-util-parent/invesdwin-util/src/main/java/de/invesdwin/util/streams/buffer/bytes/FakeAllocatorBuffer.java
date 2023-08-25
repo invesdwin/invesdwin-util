@@ -428,4 +428,9 @@ public class FakeAllocatorBuffer implements IByteBuffer {
         return this;
     }
 
+    @Override
+    public IByteBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

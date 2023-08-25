@@ -638,4 +638,9 @@ public class DirectExpandableByteBuffer extends ExpandableDirectByteBufferBase i
         return this;
     }
 
+    @Override
+    public IByteBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

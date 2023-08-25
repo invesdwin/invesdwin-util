@@ -607,4 +607,9 @@ public class NioDelegateByteBuffer implements IByteBuffer {
         directBuffer().setMemory(index, length, value);
     }
 
+    @Override
+    public IByteBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

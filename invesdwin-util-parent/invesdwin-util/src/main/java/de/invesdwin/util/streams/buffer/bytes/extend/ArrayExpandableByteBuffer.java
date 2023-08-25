@@ -608,4 +608,9 @@ public class ArrayExpandableByteBuffer extends UninitializedExpandableArrayBuffe
         return this;
     }
 
+    @Override
+    public IByteBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

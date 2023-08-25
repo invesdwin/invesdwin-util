@@ -694,4 +694,9 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
         }
     }
 
+    @Override
+    public IByteBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

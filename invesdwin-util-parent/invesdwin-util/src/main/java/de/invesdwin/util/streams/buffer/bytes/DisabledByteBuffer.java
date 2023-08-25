@@ -365,4 +365,9 @@ public final class DisabledByteBuffer implements ICloseableByteBuffer {
         //noop
     }
 
+    @Override
+    public IByteBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

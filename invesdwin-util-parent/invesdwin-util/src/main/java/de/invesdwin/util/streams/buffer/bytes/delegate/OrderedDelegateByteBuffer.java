@@ -457,4 +457,14 @@ public class OrderedDelegateByteBuffer implements IByteBuffer {
     public void clear(final byte value, final int index, final int length) {
         delegate.clear(value, index, length);
     }
+
+    @Override
+    public IByteBuffer asImmutableSlice() {
+        final IByteBuffer asImmutableSlice = delegate.asImmutableSlice();
+        if (asImmutableSlice == delegate) {
+            return this;
+        } else {
+            return maybeWrap(asImmutableSlice, order);
+        }
+    }
 }

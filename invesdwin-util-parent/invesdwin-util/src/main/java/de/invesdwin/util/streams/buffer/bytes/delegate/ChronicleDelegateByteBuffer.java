@@ -817,4 +817,9 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
         }
     }
 
+    @Override
+    public IByteBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

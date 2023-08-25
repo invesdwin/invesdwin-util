@@ -10,7 +10,8 @@ import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
-public class DynamicLengthBufferingIteratorDelegateSerde<E> implements ISerde<IBufferingIterator<? extends E>> {
+public class DynamicLengthBufferingIteratorDelegateSerde<E>
+        implements ISerde<IBufferingIterator<? extends E>>, IFlyweightSerdeProvider<IBufferingIterator<? extends E>> {
 
     private final ISerde<E> delegate;
 
@@ -79,6 +80,19 @@ public class DynamicLengthBufferingIteratorDelegateSerde<E> implements ISerde<IB
             //end reached
         }
         return curOffset;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public ISerde<IBufferingIterator<? extends E>> asFlyweightSerde() {
+        if (delegate instanceof IFlyweightSerdeProvider) {
+            final IFlyweightSerdeProvider<E> flyweightSerdeProvider = (IFlyweightSerdeProvider<E>) delegate;
+            final ISerde<E> flyweightSerde = flyweightSerdeProvider.asFlyweightSerde();
+            if (flyweightSerde != null) {
+                return new DynamicLengthBufferingIteratorDelegateSerde<E>(flyweightSerde);
+            }
+        }
+        return null;
     }
 
 }

@@ -10,7 +10,8 @@ import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
-public class DynamicLengthListDelegateSerde<E> implements ISerde<List<? extends E>> {
+public class DynamicLengthListDelegateSerde<E>
+        implements ISerde<List<? extends E>>, IFlyweightSerdeProvider<List<? extends E>> {
 
     private final ISerde<E> delegate;
 
@@ -79,6 +80,19 @@ public class DynamicLengthListDelegateSerde<E> implements ISerde<List<? extends 
             //end reached
         }
         return curOffset;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public ISerde<List<? extends E>> asFlyweightSerde() {
+        if (delegate instanceof IFlyweightSerdeProvider) {
+            final IFlyweightSerdeProvider<E> flyweightSerdeProvider = (IFlyweightSerdeProvider<E>) delegate;
+            final ISerde<E> flyweightSerde = flyweightSerdeProvider.asFlyweightSerde();
+            if (flyweightSerde != null) {
+                return new DynamicLengthListDelegateSerde<E>(flyweightSerde);
+            }
+        }
+        return null;
     }
 
 }

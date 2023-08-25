@@ -628,4 +628,9 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
         return this;
     }
 
+    @Override
+    public IByteBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

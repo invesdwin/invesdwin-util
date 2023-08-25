@@ -445,4 +445,10 @@ public class MutableSlicedDelegateByteBuffer implements IByteBuffer {
         return this;
     }
 
+    @Override
+    public IByteBuffer asImmutableSlice() {
+        final IByteBuffer asImmutableSlice = delegate.asImmutableSlice();
+        return new SlicedDelegateByteBuffer(asImmutableSlice, from, length);
+    }
+
 }

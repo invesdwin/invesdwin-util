@@ -436,4 +436,9 @@ public abstract class ADelegateByteBuffer implements IByteBuffer {
     public void clear(final byte value, final int index, final int length) {
         getDelegate().clear(value, index, length);
     }
+
+    @Override
+    public IByteBuffer asImmutableSlice() {
+        return this;
+    }
 }

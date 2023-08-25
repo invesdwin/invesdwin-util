@@ -10,7 +10,8 @@ import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
-public class FixedLengthBufferingIteratorDelegateSerde<E> implements ISerde<IBufferingIterator<? extends E>> {
+public class FixedLengthBufferingIteratorDelegateSerde<E>
+        implements ISerde<IBufferingIterator<? extends E>>, IFlyweightSerdeProvider<IBufferingIterator<? extends E>> {
 
     private final ISerde<E> delegate;
     private final int fixedLength;
@@ -70,6 +71,19 @@ public class FixedLengthBufferingIteratorDelegateSerde<E> implements ISerde<IBuf
             //end reached
         }
         return length;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public ISerde<IBufferingIterator<? extends E>> asFlyweightSerde() {
+        if (delegate instanceof IFlyweightSerdeProvider) {
+            final IFlyweightSerdeProvider<E> flyweightSerdeProvider = (IFlyweightSerdeProvider<E>) delegate;
+            final ISerde<E> flyweightSerde = flyweightSerdeProvider.asFlyweightSerde();
+            if (flyweightSerde != null) {
+                return new FixedLengthBufferingIteratorDelegateSerde<E>(flyweightSerde, fixedLength);
+            }
+        }
+        return null;
     }
 
 }

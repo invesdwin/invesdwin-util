@@ -646,4 +646,9 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
         return this;
     }
 
+    @Override
+    public IByteBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

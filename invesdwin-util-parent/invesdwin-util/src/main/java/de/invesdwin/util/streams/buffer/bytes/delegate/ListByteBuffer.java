@@ -1478,4 +1478,9 @@ public class ListByteBuffer implements IByteBuffer {
         return ByteBuffers.wrap(asByteArrayCopy(index, length));
     }
 
+    @Override
+    public IByteBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

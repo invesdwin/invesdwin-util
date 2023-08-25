@@ -542,4 +542,6 @@ public interface IByteBuffer extends IByteBufferProvider, Cloneable, IPrimitiveA
         return capacity();
     }
 
+    IByteBuffer asImmutableSlice();
+
 }

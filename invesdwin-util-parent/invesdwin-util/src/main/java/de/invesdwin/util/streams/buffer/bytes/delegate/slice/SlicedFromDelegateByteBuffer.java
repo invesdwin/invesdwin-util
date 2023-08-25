@@ -433,4 +433,14 @@ public class SlicedFromDelegateByteBuffer implements IByteBuffer {
         delegate.ensureCapacity(desiredCapacity + from);
         return this;
     }
+
+    @Override
+    public IByteBuffer asImmutableSlice() {
+        final IByteBuffer asImmutableSlice = delegate.asImmutableSlice();
+        if (asImmutableSlice == delegate) {
+            return this;
+        } else {
+            return new SlicedFromDelegateByteBuffer(asImmutableSlice, from);
+        }
+    }
 }
