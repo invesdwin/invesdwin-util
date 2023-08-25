@@ -1,0 +1,44 @@
+package de.invesdwin.util.collections.iterable.bytebuffer;
+
+import javax.annotation.concurrent.NotThreadSafe;
+
+import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.marshallers.serde.ISerde;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+
+@NotThreadSafe
+public class ByteBufferCloseableIteratorReverse<E> implements ICloseableIterator<E> {
+
+    private final IByteBuffer buffer;
+    private final ISerde<E> serde;
+    private final int fixedLength;
+    private int pos = 0;
+
+    public ByteBufferCloseableIteratorReverse(final IByteBuffer buffer, final ISerde<E> serde, final int fixedLength) {
+        this.buffer = buffer;
+        this.serde = serde;
+        this.fixedLength = fixedLength;
+        Assertions.checkTrue(fixedLength > 0);
+        final int limit = buffer.capacity() / fixedLength;
+        this.pos = limit;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return pos > 0;
+    }
+
+    @Override
+    public E next() {
+        pos -= fixedLength;
+        final E value = serde.fromBuffer(buffer.slice(pos, fixedLength));
+        return value;
+    }
+
+    @Override
+    public void close() {
+        pos = 0;
+    }
+
+}
