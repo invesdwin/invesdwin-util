@@ -9,14 +9,14 @@ import de.invesdwin.util.marshallers.serde.ISerde;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
-public class ByteBufferCloseableIteratorReverse<E> implements ICloseableIterator<E> {
+public class ReverseByteBufferCloseableIterator<E> implements ICloseableIterator<E> {
 
     private final IByteBuffer buffer;
     private final ISerde<E> serde;
     private final int fixedLength;
     private int pos = 0;
 
-    public ByteBufferCloseableIteratorReverse(final IByteBuffer buffer, final ISerde<E> serde, final int fixedLength) {
+    public ReverseByteBufferCloseableIterator(final IByteBuffer buffer, final ISerde<E> serde, final int fixedLength) {
         this.buffer = buffer;
         this.serde = serde;
         this.fixedLength = fixedLength;

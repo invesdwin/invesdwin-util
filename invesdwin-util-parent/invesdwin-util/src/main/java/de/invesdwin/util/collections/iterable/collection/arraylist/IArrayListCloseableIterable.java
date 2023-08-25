@@ -2,18 +2,13 @@ package de.invesdwin.util.collections.iterable.collection.arraylist;
 
 import java.util.ArrayList;
 
-import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.collections.iterable.IReverseCloseableIterable;
-import de.invesdwin.util.collections.list.IFastToListProvider;
+import de.invesdwin.util.collections.iterable.collection.IListCloseableIterable;
 
-public interface IArrayListCloseableIterable<E> extends IReverseCloseableIterable<E>, IFastToListProvider<E> {
+public interface IArrayListCloseableIterable<E> extends IListCloseableIterable<E> {
 
-    ArrayList<? extends E> getArrayList();
+    @Override
+    ArrayList<? extends E> getList();
 
     void reset();
-
-    ICloseableIterator<E> iterator(int lowIndex, int highIndex);
-
-    ICloseableIterator<E> reverseIterator(int highIndex, int lowIndex);
 
 }

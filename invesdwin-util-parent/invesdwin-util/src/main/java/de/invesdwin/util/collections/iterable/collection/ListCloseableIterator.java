@@ -12,17 +12,22 @@ import de.invesdwin.util.error.FastNoSuchElementException;
 public class ListCloseableIterator<E> implements ICloseableIterator<E>, IFastToListProvider<E> {
 
     private final List<? extends E> list;
-    private final int size;
-    private int i = 0;
+    private final int count;
+    private int offset = 0;
+
+    public ListCloseableIterator(final List<? extends E> list, final int offset, final int count) {
+        this.list = list;
+        this.offset = offset;
+        this.count = count;
+    }
 
     public ListCloseableIterator(final List<? extends E> list) {
-        this.list = list;
-        this.size = list.size();
+        this(list, 0, list.size());
     }
 
     @Override
     public boolean hasNext() {
-        return i < size;
+        return offset < count;
     }
 
     @Override
@@ -30,22 +35,22 @@ public class ListCloseableIterator<E> implements ICloseableIterator<E>, IFastToL
         if (!hasNext()) {
             throw FastNoSuchElementException.getInstance("ListCloseableIterator: hasNext returned false");
         }
-        return list.get(i++);
+        return list.get(offset++);
     }
 
     @Override
     public void close() {
-        i = size;
+        offset = count;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public List<E> toList() {
         try {
-            if (i == 0) {
+            if (offset == 0) {
                 return (List<E>) list;
             } else {
-                return (List<E>) list.subList(i, list.size());
+                return (List<E>) list.subList(offset, list.size());
             }
         } finally {
             close();

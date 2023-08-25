@@ -159,7 +159,7 @@ public class ArrayListCloseableIterable<E> implements IArrayListCloseableIterabl
     }
 
     @Override
-    public ArrayList<? extends E> getArrayList() {
+    public ArrayList<? extends E> getList() {
         return arrayList;
     }
 

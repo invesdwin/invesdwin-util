@@ -23,7 +23,7 @@ public abstract class AByteBufferCloseableIterable<E> implements IReverseCloseab
 
     @Override
     public ICloseableIterator<E> reverseIterator() {
-        return new ByteBufferCloseableIteratorReverse<>(getBuffer(), getSerde(), getFixedLength());
+        return new ReverseByteBufferCloseableIterator<>(getBuffer(), getSerde(), getFixedLength());
     }
 
 }

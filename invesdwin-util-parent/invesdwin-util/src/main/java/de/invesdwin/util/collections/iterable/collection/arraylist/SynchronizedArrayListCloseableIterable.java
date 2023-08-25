@@ -47,8 +47,8 @@ public class SynchronizedArrayListCloseableIterable<E> implements IArrayListClos
     }
 
     @Override
-    public synchronized ArrayList<? extends E> getArrayList() {
-        return delegate.getArrayList();
+    public synchronized ArrayList<? extends E> getList() {
+        return delegate.getList();
     }
 
     @Override

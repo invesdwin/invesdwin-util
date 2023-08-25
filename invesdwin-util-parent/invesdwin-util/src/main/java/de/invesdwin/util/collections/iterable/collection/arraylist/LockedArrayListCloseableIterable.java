@@ -80,10 +80,10 @@ public class LockedArrayListCloseableIterable<E> implements IArrayListCloseableI
     }
 
     @Override
-    public ArrayList<? extends E> getArrayList() {
+    public ArrayList<? extends E> getList() {
         lock.lock();
         try {
-            return delegate.getArrayList();
+            return delegate.getList();
         } finally {
             lock.unlock();
         }
