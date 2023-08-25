@@ -21,7 +21,7 @@ public class ByteBufferCloseableIterator<E> implements ICloseableIterator<E> {
         this.serde = serde;
         this.fixedLength = fixedLength;
         Assertions.checkTrue(fixedLength > 0);
-        this.limit = buffer.capacity() / fixedLength;
+        this.limit = buffer.capacity();
         this.pos = 0;
     }
 

@@ -20,7 +20,7 @@ public class ByteBufferCloseableIteratorReverse<E> implements ICloseableIterator
         this.serde = serde;
         this.fixedLength = fixedLength;
         Assertions.checkTrue(fixedLength > 0);
-        final int limit = buffer.capacity() / fixedLength;
+        final int limit = buffer.capacity();
         this.pos = limit;
     }
 
