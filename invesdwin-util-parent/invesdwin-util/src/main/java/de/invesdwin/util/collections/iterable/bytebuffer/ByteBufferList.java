@@ -98,7 +98,7 @@ public class ByteBufferList<E> implements List<E> {
 
     @Override
     public E get(final int index) {
-        return serde.fromBuffer(buffer.slice(index * fixedLength, fixedLength));
+        return serde.fromBuffer(buffer.newSlice(index * fixedLength, fixedLength));
     }
 
     @Override
