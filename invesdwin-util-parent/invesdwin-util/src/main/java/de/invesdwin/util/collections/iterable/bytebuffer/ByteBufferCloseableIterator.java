@@ -4,6 +4,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.marshallers.serde.ISerde;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -32,6 +33,9 @@ public class ByteBufferCloseableIterator<E> implements ICloseableIterator<E> {
 
     @Override
     public E next() {
+        if (!hasNext()) {
+            throw FastNoSuchElementException.getInstance("end reached");
+        }
         final E value = serde.fromBuffer(buffer.slice(pos, fixedLength));
         pos += fixedLength;
         return value;
