@@ -33,7 +33,7 @@ public class ByteBufferList<E> implements List<E> {
 
     @Override
     public boolean isEmpty() {
-        return buffer.capacity() > fixedLength;
+        return buffer.capacity() < fixedLength;
     }
 
     @Override
