@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.collection.arraylist.SynchronizedArrayListCloseableIterable;
 import de.invesdwin.util.collections.list.IFastToListProvider;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
@@ -12,13 +13,18 @@ import de.invesdwin.util.error.FastNoSuchElementException;
 public class ListCloseableIterator<E> implements ICloseableIterator<E>, IFastToListProvider<E> {
 
     private final List<? extends E> list;
-    private final int count;
+    private final int size;
     private int offset = 0;
 
     public ListCloseableIterator(final List<? extends E> list, final int offset, final int count) {
         this.list = list;
         this.offset = offset;
-        this.count = count;
+        this.size = count + offset;
+        if (list.size() < size) {
+            throw new IllegalArgumentException(
+                    "Maybe a spot where " + SynchronizedArrayListCloseableIterable.class.getSimpleName()
+                            + " is needed: list.size [" + list.size() + "] < size[" + size + "]");
+        }
     }
 
     public ListCloseableIterator(final List<? extends E> list) {
@@ -27,7 +33,7 @@ public class ListCloseableIterator<E> implements ICloseableIterator<E>, IFastToL
 
     @Override
     public boolean hasNext() {
-        return offset < count;
+        return offset < size;
     }
 
     @Override
@@ -35,12 +41,17 @@ public class ListCloseableIterator<E> implements ICloseableIterator<E>, IFastToL
         if (!hasNext()) {
             throw FastNoSuchElementException.getInstance("ListCloseableIterator: hasNext returned false");
         }
-        return list.get(offset++);
+        try {
+            return list.get(offset++);
+        } catch (final IndexOutOfBoundsException e) {
+            throw FastNoSuchElementException
+                    .getInstance("ArrayCloseableIterator: next threw IndexOutOfBoundsException");
+        }
     }
 
     @Override
     public void close() {
-        offset = count;
+        offset = size;
     }
 
     @SuppressWarnings("unchecked")
