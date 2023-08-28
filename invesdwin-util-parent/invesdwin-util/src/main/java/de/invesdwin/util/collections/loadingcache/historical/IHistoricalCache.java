@@ -74,4 +74,6 @@ public interface IHistoricalCache<V> extends IHistoricalCacheIncreaseMaximumSize
 
     int size();
 
+    <T> T unwrap(Class<T> type);
+
 }

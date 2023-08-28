@@ -1086,4 +1086,14 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         return valuesMap.size();
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T unwrap(final Class<T> type) {
+        if (type.isAssignableFrom(getClass())) {
+            return (T) this;
+        } else {
+            return null;
+        }
+    }
+
 }
