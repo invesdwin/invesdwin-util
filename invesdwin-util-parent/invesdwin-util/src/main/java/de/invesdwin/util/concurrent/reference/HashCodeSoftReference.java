@@ -9,27 +9,27 @@ import de.invesdwin.util.lang.Objects;
 @ThreadSafe
 public class HashCodeSoftReference<T> implements IReference<T> {
 
-    private final SoftReference<T> weakReference;
+    private final SoftReference<T> reference;
     private final int hashCode;
 
     public HashCodeSoftReference(final T value) {
-        this.weakReference = new SoftReference<>(value);
+        this.reference = SoftReferences.newInstance(value);
         this.hashCode = Objects.hashCode(value);
     }
 
     public HashCodeSoftReference(final T value, final Object hashCodeProvider) {
-        this.weakReference = new SoftReference<>(value);
+        this.reference = SoftReferences.newInstance(value);
         this.hashCode = Objects.hashCode(hashCodeProvider);
     }
 
     public HashCodeSoftReference(final T value, final int hashCode) {
-        this.weakReference = new SoftReference<>(value);
+        this.reference = SoftReferences.newInstance(value);
         this.hashCode = hashCode;
     }
 
     @Override
     public T get() {
-        return weakReference.get();
+        return reference.get();
     }
 
     @Override

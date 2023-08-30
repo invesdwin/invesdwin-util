@@ -9,27 +9,27 @@ import de.invesdwin.util.lang.Objects;
 @ThreadSafe
 public class HashCodeWeakReference<T> implements IReference<T> {
 
-    private final WeakReference<T> weakReference;
+    private final WeakReference<T> reference;
     private final int hashCode;
 
     public HashCodeWeakReference(final T value) {
-        this.weakReference = new WeakReference<>(value);
+        this.reference = WeakReferences.newInstance(value);
         this.hashCode = Objects.hashCode(value);
     }
 
     public HashCodeWeakReference(final T value, final Object hashCodeProvider) {
-        this.weakReference = new WeakReference<>(value);
+        this.reference = WeakReferences.newInstance(value);
         this.hashCode = Objects.hashCode(hashCodeProvider);
     }
 
     public HashCodeWeakReference(final T value, final int hashCode) {
-        this.weakReference = new WeakReference<>(value);
+        this.reference = WeakReferences.newInstance(value);
         this.hashCode = hashCode;
     }
 
     @Override
     public T get() {
-        return weakReference.get();
+        return reference.get();
     }
 
     @Override
