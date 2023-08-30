@@ -40,7 +40,7 @@ final class FullRecursionKeysResult
     }
 
     public synchronized ICloseableIterator<FDate> getFullRecursionKeys() {
-        maybeInit();
+        final BufferingIterator<FDate> data = maybeInit();
         return data.snapshot().iterator();
     }
 
@@ -60,7 +60,7 @@ final class FullRecursionKeysResult
     }
 
     @Override
-    protected void appendEntry(final FDate nextEntry) {
+    protected void pushEntry(final BufferingIterator<FDate> data, final FDate nextEntry) {
         final IndexedFDate indexedTime = adjustKey(parent, nextEntry);
         data.add(indexedTime);
         //trim

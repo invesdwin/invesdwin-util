@@ -28,7 +28,9 @@ public abstract class APushingRecursiveHistoricalCache<R extends APushingRecursi
 
             @Override
             protected R getInitialValue(final FDate previousKey) {
-                return newResult(previousKey, null, recursiveQuery).maybeInit();
+                final R result = newResult(previousKey, null, recursiveQuery);
+                result.maybeInit();
+                return result;
             }
 
             @Override
