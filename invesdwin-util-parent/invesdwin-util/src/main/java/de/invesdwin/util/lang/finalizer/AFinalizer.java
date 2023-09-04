@@ -5,7 +5,11 @@ import java.io.Closeable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.apache.commons.lang3.BooleanUtils;
+
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.math.Booleans;
+import io.netty.util.concurrent.FastThreadLocal;
 
 /**
  * Best practices:
@@ -39,6 +43,7 @@ import de.invesdwin.util.error.Throwables;
 public abstract class AFinalizer implements Closeable, Runnable {
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AFinalizer.class);
+    private static final FastThreadLocal<Boolean> THREAD_FINALIZER_ACTIVE = new FastThreadLocal<>();
 
     @GuardedBy("this")
     private IFinalizerReference reference;
@@ -54,8 +59,13 @@ public abstract class AFinalizer implements Closeable, Runnable {
     @Override
     public final synchronized void close() {
         if (!isCleaned()) {
-            onClose();
-            clean();
+            final boolean registerThreadFinalizerActive = registerThreadFinalizerActive();
+            try {
+                onClose();
+                clean();
+            } finally {
+                unregisterThreadFinalizerActive(registerThreadFinalizerActive);
+            }
         }
         //clean reference even if already closed (isCleaned() might be implemented wrong)
         cleanReference();
@@ -124,5 +134,25 @@ public abstract class AFinalizer implements Closeable, Runnable {
      * Otherwise finalization would fail. A cleanup can still happen earlier.
      */
     public abstract boolean isThreadLocal();
+
+    public static boolean isThreadFinalizerActive() {
+        return Booleans.isTrue(THREAD_FINALIZER_ACTIVE.get());
+    }
+
+    public static boolean registerThreadFinalizerActive() {
+        final boolean threadFinalizerActiveBefore = BooleanUtils.isTrue(THREAD_FINALIZER_ACTIVE.get());
+        if (!threadFinalizerActiveBefore) {
+            THREAD_FINALIZER_ACTIVE.set(true);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static void unregisterThreadFinalizerActive(final boolean registerThreadFinalizerActive) {
+        if (registerThreadFinalizerActive) {
+            THREAD_FINALIZER_ACTIVE.remove();
+        }
+    }
 
 }
