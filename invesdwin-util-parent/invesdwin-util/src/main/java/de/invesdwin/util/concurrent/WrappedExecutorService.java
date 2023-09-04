@@ -190,22 +190,27 @@ public class WrappedExecutorService implements ListeningExecutorService {
     }
 
     private void notifyPendingCountListeners(final int currentPendingCount) {
-        final PendingCountCondition[] conditionArray = pendingCount_condition
-                .asValueArray(PendingCountCondition.EMPTY_ARRAY);
-        for (int i = 0; i < conditionArray.length; i++) {
-            final PendingCountCondition condition = conditionArray[i];
-            if (currentPendingCount <= condition.getLimit()) {
-                pendingCountLock.lock();
-                try {
-                    condition.getCondition().signalAll();
-                } finally {
-                    pendingCountLock.unlock();
+        if (!pendingCount_condition.isEmpty()) {
+            final PendingCountCondition[] conditionArray = pendingCount_condition
+                    .asValueArray(PendingCountCondition.EMPTY_ARRAY);
+            for (int i = 0; i < conditionArray.length; i++) {
+                final PendingCountCondition condition = conditionArray[i];
+                if (currentPendingCount <= condition.getLimit()) {
+                    pendingCountLock.lock();
+                    try {
+                        condition.getCondition().signalAll();
+                    } finally {
+                        pendingCountLock.unlock();
+                    }
                 }
             }
         }
-        final IPendingCountListener[] listenerArray = pendingCountListeners.asArray(IPendingCountListener.EMPTY_ARRAY);
-        for (int i = 0; i < listenerArray.length; i++) {
-            listenerArray[i].onPendingCountChanged(currentPendingCount);
+        if (!pendingCountListeners.isEmpty()) {
+            final IPendingCountListener[] listenerArray = pendingCountListeners
+                    .asArray(IPendingCountListener.EMPTY_ARRAY);
+            for (int i = 0; i < listenerArray.length; i++) {
+                listenerArray[i].onPendingCountChanged(currentPendingCount);
+            }
         }
     }
 

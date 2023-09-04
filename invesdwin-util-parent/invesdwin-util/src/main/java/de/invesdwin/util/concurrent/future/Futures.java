@@ -38,7 +38,7 @@ public final class Futures extends AFuturesStaticFacade {
         try {
             while (true) {
                 try {
-                    return future.get(1, TimeUnit.MILLISECONDS);
+                    return future.get(1, TimeUnit.SECONDS);
                 } catch (final TimeoutException e) {
                     /*
                      * retry, we use polling to prevent deadlock in TrustedListenableFutureTask (despite the value being
@@ -63,7 +63,7 @@ public final class Futures extends AFuturesStaticFacade {
         try {
             while (true) {
                 try {
-                    return future.get(1, TimeUnit.MILLISECONDS);
+                    return future.get(1, TimeUnit.SECONDS);
                 } catch (final TimeoutException e) {
                     /*
                      * retry, we use polling to prevent deadlock in TrustedListenableFutureTask (despite the value being
