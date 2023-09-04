@@ -7,7 +7,7 @@ import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRecursiveHistoricalCacheQuery;
 import de.invesdwin.util.concurrent.reference.IMutableReference;
-import de.invesdwin.util.concurrent.reference.MutableSoftReference;
+import de.invesdwin.util.concurrent.reference.MutableReference;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.date.FDate;
 
@@ -23,7 +23,7 @@ public abstract class APushingRecursiveHistoricalResult<D, E, R extends APushing
     protected final FDate previousKey;
     protected final IRecursiveHistoricalCacheQuery<R> recursiveQuery;
     @GuardedBy("this")
-    protected final IMutableReference<D> dataRef = new MutableSoftReference<>(null);
+    protected final IMutableReference<D> dataRef = new MutableReference<>();
 
     public APushingRecursiveHistoricalResult(final FDate key, final FDate previousKey,
             final IRecursiveHistoricalCacheQuery<R> recursiveQuery) {
