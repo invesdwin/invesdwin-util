@@ -28,7 +28,7 @@ import de.invesdwin.util.streams.buffer.memory.extend.UnsafeMemoryBuffer;
 @NotThreadSafe
 public class MemoryMappedFile implements IMemoryMappedFile {
 
-    private final boolean readOnly;
+    private final boolean closeAllowed;
     private final MemoryMappedFileFinalizer finalizer;
     private final AtomicInteger refCount = new AtomicInteger();
 
@@ -42,9 +42,9 @@ public class MemoryMappedFile implements IMemoryMappedFile {
      * @throws Exception
      *             in case there was an error creating the memory mapped file
      */
-    public MemoryMappedFile(final String path, final long offset, final long length, final boolean readOnly)
-            throws IOException {
-        this.readOnly = readOnly;
+    public MemoryMappedFile(final String path, final long offset, final long length, final boolean readOnly,
+            final boolean closeAllowed) throws IOException {
+        this.closeAllowed = closeAllowed;
         this.finalizer = new MemoryMappedFileFinalizer(path, offset, length, readOnly);
         this.finalizer.register(this);
     }
@@ -90,7 +90,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
 
     @Override
     public void close() {
-        if (readOnly) {
+        if (closeAllowed) {
             finalizer.close();
         }
     }
@@ -124,9 +124,9 @@ public class MemoryMappedFile implements IMemoryMappedFile {
                 this.length = roundTo4096(length);
             }
             if (readOnly) {
-                this.address = mapAndSetOffsetReadOnly();
+                this.address = mapAndSetOffset("r", MapMode.READ_ONLY);
             } else {
-                this.address = mapAndSetOffsetReadWrite();
+                this.address = mapAndSetOffset("rw", MapMode.READ_WRITE);
             }
         }
 
@@ -150,24 +150,15 @@ public class MemoryMappedFile implements IMemoryMappedFile {
             return (i + 0xfff) & ~0xfff;
         }
 
-        private long mapAndSetOffsetReadOnly() throws IOException {
-            final RandomAccessFile backingFile = new RandomAccessFile(this.path, "r");
+        private long mapAndSetOffset(final String mode, final MapMode mapMode) throws IOException {
+            final RandomAccessFile backingFile = new RandomAccessFile(this.path, mode);
             final FileChannel ch = backingFile.getChannel();
-            final long address = IoUtil.map(ch, MapMode.READ_ONLY, offset, length);
+            final long address = IoUtil.map(ch, mapMode, offset, length);
             ch.close();
             backingFile.close();
             return address;
         }
 
-        private long mapAndSetOffsetReadWrite() throws IOException {
-            final RandomAccessFile backingFile = new RandomAccessFile(this.path, "rw");
-            backingFile.setLength(this.length);
-            final FileChannel ch = backingFile.getChannel();
-            final long address = IoUtil.map(ch, MapMode.READ_WRITE, offset, length);
-            ch.close();
-            backingFile.close();
-            return address;
-        }
     }
 
 }

@@ -34,11 +34,13 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
 
     private final long offset;
     private final long length;
+    private final boolean closeAllowed;
 
     public SegmentedMemoryMappedFile(final String path, final long offset, final long length, final boolean readOnly,
-            final long segmentLength) throws IOException {
+            final boolean closeAllowed, final long segmentLength) throws IOException {
         this.offset = offset;
         this.length = length;
+        this.closeAllowed = closeAllowed;
         initList(path, readOnly, segmentLength);
     }
 
@@ -53,7 +55,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
             } else {
                 long bufferPosition = offset - position;
                 if (capacity >= bufferPosition + length) {
-                    list.add(new MemoryMappedFile(path, bufferPosition, length, readOnly));
+                    list.add(new MemoryMappedFile(path, bufferPosition, length, readOnly, closeAllowed));
                     return;
                 } else {
                     long remaining = length;
@@ -62,7 +64,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                             bufferPosition = 0;
                         }
                         final long toCopy = Longs.min(remaining, segmentLength - bufferPosition);
-                        list.add(new MemoryMappedFile(path, bufferPosition, toCopy, readOnly));
+                        list.add(new MemoryMappedFile(path, bufferPosition, toCopy, readOnly, closeAllowed));
                         remaining -= toCopy;
                         i += toCopy;
                         bufferPosition += toCopy;
@@ -107,13 +109,15 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
 
     @Override
     public boolean isClosed() {
-        return list.get(0).isClosed();
+        return list.isEmpty() || list.get(0).isClosed();
     }
 
     @Override
     public void close() {
-        for (int i = 0; i < list.size(); i++) {
-            list.get(i).close();
+        if (closeAllowed) {
+            for (int i = 0; i < list.size(); i++) {
+                list.get(i).close();
+            }
         }
         list.clear();
     }

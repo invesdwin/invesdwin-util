@@ -29,10 +29,16 @@ import de.invesdwin.util.time.date.FDate;
 public class TypeDelegateSerde<O> implements ISerde<O> {
 
     private final ISerde<O> delegate;
+    private final Integer fixedLength;
 
     @SuppressWarnings("unchecked")
     public TypeDelegateSerde(final Class<O> type) {
         delegate = (ISerde<O>) newDelegate(type);
+        fixedLength = newFixedLength(type);
+    }
+
+    public Integer getFixedLength() {
+        return fixedLength;
     }
 
     protected ISerde<?> newDelegate(final Class<O> type) {
@@ -68,6 +74,42 @@ public class TypeDelegateSerde<O> implements ISerde<O> {
             // fallback to slower serialization
             // do not check type to gracefully fall back on interface types like List
             return new RemoteFastSerializingSerde<O>(true, type);
+        }
+    }
+
+    protected Integer newFixedLength(final Class<O> type) {
+        if (Reflections.isVoid(type)) {
+            return VoidSerde.FIXED_LENGTH;
+        } else if (Double.class.isAssignableFrom(type) || double.class.isAssignableFrom(type)) {
+            return DoubleSerde.FIXED_LENGTH;
+        } else if (Decimal.class.isAssignableFrom(type)) {
+            return DecimalSerde.FIXED_LENGTH;
+        } else if (FDate.class.isAssignableFrom(type)) {
+            return FDateSerde.FIXED_LENGTH;
+        } else if (Boolean.class.isAssignableFrom(type) || boolean.class.isAssignableFrom(type)) {
+            return BooleanSerde.FIXED_LENGTH;
+        } else if (Integer.class.isAssignableFrom(type) || int.class.isAssignableFrom(type)) {
+            return IntegerSerde.FIXED_LENGTH;
+        } else if (TimedDecimal.class.isAssignableFrom(type)) {
+            return TimedDecimalSerde.FIXED_LENGTH;
+        } else if (Byte.class.isAssignableFrom(type) || byte.class.isAssignableFrom(type)) {
+            return null;
+        } else if (Date.class.isAssignableFrom(type)) {
+            return DateSerde.FIXED_LENGTH;
+        } else if (Long.class.isAssignableFrom(type) || long.class.isAssignableFrom(type)) {
+            return LongSerde.FIXED_LENGTH;
+        } else if (Integer.class.isAssignableFrom(type) || int.class.isAssignableFrom(type)) {
+            return IntegerSerde.FIXED_LENGTH;
+        } else if (Calendar.class.isAssignableFrom(type)) {
+            return CalendarSerde.FIXED_LENGTH;
+        } else if (String.class.isAssignableFrom(type)) {
+            return null;
+        } else if (Currency.class.isAssignableFrom(type)) {
+            return CurrencySerde.FIXED_LENGTH;
+        } else {
+            // fallback to slower serialization
+            // do not check type to gracefully fall back on interface types like List
+            return null;
         }
     }
 

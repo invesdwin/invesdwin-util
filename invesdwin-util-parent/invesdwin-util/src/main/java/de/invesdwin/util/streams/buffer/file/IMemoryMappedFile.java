@@ -36,13 +36,13 @@ public interface IMemoryMappedFile extends Closeable {
 
     IMemoryBuffer newMemoryBuffer(long index, long length);
 
-    static IMemoryMappedFile map(final String path, final long index, final long length, final boolean readOnly)
-            throws IOException {
+    static IMemoryMappedFile map(final String path, final long index, final long length, final boolean readOnly,
+            final boolean closeAllowed) throws IOException {
         if (OperatingSystem.isWindows() && length > SegmentedMemoryMappedFile.WINDOWS_MAX_LENGTH_PER_SEGMENT) {
-            return new SegmentedMemoryMappedFile(path, index, length, readOnly,
+            return new SegmentedMemoryMappedFile(path, index, length, readOnly, closeAllowed,
                     SegmentedMemoryMappedFile.WINDOWS_MAX_LENGTH_PER_SEGMENT);
         } else {
-            return new MemoryMappedFile(path, index, length, readOnly);
+            return new MemoryMappedFile(path, index, length, readOnly, closeAllowed);
         }
     }
 
