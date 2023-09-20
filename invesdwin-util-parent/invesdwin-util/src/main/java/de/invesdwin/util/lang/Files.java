@@ -68,8 +68,7 @@ public final class Files extends AFilesStaticFacade {
         }
     }
 
-    private Files() {
-    }
+    private Files() {}
 
     public static void purgeOldFiles(final File directory, final Duration threshold) {
         if (!directory.exists()) {
@@ -470,6 +469,14 @@ public final class Files extends AFilesStaticFacade {
             }
         }
         return reference.toString();
+    }
+
+    public static void moveFileQuietly(final File srcFile, final File destFile) {
+        try {
+            Files.moveFile(srcFile, destFile);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
