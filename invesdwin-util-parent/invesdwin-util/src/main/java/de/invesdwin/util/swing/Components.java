@@ -10,6 +10,7 @@ import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.lang.reflect.Field;
 
 import javax.annotation.concurrent.Immutable;
 import javax.swing.AbstractButton;
@@ -26,16 +27,29 @@ import javax.swing.text.DefaultCaret;
 import javax.swing.text.JTextComponent;
 
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.swing.listener.ADelegateMouseMotionListener;
 import de.invesdwin.util.swing.text.Hotkey;
 import de.invesdwin.util.swing.text.KeyGrabberTextField;
 import de.invesdwin.util.swing.text.ToolTipFormatter;
 
+@SuppressWarnings("restriction")
 @Immutable
 public final class Components {
 
     private static ToolTipFormatter defaultToolTipFormatter = new ToolTipFormatter();
+
+    private static final long COMPONENT_MINSIZE_FIELD_OFFSET;
+    private static final long COMPONENT_MINSIZESET_FIELD_OFFSET;
+
+    static {
+        final Field minSizeField = Reflections.findField(Component.class, "minSize");
+        COMPONENT_MINSIZE_FIELD_OFFSET = Reflections.getUnsafe().objectFieldOffset(minSizeField);
+
+        final Field minSizeSetField = Reflections.findField(Component.class, "minSizeSet");
+        COMPONENT_MINSIZESET_FIELD_OFFSET = Reflections.getUnsafe().objectFieldOffset(minSizeSetField);
+    }
 
     private Components() {}
 
@@ -342,6 +356,11 @@ public final class Components {
     public static void disableCaretScrolling(final JTextComponent component) {
         final DefaultCaret caret = (DefaultCaret) component.getCaret();
         caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
+    }
+
+    public static void setMinimumSizeWithoutNotify(final Component component, final Dimension minimumSize) {
+        Reflections.getUnsafe().putObject(component, COMPONENT_MINSIZE_FIELD_OFFSET, minimumSize);
+        Reflections.getUnsafe().putBoolean(component, COMPONENT_MINSIZESET_FIELD_OFFSET, minimumSize != null);
     }
 
 }
