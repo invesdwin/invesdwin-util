@@ -52,4 +52,14 @@ public abstract class ANestedExecutor implements INestedExecutor {
     }
 
     protected abstract WrappedExecutorService newNestedExecutor(String nestedName);
+
+    @Override
+    public void close() {
+        if (!nestedExecutor.isEmpty()) {
+            for (final WrappedExecutorService executor : nestedExecutor.values()) {
+                executor.shutdownNow();
+            }
+            nestedExecutor.clear();
+        }
+    }
 }
