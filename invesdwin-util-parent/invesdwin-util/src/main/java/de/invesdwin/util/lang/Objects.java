@@ -23,7 +23,6 @@ import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.marshallers.serde.LocalFastSerializingSerde;
-import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -102,10 +101,6 @@ public final class Objects extends AObjectsStaticFacade {
                 //both are equal in size, so we only have to check one side
                 return true;
             }
-        } else if (a instanceof Double && b instanceof Double) {
-            final Double cA = (Double) a;
-            final Double cB = (Double) b;
-            return Doubles.equals(cA, cB);
         }
         return com.google.common.base.Objects.equal(a, b);
     }
