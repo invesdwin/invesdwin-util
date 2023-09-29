@@ -106,9 +106,8 @@ public final class Objects extends AObjectsStaticFacade {
             final Double cA = (Double) a;
             final Double cB = (Double) b;
             return Doubles.equals(cA, cB);
-        } else {
-            return com.google.common.base.Objects.equal(a, b);
         }
+        return com.google.common.base.Objects.equal(a, b);
     }
 
     /**
