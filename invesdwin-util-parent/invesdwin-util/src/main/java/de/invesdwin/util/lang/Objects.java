@@ -23,6 +23,7 @@ import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.marshallers.serde.LocalFastSerializingSerde;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -68,7 +69,8 @@ public final class Objects extends AObjectsStaticFacade {
             final int bLength = Arrays.getLength(b);
             if (aLength != bLength) {
                 return false;
-            } else if (aLength == 0 && bLength == 0) {
+            } else if (aLength == 0) {
+                //both are equal in size, so we only have to check one side
                 return true;
             } else if (a instanceof boolean[] && b instanceof boolean[]) {
                 return Arrays.equals((boolean[]) a, (boolean[]) b);
@@ -89,20 +91,24 @@ public final class Objects extends AObjectsStaticFacade {
             } else if (a instanceof Object[] && b instanceof Object[]) {
                 return Arrays.deepEquals((Object[]) a, (Object[]) b);
             }
-        }
-        if (a instanceof Collection && b instanceof Collection) {
+        } else if (a instanceof Collection && b instanceof Collection) {
             final Collection<?> cA = (Collection<?>) a;
             final Collection<?> cB = (Collection<?>) b;
             final int aSize = cA.size();
             final int bSize = cB.size();
             if (aSize != bSize) {
                 return false;
-            } else if (cA.size() == 0 && cB.size() == 0) {
+            } else if (aSize == 0) {
+                //both are equal in size, so we only have to check one side
                 return true;
             }
+        } else if (a instanceof Double && b instanceof Double) {
+            final Double cA = (Double) a;
+            final Double cB = (Double) b;
+            return Doubles.equals(cA, cB);
+        } else {
+            return com.google.common.base.Objects.equal(a, b);
         }
-
-        return com.google.common.base.Objects.equal(a, b);
     }
 
     /**
