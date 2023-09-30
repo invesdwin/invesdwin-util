@@ -39,6 +39,7 @@ import de.invesdwin.util.collections.loadingcache.historical.listener.IHistorica
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCacheOnClearListener;
 import de.invesdwin.util.collections.loadingcache.historical.listener.IHistoricalCachePutListener;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
+import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.IHistoricalCacheInternalMethods;
@@ -1076,7 +1077,9 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                query().setFutureEnabled().getValue(FDates.MIN_DATE);
+                final IHistoricalCacheQueryWithFuture<V> query = query().setFutureEnabled();
+                query.getValue(FDates.MAX_DATE);
+                query.getValue(FDates.MIN_DATE);
             }
         });
     }
