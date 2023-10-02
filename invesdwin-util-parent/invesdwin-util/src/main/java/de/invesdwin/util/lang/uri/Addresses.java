@@ -4,35 +4,25 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.Arrays;
 
 @Immutable
 public final class Addresses {
 
     public static final int PORT_MIN = 1;
     public static final int PORT_MAX = 65535;
-    public static final List<Integer> ALL_PORTS;
+    private static List<Integer> allPorts;
 
     private static final Pattern BYTE_PATTERN = Pattern.compile("(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)");
     private static final Pattern IP_PATTERN = Pattern
             .compile(BYTE_PATTERN + "\\." + BYTE_PATTERN + "\\." + BYTE_PATTERN + "\\." + BYTE_PATTERN);
 
-    static {
-        final List<Integer> ports = new ArrayList<Integer>(PORT_MAX);
-        for (int port = PORT_MIN; port <= PORT_MAX; port++) {
-            ports.add(port);
-        }
-        ALL_PORTS = Collections.unmodifiableList(ports);
-    }
-
-    private Addresses() {
-    }
+    private Addresses() {}
 
     public static boolean isPort(final String port) {
         try {
@@ -84,6 +74,21 @@ public final class Addresses {
         } catch (final Throwable e) {
             return false;
         }
+    }
+
+    public static List<Integer> getAllPorts() {
+        if (allPorts == null) {
+            synchronized (Addresses.class) {
+                if (allPorts == null) {
+                    final Integer[] ports = new Integer[PORT_MAX - PORT_MIN];
+                    for (int port = PORT_MIN; port <= PORT_MAX; port++) {
+                        ports[port - PORT_MIN] = port;
+                    }
+                    allPorts = Arrays.asList(ports);
+                }
+            }
+        }
+        return allPorts;
     }
 
 }
