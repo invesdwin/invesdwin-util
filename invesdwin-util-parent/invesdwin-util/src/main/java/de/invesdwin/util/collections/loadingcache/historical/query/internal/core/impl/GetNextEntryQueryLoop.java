@@ -43,9 +43,9 @@ public class GetNextEntryQueryLoop<V> {
                     nextNextKey = nextKey;
                 } else {
                     nextNextKey = core.getParent().calculateNextKey(nextKey);
-                    if (nextNextKey == null) {
-                        return true;
-                    }
+                }
+                if (nextNextKey == null) {
+                    return true;
                 }
                 //the key of the value is the relevant one
                 final IHistoricalEntry<V> potentialNextNextEntry = core.getEntry(query, nextNextKey,
