@@ -30,7 +30,7 @@ import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import io.netty.util.concurrent.FastThreadLocal;
 
 @Immutable
-public abstract class ADecimal<E extends ADecimal<E>> extends Number implements Comparable<Object>, IDecimal {
+public abstract class ADecimal<E extends ADecimal<E>> extends ADecimalNumber<E> implements IDecimal {
 
     public static final String NEGATIVE_SIGN = "-";
     public static final String POSITIVE_SIGN = "+";
@@ -58,6 +58,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
 
     protected abstract E newValueCopy(double value);
 
+    @Override
     public abstract E fromDefaultValue(double value);
 
     public List<E> fromDefaultValueVector(final List<Double> vector) {
@@ -178,6 +179,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends Number implements 
         return destination;
     }
 
+    @Override
     public abstract double getDefaultValue();
 
     @Override
