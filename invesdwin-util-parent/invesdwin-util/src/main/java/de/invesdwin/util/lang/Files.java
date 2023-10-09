@@ -471,11 +471,15 @@ public final class Files extends AFilesStaticFacade {
         return reference.toString();
     }
 
-    public static void moveFileQuietly(final File srcFile, final File destFile) {
+    public static boolean moveFileQuietly(final File srcFile, final File destFile) {
+        if (!srcFile.exists()) {
+            return false;
+        }
         try {
             Files.moveFile(srcFile, destFile);
+            return true;
         } catch (final IOException e) {
-            throw new RuntimeException(e);
+            return false;
         }
     }
 
