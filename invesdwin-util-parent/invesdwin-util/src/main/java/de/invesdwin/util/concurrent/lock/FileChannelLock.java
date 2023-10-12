@@ -7,12 +7,16 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.time.Instant;
@@ -22,11 +26,16 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public class FileChannelLock implements Closeable, ILock {
 
+    private static final Map<String, ILock> FILE_LOCK = Caffeine.newBuilder()
+            .weakValues()
+            .<String, ILock> build((name) -> ILockCollectionFactory.getInstance(true).newLock(name))
+            .asMap();
+
     @GuardedBy("this")
     private final FileChannelLockFinalizer finalizer;
 
     public FileChannelLock(final File file) {
-        this.finalizer = new FileChannelLockFinalizer(file, isDeleteFileAfterUnlock());
+        this.finalizer = new FileChannelLockFinalizer(file, isDeleteFileAfterUnlock(), isThreadLockEnabled());
     }
 
     public File getFile() {
@@ -73,6 +82,14 @@ public class FileChannelLock implements Closeable, ILock {
             if (finalizer.locked) {
                 return true;
             }
+            if (finalizer.threadLockEnabled) {
+                if (finalizer.threadLock == null) {
+                    finalizer.threadLock = FILE_LOCK.get(finalizer.file.getAbsolutePath());
+                }
+                if (!finalizer.threadLock.tryLock()) {
+                    return false;
+                }
+            }
             if (!finalizer.file.exists()) {
                 Files.forceMkdirParent(finalizer.file);
                 Files.touch(finalizer.file);
@@ -84,13 +101,13 @@ public class FileChannelLock implements Closeable, ILock {
             // Try acquiring the lock without blocking. This method returns
             // null or throws an exception if the file is already locked.
             try {
-                finalizer.lock = finalizer.channel.tryLock();
+                finalizer.fileLock = finalizer.channel.tryLock();
             } catch (final OverlappingFileLockException e) {
                 // File is already locked in this thread or virtual machine
                 unlock();
                 return false;
             }
-            if (finalizer.lock == null) {
+            if (finalizer.fileLock == null) {
                 unlock();
                 return false;
             }
@@ -112,6 +129,10 @@ public class FileChannelLock implements Closeable, ILock {
     }
 
     protected boolean isDeleteFileAfterUnlock() {
+        return true;
+    }
+
+    protected boolean isThreadLockEnabled() {
         return true;
     }
 
@@ -138,26 +159,30 @@ public class FileChannelLock implements Closeable, ILock {
 
         private final File file;
         private final boolean deleteFileAfterUnlock;
+        private final boolean threadLockEnabled;
         private RandomAccessFile raf;
         private FileChannel channel;
-        private FileLock lock;
+        private FileLock fileLock;
+        private ILock threadLock;
         private boolean locked;
 
-        private FileChannelLockFinalizer(final File file, final boolean deleteFileAfterUnlock) {
+        private FileChannelLockFinalizer(final File file, final boolean deleteFileAfterUnlock,
+                final boolean threadLockEnabled) {
             this.file = file;
             this.deleteFileAfterUnlock = deleteFileAfterUnlock;
+            this.threadLockEnabled = threadLockEnabled;
         }
 
         @Override
         protected void clean() {
             // Release the lock - if it is not null!
-            if (lock != null) {
+            if (fileLock != null) {
                 try {
-                    lock.release();
+                    fileLock.release();
                 } catch (final IOException e) {
                     //ignore
                 }
-                lock = null;
+                fileLock = null;
             }
 
             // Close the file
@@ -176,6 +201,10 @@ public class FileChannelLock implements Closeable, ILock {
                     //ignore
                 }
                 raf = null;
+            }
+            if (threadLock != null) {
+                threadLock.unlock();
+                threadLock = null;
             }
             if (locked) {
                 locked = false;
