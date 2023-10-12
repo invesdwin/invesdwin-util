@@ -1,5 +1,7 @@
 package de.invesdwin.util.error;
 
+import java.nio.channels.ClosedByInterruptException;
+
 import javax.annotation.concurrent.Immutable;
 
 import org.agrona.LangUtil;
@@ -178,7 +180,8 @@ public final class Throwables extends AThrowablesStaticFacade {
     }
 
     public static boolean isCausedByInterrupt(final Throwable t) {
-        return Threads.isInterrupted() || Throwables.isCausedByType(t, InterruptedException.class);
+        return Threads.isInterrupted()
+                || Throwables.isCausedByAnyType(t, InterruptedException.class, ClosedByInterruptException.class);
     }
 
     /**
