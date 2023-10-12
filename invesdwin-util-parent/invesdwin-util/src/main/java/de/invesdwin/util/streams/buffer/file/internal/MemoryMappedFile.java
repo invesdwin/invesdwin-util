@@ -8,14 +8,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.agrona.IoUtil;
-
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
 import de.invesdwin.util.streams.buffer.file.IMemoryMappedFile;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.extend.UnsafeMemoryBuffer;
+import net.openhft.chronicle.core.OS;
 
 /**
  * Class for direct access to a memory mapped file.
@@ -133,7 +132,11 @@ public class MemoryMappedFile implements IMemoryMappedFile {
         @Override
         protected void clean() {
             cleaned = true;
-            IoUtil.unmap(null, address, this.length);
+            try {
+                OS.unmap(address, this.length);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         @Override
@@ -153,7 +156,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
         private long mapAndSetOffset(final String mode, final MapMode mapMode) throws IOException {
             final RandomAccessFile backingFile = new RandomAccessFile(this.path, mode);
             final FileChannel ch = backingFile.getChannel();
-            final long address = IoUtil.map(ch, mapMode, offset, length);
+            final long address = OS.map(ch, mapMode, offset, length);
             ch.close();
             backingFile.close();
             return address;
