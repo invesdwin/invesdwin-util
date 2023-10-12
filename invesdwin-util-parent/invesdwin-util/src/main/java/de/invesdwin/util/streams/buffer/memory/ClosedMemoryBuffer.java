@@ -438,4 +438,9 @@ public class ClosedMemoryBuffer implements ICloseableMemoryBuffer {
         }
     }
 
+    @Override
+    public ICloseableMemoryBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

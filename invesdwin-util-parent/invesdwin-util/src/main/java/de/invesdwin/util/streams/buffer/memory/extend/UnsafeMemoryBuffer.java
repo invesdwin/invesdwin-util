@@ -664,4 +664,9 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
         return MemoryBuffers.wrap(asByteArrayCopy(index, length));
     }
 
+    @Override
+    public IMemoryBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

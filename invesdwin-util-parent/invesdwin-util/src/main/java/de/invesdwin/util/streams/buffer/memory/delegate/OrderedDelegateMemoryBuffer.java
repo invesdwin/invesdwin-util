@@ -415,4 +415,14 @@ public class OrderedDelegateMemoryBuffer implements IMemoryBuffer {
     public IMemoryBuffer clone(final long index, final int length) {
         return maybeWrap(MemoryBuffers.wrap(asByteArrayCopy(index, length)), order);
     }
+
+    @Override
+    public IMemoryBuffer asImmutableSlice() {
+        final IMemoryBuffer asImmutableSlice = delegate.asImmutableSlice();
+        if (asImmutableSlice == delegate) {
+            return this;
+        } else {
+            return maybeWrap(asImmutableSlice, order);
+        }
+    }
 }

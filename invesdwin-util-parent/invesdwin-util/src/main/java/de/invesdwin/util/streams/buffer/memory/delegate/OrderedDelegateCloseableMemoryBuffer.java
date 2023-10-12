@@ -65,4 +65,14 @@ public final class OrderedDelegateCloseableMemoryBuffer extends OrderedDelegateM
         getDelegate().close();
     }
 
+    @Override
+    public ICloseableMemoryBuffer asImmutableSlice() {
+        final ICloseableMemoryBuffer asImmutableSlice = getDelegate().asImmutableSlice();
+        if (asImmutableSlice == delegate) {
+            return this;
+        } else {
+            return maybeWrap(asImmutableSlice, order);
+        }
+    }
+
 }

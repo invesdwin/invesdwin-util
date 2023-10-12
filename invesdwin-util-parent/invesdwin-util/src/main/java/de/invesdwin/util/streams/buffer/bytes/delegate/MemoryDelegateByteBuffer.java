@@ -448,6 +448,11 @@ public class MemoryDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public IByteBuffer asImmutableSlice() {
-        return this;
+        final IMemoryBuffer asImmutableSlice = delegate.asImmutableSlice();
+        if (asImmutableSlice == delegate) {
+            return this;
+        } else {
+            return new MemoryDelegateByteBuffer(asImmutableSlice);
+        }
     }
 }

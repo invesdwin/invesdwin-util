@@ -41,4 +41,9 @@ class PooledArrayExpandableByteBuffer extends ArrayExpandableByteBuffer implemen
         ArrayExpandableByteBufferPool.INSTANCE.returnObject(this);
     }
 
+    @Override
+    public ICloseableByteBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

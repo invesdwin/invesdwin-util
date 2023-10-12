@@ -60,4 +60,14 @@ public class ByteDelegateCloseableMemoryBuffer extends ByteDelegateMemoryBuffer 
         getDelegate().close();
     }
 
+    @Override
+    public ICloseableMemoryBuffer asImmutableSlice() {
+        final ICloseableByteBuffer asImmutableSlice = getDelegate().asImmutableSlice();
+        if (asImmutableSlice == delegate) {
+            return this;
+        } else {
+            return new ByteDelegateCloseableMemoryBuffer(asImmutableSlice);
+        }
+    }
+
 }

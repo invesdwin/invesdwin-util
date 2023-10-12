@@ -16,4 +16,7 @@ public interface ICloseableByteBuffer extends IByteBuffer, ICloseableByteBufferP
     @Override
     ICloseableByteBuffer ensureCapacity(int capacity);
 
+    @Override
+    ICloseableByteBuffer asImmutableSlice();
+
 }

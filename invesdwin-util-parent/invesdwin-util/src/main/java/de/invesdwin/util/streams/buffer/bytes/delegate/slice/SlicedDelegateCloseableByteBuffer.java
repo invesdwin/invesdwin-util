@@ -46,4 +46,14 @@ public class SlicedDelegateCloseableByteBuffer extends SlicedDelegateByteBuffer 
         getDelegate().close();
     }
 
+    @Override
+    public ICloseableByteBuffer asImmutableSlice() {
+        final ICloseableByteBuffer asImmutableSlice = getDelegate().asImmutableSlice();
+        if (asImmutableSlice == delegate) {
+            return this;
+        } else {
+            return new SlicedDelegateCloseableByteBuffer(asImmutableSlice, from, length);
+        }
+    }
+
 }

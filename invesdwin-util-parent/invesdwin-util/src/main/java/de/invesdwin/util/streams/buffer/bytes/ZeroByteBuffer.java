@@ -495,7 +495,7 @@ public class ZeroByteBuffer implements ICloseableByteBuffer {
     }
 
     @Override
-    public IByteBuffer asImmutableSlice() {
+    public ICloseableByteBuffer asImmutableSlice() {
         return this;
     }
 

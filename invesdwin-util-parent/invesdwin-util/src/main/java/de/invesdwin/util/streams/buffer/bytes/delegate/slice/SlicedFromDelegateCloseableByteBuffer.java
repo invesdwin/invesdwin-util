@@ -2,7 +2,6 @@ package de.invesdwin.util.streams.buffer.bytes.delegate.slice;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateCloseableByteBufferFactory;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateCloseableByteBufferFactory;
@@ -11,7 +10,7 @@ import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMu
 public class SlicedFromDelegateCloseableByteBuffer extends SlicedFromDelegateByteBuffer
         implements ICloseableByteBuffer {
 
-    public SlicedFromDelegateCloseableByteBuffer(final IByteBuffer delegate, final int from) {
+    public SlicedFromDelegateCloseableByteBuffer(final ICloseableByteBuffer delegate, final int from) {
         super(delegate, from);
     }
 
@@ -46,6 +45,16 @@ public class SlicedFromDelegateCloseableByteBuffer extends SlicedFromDelegateByt
     @Override
     public void close() {
         getDelegate().close();
+    }
+
+    @Override
+    public ICloseableByteBuffer asImmutableSlice() {
+        final ICloseableByteBuffer asImmutableSlice = getDelegate().asImmutableSlice();
+        if (asImmutableSlice == delegate) {
+            return this;
+        } else {
+            return new SlicedFromDelegateCloseableByteBuffer(asImmutableSlice, from);
+        }
     }
 
 }

@@ -1414,4 +1414,9 @@ public class ListMemoryBuffer implements IMemoryBuffer {
         return MemoryBuffers.wrap(asByteArrayCopy(index, length));
     }
 
+    @Override
+    public IMemoryBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

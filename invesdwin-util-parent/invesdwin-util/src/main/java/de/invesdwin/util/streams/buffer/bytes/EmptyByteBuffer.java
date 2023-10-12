@@ -546,7 +546,7 @@ public final class EmptyByteBuffer implements ICloseableByteBuffer {
     }
 
     @Override
-    public IByteBuffer asImmutableSlice() {
+    public ICloseableByteBuffer asImmutableSlice() {
         return this;
     }
 

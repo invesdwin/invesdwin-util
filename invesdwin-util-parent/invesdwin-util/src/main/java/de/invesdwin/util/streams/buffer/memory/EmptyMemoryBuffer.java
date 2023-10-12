@@ -496,4 +496,9 @@ public final class EmptyMemoryBuffer implements ICloseableMemoryBuffer {
         }
     }
 
+    @Override
+    public ICloseableMemoryBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

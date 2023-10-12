@@ -455,4 +455,5 @@ public interface IMemoryBuffer extends IMemoryBufferProvider {
 
     IMemoryBuffer clone(long index, int length);
 
+    IMemoryBuffer asImmutableSlice();
 }

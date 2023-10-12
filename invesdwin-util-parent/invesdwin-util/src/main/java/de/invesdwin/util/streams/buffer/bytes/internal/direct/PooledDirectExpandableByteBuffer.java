@@ -42,4 +42,9 @@ class PooledDirectExpandableByteBuffer
         DirectExpandableByteBufferPool.INSTANCE.returnObject(this);
     }
 
+    @Override
+    public ICloseableByteBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

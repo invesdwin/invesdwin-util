@@ -403,4 +403,10 @@ public class MutableSlicedFromDelegateMemoryBuffer implements IMemoryBuffer {
         return MemoryBuffers.wrap(asByteArrayCopy(index, length));
     }
 
+    @Override
+    public IMemoryBuffer asImmutableSlice() {
+        final IMemoryBuffer asImmutableSlice = delegate.asImmutableSlice();
+        return new SlicedFromDelegateMemoryBuffer(asImmutableSlice, from);
+    }
+
 }

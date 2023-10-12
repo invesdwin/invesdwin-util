@@ -2,44 +2,43 @@ package de.invesdwin.util.streams.buffer.memory.delegate.slice;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateCloseableByteBufferFactory;
-import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateCloseableByteBufferFactory;
+import de.invesdwin.util.streams.buffer.memory.ICloseableMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateCloseableMemoryBufferFactory;
+import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IMutableSlicedDelegateCloseableMemoryBufferFactory;
 
 @NotThreadSafe
-public class SlicedFromDelegateCloseableMemoryBuffer extends SlicedFromDelegateByteBuffer
-        implements ICloseableByteBuffer {
+public class SlicedFromDelegateCloseableMemoryBuffer extends SlicedFromDelegateMemoryBuffer
+        implements ICloseableMemoryBuffer {
 
-    public SlicedFromDelegateCloseableMemoryBuffer(final IByteBuffer delegate, final int from) {
+    public SlicedFromDelegateCloseableMemoryBuffer(final IMemoryBuffer delegate, final long from) {
         super(delegate, from);
     }
 
-    private ICloseableByteBuffer getDelegate() {
-        return (ICloseableByteBuffer) delegate;
+    private ICloseableMemoryBuffer getDelegate() {
+        return (ICloseableMemoryBuffer) delegate;
     }
 
     @Override
-    protected IMutableSlicedDelegateCloseableByteBufferFactory getMutableSliceFactory() {
+    protected IMutableSlicedDelegateCloseableMemoryBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
-            mutableSliceFactory = new ExpandableMutableSlicedDelegateCloseableByteBufferFactory(this);
+            mutableSliceFactory = new ExpandableMutableSlicedDelegateCloseableMemoryBufferFactory(this);
         }
-        return (IMutableSlicedDelegateCloseableByteBufferFactory) mutableSliceFactory;
+        return (IMutableSlicedDelegateCloseableMemoryBufferFactory) mutableSliceFactory;
     }
 
     @Override
-    public ICloseableByteBuffer sliceFrom(final int index) {
+    public ICloseableMemoryBuffer sliceFrom(final long index) {
         return getMutableSliceFactory().sliceFrom(index);
     }
 
     @Override
-    public ICloseableByteBuffer slice(final int index, final int length) {
+    public ICloseableMemoryBuffer slice(final long index, final long length) {
         return getMutableSliceFactory().slice(index, length);
     }
 
     @Override
-    public ICloseableByteBuffer ensureCapacity(final int desiredCapacity) {
+    public ICloseableMemoryBuffer ensureCapacity(final long desiredCapacity) {
         super.ensureCapacity(desiredCapacity);
         return this;
     }
@@ -47,6 +46,16 @@ public class SlicedFromDelegateCloseableMemoryBuffer extends SlicedFromDelegateB
     @Override
     public void close() {
         getDelegate().close();
+    }
+
+    @Override
+    public ICloseableMemoryBuffer asImmutableSlice() {
+        final ICloseableMemoryBuffer asImmutableSlice = getDelegate().asImmutableSlice();
+        if (asImmutableSlice == delegate) {
+            return this;
+        } else {
+            return new SlicedFromDelegateCloseableMemoryBuffer(asImmutableSlice, from);
+        }
     }
 
 }

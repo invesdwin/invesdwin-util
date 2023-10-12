@@ -3,6 +3,7 @@ package de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateCloseableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateCloseableByteBufferFactory;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateCloseableByteBufferFactory;
 
@@ -45,6 +46,12 @@ public class MutableSlicedFromDelegateCloseableByteBuffer extends MutableSlicedF
     @Override
     public void close() {
         getDelegate().close();
+    }
+
+    @Override
+    public ICloseableByteBuffer asImmutableSlice() {
+        final ICloseableByteBuffer asImmutableSlice = getDelegate().asImmutableSlice();
+        return new SlicedFromDelegateCloseableByteBuffer(asImmutableSlice, from);
     }
 
 }

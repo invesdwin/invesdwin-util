@@ -409,4 +409,14 @@ public class ByteDelegateMemoryBuffer implements IMemoryBuffer {
         return MemoryBuffers.wrap(asByteArrayCopy(index, length));
     }
 
+    @Override
+    public IMemoryBuffer asImmutableSlice() {
+        final IByteBuffer asImmutableSlice = getDelegate().asImmutableSlice();
+        if (asImmutableSlice == delegate) {
+            return this;
+        } else {
+            return new ByteDelegateMemoryBuffer(asImmutableSlice);
+        }
+    }
+
 }

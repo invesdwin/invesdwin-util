@@ -9,8 +9,8 @@ import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IM
 @NotThreadSafe
 public class SlicedDelegateCloseableMemoryBuffer extends SlicedDelegateMemoryBuffer implements ICloseableMemoryBuffer {
 
-    public SlicedDelegateCloseableMemoryBuffer(final ICloseableMemoryBuffer delegate, final int from,
-            final int length) {
+    public SlicedDelegateCloseableMemoryBuffer(final ICloseableMemoryBuffer delegate, final long from,
+            final long length) {
         super(delegate, from, length);
     }
 
@@ -45,6 +45,16 @@ public class SlicedDelegateCloseableMemoryBuffer extends SlicedDelegateMemoryBuf
     @Override
     public void close() {
         getDelegate().close();
+    }
+
+    @Override
+    public ICloseableMemoryBuffer asImmutableSlice() {
+        final ICloseableMemoryBuffer asImmutableSlice = getDelegate().asImmutableSlice();
+        if (asImmutableSlice == delegate) {
+            return this;
+        } else {
+            return new SlicedDelegateCloseableMemoryBuffer(asImmutableSlice, from, length);
+        }
     }
 
 }

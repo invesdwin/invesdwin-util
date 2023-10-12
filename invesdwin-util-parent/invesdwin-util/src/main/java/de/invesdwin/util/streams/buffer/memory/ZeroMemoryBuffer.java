@@ -438,4 +438,9 @@ public class ZeroMemoryBuffer implements ICloseableMemoryBuffer {
         }
     }
 
+    @Override
+    public ICloseableMemoryBuffer asImmutableSlice() {
+        return this;
+    }
+
 }

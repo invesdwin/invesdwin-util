@@ -527,7 +527,7 @@ public class ClosedByteBuffer implements ICloseableByteBuffer {
     }
 
     @Override
-    public IByteBuffer asImmutableSlice() {
+    public ICloseableByteBuffer asImmutableSlice() {
         return this;
     }
 

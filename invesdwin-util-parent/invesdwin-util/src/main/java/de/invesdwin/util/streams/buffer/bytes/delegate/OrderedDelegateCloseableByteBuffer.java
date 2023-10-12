@@ -51,6 +51,16 @@ public final class OrderedDelegateCloseableByteBuffer extends OrderedDelegateByt
         getDelegate().close();
     }
 
+    @Override
+    public ICloseableByteBuffer asImmutableSlice() {
+        final ICloseableByteBuffer asImmutableSlice = getDelegate().asImmutableSlice();
+        if (asImmutableSlice == delegate) {
+            return this;
+        } else {
+            return maybeWrap(asImmutableSlice, order);
+        }
+    }
+
     public static ICloseableByteBuffer maybeWrap(final ICloseableByteBuffer buffer, final ByteOrder order) {
         if (order != buffer.getOrder()) {
             if (buffer instanceof OrderedDelegateCloseableByteBuffer) {

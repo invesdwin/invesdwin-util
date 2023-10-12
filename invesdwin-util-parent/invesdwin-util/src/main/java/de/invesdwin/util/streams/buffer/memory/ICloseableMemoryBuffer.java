@@ -16,4 +16,7 @@ public interface ICloseableMemoryBuffer extends IMemoryBuffer, ICloseableMemoryB
     @Override
     ICloseableMemoryBuffer ensureCapacity(long capacity);
 
+    @Override
+    ICloseableMemoryBuffer asImmutableSlice();
+
 }

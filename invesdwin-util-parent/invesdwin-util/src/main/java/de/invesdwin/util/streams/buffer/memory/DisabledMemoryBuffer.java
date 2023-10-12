@@ -321,4 +321,9 @@ public final class DisabledMemoryBuffer implements ICloseableMemoryBuffer {
         return this;
     }
 
+    @Override
+    public ICloseableMemoryBuffer asImmutableSlice() {
+        return this;
+    }
+
 }
