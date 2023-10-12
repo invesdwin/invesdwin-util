@@ -316,4 +316,9 @@ public final class DisabledMemoryBuffer implements ICloseableMemoryBuffer {
         //noop
     }
 
+    @Override
+    public IMemoryBuffer clone(final long index, final int length) {
+        return this;
+    }
+
 }

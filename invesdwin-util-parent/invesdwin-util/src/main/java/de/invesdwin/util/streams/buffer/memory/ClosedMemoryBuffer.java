@@ -429,4 +429,13 @@ public class ClosedMemoryBuffer implements ICloseableMemoryBuffer {
         //noop
     }
 
+    @Override
+    public IMemoryBuffer clone(final long index, final int length) {
+        if (index == 0 && length == capacity()) {
+            return this;
+        } else {
+            throw newClosedException();
+        }
+    }
+
 }

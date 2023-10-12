@@ -404,4 +404,9 @@ public class ByteDelegateMemoryBuffer implements IMemoryBuffer {
         delegate.clear(value, Integers.checkedCast(index), Integers.checkedCast(length));
     }
 
+    @Override
+    public IMemoryBuffer clone(final long index, final int length) {
+        return MemoryBuffers.wrap(asByteArrayCopy(index, length));
+    }
+
 }

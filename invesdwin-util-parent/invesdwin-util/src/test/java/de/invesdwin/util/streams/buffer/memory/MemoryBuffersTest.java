@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams.buffer.bytes;
+package de.invesdwin.util.streams.buffer.memory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -13,10 +13,7 @@ import java.nio.ByteOrder;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.agrona.ExpandableArrayBuffer;
-import org.agrona.ExpandableDirectByteBuffer;
 import org.agrona.MutableDirectBuffer;
-import org.agrona.concurrent.UnsafeBuffer;
 import org.apache.arrow.memory.ArrowBuf;
 import org.apache.arrow.memory.BufferAllocator;
 import org.apache.arrow.memory.RootAllocator;
@@ -27,30 +24,25 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Booleans;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.random.IRandomGenerator;
 import de.invesdwin.util.math.random.PseudoRandomGenerators;
 import de.invesdwin.util.streams.DelegateDataInput;
 import de.invesdwin.util.streams.DelegateDataOutput;
 import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.OutputStreams;
-import de.invesdwin.util.streams.buffer.bytes.delegate.AgronaDelegateMutableByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.delegate.ArrowDelegateByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.delegate.ChronicleDelegateByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.delegate.ListByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.delegate.NettyDelegateByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.delegate.NioDelegateByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.delegate.OrderedDelegateByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.extend.ArrayExpandableByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.extend.internal.DirectExpandableByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedDirectByteBuffer;
-import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.memory.delegate.ArrowDelegateMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.delegate.ChronicleDelegateMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.delegate.ListMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.delegate.OrderedDelegateMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.extend.UnsafeMemoryBuffer;
 import de.invesdwin.util.time.Instant;
-import io.netty.buffer.Unpooled;
 import net.openhft.chronicle.bytes.BytesStore;
 
 @NotThreadSafe
-public class ByteBuffersTest {
+public class MemoryBuffersTest {
 
     private static final int BUFFER_SIZE = 1000;
 
@@ -63,81 +55,37 @@ public class ByteBuffersTest {
         Reflections.disableJavaModuleSystemRestrictions();
     }
 
-    @Test
-    public void testAgronaBuffers() throws IOException {
-        testBufferOrdered(new UnsafeByteBuffer(java.nio.ByteBuffer.allocate(BUFFER_SIZE)));
-        testBufferOrdered(new UnsafeByteBuffer(java.nio.ByteBuffer.allocateDirect(BUFFER_SIZE)));
-        testBufferOrdered(new UnsafeByteBuffer(ByteBuffers.allocateByteArray(BUFFER_SIZE)));
-        testBufferOrdered(
-                new AgronaDelegateMutableByteBuffer(new UnsafeBuffer(java.nio.ByteBuffer.allocate(BUFFER_SIZE))));
-        testBufferOrdered(
-                new AgronaDelegateMutableByteBuffer(new UnsafeBuffer(java.nio.ByteBuffer.allocateDirect(BUFFER_SIZE))));
-        testBufferOrdered(
-                new AgronaDelegateMutableByteBuffer(new UnsafeBuffer(ByteBuffers.allocateByteArray(BUFFER_SIZE))));
-
-        testBufferOrdered(new UninitializedDirectByteBuffer(BUFFER_SIZE));
-
-        testBufferOrdered(new ArrayExpandableByteBuffer());
-        testBufferOrdered(new AgronaDelegateMutableByteBuffer(new ExpandableArrayBuffer()));
-
-        testBufferOrdered(new DirectExpandableByteBuffer());
-        testBufferOrdered(new AgronaDelegateMutableByteBuffer(new ExpandableDirectByteBuffer()));
-    }
-
-    @Test
-    public void testJavaBuffers() throws IOException {
-        testBufferOrdered(new NioDelegateByteBuffer(ByteBuffers.allocateByteArray(BUFFER_SIZE)));
-        testBufferOrdered(new NioDelegateByteBuffer(java.nio.ByteBuffer.allocate(BUFFER_SIZE)));
-        testBufferOrdered(new NioDelegateByteBuffer(java.nio.ByteBuffer.allocateDirect(BUFFER_SIZE)));
-    }
-
     @SuppressWarnings("rawtypes")
     @Test
     public void testChronicleBuffers() throws IllegalStateException, IOException {
         final net.openhft.chronicle.bytes.VanillaBytes direct = net.openhft.chronicle.bytes.Bytes
                 .allocateDirect(ByteBuffers.allocateByteArray(BUFFER_SIZE));
         direct.writePosition(0);
-        testBufferOrdered(new ChronicleDelegateByteBuffer(direct));
-        testBufferOrdered(new ChronicleDelegateByteBuffer(
+        testBufferOrdered(new ChronicleDelegateMemoryBuffer(direct));
+        testBufferOrdered(new ChronicleDelegateMemoryBuffer(
                 BytesStore.wrap(ByteBuffers.allocateByteArray(BUFFER_SIZE)).bytesForWrite()));
-        testBufferOrdered(new ChronicleDelegateByteBuffer(
+        testBufferOrdered(new ChronicleDelegateMemoryBuffer(
                 BytesStore.wrap(java.nio.ByteBuffer.allocate(BUFFER_SIZE)).bytesForWrite()));
-        testBufferOrdered(new ChronicleDelegateByteBuffer(
+        testBufferOrdered(new ChronicleDelegateMemoryBuffer(
                 BytesStore.wrap(java.nio.ByteBuffer.allocateDirect(BUFFER_SIZE)).bytesForWrite()));
-        testBufferOrdered(new ChronicleDelegateByteBuffer(net.openhft.chronicle.bytes.Bytes.elasticByteBuffer()));
+        testBufferOrdered(new ChronicleDelegateMemoryBuffer(net.openhft.chronicle.bytes.Bytes.elasticByteBuffer()));
         testBufferOrdered(
-                new ChronicleDelegateByteBuffer(net.openhft.chronicle.bytes.Bytes.allocateDirect(BUFFER_SIZE)));
-    }
-
-    @Test
-    public void testNettyBuffers() throws IOException {
-        testBufferOrdered(
-                new NettyDelegateByteBuffer(Unpooled.wrappedBuffer(ByteBuffers.allocateByteArray(BUFFER_SIZE))));
-        testBufferOrdered(
-                new NettyDelegateByteBuffer(Unpooled.wrappedBuffer(java.nio.ByteBuffer.allocate(BUFFER_SIZE))));
-        testBufferOrdered(
-                new NettyDelegateByteBuffer(Unpooled.wrappedBuffer(java.nio.ByteBuffer.allocateDirect(BUFFER_SIZE))));
-        testBufferOrdered(new NettyDelegateByteBuffer(Unpooled.buffer(BUFFER_SIZE)));
-        testBufferOrdered(new NettyDelegateByteBuffer(Unpooled.directBuffer(BUFFER_SIZE)));
+                new ChronicleDelegateMemoryBuffer(net.openhft.chronicle.bytes.Bytes.allocateDirect(BUFFER_SIZE)));
     }
 
     @Test
     public void testArrowBuffers() throws IOException {
         try (BufferAllocator bufferAllocator = new RootAllocator(8 * 1024)) {
             try (ArrowBuf arrowBuf = bufferAllocator.buffer(BUFFER_SIZE)) {
-                testBufferOrdered(new ArrowDelegateByteBuffer(arrowBuf));
+                testBufferOrdered(new ArrowDelegateMemoryBuffer(arrowBuf));
             }
         }
     }
 
     @Test
-    public void testByteBuffers() throws IOException {
-        testBufferOrdered(ByteBuffers.allocate(BUFFER_SIZE));
-        testBufferOrdered(ByteBuffers.allocateDirect(BUFFER_SIZE));
-        testBufferOrdered(ByteBuffers.allocateExpandable(BUFFER_SIZE));
-        testBufferOrdered(ByteBuffers.allocateDirectExpandable(BUFFER_SIZE));
-        testBufferOrdered(ByteBuffers.allocateExpandable());
-        testBufferOrdered(ByteBuffers.allocateDirectExpandable());
+    public void testMemoryBuffers() throws IOException {
+        testBufferOrdered(new UnsafeMemoryBuffer(ByteBuffers.allocate(BUFFER_SIZE).byteArray()));
+        testBufferOrdered(new UnsafeMemoryBuffer(ByteBuffers.allocateDirect(BUFFER_SIZE).nioByteBuffer()));
     }
 
     @Test
@@ -147,9 +95,9 @@ public class ByteBuffersTest {
             System.out.println("ListByteBuffer[" + chunkSize + "]");
             //CHECKSTYLE:ON
             final Instant start = new Instant();
-            final ListByteBuffer buffer = new ListByteBuffer();
+            final ListMemoryBuffer buffer = new ListMemoryBuffer();
             for (int i = 0; i < BUFFER_SIZE; i += chunkSize) {
-                buffer.getList().add(ByteBuffers.allocate(chunkSize));
+                buffer.getList().add(new UnsafeMemoryBuffer(ByteBuffers.allocate(chunkSize).byteArray()));
             }
             testBufferOrdered(buffer);
             //CHECKSTYLE:OFF
@@ -158,13 +106,13 @@ public class ByteBuffersTest {
         }
     }
 
-    public void testBufferOrdered(final IByteBuffer buffer) throws IOException {
-        testBuffer(OrderedDelegateByteBuffer.maybeWrap(buffer, ByteBuffers.NATIVE_ORDER));
-        testBuffer(OrderedDelegateByteBuffer.maybeWrap(buffer, ByteOrder.BIG_ENDIAN));
-        testBuffer(OrderedDelegateByteBuffer.maybeWrap(buffer, ByteOrder.LITTLE_ENDIAN));
+    public void testBufferOrdered(final IMemoryBuffer buffer) throws IOException {
+        testBuffer(OrderedDelegateMemoryBuffer.maybeWrap(buffer, ByteBuffers.NATIVE_ORDER));
+        testBuffer(OrderedDelegateMemoryBuffer.maybeWrap(buffer, ByteOrder.BIG_ENDIAN));
+        testBuffer(OrderedDelegateMemoryBuffer.maybeWrap(buffer, ByteOrder.LITTLE_ENDIAN));
     }
 
-    private void testBuffer(final IByteBuffer b) throws IOException {
+    private void testBuffer(final IMemoryBuffer b) throws IOException {
         testPrimitives(b);
         b.clear();
         testPrimitivesReverse(b);
@@ -182,32 +130,32 @@ public class ByteBuffersTest {
         testCopy(b);
     }
 
-    private void testCopy(final IByteBuffer b) throws IOException, FileNotFoundException {
-        final int capacity = b.capacity();
+    private void testCopy(final IMemoryBuffer b) throws IOException, FileNotFoundException {
+        final int capacity = Integers.checkedCast(b.capacity());
         final byte[] zero = new byte[capacity];
         final byte[] random = new byte[capacity];
         final byte[] get = new byte[capacity];
         final IRandomGenerator r = PseudoRandomGenerators.getThreadLocalPseudoRandom();
         r.nextBytes(random);
         b.clear();
-        Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, zero));
+        Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, zero));
         b.putBytes(0, random);
-        Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+        Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
         b.getBytes(0, get);
-        Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
-        Assertions.checkTrue(ByteBuffers.constantTimeEquals(get, random));
-        final IByteBuffer clone = b.clone(0, b.capacity());
-        Assertions.checkTrue(ByteBuffers.constantTimeEquals(clone, random));
-        Assertions.checkTrue(ByteBuffers.constantTimeEquals(b.asByteArray(0, b.capacity()), random));
-        Assertions.checkTrue(ByteBuffers.constantTimeEquals(b.asByteArrayCopy(0, b.capacity()), random));
-        java.nio.ByteBuffer nioBuffer = clone.asNioByteBuffer();
-        Assertions.checkTrue(ByteBuffers.constantTimeEquals(ByteBuffers.wrap(nioBuffer), random));
-        MutableDirectBuffer directBuffer = clone.asDirectBuffer();
-        Assertions.checkTrue(ByteBuffers.constantTimeEquals(ByteBuffers.wrap(directBuffer), random));
-        IMemoryBuffer memoryBuffer = clone.asMemoryBuffer();
-        Assertions.checkTrue(ByteBuffers.constantTimeEquals(memoryBuffer.asByteArrayCopy(0, capacity), random));
-        Assertions.checkTrue(ByteBuffers.constantTimeEquals(b.slice(0, capacity), random));
-        Assertions.checkTrue(ByteBuffers.constantTimeEquals(b.newSlice(0, capacity), random));
+        Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
+        Assertions.checkTrue(MemoryBuffers.constantTimeEquals(get, random));
+        final IMemoryBuffer clone = b.clone(0, Integers.checkedCast(b.capacity()));
+        Assertions.checkTrue(MemoryBuffers.constantTimeEquals(clone, random));
+        Assertions.checkTrue(
+                MemoryBuffers.constantTimeEquals(b.asByteArrayCopy(0, Integers.checkedCast(b.capacity())), random));
+        java.nio.ByteBuffer nioBuffer = clone.asNioByteBuffer(0, Integers.checkedCast(b.capacity()));
+        Assertions.checkTrue(MemoryBuffers.constantTimeEquals(MemoryBuffers.wrap(nioBuffer), random));
+        MutableDirectBuffer directBuffer = clone.asDirectBuffer(0, Integers.checkedCast(b.capacity()));
+        Assertions.checkTrue(MemoryBuffers.constantTimeEquals(MemoryBuffers.wrap(directBuffer), random));
+        IByteBuffer byteBuffer = clone.asByteBuffer(0, Integers.checkedCast(b.capacity()));
+        Assertions.checkTrue(MemoryBuffers.constantTimeEquals(byteBuffer.asByteArrayCopy(0, capacity), random));
+        Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b.slice(0, capacity), random));
+        Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b.newSlice(0, capacity), random));
 
         final File file = File.createTempFile("asdf", "ghjk");
         try {
@@ -215,100 +163,100 @@ public class ByteBuffersTest {
             try (FileOutputStream fos = new FileOutputStream(file)) {
                 IOUtils.copy(b.asInputStream(), fos);
             }
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
             b.clear();
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, zero));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, zero));
             try (FileInputStream fis = new FileInputStream(file)) {
                 IOUtils.copy(fis, b.asOutputStream());
             }
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
 
             //InputStream/OutputStream
             try (FileOutputStream fos = new FileOutputStream(file)) {
                 b.getBytes(0, fos);
             }
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
             b.clear();
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, zero));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, zero));
             try (FileInputStream fis = new FileInputStream(file)) {
                 b.putBytes(0, fis);
             }
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
 
             //ReadableByteChannel/WritableByteChannel
             try (FileOutputStream fos = new FileOutputStream(file)) {
                 b.getBytes(0, fos.getChannel());
             }
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
             b.clear();
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, zero));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, zero));
             try (FileInputStream fis = new FileInputStream(file)) {
                 b.putBytes(0, fis.getChannel());
             }
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
 
             //DataInputStream/DataOutputStream
             try (FileOutputStream fos = new FileOutputStream(file)) {
                 b.getBytes(0, new DataOutputStream(fos));
             }
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
             b.clear();
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, zero));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, zero));
             try (FileInputStream fis = new FileInputStream(file)) {
                 b.putBytes(0, new DataInputStream(fis));
             }
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
 
             //DirectBuffer
             clone.clear();
-            directBuffer = clone.asDirectBuffer();
+            directBuffer = clone.asDirectBuffer(0, Integers.checkedCast(b.capacity()));
             b.getBytes(0, directBuffer);
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
             b.clear();
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, zero));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, zero));
             b.putBytes(0, directBuffer);
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
 
             //NioBuffer
             clone.clear();
-            nioBuffer = clone.asNioByteBuffer();
+            nioBuffer = clone.asNioByteBuffer(0, Integers.checkedCast(b.capacity()));
             b.getBytes(0, nioBuffer);
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
             b.clear();
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, zero));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, zero));
             b.putBytes(0, nioBuffer);
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
 
             //MemoryBuffer
             clone.clear();
-            memoryBuffer = clone.asMemoryBuffer();
-            b.getBytes(0, memoryBuffer, 0, capacity);
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            byteBuffer = clone.asByteBuffer(0, Integers.checkedCast(b.capacity()));
+            b.getBytes(0, byteBuffer, 0, capacity);
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
             b.clear();
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, zero));
-            b.putBytes(0, memoryBuffer, 0, capacity);
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, zero));
+            b.putBytes(0, byteBuffer, 0, capacity);
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
 
             //ByteBuffer
             clone.clear();
             b.getBytes(0, clone);
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
             b.clear();
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, zero));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, zero));
             b.putBytes(0, clone);
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
 
             //DataInput/DataOutput
             try (FileOutputStream fos = new FileOutputStream(file)) {
                 b.getBytes(0, new DelegateDataOutput(new DataOutputStream(fos)));
             }
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
             b.clear();
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, zero));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, zero));
             try (FileInputStream fis = new FileInputStream(file)) {
                 b.putBytes(0, new DelegateDataInput(new DataInputStream(fis)));
             }
-            Assertions.checkTrue(ByteBuffers.constantTimeEquals(b, random));
+            Assertions.checkTrue(MemoryBuffers.constantTimeEquals(b, random));
         } finally {
             Files.deleteQuietly(file);
         }
@@ -316,7 +264,7 @@ public class ByteBuffersTest {
         Assertions.checkEquals(capacity, b.capacity());
     }
 
-    private void testStringAscii(final IByteBuffer b) {
+    private void testStringAscii(final IMemoryBuffer b) {
         final String str = "asdfäöüjklm";
 
         int write = 200;
@@ -334,7 +282,7 @@ public class ByteBuffersTest {
         Assertions.checkEquals("asdf???jklm", appendable.toString());
     }
 
-    private void testStringUtf8(final IByteBuffer b) {
+    private void testStringUtf8(final IMemoryBuffer b) {
         final String str = "asdfäöüjklm";
 
         int write = 200;
@@ -351,7 +299,7 @@ public class ByteBuffersTest {
         Assertions.checkEquals(str, appendable.toString());
     }
 
-    private void testPrimitives(final IByteBuffer b) {
+    private void testPrimitives(final IMemoryBuffer b) {
         int write = 200;
         b.putBoolean(write, true);
         write += Booleans.BYTES;
@@ -389,7 +337,7 @@ public class ByteBuffersTest {
         read += Double.BYTES;
     }
 
-    private void testPrimitivesReverse(final IByteBuffer b) {
+    private void testPrimitivesReverse(final IMemoryBuffer b) {
         int write = 200;
         b.putCharReverse(write, 'A');
         write += Character.BYTES;
@@ -419,7 +367,7 @@ public class ByteBuffersTest {
         read += Double.BYTES;
     }
 
-    private void testPrimitivesStream(final IByteBuffer b) throws IOException {
+    private void testPrimitivesStream(final IMemoryBuffer b) throws IOException {
         final int write = 200;
         try (OutputStream out = b.asOutputStreamFrom(write)) {
             OutputStreams.writeBoolean(out, true);

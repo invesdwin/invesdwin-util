@@ -453,4 +453,6 @@ public interface IMemoryBuffer extends IMemoryBufferProvider {
 
     void clear(byte value, long index, long length);
 
+    IMemoryBuffer clone(long index, int length);
+
 }

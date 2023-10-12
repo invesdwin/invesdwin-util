@@ -14,8 +14,7 @@ import de.invesdwin.util.streams.buffer.memory.extend.UnsafeMemoryBuffer;
 @Immutable
 public final class MemoryBuffers {
 
-    private MemoryBuffers() {
-    }
+    private MemoryBuffers() {}
 
     public static IMemoryBuffer wrap(final long address, final long length) {
         return new UnsafeMemoryBuffer(address, length);
@@ -147,6 +146,183 @@ public final class MemoryBuffers {
             throw new NullPointerException("buffer should not be null (this can cause a jvm crash)");
         }
         return buffer;
+    }
+
+    public static boolean constantTimeEquals(final byte[] digesta, final byte[] digestb) {
+        return ByteBuffers.constantTimeEquals(digesta, digestb);
+    }
+
+    public static boolean constantTimeEquals(final IMemoryBuffer digesta, final byte[] digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final long lenA = digesta.capacity();
+        final int lenB = digestb.length;
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        int result = 0;
+        result |= lenA - lenB;
+
+        // time-constant comparison
+        for (int i = 0; i < lenA; i++) {
+            // If i >= lenB, indexB is 0; otherwise, i.
+            final int indexB = ((i - lenB) >>> 31) * i;
+            result |= digesta.getByte(i) ^ digestb[indexB];
+        }
+        return result == 0;
+    }
+
+    public static boolean constantTimeEquals(final IMemoryBuffer digesta, final byte[] digestb, final int digestbOffset,
+            final int digestbLength) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final long lenA = digesta.capacity();
+        final int lenB = digestbLength;
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        int result = 0;
+        result |= lenA - lenB;
+
+        // time-constant comparison
+        for (int i = 0; i < lenA; i++) {
+            // If i >= lenB, indexB is 0; otherwise, i.
+            final int indexB = digestbOffset + ((i - lenB) >>> 31) * i;
+            result |= digesta.getByte(i) ^ digestb[indexB];
+        }
+        return result == 0;
+    }
+
+    public static boolean constantTimeEquals(final byte[] digesta, final IMemoryBuffer digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenA = digesta.length;
+        final long lenB = digestb.capacity();
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        int result = 0;
+        result |= lenA - lenB;
+
+        // time-constant comparison
+        for (int i = 0; i < lenB; i++) {
+            // If i >= lenB, indexB is 0; otherwise, i.
+            final int indexA = ((i - lenA) >>> 31) * i;
+            result |= digesta[indexA] ^ digestb.getByte(i);
+        }
+        return result == 0;
+    }
+
+    public static boolean constantTimeEquals(final IMemoryBuffer digesta, final IMemoryBuffer digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final long lenA = digesta.capacity();
+        final long lenB = digestb.capacity();
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        int result = 0;
+        result |= lenA - lenB;
+
+        // time-constant comparison
+        for (int i = 0; i < lenA; i++) {
+            // If i >= lenB, indexB is 0; otherwise, i.
+            final long indexB = ((i - lenB) >>> 31) * i;
+            result |= digesta.getByte(i) ^ digestb.getByte(indexB);
+        }
+        return result == 0;
+    }
+
+    public static boolean equals(final byte[] digesta, final byte[] digestb) {
+        return ByteBuffers.equals(digesta, digestb);
+    }
+
+    public static boolean equals(final IMemoryBuffer digesta, final byte[] digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final long lenA = digesta.capacity();
+        final int lenB = digestb.length;
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        if (lenA != lenB) {
+            return false;
+        }
+
+        for (int i = 0; i < lenA; i++) {
+            if (digesta.getByte(i) != digestb[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean equals(final byte[] digesta, final IMemoryBuffer digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenA = digesta.length;
+        final long lenB = digestb.capacity();
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        if (lenA != lenB) {
+            return false;
+        }
+
+        for (int i = 0; i < lenA; i++) {
+            if (digesta[i] != digestb.getByte(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean equals(final IMemoryBuffer digesta, final IMemoryBuffer digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final long lenA = digesta.capacity();
+        final long lenB = digestb.capacity();
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        if (lenA != lenB) {
+            return false;
+        }
+
+        for (long i = 0; i < lenA; i++) {
+            if (digesta.getByte(i) != digestb.getByte(i)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

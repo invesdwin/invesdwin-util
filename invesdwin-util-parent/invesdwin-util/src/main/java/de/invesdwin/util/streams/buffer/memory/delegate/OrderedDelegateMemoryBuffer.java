@@ -249,12 +249,12 @@ public class OrderedDelegateMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public InputStream asInputStream(final long index, final long length) {
-        return delegate.asInputStream();
+        return delegate.asInputStream(index, length);
     }
 
     @Override
     public OutputStream asOutputStream(final long index, final long length) {
-        return delegate.asOutputStream();
+        return delegate.asOutputStream(index, length);
     }
 
     @Override
@@ -409,5 +409,10 @@ public class OrderedDelegateMemoryBuffer implements IMemoryBuffer {
     @Override
     public void clear(final byte value, final long index, final long length) {
         delegate.clear(value, index, length);
+    }
+
+    @Override
+    public IMemoryBuffer clone(final long index, final int length) {
+        return maybeWrap(MemoryBuffers.wrap(asByteArrayCopy(index, length)), order);
     }
 }

@@ -487,4 +487,13 @@ public final class EmptyMemoryBuffer implements ICloseableMemoryBuffer {
         //noop
     }
 
+    @Override
+    public IMemoryBuffer clone(final long index, final int length) {
+        if (index == 0 && length == 0) {
+            return this;
+        } else {
+            throw newEmptyException();
+        }
+    }
+
 }

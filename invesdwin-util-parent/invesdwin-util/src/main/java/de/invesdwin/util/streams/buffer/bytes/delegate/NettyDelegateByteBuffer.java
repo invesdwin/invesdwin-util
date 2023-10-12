@@ -129,11 +129,6 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
         return delegate.capacity();
     }
 
-    @SuppressWarnings("deprecation")
-    private ByteOrder getDelegateOrder() {
-        return delegate.order();
-    }
-
     @Override
     public long getLong(final int index) {
         return delegate.getLong(index);

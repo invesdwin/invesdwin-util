@@ -16,6 +16,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
+import de.invesdwin.util.concurrent.loop.ASpinWait;
+import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
@@ -148,13 +150,22 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
 
     @Override
     public MutableDirectBuffer asDirectBuffer(final long index, final int length) {
-        return new UnsafeByteBuffer(addressOffset() + wrapAdjustment() + index, length);
+        return asUnsafeBuffer(index, length);
+    }
+
+    private UnsafeByteBuffer asUnsafeBuffer(final long index, final int length) {
+        final byte[] byteArray = byteArray();
+        if (byteArray != null) {
+            return new UnsafeByteBuffer(byteArray, Integers.checkedCast(index), length);
+        } else {
+            return new UnsafeByteBuffer(addressOffset() + wrapAdjustment() + index, length);
+        }
     }
 
     @Override
     public IByteBuffer asByteBuffer(final long index, final int length) {
         if (index + length < ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH) {
-            return new UnsafeByteBuffer(addressOffset() + index, length);
+            return asUnsafeBuffer(index, length);
         } else {
             return new MemoryDelegateByteBuffer(newSlice(index, length));
         }
@@ -292,16 +303,26 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
             putBytesTo(index, (DataInput) src, length);
         } else {
             final Duration timeout = URIs.getDefaultNetworkTimeout();
-            final long zeroCountNanos = -1L;
+            long zeroCountNanos = -1L;
 
-            long i = index;
-            while (i < length) {
+            final long limit = index + length;
+            for (long i = index; i < limit;) {
                 final int result = src.read();
-                if (result < 0) {
+                if (result < 0) { // EOF
                     throw ByteBuffers.newEOF();
                 }
-                putByte(i, (byte) result);
-                i++;
+                if (result == 0 && timeout != null) {
+                    if (zeroCountNanos == -1) {
+                        zeroCountNanos = System.nanoTime();
+                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        throw FastEOFException.getInstance("write timeout exceeded");
+                    }
+                    ASpinWait.onSpinWaitStatic();
+                } else {
+                    zeroCountNanos = -1L;
+                    putByte(i, (byte) result);
+                    i++;
+                }
             }
         }
     }
@@ -636,6 +657,11 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
             checkLimit(desiredCapacity);
         }
         return this;
+    }
+
+    @Override
+    public IMemoryBuffer clone(final long index, final int length) {
+        return MemoryBuffers.wrap(asByteArrayCopy(index, length));
     }
 
 }

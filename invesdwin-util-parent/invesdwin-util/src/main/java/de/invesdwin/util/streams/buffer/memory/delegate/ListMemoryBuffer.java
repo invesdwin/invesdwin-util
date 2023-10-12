@@ -33,6 +33,7 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.MemoryDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.EmptyMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.MemoryBuffers;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedDelegateMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedFromDelegateMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IMutableSlicedDelegateMemoryBufferFactory;
@@ -1406,6 +1407,11 @@ public class ListMemoryBuffer implements IMemoryBuffer {
             }
         }
         return null;
+    }
+
+    @Override
+    public IMemoryBuffer clone(final long index, final int length) {
+        return MemoryBuffers.wrap(asByteArrayCopy(index, length));
     }
 
 }

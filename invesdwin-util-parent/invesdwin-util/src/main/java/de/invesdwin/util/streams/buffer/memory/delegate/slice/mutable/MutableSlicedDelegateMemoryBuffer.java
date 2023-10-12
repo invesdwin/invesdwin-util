@@ -404,4 +404,9 @@ public class MutableSlicedDelegateMemoryBuffer implements IMemoryBuffer {
         return this;
     }
 
+    @Override
+    public IMemoryBuffer clone(final long index, final int length) {
+        return MemoryBuffers.wrap(asByteArrayCopy(index, length));
+    }
+
 }
