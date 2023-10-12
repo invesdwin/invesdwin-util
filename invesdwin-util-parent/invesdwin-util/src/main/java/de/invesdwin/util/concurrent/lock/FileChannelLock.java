@@ -7,7 +7,6 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 
@@ -15,8 +14,8 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 
-import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.time.Instant;
@@ -26,10 +25,9 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public class FileChannelLock implements Closeable, ILock {
 
-    private static final Map<String, ILock> FILE_LOCK = Caffeine.newBuilder()
+    private static final LoadingCache<String, ILock> FILE_LOCK = Caffeine.newBuilder()
             .weakValues()
-            .<String, ILock> build((name) -> ILockCollectionFactory.getInstance(true).newLock(name))
-            .asMap();
+            .<String, ILock> build((name) -> Locks.newReentrantLock(name));
 
     @GuardedBy("this")
     private final FileChannelLockFinalizer finalizer;
