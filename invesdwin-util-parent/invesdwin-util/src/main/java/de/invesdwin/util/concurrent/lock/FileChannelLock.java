@@ -131,7 +131,7 @@ public class FileChannelLock implements Closeable, ILock {
     }
 
     protected boolean isThreadLockEnabled() {
-        return true;
+        return false;
     }
 
     @Override
