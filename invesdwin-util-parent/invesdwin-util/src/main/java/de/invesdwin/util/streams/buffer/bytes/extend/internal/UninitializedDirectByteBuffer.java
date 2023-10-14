@@ -1,7 +1,6 @@
 package de.invesdwin.util.streams.buffer.bytes.extend.internal;
 
 import java.io.Closeable;
-import java.io.IOException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -62,7 +61,8 @@ public class UninitializedDirectByteBuffer extends UnsafeByteBuffer implements C
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
+        super.close();
         finalizer.close();
     }
 

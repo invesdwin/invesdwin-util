@@ -217,7 +217,13 @@ public final class ByteBuffers {
     }
 
     public static IByteBuffer allocateExpandable(final int initialLength) {
-        return new ArrayExpandableByteBuffer(initialLength);
+        if (initialLength == 0) {
+            return EmptyByteBuffer.INSTANCE;
+        } else if (initialLength < 0) {
+            return allocateDirectExpandable();
+        } else {
+            return new ArrayExpandableByteBuffer(initialLength);
+        }
     }
 
     public static IByteBuffer allocateDirect(final Integer fixedLength) {

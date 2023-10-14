@@ -20,13 +20,15 @@ import org.agrona.concurrent.UnsafeBuffer;
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.lang.uri.URIs;
+import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.UninitializedDirectByteBuffers;
-import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.FixedMutableSlicedDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.FixedMutableSlicedDelegateCloseableByteBufferFactory;
+import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateCloseableByteBufferFactory;
 import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferInputStream;
 import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferOutputStream;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
@@ -34,9 +36,9 @@ import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
-public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
+public class UnsafeByteBuffer extends UnsafeBuffer implements ICloseableByteBuffer {
 
-    private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
+    protected IMutableSlicedDelegateCloseableByteBufferFactory mutableSliceFactory;
 
     public UnsafeByteBuffer() {
         super();
@@ -224,20 +226,20 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
         return new ByteDelegateMemoryBuffer(this).newSlice(index, length);
     }
 
-    private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
+    private IMutableSlicedDelegateCloseableByteBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
-            mutableSliceFactory = new FixedMutableSlicedDelegateByteBufferFactory(this);
+            mutableSliceFactory = new FixedMutableSlicedDelegateCloseableByteBufferFactory(this);
         }
         return mutableSliceFactory;
     }
 
     @Override
-    public IByteBuffer sliceFrom(final int index) {
+    public ICloseableByteBuffer sliceFrom(final int index) {
         return getMutableSliceFactory().sliceFrom(index);
     }
 
     @Override
-    public IByteBuffer slice(final int index, final int length) {
+    public ICloseableByteBuffer slice(final int index, final int length) {
         return getMutableSliceFactory().slice(index, length);
     }
 
@@ -694,7 +696,7 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
     }
 
     @Override
-    public IByteBuffer ensureCapacity(final int desiredCapacity) {
+    public ICloseableByteBuffer ensureCapacity(final int desiredCapacity) {
         if (desiredCapacity > capacity()) {
             checkLimit(desiredCapacity);
         }
@@ -702,8 +704,13 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements IByteBuffer {
     }
 
     @Override
-    public IByteBuffer asImmutableSlice() {
+    public ICloseableByteBuffer asImmutableSlice() {
         return this;
+    }
+
+    @Override
+    public void close() {
+        wrap(Bytes.EMPTY_ARRAY);
     }
 
 }
