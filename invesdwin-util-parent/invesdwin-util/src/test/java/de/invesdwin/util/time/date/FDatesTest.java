@@ -74,4 +74,17 @@ public class FDatesTest {
         Assertions.assertThat(mapIndexes).isEqualTo(expectedIndexes);
     }
 
+    @Test
+    public void testStartsWithIsoDateTimeMsFormat() {
+        //2016-08-04T06:05:00.000
+        Assertions.checkTrue(FDates.isIsoDateTimeMsFormat("2016-08-04T06:05:00.000"));
+        Assertions.checkFalse(FDates.isIsoDateTimeMsFormat("A2016-08-04T06:05:00.000"));
+        Assertions.checkFalse(FDates.isIsoDateTimeMsFormat("2016-08-04T06:05:00.000A"));
+        Assertions.checkTrue(FDates.startsWithIsoDateTimeMsFormat("2016-08-04T06:05:00.000"));
+        Assertions.checkTrue(FDates.startsWithIsoDateTimeMsFormat("2016-08-04T06:05:00.000ASDF"));
+        Assertions.checkFalse(FDates.startsWithIsoDateTimeMsFormat("A2016-08-04T06:05:00.000"));
+        Assertions.checkTrue(FDates.startsWithIsoDateTimeMsFormat("A2016-08-04T06:05:00.000", 1));
+        Assertions.checkTrue(FDates.startsWithIsoDateTimeMsFormat("A2016-08-04T06:05:00.000ASDF", 1));
+    }
+
 }

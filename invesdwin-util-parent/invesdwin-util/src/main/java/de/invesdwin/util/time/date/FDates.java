@@ -698,4 +698,138 @@ public final class FDates {
         return a.compareToNotNullSafe(b);
     }
 
+    public static boolean isIsoDateTimeMsFormat(final String str) {
+        return str.length() == FDate.FORMAT_ISO_DATE_TIME_MS_LENGTH && startsWithIsoDateTimeMsFormat(str);
+    }
+
+    public static boolean startsWithIsoDateTimeMsFormat(final String str) {
+        return startsWithIsoDateTimeMsFormat(str, 0);
+    }
+
+    //CHECKSTYLE:OFF
+    public static boolean startsWithIsoDateTimeMsFormat(final String str, final int startIndex) {
+        //CHECKSTYLE:ON
+        //2016-08-04T06:05:00.000
+        int position = startIndex;
+        if (str.length() < startIndex + FDate.FORMAT_ISO_DATE_TIME_MS_LENGTH) {
+            return false;
+        }
+        //0 2
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //1 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //2 1
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //3 6
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //4 -
+        position++;
+        if (str.charAt(position) != '-') {
+            return false;
+        }
+        //5 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //6 8
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //7 -
+        position++;
+        if (str.charAt(position) != '-') {
+            return false;
+        }
+        //8 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //9 4
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //10 T
+        position++;
+        if (str.charAt(position) != 'T') {
+            return false;
+        }
+        //06:05:00.000
+        //11 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //12 6
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //13 :
+        position++;
+        if (str.charAt(position) != ':') {
+            return false;
+        }
+        //14 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //15 5
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //16 :
+        position++;
+        if (str.charAt(position) != ':') {
+            return false;
+        }
+        //17 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //18 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //19 .
+        position++;
+        if (str.charAt(position) != '.') {
+            return false;
+        }
+        //20 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //21 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //22 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        return true;
+    }
+
 }

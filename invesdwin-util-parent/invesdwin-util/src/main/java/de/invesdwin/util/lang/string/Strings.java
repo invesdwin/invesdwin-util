@@ -369,17 +369,18 @@ public final class Strings extends AStringsStaticFacade {
         return sb.toString();
     }
 
-    public static String replaceRange(final String s, final int start, final int end, final String replaceStr) {
-        final String anfang = s.substring(0, start) + replaceStr;
-        if (end + 1 > s.length() - 1) {
+    public static String replaceRange(final String s, final int startInclusive, final int endExclusive,
+            final String replaceStr) {
+        final String anfang = s.substring(0, startInclusive) + replaceStr;
+        if (endExclusive > s.length() - 1) {
             return anfang;
         } else {
-            return anfang + s.substring(end + 1);
+            return anfang + s.substring(endExclusive);
         }
     }
 
-    public static String removeRange(final String s, final int start, final int end) {
-        return replaceRange(s, start, end, "");
+    public static String removeRange(final String s, final int startInclusive, final int endExclusive) {
+        return replaceRange(s, startInclusive, endExclusive, "");
     }
 
     public static String replaceNewlines(final String s, final String newlineReplacement) {
@@ -767,6 +768,10 @@ public final class Strings extends AStringsStaticFacade {
         } else {
             return str;
         }
+    }
+
+    public static boolean startsWith(final CharSequence str, final CharSequence prefix, final int startIndex) {
+        return Strings.indexOf(str, prefix, startIndex) >= 0;
     }
 
 }

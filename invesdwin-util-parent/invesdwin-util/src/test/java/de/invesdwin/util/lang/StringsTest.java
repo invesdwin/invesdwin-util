@@ -85,6 +85,11 @@ public class StringsTest {
         //CHECKSTYLE:ON
     }
 
+    @Test
+    public void testReplaceRange() {
+        Assertions.checkEquals("aadf", Strings.replaceRange("asdf", 1, 2, "a"));
+    }
+
     @SuppressWarnings("unused")
     public static class PrettyToStringVO {
         private static final long serialVersionUID = 1L;
