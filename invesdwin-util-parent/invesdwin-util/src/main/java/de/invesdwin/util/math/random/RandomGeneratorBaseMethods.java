@@ -8,8 +8,7 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class RandomGeneratorBaseMethods {
 
-    private RandomGeneratorBaseMethods() {
-    }
+    private RandomGeneratorBaseMethods() {}
 
     public static float nextFloat(final IRandomGenerator thisObj, final float maxExclusive) {
         // Specialize boundedNextFloat for origin == 0, bound > 0
@@ -28,6 +27,9 @@ public final class RandomGeneratorBaseMethods {
             if (r >= maxExclusive) { // may need to correct a rounding problem
                 r = Float.intBitsToFloat(Float.floatToIntBits(maxExclusive) - 1);
             }
+        } else {
+            throw new IllegalArgumentException(
+                    "minInclusive [" + minInclusive + "] should be smaller than maxExclusive [" + maxExclusive + "]");
         }
         return r;
     }
@@ -50,6 +52,9 @@ public final class RandomGeneratorBaseMethods {
             if (r >= maxExclusive) { // may need to correct a rounding problem
                 r = Double.longBitsToDouble(Double.doubleToLongBits(maxExclusive) - 1);
             }
+        } else {
+            throw new IllegalArgumentException(
+                    "minInclusive [" + minInclusive + "] should be smaller than maxExclusive [" + maxExclusive + "]");
         }
         return r;
     }
@@ -77,6 +82,9 @@ public final class RandomGeneratorBaseMethods {
                     r = thisObj.nextInt();
                 }
             }
+        } else {
+            throw new IllegalArgumentException(
+                    "minInclusive [" + minInclusive + "] should be smaller than maxExclusive [" + maxExclusive + "]");
         }
         return r;
     }
@@ -134,6 +142,9 @@ public final class RandomGeneratorBaseMethods {
                     r = thisObj.nextLong();
                 }
             }
+        } else {
+            throw new IllegalArgumentException(
+                    "minInclusive [" + minInclusive + "] should be smaller than maxExclusive [" + maxExclusive + "]");
         }
         return r;
     }
