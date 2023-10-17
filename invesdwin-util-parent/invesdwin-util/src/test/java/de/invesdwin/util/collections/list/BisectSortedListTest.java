@@ -5,12 +5,12 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.math3.random.RandomAdaptor;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.lang.comparator.Comparators;
 import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.math.random.RandomAdapter;
 import de.invesdwin.util.math.random.PseudoRandomGenerators;
 
 @NotThreadSafe
@@ -58,7 +58,7 @@ public class BisectSortedListTest {
         original.add(Decimal.FIVE);
         original.add(Decimal.MINUS_THREE);
 
-        final RandomAdaptor random = new RandomAdaptor(PseudoRandomGenerators.newPseudoRandom());
+        final RandomAdapter random = new RandomAdapter(PseudoRandomGenerators.newPseudoRandom());
         for (int i = 0; i < 10000; i++) {
             final List<Decimal> input = new ArrayList<Decimal>(original);
             Collections.shuffle(input, random);
