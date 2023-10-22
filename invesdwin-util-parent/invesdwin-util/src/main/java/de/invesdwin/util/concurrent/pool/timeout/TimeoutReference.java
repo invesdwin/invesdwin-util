@@ -3,7 +3,6 @@ package de.invesdwin.util.concurrent.pool.timeout;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.buffer.NodeBufferingIterator.INode;
-import de.invesdwin.util.lang.Closeables;
 
 @NotThreadSafe
 public final class TimeoutReference<E> implements INode<TimeoutReference<E>> {
@@ -24,7 +23,6 @@ public final class TimeoutReference<E> implements INode<TimeoutReference<E>> {
 
     public void clear() {
         if (value != null) {
-            Closeables.closeQuietly(value);
             value = null;
             TimeoutReferenceObjectPool.<E> getInstance().returnObject(this);
         } else {
