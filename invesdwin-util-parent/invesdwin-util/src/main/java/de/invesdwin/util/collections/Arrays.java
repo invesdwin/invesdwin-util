@@ -92,4 +92,105 @@ public class Arrays extends AArraysStaticFacade {
         return java.util.Arrays.asList(a);
     }
 
+    public static boolean[][] clone(final boolean[][] array) {
+        if (array == null) {
+            return null;
+        }
+        final boolean[][] cloned = new boolean[array.length][];
+        for (int i = 0; i < cloned.length; i++) {
+            cloned[i] = clone(array[i]);
+        }
+        return cloned;
+    }
+
+    public static byte[][] clone(final byte[][] array) {
+        if (array == null) {
+            return null;
+        }
+        final byte[][] cloned = new byte[array.length][];
+        for (int i = 0; i < cloned.length; i++) {
+            cloned[i] = clone(array[i]);
+        }
+        return cloned;
+    }
+
+    public static char[][] clone(final char[][] array) {
+        if (array == null) {
+            return null;
+        }
+        final char[][] cloned = new char[array.length][];
+        for (int i = 0; i < cloned.length; i++) {
+            cloned[i] = clone(array[i]);
+        }
+        return cloned;
+    }
+
+    /** @see org.apache.commons.lang3.ArrayUtils#clone(double[]) */
+    public static double[][] clone(final double[][] array) {
+        if (array == null) {
+            return null;
+        }
+        final double[][] cloned = new double[array.length][];
+        for (int i = 0; i < cloned.length; i++) {
+            cloned[i] = clone(array[i]);
+        }
+        return cloned;
+    }
+
+    public static float[][] clone(final float[][] array) {
+        if (array == null) {
+            return null;
+        }
+        final float[][] cloned = new float[array.length][];
+        for (int i = 0; i < cloned.length; i++) {
+            cloned[i] = clone(array[i]);
+        }
+        return cloned;
+    }
+
+    public static int[][] clone(final int[][] array) {
+        if (array == null) {
+            return null;
+        }
+        final int[][] cloned = new int[array.length][];
+        for (int i = 0; i < cloned.length; i++) {
+            cloned[i] = clone(array[i]);
+        }
+        return cloned;
+    }
+
+    public static long[][] clone(final long[][] array) {
+        if (array == null) {
+            return null;
+        }
+        final long[][] cloned = new long[array.length][];
+        for (int i = 0; i < cloned.length; i++) {
+            cloned[i] = clone(array[i]);
+        }
+        return cloned;
+    }
+
+    public static short[][] clone(final short[][] array) {
+        if (array == null) {
+            return null;
+        }
+        final short[][] cloned = new short[array.length][];
+        for (int i = 0; i < cloned.length; i++) {
+            cloned[i] = clone(array[i]);
+        }
+        return cloned;
+    }
+
+    public static <T> T[][] clone(final T[][] array) {
+        if (array == null) {
+            return null;
+        }
+        @SuppressWarnings("unchecked")
+        final T[][] cloned = (T[][]) Arrays.newInstance(array.getClass().getComponentType(), array.length);
+        for (int i = 0; i < cloned.length; i++) {
+            cloned[i] = clone(array[i]);
+        }
+        return cloned;
+    }
+
 }
