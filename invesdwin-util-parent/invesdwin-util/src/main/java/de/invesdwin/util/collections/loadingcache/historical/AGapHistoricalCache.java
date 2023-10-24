@@ -474,11 +474,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                         break;
                     }
                     pushLastValueFromFurtherValues();
-                    if (!loadFurtherValuesKey.equals(newValueKey)) {
-                        //do not distort prev/next lookup when using earlisetStartOfLoadFurtherValues, thus reset those
-                        prevValue = null;
-                        prevKey = null;
-                    }
+                    //do not distort prev/next lookup when using earliestStartOfLoadFurtherValues, thus reset those
+                    prevValue = null;
+                    prevKey = null;
                 }
             }
         }
