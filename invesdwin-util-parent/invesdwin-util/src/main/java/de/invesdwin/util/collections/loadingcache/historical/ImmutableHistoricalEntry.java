@@ -17,6 +17,11 @@ public final class ImmutableHistoricalEntry<T> implements IHistoricalEntry<T> {
     }
 
     @Override
+    public boolean isValuePresent() {
+        return value != null;
+    }
+
+    @Override
     public FDate getKey() {
         return key;
     }
