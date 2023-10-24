@@ -464,7 +464,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 if (furtherValues.isEmpty() && newValueKey.isBefore(maxKeyInDB) && key.isBefore(maxKeyInDB)
                         && maxKeyInDBFromLoadFurtherValues.isBefore(maxKeyInDB)) {
                     final FDate loadFurtherValuesKey = FDates.max(newValueKey, earliestStartOfLoadFurtherValues);
-                    if (loadFurtherValuesKey.isAfterNotNullSafe(prevLoadFurtherValuesKey)) {
+                    if (loadFurtherValuesKey.isBeforeOrEqualToNotNullSafe(prevLoadFurtherValuesKey)) {
                         break;
                     }
                     Assertions.checkState(eventuallyLoadFurtherValues("searchInFurtherValues", newValueKey,
