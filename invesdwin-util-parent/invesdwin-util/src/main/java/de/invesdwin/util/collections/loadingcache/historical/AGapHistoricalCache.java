@@ -286,10 +286,10 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         return null;
     }
 
-    private boolean eventuallyLoadFurtherValues(final String source, final FDate key, final FDate adjustedKey,
+    private boolean eventuallyLoadFurtherValues(final String source, final FDate key, final FDate loadFurtherValuesKey,
             final boolean newMinKey, final boolean forced) {
         if (forced || shouldLoadFurtherValues(key, newMinKey)) {
-            final FDate keyForReadAllValues = FDates.max(minKeyInDB, adjustedKey);
+            final FDate keyForReadAllValues = FDates.max(minKeyInDB, loadFurtherValuesKey);
             furtherValues.clear();
             lastValuesFromFurtherValues.clear();
             FDate curKey = keyForReadAllValues;
@@ -433,7 +433,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         }
 
         final FDate earliestStartOfLoadFurtherValues = determineEaliestStartOfLoadFurtherValues(key);
-        while (furtherValues.size() > 0) {
+        FDate prevLoadFurtherValuesKey = FDates.MIN_DATE;
+        while (!furtherValues.isEmpty()) {
             final V newValue = furtherValues.getHead();
             final FDate newValueKey = extractKey(null, newValue);
             final int compare = key.compareTo(newValueKey);
@@ -462,16 +463,21 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
                 if (furtherValues.isEmpty() && newValueKey.isBefore(maxKeyInDB) && key.isBefore(maxKeyInDB)
                         && maxKeyInDBFromLoadFurtherValues.isBefore(maxKeyInDB)) {
-                    final FDate timeForLoadFurtherValues = FDates.max(newValueKey, earliestStartOfLoadFurtherValues);
+                    final FDate loadFurtherValuesKey = FDates.max(newValueKey, earliestStartOfLoadFurtherValues);
+                    if (loadFurtherValuesKey.isAfterNotNullSafe(prevLoadFurtherValuesKey)) {
+                        break;
+                    }
                     Assertions.checkState(eventuallyLoadFurtherValues("searchInFurtherValues", newValueKey,
-                            timeForLoadFurtherValues, false, true));
-                    if (!furtherValues.isEmpty()) {
-                        pushLastValueFromFurtherValues();
-                        if (!timeForLoadFurtherValues.equals(newValue)) {
-                            //do not distort prev/next lookup when using earlisetStartOfLoadFurtherValues, thus reset those
-                            prevValue = null;
-                            prevKey = null;
-                        }
+                            loadFurtherValuesKey, false, true));
+                    prevLoadFurtherValuesKey = loadFurtherValuesKey;
+                    if (furtherValues.isEmpty()) {
+                        break;
+                    }
+                    pushLastValueFromFurtherValues();
+                    if (!loadFurtherValuesKey.equals(newValueKey)) {
+                        //do not distort prev/next lookup when using earlisetStartOfLoadFurtherValues, thus reset those
+                        prevValue = null;
+                        prevKey = null;
                     }
                 }
             }
