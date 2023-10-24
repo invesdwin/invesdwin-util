@@ -47,7 +47,7 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
     IHistoricalEntry<V> getNextEntry(FDate key, int shiftForwardUnits);
 
     /**
-     * Jumps the specified shiftForwardUnits to the future instead of only one unit.
+     * Jumps the specified shiftForwardUnits to the future instead of only one unit. Null values are skipped.
      * 
      * key is inclusive
      */

@@ -73,7 +73,7 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
     ICloseableIterable<IHistoricalEntry<V>> getPreviousEntries(FDate key, int shiftBackUnits);
 
     /**
-     * key is inclusive
+     * key is inclusive. Null values are skipped.
      */
     ICloseableIterable<V> getPreviousValues(FDate key, int shiftBackUnits);
 
@@ -88,7 +88,7 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
     ICloseableIterable<IHistoricalEntry<V>> getEntries(FDate from, FDate to);
 
     /**
-     * from and to are inclusive
+     * from and to are inclusive. Null values are skipped.
      */
     ICloseableIterable<V> getValues(FDate from, FDate to);
 
@@ -103,7 +103,7 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
     ICloseableIterable<IHistoricalEntry<V>> getEntriesCached(FDate from, FDate to);
 
     /**
-     * from and to are inclusive
+     * from and to are inclusive. Null values are skipped.
      */
     ICloseableIterable<V> getValuesCached(FDate from, FDate to);
 

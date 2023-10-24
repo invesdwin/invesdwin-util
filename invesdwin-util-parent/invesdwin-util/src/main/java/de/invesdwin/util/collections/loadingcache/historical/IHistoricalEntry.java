@@ -6,6 +6,8 @@ import de.invesdwin.util.collections.iterable.ATransformingIterable;
 import de.invesdwin.util.collections.iterable.ATransformingIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.skip.ASkippingIterable;
+import de.invesdwin.util.collections.iterable.skip.ASkippingIterator;
 import de.invesdwin.util.time.date.FDate;
 
 public interface IHistoricalEntry<V> extends Entry<FDate, V> {
@@ -14,6 +16,14 @@ public interface IHistoricalEntry<V> extends Entry<FDate, V> {
     @Override
     default V setValue(final V value) {
         throw new UnsupportedOperationException();
+    }
+
+    default boolean isValuePresent() {
+        return true;
+    }
+
+    default V getValueIfPresent() {
+        return getValue();
     }
 
     static <V> V unwrapEntryValue(final IHistoricalEntry<V> entry) {
@@ -84,12 +94,32 @@ public interface IHistoricalEntry<V> extends Entry<FDate, V> {
         }
     }
 
-    default boolean isValuePresent() {
-        return true;
+    static <V> ICloseableIterator<IHistoricalEntry<V>> skipEmpty(
+            final ICloseableIterator<IHistoricalEntry<V>> entries) {
+        if (entries == null) {
+            return null;
+        } else {
+            return new ASkippingIterator<IHistoricalEntry<V>>(entries) {
+                @Override
+                protected boolean skip(final IHistoricalEntry<V> element) {
+                    return !element.isValuePresent();
+                }
+            };
+        }
     }
 
-    default V getValueIfPresent() {
-        return getValue();
+    static <V> ICloseableIterable<IHistoricalEntry<V>> skipEmpty(
+            final ICloseableIterable<IHistoricalEntry<V>> entries) {
+        if (entries == null) {
+            return null;
+        } else {
+            return new ASkippingIterable<IHistoricalEntry<V>>(entries) {
+                @Override
+                protected boolean skip(final IHistoricalEntry<V> element) {
+                    return !element.isValuePresent();
+                }
+            };
+        }
     }
 
 }

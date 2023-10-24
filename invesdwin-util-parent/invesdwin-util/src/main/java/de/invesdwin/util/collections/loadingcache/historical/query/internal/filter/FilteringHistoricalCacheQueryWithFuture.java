@@ -98,7 +98,8 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
                     private final ICloseableIterator<IHistoricalEntry<V>> entriesIterator;
 
                     {
-                        final ICloseableIterable<IHistoricalEntry<V>> entries = getNextEntries(key, shiftForwardUnits);
+                        final ICloseableIterable<IHistoricalEntry<V>> entries = IHistoricalEntry
+                                .skipEmpty(getNextEntries(key, shiftForwardUnits));
                         entriesIterator = entries.iterator();
                     }
 

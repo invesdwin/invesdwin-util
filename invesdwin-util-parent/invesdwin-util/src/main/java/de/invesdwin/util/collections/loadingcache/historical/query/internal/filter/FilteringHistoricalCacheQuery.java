@@ -154,7 +154,8 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
                     private final ICloseableIterator<IHistoricalEntry<V>> entriesIterator;
 
                     {
-                        final ICloseableIterable<IHistoricalEntry<V>> entries = getPreviousEntries(key, shiftBackUnits);
+                        final ICloseableIterable<IHistoricalEntry<V>> entries = IHistoricalEntry
+                                .skipEmpty(getPreviousEntries(key, shiftBackUnits));
                         entriesIterator = entries.iterator();
                     }
 
@@ -220,7 +221,8 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
                     private final ICloseableIterator<IHistoricalEntry<V>> entriesIterator;
 
                     {
-                        final ICloseableIterable<IHistoricalEntry<V>> entries = getEntries(from, to);
+                        final ICloseableIterable<IHistoricalEntry<V>> entries = IHistoricalEntry
+                                .skipEmpty(getEntries(from, to));
                         entriesIterator = entries.iterator();
                     }
 
@@ -286,7 +288,8 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
                     private final ICloseableIterator<IHistoricalEntry<V>> entriesIterator;
 
                     {
-                        final ICloseableIterable<IHistoricalEntry<V>> entries = getEntriesCached(from, to);
+                        final ICloseableIterable<IHistoricalEntry<V>> entries = IHistoricalEntry
+                                .skipEmpty(getEntriesCached(from, to));
                         entriesIterator = entries.iterator();
                     }
 
