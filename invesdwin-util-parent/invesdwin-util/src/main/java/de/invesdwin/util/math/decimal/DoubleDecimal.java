@@ -72,4 +72,9 @@ public class DoubleDecimal extends ADecimalNumber<DoubleDecimal> {
         return new DoubleDecimal(value);
     }
 
+    @Override
+    public String toString() {
+        return Decimal.toString(value);
+    }
+
 }
