@@ -658,6 +658,10 @@ public final class Doubles extends ADoublesStaticFacade {
         return infinityToZero((value - min) / (max - min));
     }
 
+    public static double denormalize(final double value, final double min, final double max) {
+        return min + (max - min) * value;
+    }
+
     /**
      * https://stackoverflow.com/questions/38403240/truncating-float-to-the-two-first-non-zero-decimal-digits
      */
@@ -1446,6 +1450,21 @@ public final class Doubles extends ADoublesStaticFacade {
 
     public static double distance(final double a, final double b) {
         return abs(a - b);
+    }
+
+    public static double[][] transposeMatrix(final double[][] matrix) {
+        final int m = matrix.length;
+        final int n = matrix[0].length;
+
+        final double[][] transposedMatrix = new double[n][m];
+
+        for (int x = 0; x < n; x++) {
+            for (int y = 0; y < m; y++) {
+                transposedMatrix[x][y] = matrix[y][x];
+            }
+        }
+
+        return transposedMatrix;
     }
 
 }
