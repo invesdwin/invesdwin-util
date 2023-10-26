@@ -224,6 +224,16 @@ public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap
         return delegate.toString();
     }
 
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return delegate.equals(obj);
+    }
+
     private final class ValuesCollection implements Collection<V> {
         @Override
         public int size() {

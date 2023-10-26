@@ -38,4 +38,12 @@ public class Collections extends ACollectionsStaticFacade {
         }
     }
 
+    public static String toString(final Collection<?> c) {
+        return Iterables.toString(c);
+    }
+
+    public static boolean elementsEqual(final Collection<?> c, final Object obj) {
+        return Iterables.elementsEqual(c, obj);
+    }
+
 }

@@ -216,6 +216,16 @@ public abstract class AFastIterableDelegateList<E> implements IFastIterableList<
         return delegate.toString();
     }
 
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return delegate.equals(obj);
+    }
+
     private final class RefreshingListIterator implements ListIterator<E> {
 
         private final ListIterator<E> it;

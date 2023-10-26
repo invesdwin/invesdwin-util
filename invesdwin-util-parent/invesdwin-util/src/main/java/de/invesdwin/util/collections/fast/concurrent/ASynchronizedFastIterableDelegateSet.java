@@ -167,4 +167,14 @@ public abstract class ASynchronizedFastIterableDelegateSet<E> implements IFastIt
         return delegate.toString();
     }
 
+    @Override
+    public synchronized int hashCode() {
+        return delegate.hashCode();
+    }
+
+    @Override
+    public synchronized boolean equals(final Object obj) {
+        return delegate.equals(obj);
+    }
+
 }

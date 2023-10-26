@@ -233,6 +233,16 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
         return delegate.toString();
     }
 
+    @Override
+    public synchronized int hashCode() {
+        return delegate.hashCode();
+    }
+
+    @Override
+    public synchronized boolean equals(final Object obj) {
+        return delegate.equals(obj);
+    }
+
     private final class ValuesCollection implements Collection<V>, Serializable {
         @Override
         public int size() {

@@ -224,6 +224,16 @@ public abstract class ASynchronizedFastIterableDelegateList<E> implements IFastI
         return delegate.toString();
     }
 
+    @Override
+    public synchronized int hashCode() {
+        return delegate.hashCode();
+    }
+
+    @Override
+    public synchronized boolean equals(final Object obj) {
+        return delegate.equals(obj);
+    }
+
     private final class RefreshingListIterator implements ListIterator<E> {
 
         private final ListIterator<E> it;

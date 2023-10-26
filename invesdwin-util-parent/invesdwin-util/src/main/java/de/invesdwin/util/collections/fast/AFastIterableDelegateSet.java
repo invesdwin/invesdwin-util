@@ -161,4 +161,14 @@ public abstract class AFastIterableDelegateSet<E> implements IFastIterableSet<E>
         return delegate.toString();
     }
 
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return delegate.equals(obj);
+    }
+
 }

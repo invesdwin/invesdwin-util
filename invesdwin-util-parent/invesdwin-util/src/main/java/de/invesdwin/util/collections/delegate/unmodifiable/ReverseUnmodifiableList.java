@@ -1,10 +1,12 @@
-package de.invesdwin.util.collections.list.unmodifiable;
+package de.invesdwin.util.collections.delegate.unmodifiable;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
@@ -34,6 +36,11 @@ public class ReverseUnmodifiableList<E> extends AUnmodifiableList<E> {
     @Override
     public boolean contains(final Object o) {
         return getDelegate().contains(o);
+    }
+
+    @Override
+    public boolean containsAll(final Collection<?> c) {
+        return getDelegate().containsAll(c);
     }
 
     @Override
@@ -105,6 +112,21 @@ public class ReverseUnmodifiableList<E> extends AUnmodifiableList<E> {
         } else {
             return reverseIndex(lastIndexOf);
         }
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return Collections.elementsEqual(this, obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return Collections.toString(this);
     }
 
 }

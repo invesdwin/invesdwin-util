@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.list.unmodifiable;
+package de.invesdwin.util.collections.delegate.unmodifiable;
 
 import java.util.Iterator;
 

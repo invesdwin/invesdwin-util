@@ -15,7 +15,17 @@ import de.invesdwin.util.collections.internal.AIterablesStaticFacade;
                 "com.google.common.collect.Iterables#toString(java.lang.Iterable)" })
 public final class Iterables extends AIterablesStaticFacade {
 
-    private Iterables() {
+    private Iterables() {}
+
+    public static boolean elementsEqual(final Iterable<?> c, final Object obj) {
+        if (c == obj) {
+            return true;
+        } else if (obj instanceof Iterable) {
+            final Iterable<?> cObj = (Iterable<?>) obj;
+            return elementsEqual(c, cObj);
+        } else {
+            return false;
+        }
     }
 
 }

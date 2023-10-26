@@ -1,11 +1,14 @@
-package de.invesdwin.util.collections.list.unmodifiable;
+package de.invesdwin.util.collections.delegate.unmodifiable;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.iterable.collection.ListCloseableIterator;
+import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
 public class ConcatenatedUnmodifiableList<E> extends AUnmodifiableList<E> {
@@ -31,6 +34,16 @@ public class ConcatenatedUnmodifiableList<E> extends AUnmodifiableList<E> {
     @Override
     public boolean contains(final Object o) {
         return l1.contains(o) || l2.contains(o);
+    }
+
+    @Override
+    public boolean containsAll(final Collection<?> c) {
+        for (final Object obj : c) {
+            if (!contains(obj)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -91,6 +104,21 @@ public class ConcatenatedUnmodifiableList<E> extends AUnmodifiableList<E> {
             return indexOf2 + l1.size();
         }
         return -1;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(l1, l2);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return Collections.elementsEqual(this, obj);
+    }
+
+    @Override
+    public String toString() {
+        return Collections.toString(this);
     }
 
 }

@@ -1,5 +1,6 @@
-package de.invesdwin.util.collections.list.unmodifiable;
+package de.invesdwin.util.collections.delegate.unmodifiable;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -36,6 +37,11 @@ public class UnmodifiableList<E> extends AUnmodifiableList<E> {
     }
 
     @Override
+    public boolean containsAll(final Collection<?> c) {
+        return getDelegate().containsAll(c);
+    }
+
+    @Override
     public ICloseableIterator<E> iterator() {
         return WrapperCloseableIterable.maybeWrap(delegate).iterator();
     }
@@ -63,6 +69,21 @@ public class UnmodifiableList<E> extends AUnmodifiableList<E> {
     @Override
     public int lastIndexOf(final Object o) {
         return getDelegate().lastIndexOf(o);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        return getDelegate().equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return getDelegate().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return getDelegate().toString();
     }
 
 }
