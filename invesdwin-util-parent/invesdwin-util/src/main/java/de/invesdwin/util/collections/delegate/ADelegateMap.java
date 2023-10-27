@@ -57,19 +57,23 @@ public abstract class ADelegateMap<K, V> implements Map<K, V>, ISerializableValu
 
     @Override
     public V put(final K key, final V value) {
-        if (isPutAllowed(key, value)) {
+        if (value == null) {
+            return getDelegate().remove(key);
+        } else if (isPutAllowed(key, value)) {
             return getDelegate().put(key, value);
         } else {
-            throw new IllegalArgumentException("isPutAllowed returned false! Check this before using put!");
+            return getDelegate().get(key);
         }
     }
 
     @Override
     public V putIfAbsent(final K key, final V value) {
-        if (isPutAllowed(key, value)) {
+        if (value == null) {
+            return getDelegate().remove(key);
+        } else if (isPutAllowed(key, value)) {
             return getDelegate().putIfAbsent(key, value);
         } else {
-            throw new IllegalArgumentException("isPutAllowed returned false! Check this before using put!");
+            return getDelegate().get(key);
         }
     }
 
@@ -137,12 +141,20 @@ public abstract class ADelegateMap<K, V> implements Map<K, V>, ISerializableValu
 
     @Override
     public boolean replace(final K key, final V oldValue, final V newValue) {
-        return getDelegate().replace(key, oldValue, newValue);
+        if (isPutAllowed(key, newValue)) {
+            return getDelegate().replace(key, oldValue, newValue);
+        } else {
+            return false;
+        }
     }
 
     @Override
     public V replace(final K key, final V value) {
-        return getDelegate().replace(key, value);
+        if (isPutAllowed(key, value)) {
+            return getDelegate().replace(key, value);
+        } else {
+            return getDelegate().get(key);
+        }
     }
 
     @Override
