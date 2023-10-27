@@ -13,7 +13,6 @@ import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
-import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
 
 /**
  * Boosts the iteration speed over the values by keeping a fast iterator instance that only gets modified when changes
@@ -440,11 +439,12 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
         @Override
         public Iterator<Entry<K, V>> iterator() {
             synchronized (ASynchronizedFastIterableDelegateMap.this) {
-                if (entryArray != null) {
-                    return new ArrayCloseableIterator<>(entryArray);
-                }
                 if (fastIterable == null) {
-                    fastIterable = new BufferingIterator<Entry<K, V>>(delegate.entrySet());
+                    fastIterable = new BufferingIterator<Entry<K, V>>();
+                    for (final Entry<K, V> e : delegate.entrySet()) {
+                        //koloboke reuses/resets its entries, thus we have to make a safe copy
+                        fastIterable.add(ImmutableEntry.of(e.getKey(), e.getValue()));
+                    }
                 }
                 return fastIterable.iterator();
             }

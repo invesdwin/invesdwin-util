@@ -10,7 +10,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
-import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
 
 /**
  * Boosts the iteration speed over the values by keeping a fast iterator instance that only gets modified when changes
@@ -28,8 +27,11 @@ public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap
     private transient V[] valueArray;
 
     private final Map<K, V> delegate;
+
     private final Set<Entry<K, V>> entrySet = new EntrySet();
+
     private final Set<K> keySet = new KeySet();
+
     private final Collection<V> values = new ValuesCollection();
 
     protected AFastIterableDelegateMap(final Map<K, V> delegate) {
@@ -409,11 +411,12 @@ public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap
 
         @Override
         public Iterator<Entry<K, V>> iterator() {
-            if (entryArray != null) {
-                return new ArrayCloseableIterator<>(entryArray);
-            }
             if (fastIterable == null) {
-                fastIterable = new BufferingIterator<Entry<K, V>>(delegate.entrySet());
+                fastIterable = new BufferingIterator<Entry<K, V>>();
+                for (final Entry<K, V> e : delegate.entrySet()) {
+                    //koloboke reuses/resets its entries, thus we have to make a safe copy
+                    fastIterable.add(ImmutableEntry.of(e.getKey(), e.getValue()));
+                }
             }
             return fastIterable.iterator();
         }
