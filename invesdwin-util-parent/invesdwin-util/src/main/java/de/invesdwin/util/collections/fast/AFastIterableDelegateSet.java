@@ -7,6 +7,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
+import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
 
 /**
  * Boosts the iteration speed over the values by keeping a fast iterator instance that only gets modified when changes
@@ -92,12 +93,17 @@ public abstract class AFastIterableDelegateSet<E> implements IFastIterableSet<E>
             return;
         }
         delegate.clear();
-        fastIterable = new BufferingIterator<E>();
+        if (fastIterable != null) {
+            fastIterable = new BufferingIterator<E>();
+        }
         array = null;
     }
 
     @Override
     public ICloseableIterator<E> iterator() {
+        if (array != null) {
+            return new ArrayCloseableIterator<>(array);
+        }
         if (fastIterable == null) {
             fastIterable = new BufferingIterator<E>(delegate);
         }

@@ -11,6 +11,7 @@ import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
+import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
 
 @ThreadSafe
 public abstract class ASynchronizedFastIterableDelegateList<E> implements IFastIterableList<E> {
@@ -114,12 +115,17 @@ public abstract class ASynchronizedFastIterableDelegateList<E> implements IFastI
             return;
         }
         delegate.clear();
-        fastIterable = new BufferingIterator<E>();
+        if (fastIterable != null) {
+            fastIterable = new BufferingIterator<E>();
+        }
         array = null;
     }
 
     @Override
     public synchronized ICloseableIterator<E> iterator() {
+        if (array != null) {
+            return new ArrayCloseableIterator<>(array);
+        }
         if (fastIterable == null) {
             fastIterable = new BufferingIterator<E>(delegate);
         }

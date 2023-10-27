@@ -9,6 +9,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
+import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
 
 @ThreadSafe
 public abstract class AFastIterableDelegateList<E> implements IFastIterableList<E> {
@@ -108,12 +109,17 @@ public abstract class AFastIterableDelegateList<E> implements IFastIterableList<
             return;
         }
         delegate.clear();
-        fastIterable = new BufferingIterator<E>();
+        if (fastIterable != null) {
+            fastIterable = new BufferingIterator<E>();
+        }
         array = null;
     }
 
     @Override
     public ICloseableIterator<E> iterator() {
+        if (array != null) {
+            return new ArrayCloseableIterator<>(array);
+        }
         if (fastIterable == null) {
             fastIterable = new BufferingIterator<E>(delegate);
         }
