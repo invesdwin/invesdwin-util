@@ -13,6 +13,7 @@ import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
+import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
 
 /**
  * Boosts the iteration speed over the values by keeping a fast iterator instance that only gets modified when changes
@@ -184,7 +185,13 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
             if (entrySet.isEmpty()) {
                 entryArray = Collections.EMPTY_ENTRY_ARRAY;
             } else {
-                entryArray = onEntryArrayCreated(entrySet.toArray(Collections.EMPTY_ENTRY_ARRAY));
+                final Entry<K, V>[] array = entrySet.toArray(Collections.EMPTY_ENTRY_ARRAY);
+                for (int i = 0; i < array.length; i++) {
+                    final Entry<K, V> e = array[i];
+                    //koloboke and other maps reuse/reset its entries, thus we have to make a safe copy
+                    array[i] = ImmutableEntry.of(e.getKey(), e.getValue());
+                }
+                entryArray = onEntryArrayCreated(array);
             }
         }
         return entryArray;
@@ -439,10 +446,13 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
         @Override
         public Iterator<Entry<K, V>> iterator() {
             synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                if (entryArray != null) {
+                    return new ArrayCloseableIterator<>(entryArray);
+                }
                 if (fastIterable == null) {
                     fastIterable = new BufferingIterator<Entry<K, V>>();
                     for (final Entry<K, V> e : delegate.entrySet()) {
-                        //koloboke reuses/resets its entries, thus we have to make a safe copy
+                        //koloboke and other maps reuse/reset its entries, thus we have to make a safe copy
                         fastIterable.add(ImmutableEntry.of(e.getKey(), e.getValue()));
                     }
                 }
