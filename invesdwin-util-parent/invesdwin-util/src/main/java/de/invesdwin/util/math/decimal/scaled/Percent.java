@@ -34,6 +34,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
     public static final Percent TWO_PERCENT;
     public static final Percent ONE_PERCENT;
     public static final Percent ZERO_PERCENT;
+    public static final Percent ZERO;
     public static final Percent MINUS_ONE_PERCENT;
     public static final Percent MINUS_TWO_PERCENT;
     public static final Percent MINUS_FIVE_PERCENT;
@@ -60,6 +61,7 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
         TWO_PERCENT = new Percent(2D, PercentScale.PERCENT);
         ONE_PERCENT = new Percent(1D, PercentScale.PERCENT);
         ZERO_PERCENT = new Percent(0D, PercentScale.RATE);
+        ZERO = ZERO_PERCENT;
         MINUS_ONE_PERCENT = ONE_PERCENT.negate();
         MINUS_TWO_PERCENT = TWO_PERCENT.negate();
         MINUS_FIVE_PERCENT = FIVE_PERCENT.negate();
