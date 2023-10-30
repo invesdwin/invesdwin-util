@@ -11,7 +11,8 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.internal.AArraysStaticFacade", targets = {
         java.util.Arrays.class, java.lang.reflect.Array.class, org.apache.commons.lang3.ArrayUtils.class,
-        org.apache.commons.math3.util.MathArrays.class })
+        org.apache.commons.math3.util.MathArrays.class }, filterSeeMethodSignatures = {
+                "org.apache.commons.lang3.ArrayUtils#newInstance(java.lang.Class, int)" })
 public class Arrays extends AArraysStaticFacade {
 
     private static final ALoadingCache<Class<?>, Object> TYPE_EMPTYARRAYS = new ALoadingCache<Class<?>, Object>() {

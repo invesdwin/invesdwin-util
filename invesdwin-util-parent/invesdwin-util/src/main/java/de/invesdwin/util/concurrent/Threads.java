@@ -28,7 +28,8 @@ public final class Threads {
 
     public static void throwIfInterrupted(final Thread thread) throws InterruptedException {
         if (isInterrupted(thread)) {
-            throw new InterruptedException();
+            throw new InterruptedException("thread.isInterrupted=" + thread.isInterrupted()
+                    + " ShutdownHookManager.isShuttingDown=" + ShutdownHookManager.isShuttingDown());
         }
     }
 

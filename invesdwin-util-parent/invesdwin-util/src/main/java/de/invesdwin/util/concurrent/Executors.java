@@ -32,8 +32,7 @@ public final class Executors {
     private static final int MAX_CACHED_POOL_SIZE = 1000;
     private static int cpuThreadPoolCount = Runtime.getRuntime().availableProcessors();
 
-    private Executors() {
-    }
+    private Executors() {}
 
     /**
      * @see java.util.concurrent.Executors.newCachedThreadPool

@@ -483,4 +483,13 @@ public final class Files extends AFilesStaticFacade {
         }
     }
 
+    public static boolean touchQuietly(final File file) {
+        try {
+            touch(file);
+            return true;
+        } catch (final IOException e) {
+            return false;
+        }
+    }
+
 }

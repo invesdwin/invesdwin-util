@@ -90,7 +90,7 @@ public class FileChannelLock implements Closeable, ILock {
             }
             if (!finalizer.file.exists()) {
                 Files.forceMkdirParent(finalizer.file);
-                Files.touch(finalizer.file);
+                Files.touchQuietly(finalizer.file);
             }
             // Get a file channel for the file
             finalizer.raf = new RandomAccessFile(finalizer.file, "rw");
