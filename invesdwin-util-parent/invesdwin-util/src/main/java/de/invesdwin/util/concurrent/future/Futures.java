@@ -189,21 +189,22 @@ public final class Futures extends AFuturesStaticFacade {
 
     public static void submitAndWait(final ExecutorService executor, final Collection<? extends Runnable> tasks)
             throws InterruptedException {
+        final List<Future<?>> futures = submit(executor, tasks);
+        wait(futures);
+    }
+
+    public static List<Future<?>> submit(final ExecutorService executor, final Collection<? extends Runnable> tasks) {
         final List<Future<?>> futures = new ArrayList<Future<?>>(tasks.size());
 
         for (final Runnable task : tasks) {
             futures.add(executor.submit(task));
         }
-        wait(futures);
+        return futures;
     }
 
     public static void submitAndWaitNoInterrupt(final ExecutorService executor,
             final Collection<? extends Runnable> tasks) {
-        final List<Future<?>> futures = new ArrayList<Future<?>>(tasks.size());
-
-        for (final Runnable task : tasks) {
-            futures.add(executor.submit(task));
-        }
+        final List<Future<?>> futures = submit(executor, tasks);
         waitNoInterrupt(futures);
     }
 

@@ -29,6 +29,7 @@ import de.invesdwin.util.concurrent.internal.WrappedCallable;
 import de.invesdwin.util.concurrent.internal.WrappedRunnable;
 import de.invesdwin.util.concurrent.internal.WrappedThreadFactory;
 import de.invesdwin.util.concurrent.lock.Locks;
+import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
@@ -73,6 +74,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
         }
 
     };
+    private final WrappedExecutorServiceFinalizer finalizer;
     private final Lock pendingCountLock;
     private final IFastIterableMap<Integer, PendingCountCondition> pendingCount_condition = ILockCollectionFactory
             .getInstance(true)
@@ -82,8 +84,6 @@ public class WrappedExecutorService implements ListeningExecutorService {
             .newFastIterableLinkedSet();
     private final AtomicInteger pendingCount = new AtomicInteger();
     private final Object pendingCountWaitLock = new Object();
-    private final ListeningExecutorService delegate;
-    private final ExecutorService originalDelegate;
     private volatile boolean logExceptions = true;
     private volatile boolean dynamicThreadName = true;
     private volatile boolean keepThreadLocals = true;
@@ -92,23 +92,19 @@ public class WrappedExecutorService implements ListeningExecutorService {
     private final PendingCountCondition fullPendingCountCondition;
     private volatile PendingCountCondition waitOnFullPendingCountCondition;
 
-    @GuardedBy("this")
-    private IShutdownHook shutdownHook;
-
     public WrappedExecutorService(final ExecutorService delegate, final String name) {
         //also check startsWith for nested executor
         if (Strings.isBlankOrNullText(name) || Strings.startsWithAnyIgnoreCase(name, Strings.NULL_TEXT)) {
             throw new NullPointerException("name should not be blank or start with null: " + name);
         }
-        this.shutdownHook = newShutdownHook(delegate);
         this.name = name;
+        this.finalizer = new WrappedExecutorServiceFinalizer(delegate, configure(delegate), newShutdownHook(delegate));
         this.pendingCountLock = Locks
                 .newReentrantLock(WrappedExecutorService.class.getSimpleName() + "_" + name + "_pendingCountLock");
-        this.originalDelegate = delegate;
-        this.delegate = configure(delegate);
         this.zeroPendingCountCondition = getOrCreatePendingCountCondition(0);
         this.fullPendingCountCondition = getOrCreatePendingCountCondition(getMaximumPoolSize());
         this.waitOnFullPendingCountCondition = zeroPendingCountCondition;
+        this.finalizer.register(this);
     }
 
     public boolean isExecutorThread() {
@@ -123,12 +119,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
      * Prevent reference leak to this instance by using a static method
      */
     protected static IShutdownHook staticNewShutdownHook(final ExecutorService delegate) {
-        return new IShutdownHook() {
-            @Override
-            public void shutdown() throws Exception {
-                delegate.shutdownNow();
-            }
-        };
+        return () -> delegate.shutdownNow();
     }
 
     public WrappedExecutorService setLogExceptions(final boolean logExceptions) {
@@ -215,13 +206,6 @@ public class WrappedExecutorService implements ListeningExecutorService {
     }
 
     protected ListeningExecutorService configure(final ExecutorService delegate) {
-        /*
-         * All executors should be shutdown on application shutdown.
-         */
-        if (shutdownHook != null) {
-            ShutdownHookManager.register(shutdownHook);
-        }
-
         if (delegate instanceof java.util.concurrent.ThreadPoolExecutor) {
             final java.util.concurrent.ThreadPoolExecutor cDelegate = (java.util.concurrent.ThreadPoolExecutor) delegate;
             /*
@@ -254,13 +238,6 @@ public class WrappedExecutorService implements ListeningExecutorService {
         return MoreExecutors.listeningDecorator(delegate);
     }
 
-    private synchronized void unconfigure() {
-        if (shutdownHook != null) {
-            ShutdownHookManager.unregister(shutdownHook);
-        }
-        shutdownHook = null;
-    }
-
     public boolean isWaitOnFullPendingCount() {
         return waitOnFullPendingCountCondition.getLimit() > 0;
     }
@@ -288,19 +265,19 @@ public class WrappedExecutorService implements ListeningExecutorService {
     }
 
     public ListeningExecutorService getWrappedInstance() {
-        return delegate;
+        return finalizer.delegate;
     }
 
     @Override
     public void shutdown() {
         getWrappedInstance().shutdown();
-        unconfigure();
+        finalizer.close();
     }
 
     @Override
     public List<Runnable> shutdownNow() {
         final List<Runnable> l = getWrappedInstance().shutdownNow();
-        unconfigure();
+        finalizer.close();
         return l;
     }
 
@@ -321,6 +298,14 @@ public class WrappedExecutorService implements ListeningExecutorService {
 
     public boolean awaitTermination() throws InterruptedException {
         return awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+    }
+
+    public boolean awaitTerminationNoInterrupt() {
+        try {
+            return awaitTermination();
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public int getPendingCount() {
@@ -373,7 +358,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
     }
 
     public int getMaximumPoolSize() {
-        final ExecutorService delegate = originalDelegate;
+        final ExecutorService delegate = finalizer.originalDelegate;
         if (delegate instanceof java.util.concurrent.ThreadPoolExecutor) {
             final java.util.concurrent.ThreadPoolExecutor cDelegate = (java.util.concurrent.ThreadPoolExecutor) delegate;
             return cDelegate.getMaximumPoolSize();
@@ -540,6 +525,51 @@ public class WrappedExecutorService implements ListeningExecutorService {
 
         public Condition getCondition() {
             return condition;
+        }
+
+    }
+
+    private static final class WrappedExecutorServiceFinalizer extends AFinalizer {
+
+        private ExecutorService originalDelegate;
+        private ListeningExecutorService delegate;
+        @GuardedBy("this")
+        private IShutdownHook shutdownHook;
+
+        private WrappedExecutorServiceFinalizer(final ExecutorService originalDelegate,
+                final ListeningExecutorService delegate, final IShutdownHook shutdownHook) {
+            this.originalDelegate = originalDelegate;
+            this.delegate = delegate;
+            this.shutdownHook = shutdownHook;
+            /*
+             * All executors should be shutdown on application shutdown.
+             */
+            if (shutdownHook != null) {
+                ShutdownHookManager.register(shutdownHook);
+            }
+        }
+
+        @Override
+        protected void clean() {
+            if (originalDelegate != null) {
+                originalDelegate.shutdownNow();
+                originalDelegate = null;
+                delegate = null;
+            }
+            if (shutdownHook != null) {
+                ShutdownHookManager.unregister(shutdownHook);
+            }
+            shutdownHook = null;
+        }
+
+        @Override
+        protected boolean isCleaned() {
+            return originalDelegate.isShutdown();
+        }
+
+        @Override
+        public boolean isThreadLocal() {
+            return false;
         }
 
     }
