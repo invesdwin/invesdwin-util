@@ -27,6 +27,16 @@ public class TimeoutReadWriteLock implements IReadWriteLock {
     }
 
     @Override
+    public boolean isWriteLocked() {
+        return delegate.isWriteLocked();
+    }
+
+    @Override
+    public boolean isWriteLockedByCurrentThread() {
+        return delegate.isWriteLockedByCurrentThread();
+    }
+
+    @Override
     public TimeoutReadLock readLock() {
         return readLock;
     }

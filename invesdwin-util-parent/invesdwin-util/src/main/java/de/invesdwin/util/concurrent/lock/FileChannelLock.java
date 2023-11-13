@@ -117,8 +117,14 @@ public class FileChannelLock implements Closeable, ILock {
         }
     }
 
+    @Override
     public synchronized boolean isLocked() {
         return finalizer.locked;
+    }
+
+    @Override
+    public synchronized boolean isLockedByCurrentThread() {
+        return finalizer.locked && (finalizer.threadLock == null || finalizer.threadLock.isLockedByCurrentThread());
     }
 
     @Override

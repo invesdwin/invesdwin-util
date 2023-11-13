@@ -14,4 +14,8 @@ public interface IReadWriteLock extends ReadWriteLock {
     @Override
     ILock writeLock();
 
+    boolean isWriteLocked();
+
+    boolean isWriteLockedByCurrentThread();
+
 }

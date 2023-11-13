@@ -27,6 +27,16 @@ public class TimeoutWriteLock implements ILock {
     }
 
     @Override
+    public boolean isLocked() {
+        return delegate.isLocked();
+    }
+
+    @Override
+    public boolean isLockedByCurrentThread() {
+        return delegate.isLockedByCurrentThread();
+    }
+
+    @Override
     public void lock() {
         Locks.timeoutLock(delegate, lockWaitTimeout);
     }

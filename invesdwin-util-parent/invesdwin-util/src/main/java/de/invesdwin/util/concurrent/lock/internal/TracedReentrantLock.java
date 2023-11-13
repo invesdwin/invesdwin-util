@@ -26,11 +26,23 @@ public class TracedReentrantLock implements IReentrantLock {
         return name;
     }
 
+    public void onLocked() {
+        if (delegate.getHoldCount() == 1) {
+            Locks.getLockTrace().locked(getName());
+        }
+    }
+
+    protected void onUnlock() {
+        if (delegate.getHoldCount() == 1) {
+            Locks.getLockTrace().unlocked(getName());
+        }
+    }
+
     @Override
     public void lock() {
         try {
             delegate.lock();
-            Locks.getLockTrace().locked(getName());
+            onLocked();
         } catch (final Throwable t) {
             throw Locks.getLockTrace().handleLockException(getName(), t);
         }
@@ -40,7 +52,7 @@ public class TracedReentrantLock implements IReentrantLock {
     public void lockInterruptibly() throws InterruptedException {
         try {
             delegate.lockInterruptibly();
-            Locks.getLockTrace().locked(getName());
+            onLocked();
         } catch (final InterruptedException t) {
             throw t;
         } catch (final Throwable t) {
@@ -53,7 +65,7 @@ public class TracedReentrantLock implements IReentrantLock {
         try {
             final boolean locked = delegate.tryLock();
             if (locked) {
-                Locks.getLockTrace().locked(getName());
+                onLocked();
             }
             return locked;
         } catch (final Throwable t) {
@@ -66,7 +78,7 @@ public class TracedReentrantLock implements IReentrantLock {
         try {
             final boolean locked = delegate.tryLock(time, unit);
             if (locked) {
-                Locks.getLockTrace().locked(getName());
+                onLocked();
             }
             return locked;
         } catch (final InterruptedException t) {
@@ -79,8 +91,8 @@ public class TracedReentrantLock implements IReentrantLock {
     @Override
     public void unlock() {
         try {
+            onUnlock();
             delegate.unlock();
-            Locks.getLockTrace().unlocked(getName());
         } catch (final Throwable t) {
             throw Locks.getLockTrace().handleLockException(getName(), t);
         }
@@ -97,7 +109,7 @@ public class TracedReentrantLock implements IReentrantLock {
     }
 
     @Override
-    public boolean isHeldByCurrentThread() {
+    public boolean isLockedByCurrentThread() {
         return delegate.isHeldByCurrentThread();
     }
 

@@ -2,6 +2,7 @@ package de.invesdwin.util.concurrent.lock.internal.readwrite.write;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -16,11 +17,14 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
 
     private final String readLockName;
     private final String name;
+    private final ReentrantReadWriteLock parent;
     private final WriteLock delegate;
 
-    public TracedReentrantWriteLock(final String readLockName, final String name, final WriteLock delegate) {
+    public TracedReentrantWriteLock(final String readLockName, final String name, final ReentrantReadWriteLock parent,
+            final WriteLock delegate) {
         this.readLockName = name;
         this.name = name;
+        this.parent = parent;
         this.delegate = delegate;
     }
 
@@ -30,11 +34,33 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
     }
 
     @Override
+    public boolean isLocked() {
+        return parent.isWriteLocked();
+    }
+
+    @Override
+    public boolean isLockedByCurrentThread() {
+        return parent.isWriteLockedByCurrentThread();
+    }
+
+    protected void onLocked() {
+        if (delegate.getHoldCount() == 1) {
+            Locks.getLockTrace().locked(getName());
+        }
+    }
+
+    protected void onUnlock() {
+        if (delegate.getHoldCount() == 1) {
+            Locks.getLockTrace().unlocked(getName());
+        }
+    }
+
+    @Override
     public void lock() {
         try {
             assertReadLockNotHeldByCurrentThread();
             delegate.lock();
-            Locks.getLockTrace().locked(getName());
+            onLocked();
         } catch (final Throwable t) {
             throw Locks.getLockTrace().handleLockException(getName(), t);
         }
@@ -55,7 +81,7 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
         try {
             assertReadLockNotHeldByCurrentThread();
             delegate.lockInterruptibly();
-            Locks.getLockTrace().locked(getName());
+            onLocked();
         } catch (final InterruptedException t) {
             throw t;
         } catch (final Throwable t) {
@@ -69,7 +95,7 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
             assertReadLockNotHeldByCurrentThread();
             final boolean locked = delegate.tryLock();
             if (locked) {
-                Locks.getLockTrace().locked(getName());
+                onLocked();
             }
             return locked;
         } catch (final Throwable t) {
@@ -83,7 +109,7 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
             assertReadLockNotHeldByCurrentThread();
             final boolean locked = delegate.tryLock(time, unit);
             if (locked) {
-                Locks.getLockTrace().locked(getName());
+                onLocked();
             }
             return locked;
         } catch (final InterruptedException t) {
@@ -96,8 +122,8 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
     @Override
     public void unlock() {
         try {
+            onUnlock();
             delegate.unlock();
-            Locks.getLockTrace().unlocked(getName());
         } catch (final Throwable t) {
             throw Locks.getLockTrace().handleLockException(getName(), t);
         }
@@ -106,11 +132,6 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
     @Override
     public Condition newCondition() {
         return delegate.newCondition();
-    }
-
-    @Override
-    public boolean isHeldByCurrentThread() {
-        return delegate.isHeldByCurrentThread();
     }
 
     @Override

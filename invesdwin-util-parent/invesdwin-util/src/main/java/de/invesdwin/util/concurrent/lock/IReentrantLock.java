@@ -6,10 +6,6 @@ public interface IReentrantLock extends ILock {
 
     int getHoldCount();
 
-    boolean isHeldByCurrentThread();
-
-    boolean isLocked();
-
     boolean isFair();
 
     boolean hasQueuedThreads();

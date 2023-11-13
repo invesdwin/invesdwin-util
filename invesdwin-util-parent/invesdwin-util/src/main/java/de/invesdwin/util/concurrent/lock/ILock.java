@@ -8,6 +8,10 @@ public interface ILock extends Lock, Closeable {
 
     String getName();
 
+    boolean isLocked();
+
+    boolean isLockedByCurrentThread();
+
     @Override
     default void close() {
         unlock();

@@ -7,21 +7,37 @@ import java.util.concurrent.locks.Lock;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
+import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public class WrappedReadLock implements ILock {
 
     private final String name;
+    private final IReadWriteLock parent;
     private final Lock delegate;
 
-    public WrappedReadLock(final String name, final Lock delegate) {
+    public WrappedReadLock(final String name, final IReadWriteLock parent, final Lock delegate) {
         this.name = name;
+        this.parent = parent;
         this.delegate = delegate;
     }
 
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean isLocked() {
+        //intentionally gives the info of writelock because readlocks don't block among themselves
+        return parent.isWriteLocked();
+    }
+
+    @Override
+    public boolean isLockedByCurrentThread() {
+        //intentionally gives the info of writelock because readlocks don't block among themselves
+        return parent.isWriteLockedByCurrentThread();
     }
 
     @Override
@@ -52,6 +68,11 @@ public class WrappedReadLock implements ILock {
     @Override
     public Condition newCondition() {
         return delegate.newCondition();
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
     }
 
 }

@@ -20,8 +20,18 @@ public class WrappedReadWriteLock implements IReadWriteLock {
     public WrappedReadWriteLock(final String name, final ReadWriteLock delegate) {
         this.name = name;
         this.delegate = delegate;
-        this.readLock = new WrappedReadLock(name + "_readLock", delegate.readLock());
+        this.readLock = new WrappedReadLock(name + "_readLock", this, delegate.readLock());
         this.writeLock = new WrappedWriteLock(name + "_writeLock", delegate.writeLock());
+    }
+
+    @Override
+    public boolean isWriteLocked() {
+        return writeLock.isLocked();
+    }
+
+    @Override
+    public boolean isWriteLockedByCurrentThread() {
+        return writeLock.isLockedByCurrentThread();
     }
 
     @Override

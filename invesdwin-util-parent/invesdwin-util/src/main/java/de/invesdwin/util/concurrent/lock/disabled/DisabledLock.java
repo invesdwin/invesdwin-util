@@ -15,6 +15,16 @@ public final class DisabledLock implements ILock {
     private DisabledLock() {}
 
     @Override
+    public boolean isLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isLockedByCurrentThread() {
+        return false;
+    }
+
+    @Override
     public void lock() {}
 
     @Override

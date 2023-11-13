@@ -22,6 +22,16 @@ public class TimeoutReentrantWriteLock implements IReentrantWriteLock {
     }
 
     @Override
+    public boolean isLocked() {
+        return delegate.isLocked();
+    }
+
+    @Override
+    public boolean isLockedByCurrentThread() {
+        return delegate.isLockedByCurrentThread();
+    }
+
+    @Override
     public String getName() {
         return delegate.getName();
     }
@@ -54,11 +64,6 @@ public class TimeoutReentrantWriteLock implements IReentrantWriteLock {
     @Override
     public Condition newCondition() {
         return delegate.newCondition();
-    }
-
-    @Override
-    public boolean isHeldByCurrentThread() {
-        return delegate.isHeldByCurrentThread();
     }
 
     @Override

@@ -2,6 +2,7 @@ package de.invesdwin.util.concurrent.lock.internal.readwrite.write;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -14,15 +15,27 @@ public class WrappedReentrantWriteLock implements IReentrantWriteLock {
 
     private final String name;
     private final WriteLock delegate;
+    private final ReentrantReadWriteLock parent;
 
-    public WrappedReentrantWriteLock(final String name, final WriteLock delegate) {
+    public WrappedReentrantWriteLock(final String name, final ReentrantReadWriteLock parent, final WriteLock delegate) {
         this.name = name;
+        this.parent = parent;
         this.delegate = delegate;
     }
 
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean isLocked() {
+        return parent.isWriteLocked();
+    }
+
+    @Override
+    public boolean isLockedByCurrentThread() {
+        return parent.isWriteLockedByCurrentThread();
     }
 
     @Override
@@ -53,11 +66,6 @@ public class WrappedReentrantWriteLock implements IReentrantWriteLock {
     @Override
     public Condition newCondition() {
         return delegate.newCondition();
-    }
-
-    @Override
-    public boolean isHeldByCurrentThread() {
-        return delegate.isHeldByCurrentThread();
     }
 
     @Override

@@ -21,8 +21,9 @@ public class TracedReentrantReadWriteLock implements IReentrantReadWriteLock {
     public TracedReentrantReadWriteLock(final String name, final ReentrantReadWriteLock delegate) {
         this.name = name;
         this.delegate = delegate;
-        this.readLock = new TracedReadLock(name + "_readLock", delegate.readLock());
-        this.writeLock = new TracedReentrantWriteLock(readLock.getName(), name + "_writeLock", delegate.writeLock());
+        this.readLock = new TracedReadLock(name + "_readLock", this, delegate.readLock());
+        this.writeLock = new TracedReentrantWriteLock(readLock.getName(), name + "_writeLock", delegate,
+                delegate.writeLock());
     }
 
     @Override

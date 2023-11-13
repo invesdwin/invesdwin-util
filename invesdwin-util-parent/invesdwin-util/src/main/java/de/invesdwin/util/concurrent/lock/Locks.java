@@ -105,6 +105,9 @@ public final class Locks extends ALocksStaticFacade {
     public static ILock maybeWrap(final String lockName, final Lock lock) {
         if (lock instanceof ILock) {
             return (ILock) lock;
+        } else if (lock instanceof ReentrantLock) {
+            final ReentrantLock cLock = (ReentrantLock) lock;
+            return maybeWrap(lockName, cLock);
         } else {
             return maybeWrapTimeout(maybeWrapTrace(lockName, lock));
         }
@@ -155,6 +158,9 @@ public final class Locks extends ALocksStaticFacade {
     public static IReadWriteLock maybeWrap(final String lockName, final ReadWriteLock lock) {
         if (lock instanceof IReadWriteLock) {
             return (IReadWriteLock) lock;
+        } else if (lock instanceof ReentrantReadWriteLock) {
+            final ReentrantReadWriteLock cLock = (ReentrantReadWriteLock) lock;
+            return maybeWrap(lockName, cLock);
         } else {
             return maybeWrapTimeout(maybeWrapTrace(lockName, lock));
         }

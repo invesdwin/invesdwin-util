@@ -62,8 +62,8 @@ public class TimeoutReentrantLock implements IReentrantLock {
     }
 
     @Override
-    public boolean isHeldByCurrentThread() {
-        return delegate.isHeldByCurrentThread();
+    public boolean isLockedByCurrentThread() {
+        return delegate.isLockedByCurrentThread();
     }
 
     @Override

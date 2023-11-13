@@ -18,6 +18,16 @@ public final class DisabledReadWriteLock implements IReadWriteLock {
     }
 
     @Override
+    public boolean isWriteLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isWriteLockedByCurrentThread() {
+        return false;
+    }
+
+    @Override
     public ILock readLock() {
         return DisabledLock.INSTANCE;
     }

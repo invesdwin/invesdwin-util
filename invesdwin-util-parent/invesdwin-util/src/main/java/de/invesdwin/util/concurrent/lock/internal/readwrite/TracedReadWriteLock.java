@@ -20,8 +20,18 @@ public class TracedReadWriteLock implements IReadWriteLock {
     public TracedReadWriteLock(final String name, final ReadWriteLock delegate) {
         this.name = name;
         this.delegate = delegate;
-        this.readLock = new TracedReadLock(name + "_readLock", delegate.readLock());
+        this.readLock = new TracedReadLock(name + "_readLock", this, delegate.readLock());
         this.writeLock = new TracedWriteLock(readLock.getName(), name + "_writeLock", delegate.writeLock());
+    }
+
+    @Override
+    public boolean isWriteLocked() {
+        return writeLock.isLocked();
+    }
+
+    @Override
+    public boolean isWriteLockedByCurrentThread() {
+        return writeLock.isLockedByCurrentThread();
     }
 
     @Override

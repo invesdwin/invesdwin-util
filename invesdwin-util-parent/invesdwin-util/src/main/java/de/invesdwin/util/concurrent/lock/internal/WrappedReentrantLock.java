@@ -61,7 +61,7 @@ public class WrappedReentrantLock implements IReentrantLock {
     }
 
     @Override
-    public boolean isHeldByCurrentThread() {
+    public boolean isLockedByCurrentThread() {
         return delegate.isHeldByCurrentThread();
     }
 
