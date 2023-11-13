@@ -6,6 +6,8 @@ import java.util.concurrent.locks.Lock;
 
 public interface ILock extends Lock, Closeable {
 
+    ILock[] EMPTY_ARRAY = new ILock[0];
+
     String getName();
 
     boolean isLocked();

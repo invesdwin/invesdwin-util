@@ -89,6 +89,11 @@ public final class Futures extends AFuturesStaticFacade {
         }
     }
 
+    public static <T> T get(final Future<T> future, final Duration timeout)
+            throws InterruptedException, TimeoutException {
+        return get(future, timeout.longValue(), timeout.getTimeUnit().timeUnitValue());
+    }
+
     public static <T> T get(final Future<T> future, final long timeout, final TimeUnit unit)
             throws InterruptedException, TimeoutException {
         try {
@@ -109,6 +114,20 @@ public final class Futures extends AFuturesStaticFacade {
     public static <T> T getNoInterrupt(final Future<T> future) {
         try {
             return get(future);
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw Throwables.propagate(e);
+        }
+    }
+
+    public static <T> T getNoInterrupt(final Future<T> future, final Duration timeout) throws TimeoutException {
+        return getNoInterrupt(future, timeout.longValue(), timeout.getTimeUnit().timeUnitValue());
+    }
+
+    public static <T> T getNoInterrupt(final Future<T> future, final long timeout, final TimeUnit unit)
+            throws TimeoutException {
+        try {
+            return get(future, timeout, unit);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             throw Throwables.propagate(e);

@@ -1,6 +1,7 @@
 package de.invesdwin.util.concurrent.lock;
 
-import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -11,10 +12,8 @@ import javax.annotation.concurrent.Immutable;
 
 import com.google.common.util.concurrent.CycleDetectingLockFactory;
 import com.google.common.util.concurrent.CycleDetectingLockFactory.Policies;
-import com.googlecode.concurentlocks.CompositeLock;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
-import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
 import de.invesdwin.util.concurrent.lock.internal.ALocksStaticFacade;
 import de.invesdwin.util.concurrent.lock.internal.TimeoutLock;
 import de.invesdwin.util.concurrent.lock.internal.TimeoutReentrantLock;
@@ -283,23 +282,242 @@ public final class Locks extends ALocksStaticFacade {
         };
     }
 
-    public static Lock newCompositeLock(final Lock... locks) {
-        if (locks == null || locks.length == 0) {
-            return DisabledLock.INSTANCE;
-        }
-        final LinkedList<Lock> validLocks = new LinkedList<>();
-        for (int i = 0; i < locks.length; i++) {
-            final Lock lock = locks[i];
-            if (lock != DisabledLock.INSTANCE) {
-                validLocks.add(lock);
+    public static ILock newCompositeLock(final ILock... locks) {
+        return CompositeLock.valueOf(locks);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <L extends Lock> void lockAll(final L... locks) {
+        int i = -1;
+        try {
+            final int limit = locks.length - 1;
+            while (i < limit) {
+                i++;
+                final Lock lock = locks[i];
+                lock.lock();
             }
+        } catch (final RuntimeException e) {
+            // Roll back: unlock the locks acquired so far...
+            unlockAllReverse(i, locks);
+            throw e;
         }
-        if (validLocks.isEmpty()) {
-            return DisabledLock.INSTANCE;
-        } else {
-            //CHECKSTYLE:OFF
-            return new CompositeLock(validLocks);
-            //CHECKSTYLE:ON
+    }
+
+    public static <L extends Lock> void lockAll(final List<L> locks) {
+        int i = -1;
+        try {
+            final int limit = locks.size() - 1;
+            while (i < limit) {
+                i++;
+                final Lock lock = locks.get(i);
+                lock.lock();
+            }
+        } catch (final RuntimeException e) {
+            // Roll back: unlock the locks acquired so far...
+            unlockAllReverse(i, locks);
+            throw e;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <L extends Lock> void lockInterruptiblyAll(final L... locks) throws InterruptedException {
+        int i = -1;
+        try {
+            final int limit = locks.length - 1;
+            while (i < limit) {
+                i++;
+                final Lock lock = locks[i];
+                lock.lockInterruptibly();
+            }
+        } catch (final InterruptedException e) {
+            // Roll back: unlock the locks acquired so far...
+            unlockAllReverse(i, locks);
+            throw e;
+        } catch (final RuntimeException e) {
+            // Roll back: unlock the locks acquired so far...
+            unlockAllReverse(i, locks);
+            throw e;
+        }
+    }
+
+    public static <L extends Lock> void lockInterruptiblyAll(final List<L> locks) throws InterruptedException {
+        int i = -1;
+        try {
+            final int limit = locks.size() - 1;
+            while (i < limit) {
+                i++;
+                final Lock lock = locks.get(i);
+                lock.lockInterruptibly();
+            }
+        } catch (final InterruptedException e) {
+            // Roll back: unlock the locks acquired so far...
+            unlockAllReverse(i, locks);
+            throw e;
+        } catch (final RuntimeException e) {
+            // Roll back: unlock the locks acquired so far...
+            unlockAllReverse(i, locks);
+            throw e;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <L extends Lock> boolean tryLockAll(final L... locks) {
+        int i = -1;
+        boolean success = false;
+        try {
+            final int limit = locks.length - 1;
+            while (i < limit) {
+                i++;
+                final Lock lock = locks[i];
+                success = lock.tryLock();
+                if (!success) {
+                    break;
+                }
+            }
+        } catch (final RuntimeException e) {
+            // Roll back: unlock the locks acquired so far...
+            unlockAllReverse(i, locks);
+            throw e;
+        }
+        if (!success) {
+            // Roll back: unlock the locks acquired so far...
+            unlockAllReverse(i, locks);
+        }
+        return success;
+    }
+
+    public static <L extends Lock> boolean tryLockAll(final List<L> locks) {
+        int i = -1;
+        boolean success = false;
+        try {
+            final int limit = locks.size() - 1;
+            while (i < limit) {
+                i++;
+                final Lock lock = locks.get(i);
+                success = lock.tryLock();
+                if (!success) {
+                    break;
+                }
+            }
+        } catch (final RuntimeException e) {
+            // Roll back: unlock the locks acquired so far...
+            unlockAllReverse(i, locks);
+            throw e;
+        }
+        if (!success) {
+            // Roll back: unlock the locks acquired so far...
+            unlockAllReverse(i, locks);
+        }
+        return success;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <L extends Lock> boolean tryLockAll(final long time, final TimeUnit unit, final L... locks)
+            throws InterruptedException {
+        int i = -1;
+        boolean success = false;
+        try {
+            final long limitNanos = unit.toNanos(time);
+            final long startNanos = System.nanoTime();
+            final int limit = locks.length - 1;
+            while (i < limit) {
+                i++;
+                final Lock lock = locks[i];
+                final long remainingNanos = !success ? limitNanos // No need to calculate remaining time in first iteration
+                        : limitNanos - (System.nanoTime() - startNanos); // recalculate in subsequent iterations
+
+                // Note if remaining time is <= 0, we still try to obtain additional locks, supplying zero or negative
+                // timeouts to those locks, which should treat it as a non-blocking tryLock() per API docs...
+                success = lock.tryLock(remainingNanos, TimeUnit.NANOSECONDS);
+                if (!success) {
+                    break;
+                }
+            }
+        } catch (final RuntimeException e) {
+            // Roll back: unlock the locks acquired so far...
+            unlockAllReverse(i, locks);
+            throw e;
+        } catch (final InterruptedException e) {
+            // Roll back: unlock the locks acquired so far...
+            unlockAllReverse(i, locks);
+            throw e;
+        }
+        if (!success) {
+            // Roll back: unlock the locks acquired so far...
+            unlockAllReverse(i, locks);
+        }
+        return success;
+    }
+
+    public static <L extends Lock> boolean tryLockAll(final long time, final TimeUnit unit, final List<L> locks)
+            throws InterruptedException {
+        int i = -1;
+        boolean success = false;
+        try {
+            final long limitNanos = unit.toNanos(time);
+            final long startNanos = System.nanoTime();
+            final int limit = locks.size() - 1;
+            while (i < limit) {
+                i++;
+                final Lock lock = locks.get(i);
+                final long remainingNanos = !success ? limitNanos // No need to calculate remaining time in first iteration
+                        : limitNanos - (System.nanoTime() - startNanos); // recalculate in subsequent iterations
+
+                // Note if remaining time is <= 0, we still try to obtain additional locks, supplying zero or negative
+                // timeouts to those locks, which should treat it as a non-blocking tryLock() per API docs...
+                success = lock.tryLock(remainingNanos, TimeUnit.NANOSECONDS);
+                if (!success) {
+                    break;
+                }
+            }
+        } catch (final RuntimeException e) {
+            // Roll back: unlock the locks acquired so far...
+            unlockAllReverse(i, locks);
+            throw e;
+        } catch (final InterruptedException e) {
+            // Roll back: unlock the locks acquired so far...
+            unlockAllReverse(i, locks);
+            throw e;
+        }
+        if (!success) {
+            // Roll back: unlock the locks acquired so far...
+            unlockAllReverse(i, locks);
+        }
+        return success;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <L extends Lock> void unlockAll(final L... locks) {
+        for (int i = 0; i < locks.length; i++) {
+            locks[i].unlock();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <L extends Lock> void unlockAllReverse(final L... locks) {
+        unlockAllReverse(locks.length - 1, locks);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <L extends Lock> void unlockAllReverse(final int fromIndex, final L... locks) {
+        for (int i = fromIndex; i >= 0; i--) {
+            locks[i].unlock();
+        }
+    }
+
+    public static <L extends Lock> void unlockAll(final List<L> locks) {
+        for (int i = 0; i < locks.size(); i++) {
+            locks.get(i).unlock();
+        }
+    }
+
+    public static <L extends Lock> void unlockAllReverse(final List<L> locks) {
+        unlockAllReverse(locks.size() - 1, locks);
+    }
+
+    public static <L extends Lock> void unlockAllReverse(final int fromIndex, final List<L> locks) {
+        for (int i = fromIndex; i >= 0; i--) {
+            locks.get(i).unlock();
         }
     }
 
