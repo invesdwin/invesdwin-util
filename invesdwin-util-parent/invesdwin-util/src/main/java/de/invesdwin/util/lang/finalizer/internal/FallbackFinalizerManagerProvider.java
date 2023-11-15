@@ -33,7 +33,6 @@ public class FallbackFinalizerManagerProvider implements IFinalizerManagerProvid
     private static final Runnable CLEANER_TASK = new Runnable() {
         @Override
         public void run() {
-            boolean interrupted = false;
             while (true) {
                 // Keep on processing as long as the LIVE_SET is not empty and once it becomes empty
                 // See if we can let this thread complete.
@@ -42,9 +41,8 @@ public class FallbackFinalizerManagerProvider implements IFinalizerManagerProvid
                     try {
                         reference = (AutomaticCleanerReference) REFERENCE_QUEUE.remove(REFERENCE_QUEUE_POLL_TIMEOUT_MS);
                     } catch (final InterruptedException ex) {
-                        // Just consume and move on
-                        interrupted = true;
-                        continue;
+                        // abort
+                        return;
                     }
                     if (reference != null) {
                         try {
@@ -65,10 +63,6 @@ public class FallbackFinalizerManagerProvider implements IFinalizerManagerProvid
                     // was started already so its safe to let this Thread complete now.
                     break;
                 }
-            }
-            if (interrupted) {
-                // As we caught the InterruptedException above we should mark the Thread as interrupted.
-                Thread.currentThread().interrupt();
             }
         }
     };

@@ -38,7 +38,7 @@ public abstract class ACompressingWeakReference<T, C> extends WeakReference<T> i
                         removed.clear();
                     }
                 } catch (final InterruptedException e) {
-                    Thread.currentThread().interrupt();
+                    //ignore
                 }
             }
         });

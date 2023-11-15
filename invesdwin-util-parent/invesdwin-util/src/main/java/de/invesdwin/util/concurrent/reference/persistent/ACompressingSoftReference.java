@@ -38,7 +38,7 @@ public abstract class ACompressingSoftReference<T, C> extends SoftReference<T> i
                         removed.clear();
                     }
                 } catch (final InterruptedException e) {
-                    Thread.currentThread().interrupt();
+                    //ignore
                 }
             }
         });
