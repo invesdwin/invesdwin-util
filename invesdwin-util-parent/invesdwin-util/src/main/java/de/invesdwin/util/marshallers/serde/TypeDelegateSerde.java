@@ -18,12 +18,18 @@ import de.invesdwin.util.marshallers.serde.basic.FDateSerde;
 import de.invesdwin.util.marshallers.serde.basic.IntegerSerde;
 import de.invesdwin.util.marshallers.serde.basic.LongSerde;
 import de.invesdwin.util.marshallers.serde.basic.StringUtf8Serde;
+import de.invesdwin.util.marshallers.serde.basic.TimedBooleanSerde;
 import de.invesdwin.util.marshallers.serde.basic.TimedDecimalSerde;
+import de.invesdwin.util.marshallers.serde.basic.TimedDoubleSerde;
+import de.invesdwin.util.marshallers.serde.basic.TimedFDateSerde;
 import de.invesdwin.util.marshallers.serde.basic.VoidSerde;
+import de.invesdwin.util.math.TimedBoolean;
+import de.invesdwin.util.math.TimedDouble;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.TimedDecimal;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.TimedFDate;
 
 @Immutable
 public class TypeDelegateSerde<O> implements ISerde<O> {
@@ -56,6 +62,12 @@ public class TypeDelegateSerde<O> implements ISerde<O> {
             return IntegerSerde.GET;
         } else if (TimedDecimal.class.isAssignableFrom(type)) {
             return TimedDecimalSerde.GET;
+        } else if (TimedDouble.class.isAssignableFrom(type)) {
+            return TimedDoubleSerde.GET;
+        } else if (TimedBoolean.class.isAssignableFrom(type)) {
+            return TimedBooleanSerde.GET;
+        } else if (TimedFDate.class.isAssignableFrom(type)) {
+            return TimedFDateSerde.GET;
         } else if (Byte.class.isAssignableFrom(type) || byte.class.isAssignableFrom(type)) {
             return ByteSerde.GET;
         } else if (Date.class.isAssignableFrom(type)) {
