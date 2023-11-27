@@ -15,7 +15,12 @@ import de.invesdwin.util.collections.internal.ACollectionsStaticFacade;
                 "java.util.Collections#min(java.util.Collection)", "java.util.Collections#max(java.util.Collection)",
                 "org.apache.commons.collections4.CollectionUtils#addAll(java.util.Collection, C...)",
                 "org.apache.commons.collections4.CollectionUtils#synchronizedCollection(java.util.Collection)",
-                "org.apache.commons.collections4.CollectionUtils#unmodifiableCollection(java.util.Collection)" })
+                "org.apache.commons.collections4.CollectionUtils#unmodifiableCollection(java.util.Collection)",
+                "java.util.Collections#unmodifiableSequencedCollection(java.util.SequencedCollection)",
+                "java.util.Collections#unmodifiableSequencedSet(java.util.SequencedSet)",
+                "java.util.Collections#unmodifiableSequencedMap(java.util.SequencedMap)",
+                "java.util.Collections#newSequencedSetFromMap(java.util.SequencedMap)",
+                "java.util.Collections#shuffle(java.util.List, java.util.random.RandomGenerator)" })
 public class Collections extends ACollectionsStaticFacade {
 
     @SuppressWarnings("rawtypes")
