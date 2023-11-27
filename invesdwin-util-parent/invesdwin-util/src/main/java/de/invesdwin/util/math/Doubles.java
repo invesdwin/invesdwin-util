@@ -587,6 +587,10 @@ public final class Doubles extends ADoublesStaticFacade {
         return !Double.isInfinite(value);
     }
 
+    public static boolean isNotFinite(final double value) {
+        return !Double.isFinite(value);
+    }
+
     public static Double nanToNull(final Double value) {
         if (value == null) {
             return null;
