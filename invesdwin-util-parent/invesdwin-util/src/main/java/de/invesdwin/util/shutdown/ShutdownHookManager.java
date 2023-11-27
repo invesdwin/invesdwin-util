@@ -1,5 +1,6 @@
 package de.invesdwin.util.shutdown;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,6 +8,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.lang.Objects;
 
 /**
  * Registers an internal Thread as a ShutdownHook in the JVM that runs the given callback on shutdown.
@@ -18,7 +20,7 @@ public final class ShutdownHookManager {
 
     public static final ShutdownHookManager INSTANCE = new ShutdownHookManager();
     @GuardedBy("INSTANCE")
-    private static final Map<IShutdownHook, ShutdownHookThread> REGISTERED_HOOKS = new HashMap<IShutdownHook, ShutdownHookThread>();
+    private static final Map<Integer, ShutdownHookThread> REGISTERED_HOOKS = new HashMap<Integer, ShutdownHookThread>();
     private static volatile boolean shuttingDown;
 
     static {
@@ -50,8 +52,9 @@ public final class ShutdownHookManager {
                 //too late
                 return;
             }
-            final ShutdownHookThread thread = new ShutdownHookThread(hook);
-            Assertions.assertThat(REGISTERED_HOOKS.put(hook, thread))
+            final int identityHashCode = System.identityHashCode(hook);
+            final ShutdownHookThread thread = new ShutdownHookThread(identityHashCode, hook);
+            Assertions.assertThat(REGISTERED_HOOKS.put(identityHashCode, thread))
                     .as("Hook [%s] has already been registered!", hook)
                     .isNull();
             Runtime.getRuntime().addShutdownHook(thread);
@@ -64,7 +67,8 @@ public final class ShutdownHookManager {
                 //too late
                 return;
             }
-            final ShutdownHookThread removedThread = REGISTERED_HOOKS.remove(hook);
+            final int identityHashCode = System.identityHashCode(hook);
+            final ShutdownHookThread removedThread = REGISTERED_HOOKS.remove(identityHashCode);
             Assertions.assertThat(shuttingDown || removedThread != null)
                     .as("Hook [%s] was never registered!", hook)
                     .isTrue();
@@ -79,19 +83,39 @@ public final class ShutdownHookManager {
      */
     @ThreadSafe
     private static class ShutdownHookThread extends Thread {
-        private final IShutdownHook shutdownable;
+        private final WeakReference<IShutdownHook> shutdownable;
+        private final int identityHashCode;
 
-        ShutdownHookThread(final IShutdownHook shutdownable) {
-            this.shutdownable = shutdownable;
+        ShutdownHookThread(final int identityHashCode, final IShutdownHook shutdownable) {
+            this.identityHashCode = identityHashCode;
+            this.shutdownable = new WeakReference<IShutdownHook>(shutdownable);
         }
 
         @Override
         public void run() {
             shuttingDown = true;
             try {
-                shutdownable.shutdown();
+                final IShutdownHook hook = shutdownable.get();
+                if (hook != null) {
+                    hook.shutdown();
+                }
             } catch (final Exception e) {
                 getUncaughtExceptionHandler().uncaughtException(this, e);
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(ShutdownHookThread.class, identityHashCode);
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (obj instanceof ShutdownHookThread) {
+                final ShutdownHookThread cObj = (ShutdownHookThread) obj;
+                return cObj.identityHashCode == identityHashCode;
+            } else {
+                return false;
             }
         }
     }
