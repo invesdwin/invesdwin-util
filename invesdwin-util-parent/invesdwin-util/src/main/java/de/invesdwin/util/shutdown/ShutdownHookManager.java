@@ -2,13 +2,17 @@ package de.invesdwin.util.shutdown;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.concurrent.loop.LoopInterruptedCheck;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.time.duration.Duration;
 
 /**
  * Registers an internal Thread as a ShutdownHook in the JVM that runs the given callback on shutdown.
@@ -22,6 +26,13 @@ public final class ShutdownHookManager {
     @GuardedBy("INSTANCE")
     private static final Map<Integer, ShutdownHookThread> REGISTERED_HOOKS = new HashMap<Integer, ShutdownHookThread>();
     private static volatile boolean shuttingDown;
+    private static final LoopInterruptedCheck REMOVE_OBSOLETE_THREADS_CHECK = new LoopInterruptedCheck(
+            Duration.ONE_MINUTE) {
+        @Override
+        protected boolean onInterval() {
+            return true;
+        }
+    };
 
     static {
         /**
@@ -52,12 +63,33 @@ public final class ShutdownHookManager {
                 //too late
                 return;
             }
+            if (REMOVE_OBSOLETE_THREADS_CHECK.checkClockNoInterrupt()) {
+                removeObsoleteThreads();
+            }
             final int identityHashCode = System.identityHashCode(hook);
-            final ShutdownHookThread thread = new ShutdownHookThread(identityHashCode, hook);
-            Assertions.assertThat(REGISTERED_HOOKS.put(identityHashCode, thread))
-                    .as("Hook [%s] has already been registered!", hook)
-                    .isNull();
-            Runtime.getRuntime().addShutdownHook(thread);
+            final ShutdownHookThread newThread = new ShutdownHookThread(identityHashCode, hook);
+            final ShutdownHookThread existing = REGISTERED_HOOKS.put(identityHashCode, newThread);
+            if (existing != null) {
+                //identity might get recycled
+                if (existing.isObsolete()) {
+                    Runtime.getRuntime().removeShutdownHook(existing);
+                } else {
+                    Assertions.assertThat(existing).as("Hook [%s] has already been registered!", hook).isNull();
+                }
+            }
+            Runtime.getRuntime().addShutdownHook(newThread);
+        }
+    }
+
+    private static void removeObsoleteThreads() {
+        final Iterator<Entry<Integer, ShutdownHookThread>> it = REGISTERED_HOOKS.entrySet().iterator();
+        while (it.hasNext()) {
+            final Entry<Integer, ShutdownHookThread> entry = it.next();
+            final ShutdownHookThread thread = entry.getValue();
+            if (thread.isObsolete()) {
+                Runtime.getRuntime().removeShutdownHook(thread);
+                it.remove();
+            }
         }
     }
 
@@ -89,6 +121,10 @@ public final class ShutdownHookManager {
         ShutdownHookThread(final int identityHashCode, final IShutdownHook shutdownable) {
             this.identityHashCode = identityHashCode;
             this.shutdownable = new WeakReference<IShutdownHook>(shutdownable);
+        }
+
+        public boolean isObsolete() {
+            return shutdownable.get() == null;
         }
 
         @Override

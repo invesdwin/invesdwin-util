@@ -60,7 +60,7 @@ public class LoopInterruptedCheck {
         }
     }
 
-    private boolean checkClock() throws InterruptedException {
+    public final boolean checkClock() throws InterruptedException {
         final long newIntervalNanos = System.nanoTime();
         if (newIntervalNanos > nextIntervalNanos) {
             final boolean result = onInterval();

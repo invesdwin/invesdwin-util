@@ -3,6 +3,7 @@ package de.invesdwin.util.concurrent;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -33,8 +34,8 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService
         }
 
         @Override
-        public boolean isDynamicThreadName() {
-            return internal.isDynamicThreadName();
+        public AtomicBoolean getDynamicThreadName() {
+            return internal.getDynamicThreadName();
         }
 
         @Override

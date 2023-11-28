@@ -37,7 +37,7 @@ public final class WrappedRunnable implements IPriorityRunnable {
     public void run() {
         started = true;
         final String originalThreadName;
-        if (parent != null && parent.isDynamicThreadName()) {
+        if (parent != null && parent.getDynamicThreadName().get()) {
             originalThreadName = Threads.getCurrentRootThreadName();
             Threads.updateParentThreadName(parentThreadName);
         } else {

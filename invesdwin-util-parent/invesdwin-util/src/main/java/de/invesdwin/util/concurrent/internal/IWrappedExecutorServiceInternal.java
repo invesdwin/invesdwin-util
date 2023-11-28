@@ -1,5 +1,7 @@
 package de.invesdwin.util.concurrent.internal;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public interface IWrappedExecutorServiceInternal {
 
     String getName();
@@ -8,7 +10,7 @@ public interface IWrappedExecutorServiceInternal {
 
     boolean isKeepThreadLocals();
 
-    boolean isDynamicThreadName();
+    AtomicBoolean getDynamicThreadName();
 
     void incrementPendingCount(boolean skipWaitOnFullPendingCount) throws InterruptedException;
 

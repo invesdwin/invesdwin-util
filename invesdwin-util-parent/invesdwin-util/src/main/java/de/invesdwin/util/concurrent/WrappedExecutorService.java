@@ -9,6 +9,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -54,8 +55,8 @@ public class WrappedExecutorService implements ListeningExecutorService {
         }
 
         @Override
-        public boolean isDynamicThreadName() {
-            return WrappedExecutorService.this.isDynamicThreadName();
+        public AtomicBoolean getDynamicThreadName() {
+            return dynamicThreadName;
         }
 
         @Override
@@ -85,7 +86,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
     private final AtomicInteger pendingCount = new AtomicInteger();
     private final Object pendingCountWaitLock = new Object();
     private volatile boolean logExceptions = true;
-    private volatile boolean dynamicThreadName = true;
+    private final AtomicBoolean dynamicThreadName = new AtomicBoolean(true);
     private volatile boolean keepThreadLocals = true;
     private final String name;
     private final PendingCountCondition zeroPendingCountCondition;
@@ -141,12 +142,12 @@ public class WrappedExecutorService implements ListeningExecutorService {
     }
 
     public WrappedExecutorService setDynamicThreadName(final boolean dynamicThreadName) {
-        this.dynamicThreadName = dynamicThreadName;
+        this.dynamicThreadName.set(dynamicThreadName);
         return this;
     }
 
     public boolean isDynamicThreadName() {
-        return dynamicThreadName;
+        return dynamicThreadName.get();
     }
 
     public String getName() {

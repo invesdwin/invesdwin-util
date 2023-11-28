@@ -10,6 +10,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -31,8 +32,8 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
         }
 
         @Override
-        public boolean isDynamicThreadName() {
-            return ConfiguredForkJoinPool.this.isDynamicThreadName();
+        public AtomicBoolean getDynamicThreadName() {
+            return dynamicThreadName;
         }
 
         @Override
@@ -57,7 +58,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
 
     };
     private volatile boolean logExceptions = true;
-    private volatile boolean dynamicThreadName = true;
+    private final AtomicBoolean dynamicThreadName = new AtomicBoolean(true);
     private volatile boolean keepThreadLocals = true;
     private final String name;
 
@@ -94,12 +95,12 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     }
 
     public ConfiguredForkJoinPool setDynamicThreadName(final boolean dynamicThreadName) {
-        this.dynamicThreadName = dynamicThreadName;
+        this.dynamicThreadName.set(dynamicThreadName);
         return this;
     }
 
     public boolean isDynamicThreadName() {
-        return dynamicThreadName;
+        return dynamicThreadName.get();
     }
 
     public String getName() {

@@ -1,6 +1,7 @@
 package de.invesdwin.util.concurrent.internal;
 
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -16,7 +17,7 @@ public class WrappedThreadFactory implements ThreadFactory {
     private final int threadpoolId = THREADPOOL_IDS.incrementAndGet();
     private final AtomicInteger threadIds = new AtomicInteger();
 
-    private IWrappedExecutorServiceInternal parent;
+    private AtomicBoolean dynamicThreadName;
     private final String name;
     private final ThreadFactory delegate;
 
@@ -32,9 +33,9 @@ public class WrappedThreadFactory implements ThreadFactory {
     }
 
     public void setParent(final IWrappedExecutorServiceInternal parent) {
-        Assertions.checkNull(this.parent);
+        Assertions.checkNull(this.dynamicThreadName);
         Assertions.checkEquals(name, parent.getName());
-        this.parent = parent;
+        this.dynamicThreadName = parent.getDynamicThreadName();
     }
 
     public String getName() {
@@ -49,7 +50,7 @@ public class WrappedThreadFactory implements ThreadFactory {
         });
 
         final String curThreadName = threadpoolId + "-" + threadIds.incrementAndGet() + ":" + name;
-        if (parent == null || parent.isDynamicThreadName()) {
+        if (dynamicThreadName == null || dynamicThreadName.get()) {
             final String parentThreadName = Thread.currentThread().getName();
             t.setName(curThreadName + Threads.NESTED_THREAD_NAME_SEPARATOR + parentThreadName);
         } else {

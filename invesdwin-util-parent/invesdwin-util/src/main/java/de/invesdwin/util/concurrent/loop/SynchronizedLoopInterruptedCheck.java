@@ -39,27 +39,54 @@ public class SynchronizedLoopInterruptedCheck {
         return System.nanoTime();
     }
 
+    public final boolean checkNoInterrupt() {
+        try {
+            return check();
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public final boolean check() throws InterruptedException {
         final int checksInIntervalValue = checksInInterval.incrementAndGet();
         if (checksInIntervalValue > checksPerInterval) {
-            final long newIntervalNanos = getInitialNanoTime();
-            if (newIntervalNanos > nextIntervalNanos) {
-                if (lock.tryLock()) {
-                    try {
-                        if (newIntervalNanos > nextIntervalNanos) {
-                            final boolean result = onInterval();
-                            checksPerInterval = checksInIntervalValue;
-                            checksInInterval.set(0);
-                            nextIntervalNanos = newIntervalNanos + checkIntervalNanos;
-                            return result;
-                        }
-                    } finally {
-                        lock.unlock();
-                    }
-                }
-            }
+            return checkClock();
+        } else {
+            return false;
         }
-        return false;
+    }
+
+    public final boolean checkClockNoInterrupt() {
+        try {
+            return checkClock();
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public final boolean checkClock() throws InterruptedException {
+        final long newIntervalNanos = getInitialNanoTime();
+        if (newIntervalNanos > nextIntervalNanos) {
+            if (lock.tryLock()) {
+                try {
+                    if (newIntervalNanos > nextIntervalNanos) {
+                        final boolean result = onInterval();
+                        checksPerInterval = checksInInterval.get();
+                        checksInInterval.set(0);
+                        nextIntervalNanos = newIntervalNanos + checkIntervalNanos;
+                        return result;
+                    } else {
+                        return false;
+                    }
+                } finally {
+                    lock.unlock();
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     protected boolean onInterval() throws InterruptedException {
