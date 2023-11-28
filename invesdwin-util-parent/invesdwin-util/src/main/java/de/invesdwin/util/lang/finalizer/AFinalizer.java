@@ -120,6 +120,10 @@ public abstract class AFinalizer implements Closeable, Runnable {
         }
     }
 
+    public synchronized boolean isRegistered() {
+        return reference != null;
+    }
+
     public synchronized IFinalizerReference getReference() {
         return reference;
     }
