@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import de.invesdwin.util.concurrent.future.InterruptingFuture;
+import de.invesdwin.util.concurrent.handler.IExecutorExceptionHandler;
 import de.invesdwin.util.concurrent.internal.IWrappedExecutorServiceInternal;
 import de.invesdwin.util.concurrent.internal.WrappedCallable;
 import de.invesdwin.util.concurrent.internal.WrappedRunnable;
@@ -24,8 +25,8 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService
     private final IWrappedExecutorServiceInternal scheduledInternal = new IWrappedExecutorServiceInternal() {
 
         @Override
-        public boolean isLogExceptions() {
-            return internal.isLogExceptions();
+        public IExecutorExceptionHandler getExecutorExceptionHandler() {
+            return internal.getExecutorExceptionHandler();
         }
 
         @Override
@@ -73,7 +74,8 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService
     @Override
     public ListenableScheduledFuture<?> schedule(final Runnable command, final long delay, final TimeUnit unit) {
         try {
-            return getWrappedInstance().schedule(WrappedRunnable.newInstance(scheduledInternal, command), delay, unit);
+            return getWrappedInstance().schedule(WrappedRunnable.newInstance(scheduledInternal, false, command), delay,
+                    unit);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<Object>();
@@ -84,7 +86,8 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService
     public <V> ListenableScheduledFuture<V> schedule(final Callable<V> callable, final long delay,
             final TimeUnit unit) {
         try {
-            return getWrappedInstance().schedule(WrappedCallable.newInstance(scheduledInternal, callable), delay, unit);
+            return getWrappedInstance().schedule(WrappedCallable.newInstance(scheduledInternal, false, callable), delay,
+                    unit);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<V>();
@@ -95,8 +98,8 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService
     public ListenableScheduledFuture<?> scheduleAtFixedRate(final Runnable command, final long initialDelay,
             final long period, final TimeUnit unit) {
         try {
-            return getWrappedInstance().scheduleAtFixedRate(WrappedRunnable.newInstance(scheduledInternal, command),
-                    initialDelay, period, unit);
+            return getWrappedInstance().scheduleAtFixedRate(
+                    WrappedRunnable.newInstance(scheduledInternal, false, command), initialDelay, period, unit);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<Object>();
@@ -107,8 +110,8 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService
     public ListenableScheduledFuture<?> scheduleWithFixedDelay(final Runnable command, final long initialDelay,
             final long delay, final TimeUnit unit) {
         try {
-            return getWrappedInstance().scheduleWithFixedDelay(WrappedRunnable.newInstance(scheduledInternal, command),
-                    initialDelay, delay, unit);
+            return getWrappedInstance().scheduleWithFixedDelay(
+                    WrappedRunnable.newInstance(scheduledInternal, false, command), initialDelay, delay, unit);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return new InterruptingFuture<Object>();
@@ -116,8 +119,9 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService
     }
 
     @Override
-    public WrappedScheduledExecutorService setLogExceptions(final boolean logExceptions) {
-        return (WrappedScheduledExecutorService) super.setLogExceptions(logExceptions);
+    public WrappedScheduledExecutorService setExecutorExceptionHandler(
+            final IExecutorExceptionHandler exceptionHandler) {
+        return (WrappedScheduledExecutorService) super.setExecutorExceptionHandler(exceptionHandler);
     }
 
     @Override

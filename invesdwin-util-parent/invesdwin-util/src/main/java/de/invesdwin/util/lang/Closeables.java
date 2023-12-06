@@ -7,6 +7,7 @@ import java.util.concurrent.Executor;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.concurrent.Executors;
+import de.invesdwin.util.concurrent.handler.DisabledExecutorExceptionHandler;
 import de.invesdwin.util.error.Throwables;
 
 @Immutable
@@ -15,10 +16,9 @@ public final class Closeables {
     private static final Executor ASYNC_EXECUTOR = Executors
             .newFixedThreadPool(Closeables.class.getSimpleName() + "_ASYNC", Executors.getCpuThreadPoolCount())
             .setDynamicThreadName(false)
-            .setLogExceptions(false);
+            .setExecutorExceptionHandler(DisabledExecutorExceptionHandler.INSTANCE);
 
-    private Closeables() {
-    }
+    private Closeables() {}
 
     public static void closeAsync(final Object obj) {
         if (obj == null) {

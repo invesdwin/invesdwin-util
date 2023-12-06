@@ -9,6 +9,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.concurrent.Threads;
+import de.invesdwin.util.concurrent.handler.IExecutorExceptionHandler;
+import de.invesdwin.util.concurrent.handler.UncaughtExecutorExceptionHandler;
 import de.invesdwin.util.error.internal.AThrowablesStaticFacade;
 import de.invesdwin.util.lang.string.Strings;
 
@@ -19,6 +21,8 @@ import de.invesdwin.util.lang.string.Strings;
 public final class Throwables extends AThrowablesStaticFacade {
 
     private static boolean debugStackTraceEnabled = false;
+
+    private static IExecutorExceptionHandler defaultExecutorExceptionHandler = newDefaultExecutorUncaughtExceptionHandler();
 
     private Throwables() {}
 
@@ -33,6 +37,23 @@ public final class Throwables extends AThrowablesStaticFacade {
      */
     public static boolean isDebugStackTraceEnabled() {
         return debugStackTraceEnabled;
+    }
+
+    public static IExecutorExceptionHandler getDefaultExecutorExceptionHandler() {
+        return defaultExecutorExceptionHandler;
+    }
+
+    public static void setDefaultExecutorExceptionHandler(
+            final IExecutorExceptionHandler defaultExecutorExceptionHandler) {
+        if (defaultExecutorExceptionHandler == null) {
+            Throwables.defaultExecutorExceptionHandler = newDefaultExecutorUncaughtExceptionHandler();
+        } else {
+            Throwables.defaultExecutorExceptionHandler = defaultExecutorExceptionHandler;
+        }
+    }
+
+    public static UncaughtExecutorExceptionHandler newDefaultExecutorUncaughtExceptionHandler() {
+        return UncaughtExecutorExceptionHandler.INSTANCE;
     }
 
     public static <T extends Throwable> boolean isCausedByType(final Throwable e, final Class<T> type) {

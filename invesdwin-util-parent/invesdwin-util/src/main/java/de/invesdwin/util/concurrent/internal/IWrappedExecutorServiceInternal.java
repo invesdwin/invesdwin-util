@@ -2,11 +2,13 @@ package de.invesdwin.util.concurrent.internal;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import de.invesdwin.util.concurrent.handler.IExecutorExceptionHandler;
+
 public interface IWrappedExecutorServiceInternal {
 
     String getName();
 
-    boolean isLogExceptions();
+    IExecutorExceptionHandler getExecutorExceptionHandler();
 
     boolean isKeepThreadLocals();
 

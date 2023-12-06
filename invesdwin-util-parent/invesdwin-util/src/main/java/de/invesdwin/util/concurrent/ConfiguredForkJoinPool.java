@@ -14,10 +14,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.concurrent.handler.IExecutorExceptionHandler;
 import de.invesdwin.util.concurrent.internal.ConfiguredForkJoinWorkerThreadFactory;
 import de.invesdwin.util.concurrent.internal.IWrappedExecutorServiceInternal;
 import de.invesdwin.util.concurrent.internal.WrappedCallable;
 import de.invesdwin.util.concurrent.internal.WrappedRunnable;
+import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 
@@ -27,8 +29,8 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     protected final IWrappedExecutorServiceInternal internal = new IWrappedExecutorServiceInternal() {
 
         @Override
-        public boolean isLogExceptions() {
-            return ConfiguredForkJoinPool.this.isLogExceptions();
+        public IExecutorExceptionHandler getExecutorExceptionHandler() {
+            return ConfiguredForkJoinPool.this.getExecutorExceptionHandler();
         }
 
         @Override
@@ -57,7 +59,8 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
         }
 
     };
-    private volatile boolean logExceptions = true;
+    private volatile IExecutorExceptionHandler executorExceptionHandler = Throwables
+            .getDefaultExecutorExceptionHandler();
     private final AtomicBoolean dynamicThreadName = new AtomicBoolean(true);
     private volatile boolean keepThreadLocals = true;
     private final String name;
@@ -76,13 +79,18 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
         configure();
     }
 
-    public ConfiguredForkJoinPool setLogExceptions(final boolean logExceptions) {
-        this.logExceptions = logExceptions;
+    public ConfiguredForkJoinPool setExecutorExceptionHandler(
+            final IExecutorExceptionHandler executorExceptionHandler) {
+        if (executorExceptionHandler == null) {
+            this.executorExceptionHandler = Throwables.getDefaultExecutorExceptionHandler();
+        } else {
+            this.executorExceptionHandler = executorExceptionHandler;
+        }
         return this;
     }
 
-    public boolean isLogExceptions() {
-        return logExceptions;
+    public IExecutorExceptionHandler getExecutorExceptionHandler() {
+        return executorExceptionHandler;
     }
 
     public ConfiguredForkJoinPool setKeepThreadLocals(final boolean keepThreadLocals) {
@@ -152,7 +160,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     @Override
     public void execute(final Runnable task) {
         try {
-            super.execute(WrappedRunnable.newInstance(internal, task));
+            super.execute(WrappedRunnable.newInstance(internal, true, task));
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -161,7 +169,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     @Override
     public <T> ForkJoinTask<T> submit(final Callable<T> task) {
         try {
-            return super.submit(WrappedCallable.newInstance(internal, task));
+            return super.submit(WrappedCallable.newInstance(internal, false, task));
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -176,7 +184,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     @Override
     public ForkJoinTask<?> submit(final Runnable task) {
         try {
-            return super.submit(WrappedRunnable.newInstance(internal, task));
+            return super.submit(WrappedRunnable.newInstance(internal, false, task));
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -185,7 +193,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     @Override
     public <T> ForkJoinTask<T> submit(final Runnable task, final T result) {
         try {
-            return super.submit(WrappedRunnable.newInstance(internal, task), result);
+            return super.submit(WrappedRunnable.newInstance(internal, false, task), result);
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -200,7 +208,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     @Override
     public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks) {
         try {
-            return super.invokeAll(WrappedCallable.newInstance(internal, tasks));
+            return super.invokeAll(WrappedCallable.newInstance(internal, false, tasks));
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -209,25 +217,25 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     @Override
     public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks, final long timeout,
             final TimeUnit unit) throws InterruptedException {
-        return super.invokeAll(WrappedCallable.newInstance(internal, tasks), timeout, unit);
+        return super.invokeAll(WrappedCallable.newInstance(internal, false, tasks), timeout, unit);
     }
 
     @Override
     public <T> T invokeAny(final Collection<? extends Callable<T>> tasks)
             throws InterruptedException, ExecutionException {
-        return super.invokeAny(WrappedCallable.newInstance(internal, tasks));
+        return super.invokeAny(WrappedCallable.newInstance(internal, false, tasks));
     }
 
     @Override
     public <T> T invokeAny(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
-        return super.invokeAny(WrappedCallable.newInstance(internal, tasks), timeout, unit);
+        return super.invokeAny(WrappedCallable.newInstance(internal, false, tasks), timeout, unit);
     }
 
     @Override
     protected <T> RunnableFuture<T> newTaskFor(final Callable<T> callable) {
         try {
-            return super.newTaskFor(WrappedCallable.newInstance(internal, callable));
+            return super.newTaskFor(WrappedCallable.newInstance(internal, false, callable));
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -236,7 +244,7 @@ public class ConfiguredForkJoinPool extends ForkJoinPool {
     @Override
     protected <T> RunnableFuture<T> newTaskFor(final Runnable runnable, final T value) {
         try {
-            return super.newTaskFor(WrappedRunnable.newInstance(internal, runnable), value);
+            return super.newTaskFor(WrappedRunnable.newInstance(internal, false, runnable), value);
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }

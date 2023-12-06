@@ -16,18 +16,20 @@ import io.netty.util.concurrent.FastThreadLocal;
 public final class WrappedCallable<V> implements Callable<V>, IPriorityProvider {
 
     private final String parentThreadName;
+    private final boolean executeCalledWithoutFuture;
     private final Callable<V> delegate;
     private final IWrappedExecutorServiceInternal parent;
     private volatile boolean started;
 
-    private WrappedCallable(final IWrappedExecutorServiceInternal parent, final Callable<V> delegate,
-            final boolean skipWaitOnFullPendingCount) throws InterruptedException {
+    private WrappedCallable(final IWrappedExecutorServiceInternal parent, final boolean executeCalledWithoutFuture,
+            final Callable<V> delegate, final boolean skipWaitOnFullPendingCount) throws InterruptedException {
         if (delegate instanceof WrappedCallable) {
             throw new IllegalArgumentException("delegate should not be an instance of " + getClass().getSimpleName());
         }
-        this.parentThreadName = Thread.currentThread().getName();
-        this.delegate = delegate;
         this.parent = parent;
+        this.parentThreadName = Thread.currentThread().getName();
+        this.executeCalledWithoutFuture = executeCalledWithoutFuture;
+        this.delegate = delegate;
         if (parent != null) {
             parent.incrementPendingCount(skipWaitOnFullPendingCount);
         }
@@ -46,10 +48,17 @@ public final class WrappedCallable<V> implements Callable<V>, IPriorityProvider 
         try {
             return delegate.call();
         } catch (final Throwable t) {
-            if (parent != null && parent.isLogExceptions()) {
-                Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), t);
+            if (parent != null) {
+                final Throwable handled = parent.getExecutorExceptionHandler()
+                        .handleExecutorException(t, executeCalledWithoutFuture, true);
+                if (handled != null) {
+                    throw Throwables.propagate(handled);
+                } else {
+                    return null;
+                }
+            } else {
+                throw Throwables.propagate(t);
             }
-            throw Throwables.propagate(t);
         } finally {
             if (parent != null) {
                 parent.decrementPendingCount();
@@ -73,19 +82,20 @@ public final class WrappedCallable<V> implements Callable<V>, IPriorityProvider 
     }
 
     public static <T> List<WrappedCallable<T>> newInstance(final IWrappedExecutorServiceInternal parent,
-            final Collection<? extends Callable<T>> tasks) throws InterruptedException {
+            final boolean executeCalledWithoutFuture, final Collection<? extends Callable<T>> tasks)
+            throws InterruptedException {
         final List<WrappedCallable<T>> ret = new ArrayList<WrappedCallable<T>>(tasks.size());
         boolean skipWaitOnFullPendingCount = false;
         for (final Callable<T> delegate : tasks) {
-            ret.add(new WrappedCallable<T>(parent, delegate, skipWaitOnFullPendingCount));
+            ret.add(new WrappedCallable<T>(parent, executeCalledWithoutFuture, delegate, skipWaitOnFullPendingCount));
             skipWaitOnFullPendingCount = true;
         }
         return ret;
     }
 
     public static <T> WrappedCallable<T> newInstance(final IWrappedExecutorServiceInternal parent,
-            final Callable<T> delegate) throws InterruptedException {
-        return new WrappedCallable<T>(parent, delegate, false);
+            final boolean executeCalledWithoutFuture, final Callable<T> delegate) throws InterruptedException {
+        return new WrappedCallable<T>(parent, executeCalledWithoutFuture, delegate, false);
     }
 
     @Override
