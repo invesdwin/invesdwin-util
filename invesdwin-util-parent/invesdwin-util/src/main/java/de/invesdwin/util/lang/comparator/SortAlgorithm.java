@@ -20,6 +20,28 @@ public enum SortAlgorithm implements ISortAlgorithm {
         }
 
     },
+    TIMSORT_FALLBACK_BUBBLESORT {
+        @Override
+        public <T> void sort(final List<? extends T> list, final Comparator<? super T> comparator) {
+            try {
+                Comparators.sort(list, comparator);
+            } catch (final Throwable t) {
+                //Caused by - java.lang.IllegalArgumentException: Comparison method violates its general contract!
+                Comparators.bubbleSort(list, comparator);
+            }
+        }
+
+        @Override
+        public <T extends Comparable<? super T>> void sort(final List<? extends T> list) {
+            try {
+                Comparators.sort(list);
+            } catch (final Throwable t) {
+                //Caused by - java.lang.IllegalArgumentException: Comparison method violates its general contract!
+                Comparators.bubbleSort(list);
+            }
+        }
+
+    },
     MERGESORT {
         @Override
         public <T> void sort(final List<? extends T> list, final Comparator<? super T> comparator) {
@@ -31,6 +53,11 @@ public enum SortAlgorithm implements ISortAlgorithm {
             Comparators.mergeSort(list);
         }
     },
+    /**
+     * bubble sort also works even if mergeSort or timSort gives this exception:
+     * 
+     * java.lang.IllegalArgumentException: Comparison method violates its general contract!
+     */
     BUBBLESORT {
         @Override
         public <T> void sort(final List<? extends T> list, final Comparator<? super T> comparator) {
