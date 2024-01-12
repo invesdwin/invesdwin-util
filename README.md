@@ -77,6 +77,57 @@ Each one being a one-stop class to find the utility method you are searching for
 This is a major rewrite of the popular and fast [parsii](https://github.com/scireum/parsii) expression library. There are a lot of performance optimizations included (using final and immutable where possible, faster tokenizer and removing unneeded features). Also support was added for time series based expressions with `[x]` operator on functions and variables for looking up previous values and for operators like `crosses above` and `crosses below`. Functions can be referenced as variables and vice versa where possible. Thus the parentheses operator `()` becomes optional. Boolean expressions are processed efficiently by skipping unnecessary expression evaluations. You can also use `double and boolean` as results for evaluations as well as `none, int and time` based historical indexing for evaluation by calling the appropriate expression method. The time series based functions and variables can be added by overriding the `getFunction(name)`, `getVariable(name)` and `getPreviousKeyFunction()` methods of the parser class. Though without these, the classical math and boolean expressions still work properly. It is possible to extend the expressions by technical analysis features using this functionality. The expressions are case insensitive with variables and functions automatically being converted to lowercase before being parsed. Read more about the language design and performance results [here](https://www.researchgate.net/publication/359659846_A_Simple_Expression_Language_for_Automating_Strategy_Development_Processes). This new expression language can be called "InvEL" for "Invesdwin Expression Language". [Here](https://www.youtube.com/watch?v=Ilw8J_bfgwA&list=FLebnPcJPaUWYjEuJj6z7tSw) is a recorded presentation of a practical application of the expression language (please excuse the bad microphone quality). Slides are available as a [long](https://github.com/invesdwin/invesdwin-util/blob/master/invesdwin-util-parent/invesdwin-util/doc/DBA_Presentation_long.pdf) and [short](https://github.com/invesdwin/invesdwin-util/blob/master/invesdwin-util-parent/invesdwin-util/doc/DBA_Presentation_short.pdf) version.
 #### `PseudoRandomGenerators`
 This provides pools, threadlocals, adapters and wrappers for Random implementations. Consider using [CryptoRandomGenerators or StrongRandomGenerators](https://github.com/invesdwin/invesdwin-context-security/blob/master/README.md#crypto-module) where security is a concern. We use [XoShiro256+](https://prng.di.unimi.it/#speed) as a fast algorithm with high quality.
+Here some benchmarks (2022, Core i9-9900K with SSD, Java 17):
+```
+Reuse instance:
+JdkThreadLocalRandom							Records:	6,167,082.80/ms	=>	56,19 times faster (does not pass randomness tests)
+*PseudoRandomGenerator (XoShiro256+)					Records:	1,493,363.24/ms	=>	12,85 times faster
+Xoroshiro								Records:	1,276,492.19/ms	=>	10,84 times faster
+ThreadLocalRandom							Records:	1,185,453.99/ms	=>	9,99 times faster
+L32X64MixRandom								Records:	  167,951.51/ms	=>	55,76% faster
+PseudoRandomGeneratorObjectPool(OneToOne)				Records:	  161,984.73/ms	=>	50,23% faster
+Xoshiro256PlusPlus							Records:	  149,690.42/ms	=>	38,83% faster
+SplittableRandom							Records:	  147,002.13/ms	=>	36,33% faster
+Xoroshiro128PlusPlus							Records:	  145,790.15/ms	=>	35,21% faster
+L64X128StarStarRandom							Records:	  140,477.61/ms	=>	30,28% faster
+L64X128MixRandom							Records:	  139,236.71/ms	=>	29,13% faster
+L128X128MixRandom							Records:	  135,185.45/ms	=>	25,37% faster
+L64X1024MixRandom							Records:	  130,005.04/ms	=>	20,57% faster
+L64X256MixRandom							Records:	  124,849.60/ms	=>	15,79% faster
+jdkDefaultRandomGenerator(L32X64MixRandom)				Records:	  107,826.18/ms	=>	Baseline	
+PseudoRandomGeneratorObjectPool(OneToMany)				Records:	  103,167.75/ms	=>	4,32% slower
+L128X1024MixRandom							Records:	  92,593.38/ms	=>	14,13% slower
+L128X256MixRandom							Records:	  78,287.52/ms	=>	27,39% slower
+PseudoRandomGeneratorObjectPool(ManyToMany)				Records:	  69,571.56/ms	=>	35,48% slower
+java.util.Random							Records:	  68,135.00/ms	=>	36,81% slower
+PseudoRandomGeneratorObjectPool(BufferingIterator)			Records:	  58,700.37/ms	=>	45,56% slower
+PseudoRandomGeneratorObjectPool(SynchronizedBufferingIterator)		Records:	  25,245.95/ms	=>	76,59% slower
+SecureRandom								Records:	   2,439.59/ms	=>	97,74% slower
+
+Don't reuse instance:
+ThreadLocalRandom							Records:	229,960.77/ms	=>	5,51 times faster (does not pass randomness tests)
+PseudoRandomGeneratorObjectPool(OneToOne)				Records:	161,984.73/ms	=>	3,58 times faster
+JdkThreadLocalRandom							Records:	139,492.58/ms	=>	2,95 times faster
+PseudoRandomGeneratorObjectPool(OneToMany)				Records:	103,167.75/ms	=>	1,92 times faster
+PseudoRandomGeneratorObjectPool(ManyToMany)				Records:	 69,571.56/ms	=>	96,92% faster
+PseudoRandomGeneratorObjectPool(BufferingIterator)			Records:	 58,700.37/ms	=>	66,15% faster
+L32X64MixRandom								Records:	 46,001.90/ms	=>	30,21% faster
+Xoroshiro128PlusPlus							Records:	 45,708.95/ms	=>	29,38% faster
+*PseudoRandomGenerator (XoShiro256+)					Records:	 43,115.07/ms	=>	22,04% faster
+L64X128MixRandom							Records:	 42,780.08/ms	=>	21,09% faster
+L64X128StarStarRandom							Records:	 40,969.41/ms	=>	15,96% faster
+L128X128MixRandom							Records:	 40,543.98/ms	=>	14,76% faster
+SplittableRandom							Records:	 40,400.40/ms	=>	14,35% faster
+Xoshiro256PlusPlus							Records:	 38,563.43/ms	=>	9,15% faster
+Xoroshiro								Records:	 38,285.23/ms	=>	8,37% faster
+jdkDefaultRandomGenerator(L32X64MixRandom)				Records:	 35,329.86/ms	=>	Baseline	
+L64X256MixRandom							Records:	 34,403.33/ms	=>	2,62% slower
+L128X256MixRandom							Records:	 30,494.92/ms	=>	13,69% slower
+PseudoRandomGeneratorObjectPool(SynchronizedBufferingIterator)		Records:	 25,245.95/ms	=>	28,54% slower
+java.util.Random							Records:	 23,913.61/ms	=>	32,31% slower
+L64X1024MixRandom							Records:	 21,618.42/ms	=>	38,81% slower
+L128X1024MixRandom							Records:	 19,785.29/ms	=>	44,00% slower
+```
 
 ## Support
 
