@@ -54,7 +54,7 @@ public final class Futures extends AFuturesStaticFacade {
             if (iCause != null) {
                 throw iCause;
             } else {
-                throw Throwables.propagate(e.getCause());
+                throw new RuntimeException(e.getCause());
             }
         }
     }
@@ -83,7 +83,7 @@ public final class Futures extends AFuturesStaticFacade {
                 if (cause instanceof Exception) {
                     throw (Exception) cause;
                 } else {
-                    throw Throwables.propagate(cause);
+                    throw new RuntimeException(cause);
                 }
             }
         }
@@ -106,7 +106,7 @@ public final class Futures extends AFuturesStaticFacade {
             if (iCause != null) {
                 throw iCause;
             } else {
-                throw Throwables.propagate(e.getCause());
+                throw new RuntimeException(e.getCause());
             }
         }
     }
