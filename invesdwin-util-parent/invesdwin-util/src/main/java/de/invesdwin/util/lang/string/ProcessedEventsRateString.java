@@ -33,9 +33,14 @@ public class ProcessedEventsRateString {
     }
 
     public double getRate(final FTimeUnit timeUnit) {
+        final FTimeUnitFractional fractional = timeUnit.asFractional();
+        return getRate(fractional);
+    }
+
+    public double getRate(final FTimeUnitFractional timeUnit) {
         final double milliseconds = duration.doubleValue(FTimeUnit.MILLISECONDS);
         final double ratePerMillisecond = countEvents / milliseconds;
-        return timeUnit.asFractional().convert(ratePerMillisecond, FTimeUnitFractional.MILLISECONDS);
+        return FTimeUnitFractional.MILLISECONDS.convert(ratePerMillisecond, timeUnit);
     }
 
     @Override
