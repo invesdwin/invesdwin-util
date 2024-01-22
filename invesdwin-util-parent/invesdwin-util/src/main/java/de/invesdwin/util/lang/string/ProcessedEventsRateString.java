@@ -5,6 +5,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.FTimeUnitFractional;
 import de.invesdwin.util.time.duration.Duration;
 
 @Immutable
@@ -21,6 +22,20 @@ public class ProcessedEventsRateString {
     public ProcessedEventsRateString(final long countEvents, final Instant startInstant, final Instant endInstant) {
         this.countEvents = countEvents;
         this.duration = new Duration(startInstant, endInstant);
+    }
+
+    public long getCountEvents() {
+        return countEvents;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public double getRate(final FTimeUnit timeUnit) {
+        final double milliseconds = duration.doubleValue(FTimeUnit.MILLISECONDS);
+        final double ratePerMillisecond = countEvents / milliseconds;
+        return timeUnit.asFractional().convert(ratePerMillisecond, FTimeUnitFractional.MILLISECONDS);
     }
 
     @Override
