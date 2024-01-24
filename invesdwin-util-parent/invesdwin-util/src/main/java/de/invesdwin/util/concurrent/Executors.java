@@ -1,6 +1,7 @@
 package de.invesdwin.util.concurrent;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
@@ -145,6 +146,20 @@ public final class Executors {
                 return this;
             }
         };
+    }
+
+    public static boolean isDisabled(final Executor executor) {
+        if (executor instanceof WrappedExecutorService) {
+            final WrappedExecutorService cExecutor = (WrappedExecutorService) executor;
+            return isDisabled(cExecutor);
+        } else {
+            return SIMPLE_DISABLED_EXECUTOR.getClass().isAssignableFrom(executor.getClass());
+        }
+    }
+
+    public static boolean isDisabled(final WrappedExecutorService executor) {
+        final Executor delegate = executor.getDelegate();
+        return isDisabled(delegate);
     }
 
 }

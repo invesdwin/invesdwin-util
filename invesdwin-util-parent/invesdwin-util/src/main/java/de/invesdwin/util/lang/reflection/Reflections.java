@@ -51,6 +51,10 @@ public final class Reflections extends AReflectionsStaticFacade {
      * https://stackoverflow.com/questions/3776204/how-to-find-out-if-debug-mode-is-enabled
      */
     public static final boolean JAVA_DEBUG_MODE;
+    /**
+     * https://stackoverflow.com/questions/13029915/how-to-programmatically-test-if-assertions-are-enabled
+     */
+    public static final boolean JAVA_ASSERT_MODE;
 
     private static final String[] INSTANCE_FIELD_NAMES = new String[] { "INSTANCE", "GET" };
     private static final String[] INSTANCE_METHOD_NAMES = new String[] { "getInstance", "newInstance", "get" };
@@ -64,6 +68,11 @@ public final class Reflections extends AReflectionsStaticFacade {
                 .getInputArguments()
                 .toString()
                 .indexOf("jdwp") >= 0;
+        boolean assertOn = false;
+        //CHECKSTYLE:OFF
+        assert assertOn = true;
+        //CHECKSTYLE:ON
+        JAVA_ASSERT_MODE = assertOn;
     }
 
     private Reflections() {}

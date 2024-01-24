@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
@@ -111,6 +112,10 @@ public class WrappedExecutorService implements ListeningExecutorService {
         this.finalizer.register(this);
     }
 
+    public Executor getDelegate() {
+        return finalizer.delegate;
+    }
+
     public boolean isExecutorThread() {
         return name.equals(Threads.getCurrentThreadPoolName());
     }
@@ -126,7 +131,8 @@ public class WrappedExecutorService implements ListeningExecutorService {
         return () -> delegate.shutdownNow();
     }
 
-    public WrappedExecutorService setExecutorExceptionHandler(final IExecutorExceptionHandler executorExceptionHandler) {
+    public WrappedExecutorService setExecutorExceptionHandler(
+            final IExecutorExceptionHandler executorExceptionHandler) {
         if (executorExceptionHandler == null) {
             this.executorExceptionHandler = Throwables.getDefaultExecutorExceptionHandler();
         } else {
