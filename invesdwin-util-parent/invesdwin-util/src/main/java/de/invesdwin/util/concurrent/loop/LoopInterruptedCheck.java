@@ -27,6 +27,12 @@ public class LoopInterruptedCheck {
         this.nextIntervalNanos = getInitialNanoTime() + checkIntervalNanos;
     }
 
+    public void resetInterval() {
+        this.nextIntervalNanos = Long.MIN_VALUE;
+        this.checksPerInterval = 0;
+        this.checksInInterval = 0;
+    }
+
     public Duration getCheckInterval() {
         return checkInterval;
     }
