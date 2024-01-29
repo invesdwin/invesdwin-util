@@ -179,7 +179,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
                  */
                 synchronized (pendingCountWaitLock) {
                     /*
-                     * Üutting another while loop here significantly reduces performance since it seems to spin a lot.
+                     * putting another while loop here significantly reduces performance since it seems to spin a lot.
                      * Though that loop is not needed here anyway
                      */
                     awaitPendingCount(fullPendingCountCondition);
