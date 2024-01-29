@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
@@ -99,7 +98,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
 
     public WrappedExecutorService(final ExecutorService delegate, final String name) {
         //also check startsWith for nested executor
-        if (Strings.isBlankOrNullText(name) || Strings.startsWithAnyIgnoreCase(name, Strings.NULL_TEXT)) {
+        if (Strings.isBlankOrNullText(name) || Strings.startsWithIgnoreCase(name, Strings.NULL_TEXT)) {
             throw new NullPointerException("name should not be blank or start with null: " + name);
         }
         this.name = name;
@@ -109,11 +108,15 @@ public class WrappedExecutorService implements ListeningExecutorService {
         this.zeroPendingCountCondition = getOrCreatePendingCountCondition(0);
         this.fullPendingCountCondition = getOrCreatePendingCountCondition(getMaximumPoolSize());
         this.waitOnFullPendingCountCondition = zeroPendingCountCondition;
-        this.finalizer.register(this);
+        finalizer.register(this);
     }
 
-    public Executor getDelegate() {
-        return finalizer.delegate;
+    public void setFinalizerEnabled(final boolean finalizerEnabled) {
+        if (!finalizerEnabled) {
+            finalizer.unregister();
+        } else {
+            finalizer.register(this);
+        }
     }
 
     public boolean isExecutorThread() {
@@ -278,36 +281,32 @@ public class WrappedExecutorService implements ListeningExecutorService {
         return this;
     }
 
-    public ListeningExecutorService getWrappedInstance() {
-        return finalizer.delegate;
-    }
-
     @Override
     public void shutdown() {
-        getWrappedInstance().shutdown();
+        finalizer.delegate.shutdown();
         finalizer.close();
     }
 
     @Override
     public List<Runnable> shutdownNow() {
-        final List<Runnable> l = getWrappedInstance().shutdownNow();
+        final List<Runnable> l = finalizer.delegate.shutdownNow();
         finalizer.close();
         return l;
     }
 
     @Override
     public boolean isShutdown() {
-        return getWrappedInstance().isShutdown();
+        return finalizer.delegate.isShutdown();
     }
 
     @Override
     public boolean isTerminated() {
-        return getWrappedInstance().isTerminated();
+        return finalizer.delegate.isTerminated();
     }
 
     @Override
     public boolean awaitTermination(final long timeout, final TimeUnit unit) throws InterruptedException {
-        return getWrappedInstance().awaitTermination(timeout, unit);
+        return finalizer.delegate.awaitTermination(timeout, unit);
     }
 
     public boolean awaitTermination() throws InterruptedException {
@@ -397,6 +396,10 @@ public class WrappedExecutorService implements ListeningExecutorService {
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    protected ListeningExecutorService getWrappedInstance() {
+        return finalizer.delegate;
     }
 
     @Override
@@ -519,6 +522,23 @@ public class WrappedExecutorService implements ListeningExecutorService {
                 }
             }
         }, Executors.SIMPLE_DISABLED_EXECUTOR);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T unwrap(final Class<T> type) {
+        if (type.isAssignableFrom(getClass())) {
+            return (T) this;
+        }
+        final ListeningExecutorService delegateCopy = finalizer.delegate;
+        if (delegateCopy != null) {
+            if (delegateCopy instanceof WrappedExecutorService) {
+                final WrappedExecutorService cDelegateCopy = (WrappedExecutorService) delegateCopy;
+                return cDelegateCopy.unwrap(type);
+            } else if (type.isAssignableFrom(delegateCopy.getClass())) {
+                return (T) delegateCopy;
+            }
+        }
+        return null;
     }
 
     public static final class PendingCountCondition {

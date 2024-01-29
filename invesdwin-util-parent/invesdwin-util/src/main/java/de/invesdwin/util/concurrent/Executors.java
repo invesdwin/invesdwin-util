@@ -158,8 +158,7 @@ public final class Executors {
     }
 
     public static boolean isDisabled(final WrappedExecutorService executor) {
-        final Executor delegate = executor.getDelegate();
-        return isDisabled(delegate);
+        return executor.unwrap(SIMPLE_DISABLED_EXECUTOR.getClass()) != null;
     }
 
 }

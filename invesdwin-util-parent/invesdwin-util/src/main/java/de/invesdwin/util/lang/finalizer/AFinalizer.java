@@ -47,6 +47,7 @@ public abstract class AFinalizer implements Closeable, Runnable {
 
     @GuardedBy("this")
     private IFinalizerReference reference;
+    private volatile boolean unregistering = false;
 
     /**
      * the actual action
@@ -91,7 +92,7 @@ public abstract class AFinalizer implements Closeable, Runnable {
     @Override
     public final synchronized void run() {
         try {
-            if (!isCleaned()) {
+            if (!isCleaned() && !unregistering) {
                 onRun();
                 clean();
             }
@@ -120,16 +121,24 @@ public abstract class AFinalizer implements Closeable, Runnable {
         }
     }
 
+    /**
+     * If not already registered, this method does nothing
+     */
+    public synchronized void unregister() {
+        if (this.reference == null || unregistering) {
+            return;
+        }
+        unregistering = true;
+        try {
+            reference.cleanReference();
+            reference = null;
+        } finally {
+            unregistering = false;
+        }
+    }
+
     public synchronized boolean isRegistered() {
         return reference != null;
-    }
-
-    public synchronized IFinalizerReference getReference() {
-        return reference;
-    }
-
-    public synchronized void setReference(final IFinalizerReference reference) {
-        this.reference = reference;
     }
 
     /**
