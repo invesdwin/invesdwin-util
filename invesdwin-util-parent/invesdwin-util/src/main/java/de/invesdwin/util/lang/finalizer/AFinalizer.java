@@ -44,10 +44,10 @@ public abstract class AFinalizer implements Closeable, Runnable {
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AFinalizer.class);
     private static final FastThreadLocal<Boolean> THREAD_FINALIZER_ACTIVE = new FastThreadLocal<>();
+    private static final FastThreadLocal<Boolean> UNREGISTERING = new FastThreadLocal<>();
 
     @GuardedBy("this")
     private IFinalizerReference reference;
-    private volatile boolean unregistering = false;
 
     /**
      * the actual action
@@ -92,7 +92,7 @@ public abstract class AFinalizer implements Closeable, Runnable {
     @Override
     public final synchronized void run() {
         try {
-            if (!isCleaned() && !unregistering) {
+            if (!isCleaned() && Booleans.isNotTrue(UNREGISTERING.get())) {
                 onRun();
                 clean();
             }
@@ -125,15 +125,15 @@ public abstract class AFinalizer implements Closeable, Runnable {
      * If not already registered, this method does nothing
      */
     public synchronized void unregister() {
-        if (this.reference == null || unregistering) {
+        if (this.reference == null || Booleans.isTrue(UNREGISTERING.get())) {
             return;
         }
-        unregistering = true;
+        UNREGISTERING.set(true);
         try {
             reference.cleanReference();
             reference = null;
         } finally {
-            unregistering = false;
+            UNREGISTERING.remove();
         }
     }
 
