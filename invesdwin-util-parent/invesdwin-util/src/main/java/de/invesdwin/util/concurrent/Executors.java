@@ -122,6 +122,7 @@ public final class Executors {
 
             {
                 super.setDynamicThreadName(false);
+                super.setFinalizerEnabled(false);
             }
 
             @Override
