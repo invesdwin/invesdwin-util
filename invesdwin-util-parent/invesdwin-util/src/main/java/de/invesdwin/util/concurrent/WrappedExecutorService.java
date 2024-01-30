@@ -89,7 +89,6 @@ public class WrappedExecutorService implements ListeningExecutorService {
     private final Object pendingCountWaitLock = new Object();
     private final AtomicBoolean dynamicThreadName = new AtomicBoolean(true);
     private volatile boolean keepThreadLocals = true;
-    private final String name;
     private final PendingCountCondition zeroPendingCountCondition;
     private final PendingCountCondition fullPendingCountCondition;
     private volatile PendingCountCondition waitOnFullPendingCountCondition;
@@ -101,8 +100,17 @@ public class WrappedExecutorService implements ListeningExecutorService {
         if (Strings.isBlankOrNullText(name) || Strings.startsWithIgnoreCase(name, Strings.NULL_TEXT)) {
             throw new NullPointerException("name should not be blank or start with null: " + name);
         }
-        this.name = name;
-        this.finalizer = new WrappedExecutorServiceFinalizer(delegate, configure(delegate), newShutdownHook(delegate));
+        this.finalizer = new WrappedExecutorServiceFinalizer(name);
+        this.finalizer.originalDelegate = delegate;
+        this.finalizer.delegate = configure(delegate);
+        final IShutdownHook shutdownHook = newShutdownHook(delegate);
+        /*
+         * All executors should be shutdown on application shutdown.
+         */
+        if (shutdownHook != null) {
+            ShutdownHookManager.register(shutdownHook);
+        }
+        this.finalizer.shutdownHook = shutdownHook;
         this.pendingCountLock = Locks
                 .newReentrantLock(WrappedExecutorService.class.getSimpleName() + "_" + name + "_pendingCountLock");
         this.zeroPendingCountCondition = getOrCreatePendingCountCondition(0);
@@ -120,7 +128,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
     }
 
     public boolean isExecutorThread() {
-        return name.equals(Threads.getCurrentThreadPoolName());
+        return getName().equals(Threads.getCurrentThreadPoolName());
     }
 
     protected IShutdownHook newShutdownHook(final ExecutorService delegate) {
@@ -167,7 +175,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
     }
 
     public String getName() {
-        return name;
+        return finalizer.name;
     }
 
     private void incrementPendingCount(final boolean skipWaitOnFullPendingCount) throws InterruptedException {
@@ -242,7 +250,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
             if (cDelegate.getThreadFactory() instanceof WrappedThreadFactory) {
                 threadFactory = (WrappedThreadFactory) cDelegate.getThreadFactory();
             } else {
-                threadFactory = new WrappedThreadFactory(name, cDelegate.getThreadFactory());
+                threadFactory = new WrappedThreadFactory(getName(), cDelegate.getThreadFactory());
                 cDelegate.setThreadFactory(threadFactory);
             }
             threadFactory.setParent(internal);
@@ -565,22 +573,19 @@ public class WrappedExecutorService implements ListeningExecutorService {
 
     private static final class WrappedExecutorServiceFinalizer extends AWarningFinalizer {
 
+        private final String name;
         private ExecutorService originalDelegate;
         private ListeningExecutorService delegate;
         @GuardedBy("this")
         private IShutdownHook shutdownHook;
 
-        private WrappedExecutorServiceFinalizer(final ExecutorService originalDelegate,
-                final ListeningExecutorService delegate, final IShutdownHook shutdownHook) {
-            this.originalDelegate = originalDelegate;
-            this.delegate = delegate;
-            this.shutdownHook = shutdownHook;
-            /*
-             * All executors should be shutdown on application shutdown.
-             */
-            if (shutdownHook != null) {
-                ShutdownHookManager.register(shutdownHook);
-            }
+        private WrappedExecutorServiceFinalizer(final String name) {
+            this.name = name;
+        }
+
+        @Override
+        protected String newTypeInfo() {
+            return super.newTypeInfo() + "[" + name + "]";
         }
 
         @Override
