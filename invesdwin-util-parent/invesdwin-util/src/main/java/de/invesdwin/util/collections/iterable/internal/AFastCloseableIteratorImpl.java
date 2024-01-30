@@ -91,9 +91,9 @@ public abstract class AFastCloseableIteratorImpl<E> implements ICloseableIterato
             closed = true;
         }
 
-        @Deprecated
         @Override
-        public void onRun() {
+        protected void onFinalize() {
+            super.onFinalize();
             createUnclosedFinalizeMessageLog();
         }
 

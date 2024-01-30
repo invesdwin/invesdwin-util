@@ -32,7 +32,7 @@ import de.invesdwin.util.concurrent.internal.WrappedRunnable;
 import de.invesdwin.util.concurrent.internal.WrappedThreadFactory;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.error.Throwables;
-import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.lang.finalizer.AWarningFinalizer;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
@@ -563,7 +563,7 @@ public class WrappedExecutorService implements ListeningExecutorService {
 
     }
 
-    private static final class WrappedExecutorServiceFinalizer extends AFinalizer {
+    private static final class WrappedExecutorServiceFinalizer extends AWarningFinalizer {
 
         private ExecutorService originalDelegate;
         private ListeningExecutorService delegate;

@@ -8,9 +8,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.delegate.ADelegateList;
-import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Closeables;
-import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.lang.finalizer.AWarningFinalizer;
 import de.invesdwin.util.lang.string.description.TextDescription;
 
 @NotThreadSafe
@@ -33,51 +32,29 @@ public class CloseableDelegateList<E> extends ADelegateList<E> implements Closea
         finalizer.close();
     }
 
-    private static final class CloseableDelegateListFinalizer<E> extends AFinalizer {
+    private static final class CloseableDelegateListFinalizer<E> extends AWarningFinalizer {
 
         private final TextDescription name;
         private AtomicLong openReaders;
         private List<E> delegate;
-        private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
-        private Exception initStackTrace;
         private volatile boolean closed;
 
         private CloseableDelegateListFinalizer(final TextDescription name) {
             this.name = name;
-            createInitStackTrace();
+        }
+
+        @Override
+        protected String newTypeInfo() {
+            return super.newTypeInfo() + "[" + name + "]";
         }
 
         @Override
         protected void clean() {
-            initStackTrace = null;
             closed = true;
             if (delegate instanceof Closeable) {
                 Closeables.closeQuietly((Closeable) delegate);
             }
             openReaders.decrementAndGet();
-        }
-
-        @Deprecated
-        @Override
-        public void onRun() {
-            createUnclosedFinalizeMessageLog();
-        }
-
-        private void createInitStackTrace() {
-            if (debugStackTraceEnabled) {
-                initStackTrace = new Exception();
-                initStackTrace.fillInStackTrace();
-            }
-        }
-
-        private void createUnclosedFinalizeMessageLog() {
-            String warning = "Finalizing unclosed iterator [" + getClass().getName() + "]: " + name;
-            if (debugStackTraceEnabled) {
-                if (initStackTrace != null) {
-                    warning += " from stacktrace:\n" + Throwables.getFullStackTrace(initStackTrace);
-                }
-            }
-            LOGGER.warn(warning);
         }
 
         @Override

@@ -99,9 +99,9 @@ public abstract class ADebugCloseableIteratorImpl<E> implements ICloseableIterat
             closed = true;
         }
 
-        @Deprecated
         @Override
-        public void onRun() {
+        protected void onFinalize() {
+            super.onFinalize();
             createUnclosedFinalizeMessageLog();
         }
 

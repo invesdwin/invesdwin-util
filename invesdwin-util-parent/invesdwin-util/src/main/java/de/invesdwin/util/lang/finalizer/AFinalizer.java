@@ -63,6 +63,7 @@ public abstract class AFinalizer implements Closeable, Runnable {
             final boolean registerThreadFinalizerActive = registerThreadFinalizerActive();
             try {
                 onClose();
+                onClean();
                 clean();
             } finally {
                 unregisterThreadFinalizerActive(registerThreadFinalizerActive);
@@ -82,7 +83,20 @@ public abstract class AFinalizer implements Closeable, Runnable {
         }
     }
 
+    /**
+     * Invoked when the finalizer is closed by application code or finalized by a cleaner.
+     */
+    protected void onClean() {}
+
+    /**
+     * Invoked when the finalizer is closed by application code.
+     */
     protected void onClose() {}
+
+    /**
+     * Invoked when the finalizer is finalized by a cleaner.
+     */
+    protected void onFinalize() {}
 
     /**
      * For internal use only. This method will get called when the reference had to be cleaned up because it was not
@@ -93,7 +107,8 @@ public abstract class AFinalizer implements Closeable, Runnable {
     public final synchronized void run() {
         try {
             if (!isCleaned() && Booleans.isNotTrue(UNREGISTERING.get())) {
-                onRun();
+                onFinalize();
+                onClean();
                 clean();
             }
         } catch (final Throwable t) {
@@ -109,8 +124,6 @@ public abstract class AFinalizer implements Closeable, Runnable {
     }
 
     protected abstract boolean isCleaned();
-
-    protected void onRun() {}
 
     /**
      * If already registered, this method does nothing

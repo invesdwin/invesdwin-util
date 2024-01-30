@@ -106,7 +106,8 @@ public abstract class ADelegateOutputStream extends OutputStream {
         }
 
         @Override
-        protected void onRun() {
+        protected void onFinalize() {
+            super.onFinalize();
             if (delegate != null) {
                 String warning = "Finalizing unclosed " + OutputStream.class.getSimpleName() + " ["
                         + delegate.getClass().getName() + "]: " + name;

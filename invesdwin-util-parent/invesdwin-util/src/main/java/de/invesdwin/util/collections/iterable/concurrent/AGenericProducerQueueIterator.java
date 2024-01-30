@@ -213,6 +213,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
 
         @Override
         protected void onClose() {
+            super.onClose();
             if (!started) {
                 throw new IllegalStateException("start() was forgotten to be called right after the constructor");
             }
