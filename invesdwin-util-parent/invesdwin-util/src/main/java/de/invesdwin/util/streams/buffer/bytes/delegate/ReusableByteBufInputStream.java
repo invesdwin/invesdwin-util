@@ -15,6 +15,7 @@ import io.netty.buffer.ByteBuf;
 public class ReusableByteBufInputStream extends InputStream implements DataInput {
     private ByteBuf buffer;
     private StringBuilder lineBuf;
+    private boolean lineBufComplete = false;
 
     public void wrap(final ByteBuf buffer) {
         this.buffer = buffer;
@@ -23,6 +24,13 @@ public class ReusableByteBufInputStream extends InputStream implements DataInput
     @Override
     public int available() throws IOException {
         return buffer.readableBytes();
+    }
+
+    public int lineBufLength() {
+        if (lineBuf == null) {
+            return 0;
+        }
+        return lineBuf.length();
     }
 
     // Suppress a warning since the class is not thread-safe
@@ -126,8 +134,9 @@ public class ReusableByteBufInputStream extends InputStream implements DataInput
             return null;
         }
 
-        if (lineBuf != null) {
+        if (lineBuf != null && lineBufComplete) {
             lineBuf.setLength(0);
+            lineBufComplete = false;
         }
 
         loop: do {
@@ -135,6 +144,7 @@ public class ReusableByteBufInputStream extends InputStream implements DataInput
             --available;
             switch (c) {
             case '\n':
+                lineBufComplete = true;
                 break loop;
 
             case '\r':
@@ -142,6 +152,7 @@ public class ReusableByteBufInputStream extends InputStream implements DataInput
                     buffer.skipBytes(1);
                     --available;
                 }
+                lineBufComplete = true;
                 break loop;
 
             default:
@@ -152,7 +163,11 @@ public class ReusableByteBufInputStream extends InputStream implements DataInput
             }
         } while (available > 0);
 
-        return lineBuf != null && lineBuf.length() > 0 ? lineBuf.toString() : Strings.EMPTY;
+        if (lineBufComplete) {
+            return lineBuf != null && lineBuf.length() > 0 ? lineBuf.toString() : Strings.EMPTY;
+        } else {
+            return Strings.EMPTY;
+        }
     }
 
     @Override
@@ -198,4 +213,5 @@ public class ReusableByteBufInputStream extends InputStream implements DataInput
                     .getInstance("fieldSize is too long! Length is " + fieldSize + ", but maximum is " + available());
         }
     }
+
 }
