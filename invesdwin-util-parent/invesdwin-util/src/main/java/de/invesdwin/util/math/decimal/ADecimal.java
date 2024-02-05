@@ -325,21 +325,29 @@ public abstract class ADecimal<E extends ADecimal<E>> extends ADecimalNumber<E> 
     }
 
     /**
-     * 0 is counted as positive as well here to make things simpler.
+     * Alias for isPositiveOrZero.
      */
     public boolean isPositive() {
         return Doubles.isPositive(getValue());
     }
 
-    /**
-     * This one excludes 0 from positive.
-     */
     public boolean isPositiveNonZero() {
         return Doubles.isPositiveNonZero(getValue());
     }
 
+    public boolean isPositiveOrZero() {
+        return Doubles.isPositiveOrZero(getValue());
+    }
+
+    /**
+     * Alias for isNegativeNonZero.
+     */
     public boolean isNegative() {
         return Doubles.isNegative(getValue());
+    }
+
+    public boolean isNegativeNonZero() {
+        return Doubles.isNegativeNonZero(getValue());
     }
 
     public boolean isNegativeOrZero() {

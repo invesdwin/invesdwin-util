@@ -586,9 +586,16 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     /**
-     * 0 is counted as positive as well here to make things simpler.
+     * Alias for isPositiveOrZero.
      */
     public boolean isPositive() {
+        return isPositiveOrZero();
+    }
+
+    /**
+     * 0 is counted as positive as well here to make things simpler.
+     */
+    public boolean isPositiveOrZero() {
         return duration >= 0;
     }
 
@@ -596,15 +603,22 @@ public class Duration extends Number implements Comparable<Object> {
      * This one excludes 0 from positive.
      */
     public boolean isPositiveNonZero() {
-        return isPositive() && !isZero();
+        return duration > 0;
     }
 
+    /**
+     * Alias for isNegativeNonZero.
+     */
     public boolean isNegative() {
-        return !isPositive();
+        return isNegativeNonZero();
+    }
+
+    public boolean isNegativeNonZero() {
+        return duration < 0;
     }
 
     public boolean isNegativeOrZero() {
-        return !isPositiveNonZero();
+        return duration <= 0;
     }
 
     public Duration negate() {

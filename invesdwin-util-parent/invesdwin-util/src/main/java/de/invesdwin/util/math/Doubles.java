@@ -797,7 +797,14 @@ public final class Doubles extends ADoublesStaticFacade {
         return !isZero(value);
     }
 
+    /**
+     * Alias for isPositiveOrZero.
+     */
     public static boolean isPositive(final double value) {
+        return isPositiveOrZero(value);
+    }
+
+    public static boolean isPositiveOrZero(final double value) {
         return value >= 0;
     }
 
@@ -805,7 +812,14 @@ public final class Doubles extends ADoublesStaticFacade {
         return value > 0;
     }
 
+    /**
+     * Alias for isNegativeNonZero.
+     */
     public static boolean isNegative(final double value) {
+        return isNegativeNonZero(value);
+    }
+
+    public static boolean isNegativeNonZero(final double value) {
         return !isPositive(value);
     }
 
