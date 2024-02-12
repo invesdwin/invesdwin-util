@@ -406,6 +406,19 @@ public class FDate
         return duration.addTo(this);
     }
 
+    public FDate addMaybeAsTimeUnit(final Duration duration) {
+        final FTimeUnit timeUnit = FTimeUnit.valueOf(duration);
+        if (timeUnit == null) {
+            return add(duration);
+        } else {
+            if (duration.isPositiveOrZero()) {
+                return add(timeUnit, 1);
+            } else {
+                return add(timeUnit, -1);
+            }
+        }
+    }
+
     public FDate subtract(final Duration duration) {
         return duration.subtractFrom(this);
     }
