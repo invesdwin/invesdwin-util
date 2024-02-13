@@ -6,14 +6,14 @@ import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
-import de.invesdwin.util.math.stream.doubl.DoubleStreamPerformanceRateFromHPRs;
+import de.invesdwin.util.math.stream.doubl.DoubleStreamPerformanceFromHPRs;
 
 @NotThreadSafe
 public class DecimalStreamPerformanceFromHPRs implements IStreamAlgorithm<Percent, Void>, ISerializableValueObject {
 
-    private final DoubleStreamPerformanceRateFromHPRs delegate = new DoubleStreamPerformanceRateFromHPRs() {
+    private final DoubleStreamPerformanceFromHPRs delegate = new DoubleStreamPerformanceFromHPRs() {
         @Override
-        public double getInitialPerformanceRate() {
+        public double getInitialPerformance() {
             return DecimalStreamPerformanceFromHPRs.this.getInitialPerformance().getRate();
         }
     };
@@ -29,7 +29,7 @@ public class DecimalStreamPerformanceFromHPRs implements IStreamAlgorithm<Percen
 
     public Percent getPerformance() {
         if (performance == null) {
-            performance = new Percent(delegate.getPerformanceRate(), PercentScale.RATE);
+            performance = new Percent(delegate.getPerformance(), PercentScale.RATE);
         }
         return performance;
     }

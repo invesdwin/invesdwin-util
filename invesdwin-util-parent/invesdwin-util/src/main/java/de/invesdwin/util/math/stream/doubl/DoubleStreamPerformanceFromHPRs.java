@@ -6,10 +6,10 @@ import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 
 @NotThreadSafe
-public class DoubleStreamPerformanceRateFromHPRs
+public class DoubleStreamPerformanceFromHPRs
         implements IDoubleStreamAlgorithm, ISerializableValueObject {
 
-    private final double initialPerformance = getInitialPerformanceRate();
+    private final double initialPerformance = getInitialPerformance();
     private final DoubleStreamProduct product = new DoubleStreamProduct() {
         @Override
         protected double getValueAdjustmentAddition() {
@@ -24,13 +24,13 @@ public class DoubleStreamPerformanceRateFromHPRs
         return Double.NaN;
     }
 
-    public double getPerformanceRate() {
+    public double getPerformance() {
         final double multiplier = product.getProduct();
         final double performance = initialPerformance * (multiplier + 1D);
         return performance;
     }
 
-    public double getInitialPerformanceRate() {
+    public double getInitialPerformance() {
         return 1D;
     }
 
