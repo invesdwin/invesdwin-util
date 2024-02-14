@@ -36,6 +36,14 @@ public final class Objects extends AObjectsStaticFacade {
     public static final IComparator<Object> COMPARATOR = IComparator.getDefaultInstance();
     public static final Object[] EMPTY_ARRAY = new Object[0];
 
+    /**
+     * https://stackoverflow.com/a/30661779
+     */
+    public static final String ID_REGEX = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
+    public static final String FQDN_REGEX = ID_REGEX + "(\\." + ID_REGEX + ")*";
+    public static final String HEX_REGEX = "([0-9a-f]){1,8}";
+    public static final String DEFAULT_TO_STRING_REGEX = FQDN_REGEX + "@" + HEX_REGEX;
+
     static {
         //datanucleus enhancer fix
         REFLECTION_EXCLUDED_FIELDS.add("jdoDetachedState");
@@ -381,6 +389,10 @@ public final class Objects extends AObjectsStaticFacade {
 
     public static <T extends Serializable> int serialize(final IByteBuffer buffer, final T obj) {
         return LocalFastSerializingSerde.<T> get().toBuffer(buffer, obj);
+    }
+
+    public static String defaultToString(final Object o) {
+        return o.getClass().getName() + "@" + Integer.toHexString(System.identityHashCode(o));
     }
 
 }
