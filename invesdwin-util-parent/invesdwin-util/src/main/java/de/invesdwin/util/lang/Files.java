@@ -41,21 +41,20 @@ public final class Files extends AFilesStaticFacade {
     public static final int DEFAULT_MAX_REFERENCE_LENGTH = (int) ByteSizeScale.BYTES.convert(10,
             ByteSizeScale.MEGABYTES);
 
-    private static final String[] NORMALIZE_FILENAME_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|", "/",
+    public static final String[] NORMALIZE_FILENAME_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|", "/",
             "\\" };
     /**
      * need to use distinct characters here so that expressions don't become mixed if they only differ in an operator
      * that gets escaped here
      */
-    private static final String[] NORMALIZE_FILENAME_REPLACE = { "c", "a", "m", "q", "l", "g", "e", "u", "p", "s",
-            "b" };
-    private static final String[] NORMALIZE_PATH_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|" };
-    private static final String[] NORMALIZE_PATH_REPLACE = { "c", "a", "m", "q", "l", "g", "e", "u", "p" };
+    public static final String[] NORMALIZE_FILENAME_REPLACE = { "c", "a", "m", "q", "l", "g", "e", "u", "p", "s", "b" };
+    public static final String[] NORMALIZE_PATH_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|" };
+    public static final String[] NORMALIZE_PATH_REPLACE = { "c", "a", "m", "q", "l", "g", "e", "u", "p" };
     /*
      * 256 should be maximum, but we need a few less so that windows explorer can actually delete too long paths maybe
      * for some "" that it adds internally
      */
-    private static final int MAX_FILE_NAME_LENGTH = 254;
+    public static final int MAX_FILE_NAME_LENGTH = 254;
 
     private static Boolean deleteNativeUnixAvailable = null;
     private static Boolean deleteNativeWindowsAvailable = null;
@@ -147,7 +146,7 @@ public final class Files extends AFilesStaticFacade {
         return normalizePathMaxLength(Strings.replaceEach(path, NORMALIZE_PATH_SEARCH, NORMALIZE_PATH_REPLACE));
     }
 
-    private static String normalizePathMaxLength(final String path) {
+    public static String normalizePathMaxLength(final String path) {
         final StringBuilder sb = new StringBuilder();
         int lengthSinceLastSeparator = 0;
         for (int i = 0; i < path.length(); i++) {

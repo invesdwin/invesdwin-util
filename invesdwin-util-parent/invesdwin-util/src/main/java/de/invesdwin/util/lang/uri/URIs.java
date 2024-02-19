@@ -14,6 +14,8 @@ import javax.annotation.concurrent.Immutable;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.EncoderException;
 
+import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.uri.connect.IURIsConnect;
 import de.invesdwin.util.lang.uri.connect.IURIsConnectFactory;
@@ -23,13 +25,32 @@ import de.invesdwin.util.time.duration.Duration;
 @Immutable
 public final class URIs {
 
+    /**
+     * https://stackoverflow.com/a/13500078
+     * 
+     * unwise = "{" | "}" | "|" | "\" | "^" | "[" | "]" | "`"
+     * 
+     * reserved = ";" | "/" | "?" | ":" | "@" | "&" | "=" | "+" | "$" | ","
+     */
+    public static final String[] NORMALIZE_FILENAME_SEARCH = Arrays.concat(Files.NORMALIZE_FILENAME_SEARCH,
+            new String[] { "{", "}", "[", "]", "^", "'", ";", "&", "+", "$", "," });
+    /**
+     * need to use distinct characters here so that expressions don't become mixed if they only differ in an operator
+     * that gets escaped here
+     */
+    public static final String[] NORMALIZE_FILENAME_REPLACE = Arrays.concat(Files.NORMALIZE_FILENAME_REPLACE,
+            new String[] { "Q", "E", "M", "N", "F", "A", "S", "N", "P", "D", "C" });
+    public static final String[] NORMALIZE_PATH_SEARCH = Arrays.concat(Files.NORMALIZE_PATH_SEARCH,
+            new String[] { "{", "}", "[", "]", "^", "'", ";", "&", "+", "$", ",", "\\" });
+    public static final String[] NORMALIZE_PATH_REPLACE = Arrays.concat(Files.NORMALIZE_PATH_REPLACE,
+            new String[] { "Q", "E", "M", "N", "F", "A", "S", "N", "P", "D", "C", "/" });
+
     private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
 
     private static final URLComponentCodec URL_CODEC = new URLComponentCodec();
     private static IURIsConnectFactory defaultUrisConnectFactory = IURIsConnectFactory.OK_HTTP;
 
-    private URIs() {
-    }
+    private URIs() {}
 
     public static void setDefaultNetworkTimeout(final Duration defaultNetworkTimeout) {
         URIs.defaultNetworkTimeout = defaultNetworkTimeout;
@@ -203,6 +224,15 @@ public final class URIs {
         } else {
             return null;
         }
+    }
+
+    public static String normalizeFilename(final String name) {
+        return Files.normalizePathMaxLength(
+                Strings.replaceEach(name, NORMALIZE_FILENAME_SEARCH, NORMALIZE_FILENAME_REPLACE));
+    }
+
+    public static String normalizePath(final String path) {
+        return Files.normalizePathMaxLength(Strings.replaceEach(path, NORMALIZE_PATH_SEARCH, NORMALIZE_PATH_REPLACE));
     }
 
 }
