@@ -19,8 +19,10 @@ public final class Colors {
 
     public static final String GREEN_HEX = "#00b050";
     public static final String RED_HEX = "#b80000";
+    public static final String PURPLE_HEX = "#990099";
     public static final Color GREEN = Color.decode(GREEN_HEX);
     public static final Color RED = Color.decode(RED_HEX);
+    public static final Color PURPLE = Color.decode(PURPLE_HEX);
 
     private Colors() {}
 
