@@ -957,7 +957,7 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     /**
-     * Here we use classical java logic than a comparison with NaN always results in false. Since in math you can not
+     * Here we use classical java logic where a comparison with NaN always results in false. Since in math you can not
      * compare an existing value with a missing one.
      */
     public static boolean equals(final double value, final double otherValue) {
