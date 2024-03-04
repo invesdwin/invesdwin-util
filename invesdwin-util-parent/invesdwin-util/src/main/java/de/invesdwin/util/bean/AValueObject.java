@@ -100,7 +100,16 @@ public abstract class AValueObject extends APropertyChangeSupported
         }
     }
 
-    private static class NotEqualRuntimeException extends RuntimeException {
+    private static final class NotEqualRuntimeException extends RuntimeException {
+        @Override
+        public synchronized Throwable fillInStackTrace() {
+            if (Throwables.isDebugStackTraceEnabled()) {
+                return super.fillInStackTrace();
+            } else {
+                return this; // no stack trace for performance
+            }
+        }
+
     }
 
     @Override

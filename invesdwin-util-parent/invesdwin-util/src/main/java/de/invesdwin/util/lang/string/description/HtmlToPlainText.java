@@ -29,8 +29,7 @@ import org.jsoup.select.NodeVisitor;
 @Immutable
 public final class HtmlToPlainText {
 
-    private HtmlToPlainText() {
-    }
+    private HtmlToPlainText() {}
 
     public static String htmlToPlainText(final String html) {
         return htmlToPlainText(Jsoup.parse(html));
@@ -51,7 +50,7 @@ public final class HtmlToPlainText {
     }
 
     // the formatting rules, implemented in a breadth-first DOM traverse
-    private static class FormattingVisitor implements NodeVisitor {
+    private static final class FormattingVisitor implements NodeVisitor {
         private static final int MAX_WIDTH = 80;
         private int width = 0;
         private final StringBuilder accum = new StringBuilder(); // holds the accumulated text

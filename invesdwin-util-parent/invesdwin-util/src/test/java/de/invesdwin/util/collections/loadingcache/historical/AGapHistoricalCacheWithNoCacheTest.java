@@ -1505,7 +1505,7 @@ public class AGapHistoricalCacheWithNoCacheTest {
         }
     }
 
-    private class TestGapHistoricalCache extends AGapHistoricalCache<FDate> {
+    private final class TestGapHistoricalCache extends AGapHistoricalCache<FDate> {
 
         {
             enableTrailingQueryCore();
