@@ -27,8 +27,16 @@ import de.invesdwin.util.streams.buffer.memory.delegate.ListMemoryBuffer;
 @NotThreadSafe
 public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
 
+    /**
+     * This is the maximum size we can memory-map per segment on windows on files that are larger than 4 gb. Though this
+     * does not work correctly, so files should be limited to around 3gb on disk as defined below.
+     */
     public static final long WINDOWS_MAX_LENGTH_PER_SEGMENT_MAPPED = (long) ByteSizeScale.BYTES.convert(4,
             ByteSizeScale.GIGABYTES);
+    /**
+     * 1 gb of buffer should be more than enough so that we can write a bit more than the limit, then switch to another
+     * file once the limit has been exceeded
+     */
     public static final long WINDOWS_MAX_LENGTH_PER_SEGMENT_DISK = (long) ByteSizeScale.BYTES.convert(3,
             ByteSizeScale.GIGABYTES);
 
