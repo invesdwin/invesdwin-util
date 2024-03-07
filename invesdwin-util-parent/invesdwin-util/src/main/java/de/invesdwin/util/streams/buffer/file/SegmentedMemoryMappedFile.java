@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
@@ -26,26 +27,55 @@ import de.invesdwin.util.streams.buffer.memory.delegate.ListMemoryBuffer;
 @NotThreadSafe
 public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
 
-    public static final long WINDOWS_MAX_LENGTH_PER_SEGMENT = (long) ByteSizeScale.BYTES.convert(4,
+    /**
+     * This is the maximum size we can memory-map per segment on windows on files that are larger than 4 gb. Though this
+     * does not work correctly, so files should be limited to around 3gb on disk as defined below.
+     */
+    public static final long WINDOWS_MAX_LENGTH_PER_SEGMENT_MAPPED = (long) ByteSizeScale.BYTES.convert(4,
             ByteSizeScale.GIGABYTES);
-    public static final long WINDOWS_MAX_LENGTH_PER_SEGMENT_SAFE = (long) ByteSizeScale.BYTES.convert(3,
+    /**
+     * 1 gb of buffer should be more than enough so that we can write a bit more than the limit, then switch to another
+     * file once the limit has been exceeded
+     */
+    public static final long WINDOWS_MAX_LENGTH_PER_SEGMENT_DISK = (long) ByteSizeScale.BYTES.convert(3,
             ByteSizeScale.GIGABYTES);
 
-    private final List<IMemoryMappedFile> list = new ArrayList<>();
+    private final List<IMemoryMappedFile> list;
 
     private final long offset;
     private final long length;
     private final boolean closeAllowed;
 
-    public SegmentedMemoryMappedFile(final String path, final long offset, final long length, final boolean readOnly,
-            final boolean closeAllowed, final long segmentLength) throws IOException {
+    public SegmentedMemoryMappedFile(final boolean closeAllowed, final String path, final long offset,
+            final long length, final boolean readOnly, final long segmentLength) throws IOException {
+        this.closeAllowed = closeAllowed;
         this.offset = offset;
         this.length = length;
-        this.closeAllowed = closeAllowed;
-        initList(path, readOnly, segmentLength);
+        list = initList(path, readOnly, segmentLength);
     }
 
-    private void initList(final String path, final boolean readOnly, final long segmentLength) throws IOException {
+    public SegmentedMemoryMappedFile(final boolean closeAllowed, final IMemoryMappedFile... list) {
+        this(closeAllowed, Arrays.asList(list));
+    }
+
+    public SegmentedMemoryMappedFile(final boolean closeAllowed, final List<IMemoryMappedFile> list) {
+        this.closeAllowed = closeAllowed;
+        this.offset = 0;
+        this.length = calculateLength(list);
+        this.list = list;
+    }
+
+    private long calculateLength(final List<IMemoryMappedFile> list) {
+        long length = 0;
+        for (int i = 0; i < list.size(); i++) {
+            length += list.get(i).capacity();
+        }
+        return length;
+    }
+
+    private List<IMemoryMappedFile> initList(final String path, final boolean readOnly, final long segmentLength)
+            throws IOException {
+        final List<IMemoryMappedFile> list = new ArrayList<>();
         final long limit = offset + length;
         long position = 0;
         final long capacity = segmentLength;
@@ -57,7 +87,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                 long bufferPosition = offset - position;
                 if (capacity >= bufferPosition + length) {
                     list.add(new MemoryMappedFile(path, bufferPosition, length, readOnly, closeAllowed));
-                    return;
+                    return list;
                 } else {
                     long remaining = length;
                     for (long i = offset; i < limit;) {
@@ -70,7 +100,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                         i += toCopy;
                         bufferPosition += toCopy;
                     }
-                    return;
+                    return list;
                 }
             }
         }
