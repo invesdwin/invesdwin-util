@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams.buffer.file.internal;
+package de.invesdwin.util.streams.buffer.file;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,7 +12,6 @@ import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.streams.buffer.bytes.EmptyByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.ListByteBuffer;
-import de.invesdwin.util.streams.buffer.file.IMemoryMappedFile;
 import de.invesdwin.util.streams.buffer.memory.EmptyMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.ListMemoryBuffer;
@@ -28,6 +27,8 @@ import de.invesdwin.util.streams.buffer.memory.delegate.ListMemoryBuffer;
 public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
 
     public static final long WINDOWS_MAX_LENGTH_PER_SEGMENT = (long) ByteSizeScale.BYTES.convert(4,
+            ByteSizeScale.GIGABYTES);
+    public static final long WINDOWS_MAX_LENGTH_PER_SEGMENT_SAFE = (long) ByteSizeScale.BYTES.convert(3,
             ByteSizeScale.GIGABYTES);
 
     private final List<IMemoryMappedFile> list = new ArrayList<>();

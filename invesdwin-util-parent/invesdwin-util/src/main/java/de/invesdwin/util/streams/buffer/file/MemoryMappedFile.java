@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams.buffer.file.internal;
+package de.invesdwin.util.streams.buffer.file;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -11,7 +11,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
-import de.invesdwin.util.streams.buffer.file.IMemoryMappedFile;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.extend.UnsafeMemoryBuffer;
 import net.openhft.chronicle.core.OSAccessor;

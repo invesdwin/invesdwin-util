@@ -5,8 +5,6 @@ import java.io.IOException;
 
 import de.invesdwin.util.lang.OperatingSystem;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
-import de.invesdwin.util.streams.buffer.file.internal.MemoryMappedFile;
-import de.invesdwin.util.streams.buffer.file.internal.SegmentedMemoryMappedFile;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
 public interface IMemoryMappedFile extends Closeable {
