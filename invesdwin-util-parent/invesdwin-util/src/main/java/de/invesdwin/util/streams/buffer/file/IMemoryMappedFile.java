@@ -36,9 +36,9 @@ public interface IMemoryMappedFile extends Closeable {
 
     static IMemoryMappedFile map(final String path, final long index, final long length, final boolean readOnly,
             final boolean closeAllowed) throws IOException {
-        if (OperatingSystem.isWindows() && length > SegmentedMemoryMappedFile.WINDOWS_MAX_LENGTH_PER_SEGMENT) {
-            return new SegmentedMemoryMappedFile(path, index, length, readOnly, closeAllowed,
-                    SegmentedMemoryMappedFile.WINDOWS_MAX_LENGTH_PER_SEGMENT);
+        if (OperatingSystem.isWindows() && length > SegmentedMemoryMappedFile.WINDOWS_MAX_LENGTH_PER_SEGMENT_MAPPED) {
+            return new SegmentedMemoryMappedFile(closeAllowed, path, index, length, readOnly,
+                    SegmentedMemoryMappedFile.WINDOWS_MAX_LENGTH_PER_SEGMENT_MAPPED);
         } else {
             return new MemoryMappedFile(path, index, length, readOnly, closeAllowed);
         }
