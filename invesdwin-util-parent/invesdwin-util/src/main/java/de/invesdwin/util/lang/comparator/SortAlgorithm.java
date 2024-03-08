@@ -71,6 +71,7 @@ public enum SortAlgorithm implements ISortAlgorithm {
     };
 
     public static final SortAlgorithm DEFAULT = TIMSORT;
+    public static final SortAlgorithm DEFAULT_FALLBACK = TIMSORT_FALLBACK_BUBBLESORT;
 
     @Override
     public abstract <T> void sort(List<? extends T> list, Comparator<? super T> comparator);
