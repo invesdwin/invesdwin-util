@@ -57,7 +57,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
                         try {
                             //wait till queue is drained again, start work immediately when a bit of space is free again
                             while (!isInnerClosed() && queue.size() >= queueSize) {
-                                drainedCondition.await(1, TimeUnit.SECONDS);
+                                drainedCondition.await(1, TimeUnit.MILLISECONDS);
                             }
                         } finally {
                             drainedLock.unlock();
@@ -174,7 +174,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
                     LOGGER.info(TextDescription.format("%s: queue is empty", finalizer.name));
                 }
                 firstPoll = false;
-                final E element = queue.poll(1, TimeUnit.SECONDS);
+                final E element = queue.poll(1, TimeUnit.MILLISECONDS);
                 if (element != null) {
                     drainedLock.lock();
                     try {
