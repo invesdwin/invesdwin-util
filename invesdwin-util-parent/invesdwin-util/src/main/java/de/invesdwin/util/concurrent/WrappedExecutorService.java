@@ -139,7 +139,13 @@ public class WrappedExecutorService implements ListeningExecutorService {
      * Prevent reference leak to this instance by using a static method
      */
     protected static IShutdownHook staticNewShutdownHook(final ExecutorService delegate) {
-        return () -> delegate.shutdownNow();
+        //WARNING: needs to be an actual object with an identity, not just a lambda
+        return new IShutdownHook() {
+            @Override
+            public void shutdown() throws Exception {
+                delegate.shutdownNow();
+            }
+        };
     }
 
     public WrappedExecutorService setExecutorExceptionHandler(
