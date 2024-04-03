@@ -775,6 +775,14 @@ public final class Doubles extends ADoublesStaticFacade {
         return value + otherValue;
     }
 
+    public static double addNaNable(final double value, final double otherValue) {
+        return add(nanToZero(value), nanToZero(otherValue));
+    }
+
+    public static double subtractNaNable(final double value, final double otherValue) {
+        return subtract(nanToZero(value), nanToZero(otherValue));
+    }
+
     public static double modulo(final double value, final double otherValue) {
         return value % otherValue;
     }
