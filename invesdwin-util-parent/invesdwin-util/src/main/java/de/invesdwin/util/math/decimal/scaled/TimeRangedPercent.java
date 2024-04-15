@@ -7,12 +7,13 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.decimal.ITimeRangedDecimal;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.range.TimeRange;
 
 @Immutable
-public class TimeRangedPercent extends Percent {
+public class TimeRangedPercent extends Percent implements ITimeRangedDecimal<Percent> {
 
     public static final TimeRangedPercent INVALID_ROW = new TimeRangedPercent(
             new TimeRange(FDates.MIN_DATE, FDates.MAX_DATE), new Percent(Doubles.MIN_VALUE, PercentScale.RATE));
@@ -43,8 +44,14 @@ public class TimeRangedPercent extends Percent {
         this.timeRange = timeRange;
     }
 
+    @Override
     public TimeRange getTimeRange() {
         return timeRange;
+    }
+
+    @Override
+    public Percent asDecimal() {
+        return this;
     }
 
     public static List<TimeRange> extractTimeRanges(final Iterable<TimeRangedPercent> values) {
@@ -75,14 +82,6 @@ public class TimeRangedPercent extends Percent {
             }
         }
         return minPeriod;
-    }
-
-    public FDate getStartTime() {
-        return getTimeRange().getFrom();
-    }
-
-    public FDate getEndTime() {
-        return getTimeRange().getTo();
     }
 
 }

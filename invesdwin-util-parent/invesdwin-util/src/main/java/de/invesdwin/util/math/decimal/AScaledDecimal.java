@@ -324,4 +324,12 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         }
     }
 
+    public static <D extends ADecimal<D>> D nullToZero(final D value, final D zero) {
+        if (value == null) {
+            return zero;
+        } else {
+            return value;
+        }
+    }
+
 }
