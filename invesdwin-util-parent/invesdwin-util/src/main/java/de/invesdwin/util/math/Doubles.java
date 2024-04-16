@@ -1497,7 +1497,9 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static String getShortenedSuffix(final double absMax) {
-        if (absMax > 10_000_000_000D || absMax < -10_000_000_000D) {
+        if (isNaN(absMax)) {
+            return "";
+        } else if (absMax > 10_000_000_000D || absMax < -10_000_000_000D) {
             return "g";
         } else if (absMax > 10_000_000D || absMax < -10_000_000D) {
             return "m";
@@ -1509,7 +1511,9 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static double getShortenedValue(final double value, final double absMax) {
-        if (absMax > 10_000_000_000D || absMax < -10_000_000_000D) {
+        if (Doubles.isNaN(absMax)) {
+            return value;
+        } else if (absMax > 10_000_000_000D || absMax < -10_000_000_000D) {
             return value / 10_000_000_000D;
         } else if (absMax > 10_000_000D || absMax < -10_000_000D) {
             return value / 1_000_000D;
