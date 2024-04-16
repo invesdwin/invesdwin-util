@@ -1496,24 +1496,24 @@ public final class Doubles extends ADoublesStaticFacade {
         return transposedMatrix;
     }
 
-    public static String getShortenedSuffix(final double value) {
-        if (value > 100_000_000D || value < -100_000_000D) {
+    public static String getShortenedSuffix(final double absMax) {
+        if (absMax > 10_000_000_000D || absMax < -10_000_000_000D) {
             return "g";
-        } else if (value > 100_000D || value < -100_000D) {
+        } else if (absMax > 10_000_000D || absMax < -10_000_000D) {
             return "m";
-        } else if (value > 100D || value < -100D) {
+        } else if (absMax > 10_000D || absMax < -10_000D) {
             return "k";
         } else {
             return "";
         }
     }
 
-    public static double getShortenedValue(final double value) {
-        if (value > 100_000_000D || value < -100_000_000D) {
-            return value / 1_000_000_000D;
-        } else if (value > 100_000D || value < -100_000D) {
+    public static double getShortenedValue(final double value, final double absMax) {
+        if (absMax > 10_000_000_000D || absMax < -10_000_000_000D) {
+            return value / 10_000_000_000D;
+        } else if (absMax > 10_000_000D || absMax < -10_000_000D) {
             return value / 1_000_000D;
-        } else if (value > 100D || value < -100D) {
+        } else if (absMax > 10_0000D || absMax < -10_0000D) {
             return value / 1_000D;
         } else {
             return value;
