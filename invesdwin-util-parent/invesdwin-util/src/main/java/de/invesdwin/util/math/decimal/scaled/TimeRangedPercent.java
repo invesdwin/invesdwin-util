@@ -1,19 +1,16 @@
 package de.invesdwin.util.math.decimal.scaled;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.Doubles;
-import de.invesdwin.util.math.decimal.ITimeRangedDecimal;
+import de.invesdwin.util.time.ITimeRangedValue;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.range.TimeRange;
 
 @Immutable
-public class TimeRangedPercent extends Percent implements ITimeRangedDecimal<Percent> {
+public class TimeRangedPercent extends Percent implements ITimeRangedValue<Percent> {
 
     public static final TimeRangedPercent INVALID_ROW = new TimeRangedPercent(
             new TimeRange(FDates.MIN_DATE, FDates.MAX_DATE), new Percent(Doubles.MIN_VALUE, PercentScale.RATE));
@@ -50,38 +47,8 @@ public class TimeRangedPercent extends Percent implements ITimeRangedDecimal<Per
     }
 
     @Override
-    public Percent asDecimal() {
+    public Percent asValue() {
         return this;
-    }
-
-    public static List<TimeRange> extractTimeRanges(final Iterable<TimeRangedPercent> values) {
-        final List<TimeRange> timeRanges = new ArrayList<TimeRange>();
-        for (final TimeRangedPercent pr : values) {
-            timeRanges.add(pr.getTimeRange());
-        }
-        return timeRanges;
-    }
-
-    public static TimeRangedPercent extractValueWithMaxPeriod(final Iterable<TimeRangedPercent> values) {
-        TimeRangedPercent maxPeriod = null;
-        for (final TimeRangedPercent pr : values) {
-            if (maxPeriod == null
-                    || maxPeriod.getTimeRange().getDuration().isLessThan(pr.getTimeRange().getDuration())) {
-                maxPeriod = pr;
-            }
-        }
-        return maxPeriod;
-    }
-
-    public static TimeRangedPercent extractValueWithMinPeriod(final Iterable<TimeRangedPercent> values) {
-        TimeRangedPercent minPeriod = null;
-        for (final TimeRangedPercent pr : values) {
-            if (minPeriod == null
-                    || minPeriod.getTimeRange().getDuration().isGreaterThan(pr.getTimeRange().getDuration())) {
-                minPeriod = pr;
-            }
-        }
-        return minPeriod;
     }
 
 }
