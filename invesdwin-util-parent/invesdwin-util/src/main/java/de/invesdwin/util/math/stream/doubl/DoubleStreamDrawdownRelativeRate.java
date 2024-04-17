@@ -5,15 +5,15 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 
 @NotThreadSafe
-public class DoubleStreamDrawdownRate implements IDoubleStreamAlgorithm {
+public class DoubleStreamDrawdownRelativeRate implements IDoubleStreamAlgorithm {
 
     private double maxEquity;
 
-    public DoubleStreamDrawdownRate() {
+    public DoubleStreamDrawdownRelativeRate() {
         this.maxEquity = 0D;
     }
 
-    public DoubleStreamDrawdownRate(final double initialEquity) {
+    public DoubleStreamDrawdownRelativeRate(final double initialEquity) {
         this.maxEquity = initialEquity;
     }
 

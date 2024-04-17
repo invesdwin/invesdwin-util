@@ -2,16 +2,16 @@ package de.invesdwin.util.math.stream.doubl;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.math.decimal.scaled.Percent;
-
 @NotThreadSafe
-public class DoubleStreamInitialDrawdownRate implements IDoubleStreamAlgorithm {
+public class DoubleStreamDrawdownAbsolute implements IDoubleStreamAlgorithm {
 
-    private double initialEquity;
     private double maxEquity;
 
-    public DoubleStreamInitialDrawdownRate(final double initialEquity) {
-        this.initialEquity = initialEquity;
+    public DoubleStreamDrawdownAbsolute() {
+        this.maxEquity = 0D;
+    }
+
+    public DoubleStreamDrawdownAbsolute(final double initialEquity) {
         this.maxEquity = initialEquity;
     }
 
@@ -27,11 +27,10 @@ public class DoubleStreamInitialDrawdownRate implements IDoubleStreamAlgorithm {
         } else {
             final double drawdown = maxEquity - equity;
             //on multimarket strategies the drawdown can actually become positive for orders
-            final double drawdownRate = Percent.newRate(drawdown, initialEquity);
-            if (drawdownRate < 0D) {
+            if (drawdown < 0D) {
                 return 0D;
             } else {
-                return drawdownRate;
+                return drawdown;
             }
         }
     }
@@ -41,7 +40,6 @@ public class DoubleStreamInitialDrawdownRate implements IDoubleStreamAlgorithm {
     }
 
     public void reset(final double initialEquity) {
-        this.initialEquity = initialEquity;
         this.maxEquity = initialEquity;
     }
 
