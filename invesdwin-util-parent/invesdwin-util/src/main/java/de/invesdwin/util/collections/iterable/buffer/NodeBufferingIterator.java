@@ -304,6 +304,42 @@ public class NodeBufferingIterator<E extends INode<E>> implements IBufferingIter
 
     }
 
+    public static class Node<E> implements INode<Node<E>> {
+
+        private final E value;
+        private Node<E> next;
+        private Node<E> prev;
+
+        public Node(final E value) {
+            this.value = value;
+        }
+
+        public E getValue() {
+            return value;
+        }
+
+        @Override
+        public Node<E> getNext() {
+            return next;
+        }
+
+        @Override
+        public void setNext(final Node<E> next) {
+            this.next = next;
+        }
+
+        @Override
+        public Node<E> getPrev() {
+            return prev;
+        }
+
+        @Override
+        public void setPrev(final Node<E> prev) {
+            this.prev = prev;
+        }
+
+    }
+
     @Override
     public String toString() {
         return Lists.toListWithoutHasNext(iterator()).toString();
