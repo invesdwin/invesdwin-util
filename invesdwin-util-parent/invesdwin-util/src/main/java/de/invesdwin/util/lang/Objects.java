@@ -14,7 +14,6 @@ import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.nustaq.serialization.FSTConfiguration;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathObjects;
@@ -48,13 +47,6 @@ public final class Objects extends AObjectsStaticFacade {
         //datanucleus enhancer fix
         REFLECTION_EXCLUDED_FIELDS.add("jdoDetachedState");
         REFLECTION_EXCLUDED_FIELDS.add("class");
-        try {
-            //use FST in BeanPathObjects as deepClone fallback instead of java serialization
-            FSTConfiguration.getDefaultConfiguration(); //might throw an exception here
-            BeanPathObjects.setDeepCloneProvider(LocalFastSerializingSerde.get());
-        } catch (final Throwable t) {
-            // we might be in a restricted environment where FST is not allowed, stay with java serialization then
-        }
     }
 
     private Objects() {}
