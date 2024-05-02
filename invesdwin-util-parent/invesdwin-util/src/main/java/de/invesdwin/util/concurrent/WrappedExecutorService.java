@@ -1,7 +1,6 @@
 package de.invesdwin.util.concurrent;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -314,7 +313,7 @@ public class WrappedExecutorService implements ListeningExecutorService, Closeab
      * Java19 uses awaitTermination here which should not be used, instead we call our finalizer that uses shutdownNow
      */
     @Override
-    public void close() throws IOException {
+    public void close() {
         finalizer.close();
     }
 
