@@ -1,5 +1,7 @@
 package de.invesdwin.util.concurrent;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -40,7 +42,7 @@ import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
-public class WrappedExecutorService implements ListeningExecutorService {
+public class WrappedExecutorService implements ListeningExecutorService, Closeable {
 
     private static final Duration FIXED_THREAD_KEEPALIVE_TIMEOUT = new Duration(60, FTimeUnit.SECONDS);
 
@@ -306,6 +308,14 @@ public class WrappedExecutorService implements ListeningExecutorService {
         final List<Runnable> l = finalizer.delegate.shutdownNow();
         finalizer.close();
         return l;
+    }
+
+    /**
+     * Java19 uses awaitTermination here which should not be used, instead we call our finalizer that uses shutdownNow
+     */
+    @Override
+    public void close() throws IOException {
+        finalizer.close();
     }
 
     @Override
