@@ -28,7 +28,12 @@ public class FileChannelLockTest {
         //        lock1.tryLockThrowing();
         Files.createSymbolicLink(lock2Symlink.getAbsoluteFile().toPath(), lock1File.getAbsoluteFile().toPath());
         Files.deleteQuietly(lock1File);
-        final FileChannelLock lock2 = new FileChannelLock(lock2Symlink);
+        final FileChannelLock lock2 = new FileChannelLock(lock2Symlink) {
+            @Override
+            protected boolean isThreadLockEnabled() {
+                return true;
+            }
+        };
         lock2.tryLockThrowing();
         Files.deleteQuietly(lock1File);
         Files.deleteQuietly(lock2Symlink);
