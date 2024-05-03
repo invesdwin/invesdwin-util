@@ -134,4 +134,24 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService
         return (WrappedScheduledExecutorService) super.setDynamicThreadName(dynamicThreadName);
     }
 
+    @Override
+    public WrappedScheduledExecutorService setCloseable(final boolean closeable) {
+        return (WrappedScheduledExecutorService) super.setCloseable(closeable);
+    }
+
+    @Override
+    public WrappedScheduledExecutorService setFinalizerEnabled(final boolean finalizerEnabled) {
+        return (WrappedScheduledExecutorService) super.setFinalizerEnabled(finalizerEnabled);
+    }
+
+    @Override
+    public WrappedScheduledExecutorService setKeepThreadLocals(final boolean keepThreadLocals) {
+        return (WrappedScheduledExecutorService) super.setKeepThreadLocals(keepThreadLocals);
+    }
+
+    @Override
+    public WrappedScheduledExecutorService setWaitOnFullPendingCount(final int waitOnFullPendingCount) {
+        return (WrappedScheduledExecutorService) super.setWaitOnFullPendingCount(waitOnFullPendingCount);
+    }
+
 }

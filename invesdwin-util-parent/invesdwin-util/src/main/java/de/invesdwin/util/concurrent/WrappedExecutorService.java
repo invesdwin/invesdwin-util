@@ -90,6 +90,7 @@ public class WrappedExecutorService implements ListeningExecutorService, Closeab
     private final Object pendingCountWaitLock = new Object();
     private final AtomicBoolean dynamicThreadName = new AtomicBoolean(true);
     private volatile boolean keepThreadLocals = true;
+    private volatile boolean closeable = false;
     private final PendingCountCondition zeroPendingCountCondition;
     private final PendingCountCondition fullPendingCountCondition;
     private volatile PendingCountCondition waitOnFullPendingCountCondition;
@@ -120,12 +121,13 @@ public class WrappedExecutorService implements ListeningExecutorService, Closeab
         finalizer.register(this);
     }
 
-    public void setFinalizerEnabled(final boolean finalizerEnabled) {
+    public WrappedExecutorService setFinalizerEnabled(final boolean finalizerEnabled) {
         if (!finalizerEnabled) {
             finalizer.unregister();
         } else {
             finalizer.register(this);
         }
+        return this;
     }
 
     public boolean isExecutorThread() {
@@ -309,12 +311,23 @@ public class WrappedExecutorService implements ListeningExecutorService, Closeab
         return l;
     }
 
+    public boolean isCloseable() {
+        return closeable;
+    }
+
+    public WrappedExecutorService setCloseable(final boolean closeable) {
+        this.closeable = closeable;
+        return this;
+    }
+
     /**
      * Java19 uses awaitTermination here which should not be used, instead we call our finalizer that uses shutdownNow
      */
     @Override
     public void close() {
-        finalizer.close();
+        if (closeable) {
+            finalizer.close();
+        }
     }
 
     @Override
