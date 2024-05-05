@@ -127,6 +127,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
             } else {
                 this.length = roundTo4096(length);
                 this.raf = new RandomAccessFile(this.path, "rw");
+                raf.setLength(this.length);
                 this.channel = raf.getChannel();
                 this.address = IoUtil.map(channel, MapMode.READ_WRITE, this.offset, this.length);
             }

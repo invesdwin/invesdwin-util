@@ -46,11 +46,11 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
     private final long length;
     private final boolean closeAllowed;
 
-    public SegmentedMemoryMappedFile(final String path, final long offset, final long length, final boolean readOnly,
-            final boolean closeAllowed, final long segmentLength) throws IOException {
+    public SegmentedMemoryMappedFile(final boolean closeAllowed, final String path, final long offset,
+            final long length, final boolean readOnly, final long segmentLength) throws IOException {
+        this.closeAllowed = closeAllowed;
         this.offset = offset;
         this.length = length;
-        this.closeAllowed = closeAllowed;
         list = initList(path, readOnly, segmentLength);
     }
 
