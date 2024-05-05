@@ -80,7 +80,7 @@ public final class Addresses {
         if (allPorts == null) {
             synchronized (Addresses.class) {
                 if (allPorts == null) {
-                    final Integer[] ports = new Integer[PORT_MAX - PORT_MIN];
+                    final Integer[] ports = new Integer[PORT_MAX - PORT_MIN + 1];
                     for (int port = PORT_MIN; port <= PORT_MAX; port++) {
                         ports[port - PORT_MIN] = port;
                     }
