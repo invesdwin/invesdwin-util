@@ -230,7 +230,7 @@ public final class Reflections extends AReflectionsStaticFacade {
                 try {
                     assertObjectNotReferencedRecursive(obj, parent, visitedIdentitySet);
                 } catch (final Throwable t) {
-                    throw new RuntimeException("Via [" + parent.getClass().getName() + ":" + parent + "]", t);
+                    throw new RuntimeException("Via parent [" + parent.getClass().getName() + ":" + parent + "]", t);
                 }
             }
         }
