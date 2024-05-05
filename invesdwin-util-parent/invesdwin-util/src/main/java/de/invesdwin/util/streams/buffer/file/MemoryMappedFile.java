@@ -8,12 +8,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.agrona.IoUtil;
+
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.extend.UnsafeMemoryBuffer;
-import net.openhft.chronicle.core.OSAccessor;
 
 /**
  * Class for direct access to a memory mapped file.
@@ -108,8 +109,10 @@ public class MemoryMappedFile implements IMemoryMappedFile {
     private static final class MemoryMappedFileFinalizer extends AFinalizer {
         private final String path;
         private final long offset;
-        private final long address;
         private final long length;
+        private final RandomAccessFile raf;
+        private final FileChannel channel;
+        private final long address;
         private volatile boolean cleaned;
 
         private MemoryMappedFileFinalizer(final String path, final long offset, final long length,
@@ -118,21 +121,24 @@ public class MemoryMappedFile implements IMemoryMappedFile {
             this.offset = offset;
             if (readOnly) {
                 this.length = length;
+                this.raf = new RandomAccessFile(this.path, "r");
+                this.channel = raf.getChannel();
+                this.address = IoUtil.map(channel, MapMode.READ_ONLY, offset, length);
             } else {
                 this.length = roundTo4096(length);
-            }
-            if (readOnly) {
-                this.address = mapAndSetOffset("r", MapMode.READ_ONLY);
-            } else {
-                this.address = mapAndSetOffset("rw", MapMode.READ_WRITE);
+                this.raf = new RandomAccessFile(this.path, "rw");
+                this.channel = raf.getChannel();
+                this.address = IoUtil.map(channel, MapMode.READ_WRITE, offset, length);
             }
         }
 
         @Override
         protected void clean() {
             cleaned = true;
+            IoUtil.unmap(channel, address, this.length);
             try {
-                OSAccessor.unmapUnaligned(address, this.length);
+                channel.close();
+                raf.close();
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
@@ -150,15 +156,6 @@ public class MemoryMappedFile implements IMemoryMappedFile {
 
         private static long roundTo4096(final long i) {
             return (i + 0xfff) & ~0xfff;
-        }
-
-        private long mapAndSetOffset(final String mode, final MapMode mapMode) throws IOException {
-            final RandomAccessFile backingFile = new RandomAccessFile(this.path, mode);
-            final FileChannel ch = backingFile.getChannel();
-            final long address = OSAccessor.mapUnaligned(ch, mapMode, offset, length);
-            ch.close();
-            backingFile.close();
-            return address;
         }
 
     }

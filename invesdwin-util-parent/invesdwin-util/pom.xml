@@ -244,6 +244,11 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>net.openhft</groupId>
+			<artifactId>chronicle-core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-buffer</artifactId>
 			<scope>provided</scope>
@@ -270,10 +275,6 @@
 		<dependency>
 			<groupId>org.biojava</groupId>
 			<artifactId>jcolorbrewer</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>net.openhft</groupId>
-			<artifactId>chronicle-core</artifactId>
 		</dependency>
 	</dependencies>
 
