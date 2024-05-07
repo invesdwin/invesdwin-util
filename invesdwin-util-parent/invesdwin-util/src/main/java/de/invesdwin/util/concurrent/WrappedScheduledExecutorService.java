@@ -77,7 +77,6 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService
             return getWrappedInstance().schedule(WrappedRunnable.newInstance(scheduledInternal, false, command), delay,
                     unit);
         } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
             return new InterruptingFuture<Object>();
         }
     }
@@ -89,7 +88,6 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService
             return getWrappedInstance().schedule(WrappedCallable.newInstance(scheduledInternal, false, callable), delay,
                     unit);
         } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
             return new InterruptingFuture<V>();
         }
     }
@@ -101,7 +99,6 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService
             return getWrappedInstance().scheduleAtFixedRate(
                     WrappedRunnable.newInstance(scheduledInternal, false, command), initialDelay, period, unit);
         } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
             return new InterruptingFuture<Object>();
         }
     }
@@ -113,7 +110,6 @@ public class WrappedScheduledExecutorService extends WrappedExecutorService
             return getWrappedInstance().scheduleWithFixedDelay(
                     WrappedRunnable.newInstance(scheduledInternal, false, command), initialDelay, delay, unit);
         } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
             return new InterruptingFuture<Object>();
         }
     }

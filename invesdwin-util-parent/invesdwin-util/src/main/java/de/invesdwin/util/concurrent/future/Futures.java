@@ -115,7 +115,6 @@ public final class Futures extends AFuturesStaticFacade {
         try {
             return get(future);
         } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
             throw Throwables.propagate(e);
         }
     }
@@ -129,7 +128,6 @@ public final class Futures extends AFuturesStaticFacade {
         try {
             return get(future, timeout, unit);
         } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
             throw Throwables.propagate(e);
         }
     }
@@ -138,7 +136,6 @@ public final class Futures extends AFuturesStaticFacade {
         try {
             return getRethrowing(future);
         } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
             throw Throwables.propagate(e);
         }
     }
@@ -298,7 +295,6 @@ public final class Futures extends AFuturesStaticFacade {
             final List<Future<T>> futures = executor.invokeAll(tasks);
             return getNoInterrupt(futures);
         } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
             throw Throwables.propagate(e);
         }
     }
@@ -320,7 +316,6 @@ public final class Futures extends AFuturesStaticFacade {
             }
         } catch (final InterruptedException e) {
             cancel(futures);
-            Thread.currentThread().interrupt();
             throw e;
         }
     }
@@ -332,7 +327,6 @@ public final class Futures extends AFuturesStaticFacade {
             }
         } catch (final InterruptedException e) {
             cancel(futures);
-            Thread.currentThread().interrupt();
             throw Throwables.propagate(e);
         }
     }

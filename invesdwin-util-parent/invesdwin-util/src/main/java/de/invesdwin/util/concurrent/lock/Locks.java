@@ -255,7 +255,6 @@ public final class Locks extends ALocksStaticFacade {
                         .handleLockException(lock.getName(), newLockTimeoutException(lockWaitTimeout, tryCount)));
             }
         } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
     }
