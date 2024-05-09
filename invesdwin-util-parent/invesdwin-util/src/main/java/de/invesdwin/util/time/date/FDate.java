@@ -605,6 +605,10 @@ public class FDate
         return FDateMillis.javaDateValue(millis, timeZone);
     }
 
+    public static FDate valueOfSeconds(final int seconds) {
+        return new FDate((long) seconds * FTimeUnit.MILLISECONDS_IN_SECOND);
+    }
+
     public static FDate valueOf(final long millis) {
         return new FDate(millis);
     }
