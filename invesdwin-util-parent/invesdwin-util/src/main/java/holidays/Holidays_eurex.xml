@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:Configuration hierarchy="eurex"
+	description="EUREX" xmlns:tns="http://www.example.org/Holiday"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.example.org/Holiday /Holiday.xsd">
+	<tns:Holidays>
+		<!-- new year -->
+		<tns:Fixed month="JANUARY" day="1" />
+		<!-- 1st May-->
+		<tns:Fixed month="MAY" day="1" />
+		<!-- christmas -->
+		<tns:Fixed month="DECEMBER" day="24" />
+		<tns:Fixed month="DECEMBER" day="25" />
+		<tns:Fixed month="DECEMBER" day="26" />
+		<!-- new years eve -->
+		<tns:Fixed month="DECEMBER" day="31" />
+		<!-- car friday -->
+		<tns:ChristianHoliday type="GOOD_FRIDAY" />
+		<!-- easter monday -->
+		<tns:ChristianHoliday type="EASTER_MONDAY" />
+	</tns:Holidays>
+</tns:Configuration>

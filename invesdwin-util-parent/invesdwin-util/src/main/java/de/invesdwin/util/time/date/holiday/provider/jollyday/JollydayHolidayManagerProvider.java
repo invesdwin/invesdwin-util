@@ -40,6 +40,7 @@ public final class JollydayHolidayManagerProvider implements IHolidayManagerProv
      * 6 holidays
      */
     public static final IHolidayManager XETRA;
+    public static final IHolidayManager EUREX;
     public static final IHolidayManager GERMANY;
 
     private static final Set<String> AVAILABLE_CALENDAR_IDS;
@@ -70,6 +71,7 @@ public final class JollydayHolidayManagerProvider implements IHolidayManagerProv
         }
         ZORRO = INSTANCE.getInstance("zorro");
         XETRA = INSTANCE.getInstance("xetra");
+        EUREX = INSTANCE.getInstance("eurex");
         GERMANY = getInstance(HolidayCalendar.GERMANY);
 
         AVAILABLE_CALENDAR_IDS = newAvailableCalendarIds();

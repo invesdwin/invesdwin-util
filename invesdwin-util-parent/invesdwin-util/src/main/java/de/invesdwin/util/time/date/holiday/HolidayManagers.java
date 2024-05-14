@@ -16,6 +16,7 @@ public final class HolidayManagers {
 
     public static final IHolidayManager ZORRO = JollydayHolidayManagerProvider.ZORRO;
     public static final IHolidayManager XETRA = JollydayHolidayManagerProvider.XETRA;
+    public static final IHolidayManager EUREX = JollydayHolidayManagerProvider.EUREX;
     public static final IHolidayManager GERMANY = JollydayHolidayManagerProvider.GERMANY;
 
     private static final List<IHolidayManagerProvider> PROVIDERS;
@@ -28,8 +29,7 @@ public final class HolidayManagers {
         PROVIDERS.add(JollydayHolidayManagerProvider.INSTANCE);
     }
 
-    private HolidayManagers() {
-    }
+    private HolidayManagers() {}
 
     public static List<IHolidayManagerProvider> getProviders() {
         return PROVIDERS;

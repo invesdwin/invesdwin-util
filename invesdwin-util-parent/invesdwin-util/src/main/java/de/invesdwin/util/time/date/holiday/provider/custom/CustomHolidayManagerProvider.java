@@ -11,6 +11,7 @@ import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.IHolidayManagerProvider;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.DisabledHolidayManager;
+import de.invesdwin.util.time.date.holiday.provider.custom.specific.EurexHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.MonthlyExpirationDayHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.NewYearsEveHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.QuarterlyExpirationDayHolidayManager;
@@ -32,6 +33,7 @@ public final class CustomHolidayManagerProvider implements IHolidayManagerProvid
         registerHolidayManager(NewYearsEveHolidayManager.INSTANCE);
         registerHolidayManager(WeekendHolidayManager.INSTANCE);
         registerHolidayManager(XetraFuturesHolidayManager.INSTANCE);
+        registerHolidayManager(EurexHolidayManager.INSTANCE);
         registerHolidayManager(DisabledHolidayManager.INSTANCE);
     }
 
