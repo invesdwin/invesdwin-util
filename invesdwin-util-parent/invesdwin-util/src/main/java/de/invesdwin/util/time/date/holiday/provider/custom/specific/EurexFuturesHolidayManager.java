@@ -7,9 +7,9 @@ import de.invesdwin.util.time.date.holiday.HolidayManagers;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 
 @Immutable
-public class EurexHolidayManager implements IHolidayManager {
+public class EurexFuturesHolidayManager implements IHolidayManager {
 
-    public static final EurexHolidayManager INSTANCE = new EurexHolidayManager();
+    public static final EurexFuturesHolidayManager INSTANCE = new EurexFuturesHolidayManager();
 
     private final IHolidayManager weekend = WeekendHolidayManager.INSTANCE;
     private final IHolidayManager eurex = HolidayManagers.EUREX;
@@ -32,7 +32,7 @@ public class EurexHolidayManager implements IHolidayManager {
 
     @Override
     public String getHolidayCalendarId() {
-        return "EUREX";
+        return "EUREX_FUTURES";
     }
 
     @Override

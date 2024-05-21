@@ -9,7 +9,7 @@ import de.invesdwin.util.time.date.holiday.IHolidayManager;
 /**
  * https://www.xetra.com/xetra-de/newsroom/handelskalender
  *
- * also weekends and querterly rollover are treated as holidays
+ * also weekends and quarterly rollovers are treated as holidays
  */
 @Immutable
 public class XetraFuturesHolidayManager implements IHolidayManager {
