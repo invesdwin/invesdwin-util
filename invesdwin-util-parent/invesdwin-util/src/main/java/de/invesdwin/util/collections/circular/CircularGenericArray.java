@@ -2,6 +2,8 @@ package de.invesdwin.util.collections.circular;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.Arrays;
+
 @NotThreadSafe
 public class CircularGenericArray<E> {
 
@@ -129,6 +131,25 @@ public class CircularGenericArray<E> {
         }
         sb.append("]");
         return sb.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    public E[] toArray(final E[] a) {
+        if (a.length < size) {
+            // Make a new array of a's runtime type, but my contents:
+            final E[] array = (E[]) Arrays.newInstance(a.getClass().getComponentType(), size);
+            for (int i = 0; i < array.length; i++) {
+                array[i] = get(i);
+            }
+            return array;
+        }
+        for (int i = 0; i < size; i++) {
+            array[i] = get(i);
+        }
+        if (a.length > size) {
+            a[size] = null;
+        }
+        return a;
     }
 
 }
