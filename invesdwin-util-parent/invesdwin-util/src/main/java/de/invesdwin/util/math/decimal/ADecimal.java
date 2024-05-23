@@ -882,6 +882,70 @@ public abstract class ADecimal<E extends ADecimal<E>> extends ADecimalNumber<E> 
         }
     }
 
+    public static <T extends ADecimal<T>> T multiply(final T value1, final double value2) {
+        if (value1 == null) {
+            return null;
+        } else {
+            return value1.multiply(value2);
+        }
+    }
+
+    public static <T extends ADecimal<T>> T multiply(final T value1, final Double value2) {
+        if (value1 == null) {
+            return null;
+        } else {
+            return value1.multiply(value2);
+        }
+    }
+
+    public static <T extends ADecimal<T>> T multiply(final T value1, final Number value2) {
+        if (value1 == null) {
+            return null;
+        } else {
+            return value1.multiply(value2);
+        }
+    }
+
+    public static <T extends ADecimal<T>> T multiply(final T value1, final T value2) {
+        if (value1 == null) {
+            return null;
+        } else {
+            return value1.multiply(value2);
+        }
+    }
+
+    public static <T extends ADecimal<T>> T divide(final T value1, final double value2) {
+        if (value1 == null) {
+            return null;
+        } else {
+            return value1.divide(value2);
+        }
+    }
+
+    public static <T extends ADecimal<T>> T divide(final T value1, final Double value2) {
+        if (value1 == null) {
+            return null;
+        } else {
+            return value1.divide(value2);
+        }
+    }
+
+    public static <T extends ADecimal<T>> T divide(final T value1, final Number value2) {
+        if (value1 == null) {
+            return null;
+        } else {
+            return value1.divide(value2);
+        }
+    }
+
+    public static <T extends ADecimal<T>> T divide(final T value1, final T value2) {
+        if (value1 == null) {
+            return null;
+        } else {
+            return value1.divide(value2);
+        }
+    }
+
     public static <T extends ADecimal<T>> T max(final T value1, final T value2) {
         if (value1 == null) {
             return value2;
