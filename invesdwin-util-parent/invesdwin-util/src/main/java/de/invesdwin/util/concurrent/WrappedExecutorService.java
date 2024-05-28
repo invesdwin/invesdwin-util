@@ -43,6 +43,7 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public class WrappedExecutorService implements ListeningExecutorService, Closeable {
 
+    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(Locks.class);
     private static final Duration FIXED_THREAD_KEEPALIVE_TIMEOUT = new Duration(60, FTimeUnit.SECONDS);
 
     protected final IWrappedExecutorServiceInternal internal = new IWrappedExecutorServiceInternal() {
@@ -110,7 +111,12 @@ public class WrappedExecutorService implements ListeningExecutorService, Closeab
          * All executors should be shutdown on application shutdown.
          */
         if (shutdownHook != null) {
-            ShutdownHookManager.register(shutdownHook);
+            if (ShutdownHookManager.registerNoThrow(shutdownHook)) {
+                //CHECKSTYLE:OFF
+                LOG.warn("Replaced duplicate {} for {} {}", IShutdownHook.class.getSimpleName(),
+                        WrappedExecutorService.class.getSimpleName(), name);
+                //CHECKSTYLE:ON
+            }
         }
         this.finalizer.shutdownHook = shutdownHook;
         this.pendingCountLock = Locks
@@ -135,20 +141,7 @@ public class WrappedExecutorService implements ListeningExecutorService, Closeab
     }
 
     protected IShutdownHook newShutdownHook(final ExecutorService delegate) {
-        return staticNewShutdownHook(delegate);
-    }
-
-    /**
-     * Prevent reference leak to this instance by using a static method
-     */
-    protected static IShutdownHook staticNewShutdownHook(final ExecutorService delegate) {
-        //WARNING: needs to be an actual object with an identity, not just a lambda
-        return new IShutdownHook() {
-            @Override
-            public void shutdown() throws Exception {
-                delegate.shutdownNow();
-            }
-        };
+        return new WrappedExecutorShutdownHook(delegate);
     }
 
     public WrappedExecutorService setExecutorExceptionHandler(
@@ -575,6 +568,34 @@ public class WrappedExecutorService implements ListeningExecutorService, Closeab
             }
         }
         return null;
+    }
+
+    private static final class WrappedExecutorShutdownHook implements IShutdownHook {
+        private final ExecutorService delegate;
+
+        private WrappedExecutorShutdownHook(final ExecutorService delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void shutdown() throws Exception {
+            delegate.shutdownNow();
+        }
+
+        @Override
+        public int hashCode() {
+            return System.identityHashCode(delegate);
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (obj instanceof WrappedExecutorShutdownHook) {
+                final WrappedExecutorShutdownHook cObj = (WrappedExecutorShutdownHook) obj;
+                return cObj.delegate == obj;
+            } else {
+                return false;
+            }
+        }
     }
 
     public static final class PendingCountCondition {

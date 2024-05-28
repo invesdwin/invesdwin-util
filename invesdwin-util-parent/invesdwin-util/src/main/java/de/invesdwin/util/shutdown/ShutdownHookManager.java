@@ -81,6 +81,27 @@ public final class ShutdownHookManager {
         }
     }
 
+    public static boolean registerNoThrow(final IShutdownHook hook) {
+        synchronized (INSTANCE) {
+            if (isShuttingDown()) {
+                //too late
+                return false;
+            }
+            if (REMOVE_OBSOLETE_THREADS_CHECK.checkClockNoInterrupt()) {
+                removeObsoleteThreads();
+            }
+            final int identityHashCode = System.identityHashCode(hook);
+            final ShutdownHookThread newThread = new ShutdownHookThread(identityHashCode, hook);
+            final ShutdownHookThread existing = REGISTERED_HOOKS.put(identityHashCode, newThread);
+            if (existing != null) {
+                //identity might get recycled
+                Runtime.getRuntime().removeShutdownHook(existing);
+            }
+            Runtime.getRuntime().addShutdownHook(newThread);
+            return existing != null;
+        }
+    }
+
     private static void removeObsoleteThreads() {
         final Iterator<Entry<Integer, ShutdownHookThread>> it = REGISTERED_HOOKS.entrySet().iterator();
         while (it.hasNext()) {
