@@ -20,9 +20,13 @@ public class DoubleStreamRelativeDetrending {
     private final double logAvgChangeYperX;
 
     public DoubleStreamRelativeDetrending(final double fromX, final double fromY, final double toX, final double toY) {
+        validateNotNanOrZero("fromX", fromX);
         this.fromX = fromX;
+        validateNotNanOrZero("fromY", fromY);
         this.fromY = fromY;
+        validateNotNanOrZero("toX", toX);
         this.toX = toX;
+        validateNotNanOrZero("toY", toY);
         this.toY = toY;
         final double xChange = scaleChangeInX(toX - fromX);
         if (xChange <= 0D) {
@@ -31,6 +35,15 @@ public class DoubleStreamRelativeDetrending {
         }
         final double toAdjY = getY(toY);
         this.logAvgChangeYperX = Doubles.log(toAdjY / fromY) / xChange;
+    }
+
+    private void validateNotNanOrZero(final String name, final double value) {
+        if (Doubles.isNaN(value)) {
+            throw new IllegalArgumentException(name + " should not be NaN");
+        }
+        if (value == 0D) {
+            throw new IllegalArgumentException(name + " should not be zero");
+        }
     }
 
     /**
