@@ -2,6 +2,7 @@ package de.invesdwin.util.swing;
 
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.HeadlessException;
 import java.awt.Toolkit;
 
 import javax.annotation.concurrent.Immutable;
@@ -16,11 +17,15 @@ public final class HiDPI {
     private HiDPI() {}
 
     private static double determineScaleFactor() {
-        final double trueHorizontalLines = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-        //we scale based on 1920x1080 (1k), since that is where normally the scaling comes into play with 2.0 for 4k
-        final double scaledHorizontalLines = 1080;
-        final double dpiScaleFactor = trueHorizontalLines / scaledHorizontalLines;
-        return dpiScaleFactor;
+        try {
+            final double trueHorizontalLines = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
+            //we scale based on 1920x1080 (1k), since that is where normally the scaling comes into play with 2.0 for 4k
+            final double scaledHorizontalLines = 1080;
+            final double dpiScaleFactor = trueHorizontalLines / scaledHorizontalLines;
+            return dpiScaleFactor;
+        } catch (final HeadlessException e) {
+            return 1D;
+        }
     }
 
     public static void setScaleFactor(final double scaleFactor) {
