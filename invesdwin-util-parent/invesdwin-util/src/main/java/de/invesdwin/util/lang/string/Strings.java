@@ -659,17 +659,11 @@ public final class Strings extends AStringsStaticFacade {
     }
 
     public static boolean isBlankOrNullText(final String str) {
-        if (str == null) {
-            return true;
-        }
         return isBlank(str) || NULL_TEXT.equalsIgnoreCase(str.trim());
     }
 
     public static boolean isEmptyOrNullText(final String str) {
-        if (str == null) {
-            return true;
-        }
-        return str.length() == 0 || NULL_TEXT.equalsIgnoreCase(str);
+        return isEmpty(str) || NULL_TEXT.equalsIgnoreCase(str);
     }
 
     public static String removeSpace(final String value) {
