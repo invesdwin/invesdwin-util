@@ -234,6 +234,13 @@ public abstract class ADecimal<E extends ADecimal<E>> extends ADecimalNumber<E> 
         return NUMBER_FORMAT.get().format(value);
     }
 
+    public static String toStringNanable(final double value) {
+        if (Doubles.isNaN(value)) {
+            return "";
+        }
+        return toString(value);
+    }
+
     @Override
     public int intValue() {
         return Integers.checkedCast(getValue());
