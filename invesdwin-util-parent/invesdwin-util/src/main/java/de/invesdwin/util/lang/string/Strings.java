@@ -662,8 +662,7 @@ public final class Strings extends AStringsStaticFacade {
         if (str == null) {
             return true;
         }
-        final String trim = str.trim();
-        return trim.length() == 0 || NULL_TEXT.equalsIgnoreCase(trim);
+        return isBlank(str) || NULL_TEXT.equalsIgnoreCase(str.trim());
     }
 
     public static boolean isEmptyOrNullText(final String str) {
