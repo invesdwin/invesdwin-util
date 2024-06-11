@@ -30,10 +30,13 @@ public class LazyCopyFolderRunnable implements Runnable {
             Files.copyDirectory(fromFolder, toFolder, new FileFilter() {
                 @Override
                 public boolean accept(final File pathname) {
+                    if (!isAccepted(pathname)) {
+                        return false;
+                    }
                     final String path = pathname.getAbsolutePath();
                     final Long prevLastModified = file_lastModified.get(path);
                     final long lastModified = pathname.lastModified();
-                    if (prevLastModified == null || prevLastModified != lastModified) {
+                    if ((prevLastModified == null || prevLastModified != lastModified)) {
                         file_lastModified.put(path, lastModified);
                         return true;
                     } else {
@@ -47,5 +50,9 @@ public class LazyCopyFolderRunnable implements Runnable {
                     Throwables.getFullStackTrace(t));
             //CHECKSTYLE:ON
         }
+    }
+
+    protected boolean isAccepted(final File pathname) {
+        return true;
     }
 }
