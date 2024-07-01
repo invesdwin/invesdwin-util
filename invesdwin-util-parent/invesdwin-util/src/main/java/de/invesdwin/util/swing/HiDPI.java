@@ -2,6 +2,7 @@ package de.invesdwin.util.swing;
 
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 
 import javax.annotation.concurrent.Immutable;
@@ -16,6 +17,9 @@ public final class HiDPI {
     private HiDPI() {}
 
     private static double determineScaleFactor() {
+        if (GraphicsEnvironment.isHeadless()) {
+            return 1D;
+        }
         final double trueHorizontalLines = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
         //we scale based on 1920x1080 (1k), since that is where normally the scaling comes into play with 2.0 for 4k
         final double scaledHorizontalLines = 1080;

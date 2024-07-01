@@ -2,7 +2,6 @@ package de.invesdwin.util.math.decimal;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends ADecimalNumber<E> 
         @Override
         protected NumberFormat initialValue() throws Exception {
             final NumberFormat format = NumberFormat.getNumberInstance(Locale.ENGLISH);
-            format.setMaximumFractionDigits(MathContext.DECIMAL128.getPrecision());
+            format.setMaximumFractionDigits(Decimal.DEFAULT_ROUNDING_SCALE);
             format.setRoundingMode(Decimal.DEFAULT_ROUNDING_MODE);
             format.setGroupingUsed(false);
             return format;
@@ -233,6 +232,13 @@ public abstract class ADecimal<E extends ADecimal<E>> extends ADecimalNumber<E> 
 
     public static String toString(final double value) {
         return NUMBER_FORMAT.get().format(value);
+    }
+
+    public static String toStringNanable(final double value) {
+        if (Doubles.isNaN(value)) {
+            return "";
+        }
+        return toString(value);
     }
 
     @Override
