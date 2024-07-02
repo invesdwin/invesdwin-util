@@ -175,6 +175,26 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
+    public <K, V> IFastIterableMap<K, V> newFastIterableTreeMap() {
+        return new FastIterableDelegateMap<K, V>(newTreeMap()) {
+            @Override
+            protected void addToFastIterable(final K key, final V value) {
+                refreshFastIterable();
+            }
+        };
+    }
+
+    @Override
+    public <K, V> IFastIterableMap<K, V> newFastIterableTreeMap(final IComparator<? super K> comparator) {
+        return new FastIterableDelegateMap<K, V>(newTreeMap(comparator)) {
+            @Override
+            protected void addToFastIterable(final K key, final V value) {
+                refreshFastIterable();
+            }
+        };
+    }
+
+    @Override
     public <T> Set<T> newConcurrentSet(final int initialSize, final float loadFactor) {
         return newSet(initialSize, loadFactor);
     }

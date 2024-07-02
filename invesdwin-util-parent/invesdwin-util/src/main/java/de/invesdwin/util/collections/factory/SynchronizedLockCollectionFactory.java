@@ -116,6 +116,27 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
+    public <K, V> IFastIterableMap<K, V> newFastIterableTreeMap() {
+        return new SynchronizedFastIterableDelegateMap<K, V>(DisabledLockCollectionFactory.INSTANCE.newTreeMap()) {
+            @Override
+            protected void addToFastIterable(final K key, final V value) {
+                refreshFastIterable();
+            }
+        };
+    }
+
+    @Override
+    public <K, V> IFastIterableMap<K, V> newFastIterableTreeMap(final IComparator<? super K> comparator) {
+        return new SynchronizedFastIterableDelegateMap<K, V>(
+                DisabledLockCollectionFactory.INSTANCE.newTreeMap(comparator)) {
+            @Override
+            protected void addToFastIterable(final K key, final V value) {
+                refreshFastIterable();
+            }
+        };
+    }
+
+    @Override
     public INestedExecutor newNestedExecutor(final String name) {
         return new SynchronizedNestedExecutor(name);
     }
