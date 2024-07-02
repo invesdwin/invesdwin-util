@@ -176,6 +176,10 @@ public interface ILockCollectionFactory {
 
     <K, V> NavigableMap<K, V> newTreeMap(IComparator<? super K> comparator);
 
+    <K, V> IFastIterableMap<K, V> newFastIterableTreeMap();
+
+    <K, V> IFastIterableMap<K, V> newFastIterableTreeMap(IComparator<? super K> comparator);
+
     INestedExecutor newNestedExecutor(String name);
 
     <T> ILazyReference<T> newLazyReference(Supplier<T> factory);
