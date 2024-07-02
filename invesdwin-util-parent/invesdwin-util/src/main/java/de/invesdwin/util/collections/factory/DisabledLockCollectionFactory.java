@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -28,6 +29,8 @@ import de.invesdwin.util.concurrent.lock.disabled.DisabledReadWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.nested.DisabledNestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
+import de.invesdwin.util.concurrent.reference.lazy.ILazyReference;
+import de.invesdwin.util.concurrent.reference.lazy.LazyReference;
 import de.invesdwin.util.lang.comparator.IComparator;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -184,6 +187,11 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     @Override
     public <K, V> Map<K, V> newIdentityMap(final int initialSize) {
         return new IdentityHashMap<K, V>(initialSize);
+    }
+
+    @Override
+    public <T> ILazyReference<T> newLazyReference(final Supplier<T> factory) {
+        return new LazyReference<>(factory);
     }
 
     @Override

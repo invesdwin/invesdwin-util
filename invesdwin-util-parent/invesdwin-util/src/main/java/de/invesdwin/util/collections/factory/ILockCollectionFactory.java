@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.fast.IFastIterableList;
@@ -14,6 +15,7 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
+import de.invesdwin.util.concurrent.reference.lazy.ILazyReference;
 import de.invesdwin.util.lang.comparator.IComparator;
 import it.unimi.dsi.fastutil.Hash;
 
@@ -175,6 +177,8 @@ public interface ILockCollectionFactory {
     <K, V> NavigableMap<K, V> newTreeMap(IComparator<? super K> comparator);
 
     INestedExecutor newNestedExecutor(String name);
+
+    <T> ILazyReference<T> newLazyReference(Supplier<T> factory);
 
     /**
      * returns a lock factory with disabled synchronization for thread unsafe usage (can be externally synchronized
