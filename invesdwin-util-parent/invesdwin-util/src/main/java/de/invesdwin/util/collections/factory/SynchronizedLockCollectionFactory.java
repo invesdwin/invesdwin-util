@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentHashMap.KeySetView;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Supplier;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -31,6 +32,8 @@ import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.nested.ANestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
+import de.invesdwin.util.concurrent.reference.lazy.ILazyReference;
+import de.invesdwin.util.concurrent.reference.lazy.SynchronizedLazyReference;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.reflection.Reflections;
 
@@ -210,6 +213,11 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     @Override
     public <K, V> Map<K, V> newIdentityMap(final int initialSize) {
         return Collections.synchronizedMap(DisabledLockCollectionFactory.INSTANCE.newIdentityMap(initialSize));
+    }
+
+    @Override
+    public <T> ILazyReference<T> newLazyReference(final Supplier<T> factory) {
+        return new SynchronizedLazyReference<>(factory);
     }
 
     @Override
