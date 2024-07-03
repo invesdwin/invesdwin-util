@@ -12,8 +12,8 @@ public class EurexFuturesHolidayManager implements IHolidayManager {
     public static final EurexFuturesHolidayManager INSTANCE = new EurexFuturesHolidayManager();
 
     private final IHolidayManager weekend = WeekendHolidayManager.INSTANCE;
-    private final IHolidayManager eurex = HolidayManagers.EUREX;
-    private final IHolidayManager quarterlyExpirationDay = new HolidayAdjustedExpirationDayHolidayManager(eurex,
+    private final IHolidayManager holidays = HolidayManagers.EUREX;
+    private final IHolidayManager quarterlyExpirationDay = new HolidayAdjustedExpirationDayHolidayManager(holidays,
             QuarterlyExpirationDayHolidayManager.INSTANCE);
 
     @Override
@@ -21,7 +21,7 @@ public class EurexFuturesHolidayManager implements IHolidayManager {
         if (weekend.isHoliday(date)) {
             return true;
         }
-        if (eurex.isHoliday(date)) {
+        if (holidays.isHoliday(date)) {
             return true;
         }
         if (quarterlyExpirationDay.isHoliday(date)) {

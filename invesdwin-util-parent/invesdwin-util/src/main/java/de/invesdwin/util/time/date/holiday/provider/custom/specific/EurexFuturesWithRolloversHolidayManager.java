@@ -9,18 +9,22 @@ import de.invesdwin.util.time.date.holiday.IHolidayManager;
 @Immutable
 public class EurexFuturesWithRolloversHolidayManager implements IHolidayManager {
 
-    public static final EurexFuturesHolidayManager INSTANCE = new EurexFuturesHolidayManager();
+    public static final EurexFuturesWithRolloversHolidayManager INSTANCE = new EurexFuturesWithRolloversHolidayManager();
 
     private final IHolidayManager weekend = WeekendHolidayManager.INSTANCE;
-    private final IHolidayManager holidaysAndQuarterlyExpirationDays = new HolidayAdjustedExpirationDayHolidayManager(
-            HolidayManagers.EUREX, QuarterlyExpirationDayHolidayManager.INSTANCE);
+    private final IHolidayManager holidays = HolidayManagers.EUREX;
+    private final IHolidayManager quarterlyExpirationDay = new HolidayAdjustedExpirationDayHolidayManager(holidays,
+            QuarterlyExpirationDayHolidayManager.INSTANCE);
 
     @Override
     public boolean isHoliday(final FDate date) {
         if (weekend.isHoliday(date)) {
             return true;
         }
-        if (holidaysAndQuarterlyExpirationDays.isHoliday(date)) {
+        if (holidays.isHoliday(date)) {
+            return true;
+        }
+        if (quarterlyExpirationDay.isHoliday(date)) {
             return true;
         }
         return false;
