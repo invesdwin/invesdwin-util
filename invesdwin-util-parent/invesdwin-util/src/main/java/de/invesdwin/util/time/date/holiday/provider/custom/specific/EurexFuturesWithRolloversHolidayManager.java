@@ -1,10 +1,13 @@
 package de.invesdwin.util.time.date.holiday.provider.custom.specific;
 
+import javax.annotation.concurrent.Immutable;
+
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.holiday.HolidayManagers;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 
-public class EurexFuturesHolidayWithRolloversManager implements IHolidayManager {
+@Immutable
+public class EurexFuturesWithRolloversHolidayManager implements IHolidayManager {
 
     public static final EurexFuturesHolidayManager INSTANCE = new EurexFuturesHolidayManager();
 
