@@ -17,8 +17,8 @@ public class XetraFuturesWithRolloversHolidayManager implements IHolidayManager 
     public static final XetraFuturesWithRolloversHolidayManager INSTANCE = new XetraFuturesWithRolloversHolidayManager();
 
     private final IHolidayManager weekend = WeekendHolidayManager.INSTANCE;
-    private final IHolidayManager xetra = HolidayManagers.XETRA;
-    private final IHolidayManager quarterlyExpirationDay = new HolidayAdjustedExpirationDayHolidayManager(xetra,
+    private final IHolidayManager holidays = HolidayManagers.XETRA;
+    private final IHolidayManager quarterlyExpirationDay = new HolidayAdjustedExpirationDayHolidayManager(holidays,
             QuarterlyExpirationDayHolidayManager.INSTANCE);
 
     @Override
@@ -26,7 +26,7 @@ public class XetraFuturesWithRolloversHolidayManager implements IHolidayManager 
         if (weekend.isHoliday(date)) {
             return true;
         }
-        if (xetra.isHoliday(date)) {
+        if (holidays.isHoliday(date)) {
             return true;
         }
         if (quarterlyExpirationDay.isHoliday(date)) {

@@ -3,15 +3,16 @@ package de.invesdwin.util.time.date.holiday.provider.custom.specific;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.holiday.HolidayManagers;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 
 @Immutable
 public class EurexFuturesHolidayManager implements IHolidayManager {
 
     public static final EurexFuturesHolidayManager INSTANCE = new EurexFuturesHolidayManager();
-
+    
     private final IHolidayManager weekend = WeekendHolidayManager.INSTANCE;
-    private final IHolidayManager holidays = EurexFuturesHolidayManager.INSTANCE;
+    private final IHolidayManager holidays = HolidayManagers.EUREX;
 
     @Override
     public boolean isHoliday(final FDate date) {

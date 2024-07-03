@@ -17,14 +17,14 @@ public class XetraFuturesHolidayManager implements IHolidayManager {
     public static final XetraFuturesHolidayManager INSTANCE = new XetraFuturesHolidayManager();
 
     private final IHolidayManager weekend = WeekendHolidayManager.INSTANCE;
-    private final IHolidayManager xetra = HolidayManagers.XETRA;
+    private final IHolidayManager holidays = HolidayManagers.XETRA;
 
     @Override
     public boolean isHoliday(final FDate date) {
         if (weekend.isHoliday(date)) {
             return true;
         }
-        if (xetra.isHoliday(date)) {
+        if (holidays.isHoliday(date)) {
             return true;
         }
         return false;
