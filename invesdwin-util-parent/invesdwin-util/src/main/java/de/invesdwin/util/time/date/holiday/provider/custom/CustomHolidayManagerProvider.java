@@ -12,10 +12,7 @@ import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.IHolidayManagerProvider;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.DisabledHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.EurexFuturesHolidayManager;
-<<<<<<< staging
-=======
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.EurexFuturesWithRolloversHolidayManager;
->>>>>>> ea2659c PER-742 rename class and apply same distinction for xetra calendar
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.MonthlyExpirationDayHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.NewYearsEveHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.QuarterlyExpirationDayHolidayManager;
