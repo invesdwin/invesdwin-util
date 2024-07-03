@@ -12,12 +12,14 @@ import de.invesdwin.util.time.date.holiday.IHolidayManager;
  * also weekends and quarterly rollovers are treated as holidays
  */
 @Immutable
-public class XetraFuturesHolidayManager implements IHolidayManager {
+public class XetraFuturesWithRolloversHolidayManager implements IHolidayManager {
 
-    public static final XetraFuturesHolidayManager INSTANCE = new XetraFuturesHolidayManager();
+    public static final XetraFuturesWithRolloversHolidayManager INSTANCE = new XetraFuturesWithRolloversHolidayManager();
 
     private final IHolidayManager weekend = WeekendHolidayManager.INSTANCE;
     private final IHolidayManager xetra = HolidayManagers.XETRA;
+    private final IHolidayManager quarterlyExpirationDay = new HolidayAdjustedExpirationDayHolidayManager(xetra,
+            QuarterlyExpirationDayHolidayManager.INSTANCE);
 
     @Override
     public boolean isHoliday(final FDate date) {
@@ -27,12 +29,15 @@ public class XetraFuturesHolidayManager implements IHolidayManager {
         if (xetra.isHoliday(date)) {
             return true;
         }
+        if (quarterlyExpirationDay.isHoliday(date)) {
+            return true;
+        }
         return false;
     }
 
     @Override
     public String getHolidayCalendarId() {
-        return "XETRA_FUTURES";
+        return "XETRA_FUTURES_WITH_ROLLOVERS";
     }
 
     @Override
