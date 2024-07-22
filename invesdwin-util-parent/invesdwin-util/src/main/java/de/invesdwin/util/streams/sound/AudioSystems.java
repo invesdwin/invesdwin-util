@@ -63,9 +63,13 @@ public final class AudioSystems {
         return new AudioFormat(Encoding.PCM_SIGNED, rate, 16, ch, ch * 2, rate, false);
     }
 
-    public static void validateSound(final File file) throws Exception {
+    /**
+     * Throws an exception when file can not be played (might not be an audio file). Returns false if audio is not
+     * supported on the operating system. Returns true if everything went well.
+     */
+    public static boolean validateSound(final File file) throws Exception {
         if (!isAudioAvailable()) {
-            return;
+            return false;
         }
         try {
             try (AudioInputStream in = AudioSystem.getAudioInputStream(file)) {
@@ -88,6 +92,7 @@ public final class AudioSystems {
             }
             throw new Exception("Invalid Audio File [" + file.getName() + "]: " + cause.toString(), cause);
         }
+        return true;
     }
 
 }
