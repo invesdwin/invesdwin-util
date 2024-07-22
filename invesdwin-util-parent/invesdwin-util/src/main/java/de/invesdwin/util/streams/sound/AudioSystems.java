@@ -35,14 +35,14 @@ public final class AudioSystems {
         if (audioAvailable == null) {
             synchronized (TEST_FORMAT) {
                 if (audioAvailable == null) {
-                    audioAvailable = deteremineAudioAvailable();
+                    audioAvailable = determineAudioAvailable();
                 }
             }
         }
         return audioAvailable;
     }
 
-    private static boolean deteremineAudioAvailable() {
+    private static boolean determineAudioAvailable() {
         if (!AudioSystem.isFileTypeSupported(Type.WAVE)) {
             return false;
         }
