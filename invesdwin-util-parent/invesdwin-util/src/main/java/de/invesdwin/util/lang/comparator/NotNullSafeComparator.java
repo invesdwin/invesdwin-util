@@ -5,11 +5,11 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.assertions.Assertions;
 
 @Immutable
-class NotNullSafeComparator<E> implements IComparator<E> {
+public class NotNullSafeComparator<E> implements IComparator<E> {
 
     private final IComparator<E> nullSafe;
 
-    NotNullSafeComparator(final IComparator<E> nullSafe) {
+    protected NotNullSafeComparator(final IComparator<E> nullSafe) {
         Assertions.checkTrue(nullSafe.isNullSafe());
         this.nullSafe = nullSafe;
     }
