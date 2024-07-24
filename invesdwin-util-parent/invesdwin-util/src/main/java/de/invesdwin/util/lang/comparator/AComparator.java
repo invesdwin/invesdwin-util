@@ -1,11 +1,11 @@
 package de.invesdwin.util.lang.comparator;
 
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Is ascending internally
  */
-@Immutable
+@ThreadSafe
 public abstract class AComparator<E> implements IComparator<E> {
 
     private static final AComparator<Comparable<Object>> DEFAULT_INSTANCE = new AComparator<Comparable<Object>>() {
@@ -19,8 +19,7 @@ public abstract class AComparator<E> implements IComparator<E> {
     private IComparator<E> descending;
     private IComparator<E> notNullSafe;
 
-    public AComparator() {
-    }
+    public AComparator() {}
 
     @Override
     public boolean isAscending() {
@@ -79,7 +78,7 @@ public abstract class AComparator<E> implements IComparator<E> {
     }
 
     @Override
-    public final IComparator<E> asNotNullSafe() {
+    public IComparator<E> asNotNullSafe() {
         if (notNullSafe == null) {
             notNullSafe = newNotNullSafeComparator();
         }
@@ -91,7 +90,7 @@ public abstract class AComparator<E> implements IComparator<E> {
     }
 
     @Override
-    public final IComparator<E> asDescending() {
+    public IComparator<E> asDescending() {
         if (descending == null) {
             descending = newDescendingComparator();
         }

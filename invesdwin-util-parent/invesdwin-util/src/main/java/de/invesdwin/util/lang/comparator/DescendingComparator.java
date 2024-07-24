@@ -1,16 +1,16 @@
 package de.invesdwin.util.lang.comparator;
 
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 
-@Immutable
-final class DescendingComparator<E> implements IComparator<E> {
+@ThreadSafe
+public class DescendingComparator<E> implements IComparator<E> {
 
     private final IComparator<E> ascending;
     private IComparator<E> notNullSafe;
 
-    DescendingComparator(final IComparator<E> ascending) {
+    protected DescendingComparator(final IComparator<E> ascending) {
         Assertions.checkTrue(ascending.isNullSafe());
         Assertions.checkTrue(ascending.isAscending());
         this.ascending = ascending;
@@ -52,9 +52,13 @@ final class DescendingComparator<E> implements IComparator<E> {
     @Override
     public IComparator<E> asNotNullSafe() {
         if (notNullSafe == null) {
-            notNullSafe = new NotNullSafeComparator<>(this);
+            notNullSafe = newNotNullSafeComparator();
         }
         return notNullSafe;
+    }
+
+    protected IComparator<E> newNotNullSafeComparator() {
+        return new NotNullSafeComparator<>(this);
     }
 
     @Override
