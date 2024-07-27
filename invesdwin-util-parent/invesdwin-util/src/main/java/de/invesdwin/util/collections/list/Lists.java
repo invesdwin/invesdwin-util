@@ -17,6 +17,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.list.internal.AListsStaticFacade;
+import de.invesdwin.util.lang.comparator.IComparator;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.list.internal.AListsStaticFacade", targets = {
@@ -359,6 +360,21 @@ public final class Lists extends AListsStaticFacade {
             }
         }
         return false;
+    }
+
+    public static <T> int bisect(final List<T> list, final IComparator<T> comparator, final T x) {
+        int lo = 0;
+        int hi = list.size();
+        while (lo < hi) {
+            final int mid = (lo + hi) / 2;
+            //if (x < list.get(mid)) {
+            if (comparator.compareTyped(list.get(mid), x) > 0) {
+                hi = mid;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        return lo;
     }
 
 }

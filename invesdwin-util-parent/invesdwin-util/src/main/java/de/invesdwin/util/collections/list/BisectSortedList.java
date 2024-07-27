@@ -36,19 +36,8 @@ public class BisectSortedList<E> extends ADelegateList<E> {
         add(o);
     }
 
-    protected int bisect(final E x) {
-        int lo = 0;
-        int hi = size();
-        while (lo < hi) {
-            final int mid = (lo + hi) / 2;
-            //if (x < list.get(mid)) {
-            if (comparator.compareTyped(getDelegate().get(mid), x) > 0) {
-                hi = mid;
-            } else {
-                lo = mid + 1;
-            }
-        }
-        return lo;
+    public int bisect(final E x) {
+        return Lists.bisect(getDelegate(), comparator, x);
     }
 
     @Override
