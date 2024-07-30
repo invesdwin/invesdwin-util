@@ -8,6 +8,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.delegate.ADelegateList;
 import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.time.date.BisectDuplicateKeyHandling;
 
 /**
  * A performant way to keep a list of ordered elements when the elements arrive in a random order
@@ -36,14 +37,18 @@ public class BisectSortedList<E> extends ADelegateList<E> {
         add(o);
     }
 
-    public int bisect(final E x) {
-        return Lists.bisect(getDelegate(), comparator, x);
+    public int bisect(final E skipKeysAbove, final BisectDuplicateKeyHandling duplicateKeyHandling) {
+        return Lists.bisect(getDelegate(), comparator, skipKeysAbove, duplicateKeyHandling);
+    }
+
+    protected int bisectForAdd(final E x) {
+        return Lists.bisectForAdd(getDelegate(), comparator, x);
     }
 
     @Override
     public boolean add(final E o) {
         try {
-            bisectAdd(bisect(o), o);
+            bisectAdd(bisectForAdd(o), o);
             return true;
         } catch (final DuplicateElementException e) {
             //ignore duplicate
