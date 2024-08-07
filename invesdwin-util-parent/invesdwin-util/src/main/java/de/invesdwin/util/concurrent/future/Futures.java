@@ -331,8 +331,27 @@ public final class Futures extends AFuturesStaticFacade {
         }
     }
 
+    public static <T> void wait(final Future<T> future, final Duration timeout)
+            throws InterruptedException, TimeoutException {
+        Assertions.checkNull(get(future, timeout));
+    }
+
+    public static <T> void wait(final Future<T> future, final long timeout, final TimeUnit unit)
+            throws InterruptedException, TimeoutException {
+        Assertions.checkNull(get(future, timeout, unit));
+    }
+
     public static <T> void wait(final Future<? extends T> future) throws InterruptedException {
         Assertions.checkNull(get(future));
+    }
+
+    public static <T> void waitNoInterrupt(final Future<T> future, final Duration timeout) throws TimeoutException {
+        Assertions.checkNull(getNoInterrupt(future, timeout));
+    }
+
+    public static <T> void waitNoInterrupt(final Future<T> future, final long timeout, final TimeUnit unit)
+            throws TimeoutException {
+        Assertions.checkNull(getNoInterrupt(future, timeout, unit));
     }
 
     public static <T> void waitNoInterrupt(final Future<? extends T> future) {

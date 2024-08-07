@@ -1,5 +1,6 @@
 package de.invesdwin.util.math;
 
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -432,6 +433,14 @@ public final class Integers extends AIntegersStaticFacade {
         } catch (final NumberFormatException e) {
             return null;
         }
+    }
+
+    public static int roundToStep(final int value, final int step) {
+        return (int) Doubles.roundToStep(value, step);
+    }
+
+    public static int roundToStep(final int value, final int step, final RoundingMode roundingMode) {
+        return (int) Doubles.roundToStep(value, step, roundingMode);
     }
 
 }

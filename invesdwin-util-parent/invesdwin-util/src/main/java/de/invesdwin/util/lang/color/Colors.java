@@ -90,6 +90,14 @@ public final class Colors {
         return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
     }
 
+    public static Color setAlpha(final Color color, final float alpha) {
+        return new Color(color.getRed(), color.getGreen(), color.getBlue(), floatToRgb(alpha));
+    }
+
+    public static int floatToRgb(final float alpha) {
+        return (int) (alpha * 255 + 0.5);
+    }
+
     public static Color getContrastColor(final Color color) {
         return getContrastColor(color, Color.black, Color.white);
     }

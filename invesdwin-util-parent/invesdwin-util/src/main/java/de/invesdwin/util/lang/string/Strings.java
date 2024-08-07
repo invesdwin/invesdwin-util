@@ -715,6 +715,10 @@ public final class Strings extends AStringsStaticFacade {
     }
 
     public static List<String> splitByMaxLength(final String str, final int maxLength) {
+        return splitByMaxLength(str, maxLength, false);
+    }
+
+    public static List<String> splitByMaxLength(final String str, final int maxLength, final boolean once) {
         if (maxLength <= 0 || str.length() <= maxLength) {
             return Collections.singletonList(str);
         }
@@ -725,6 +729,9 @@ public final class Strings extends AStringsStaticFacade {
         for (int i = 0; i < str.length(); i++) {
             final char c = str.charAt(i);
             sb.append(c);
+            if (once && !chunks.isEmpty()) {
+                continue;
+            }
             if (sb.length() >= hardMaxLength || (sb.length() >= whitespaceMaxLength && Character.isWhitespace(c))
                     || (sb.length() >= maxLength && c == '\n')) {
                 chunks.add(sb.toString());

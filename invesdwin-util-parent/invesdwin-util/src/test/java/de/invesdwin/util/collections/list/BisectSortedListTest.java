@@ -7,18 +7,20 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.junit.jupiter.api.Test;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.lang.comparator.Comparators;
 import de.invesdwin.util.math.decimal.Decimal;
-import de.invesdwin.util.math.random.RandomAdapter;
 import de.invesdwin.util.math.random.PseudoRandomGenerators;
+import de.invesdwin.util.math.random.RandomAdapter;
+import de.invesdwin.util.time.date.BisectDuplicateKeyHandling;
 
 @NotThreadSafe
 public class BisectSortedListTest {
 
     @Test
     public void testAdd() {
-        final List<Decimal> sorted = new BisectSortedList<Decimal>(Decimal.COMPARATOR.asNotNullSafe());
+        final BisectSortedList<Decimal> sorted = new BisectSortedList<Decimal>(Decimal.COMPARATOR.asNotNullSafe());
         sorted.add(Decimal.TWO);
         sorted.add(Decimal.THREE);
         sorted.add(Decimal.ONE);
@@ -26,6 +28,21 @@ public class BisectSortedListTest {
         sorted.add(Decimal.FIVE);
         sorted.add(Decimal.MINUS_THREE);
         Comparators.assertOrderAll(Decimal.COMPARATOR.asAscending().asNotNullSafe(), sorted);
+
+        Assertions.checkEquals(0, sorted.bisectForAdd(new Decimal(-5D)));
+        Assertions.checkEquals(1, sorted.bisectForAdd(Decimal.MINUS_THREE));
+
+        Assertions.checkEquals(sorted.size() - 1, sorted.bisectForAdd(Decimal.FIVE));
+        Assertions.checkEquals(sorted.size(), sorted.bisectForAdd(Decimal.TEN));
+        Assertions.checkEquals(sorted.size(), sorted.bisectForAdd(new Decimal(20D)));
+
+        Assertions.checkEquals(0, sorted.bisect(new Decimal(-5D), BisectDuplicateKeyHandling.UNDEFINED));
+        Assertions.checkEquals(0, sorted.bisect(Decimal.MINUS_THREE, BisectDuplicateKeyHandling.UNDEFINED));
+
+        Assertions.checkEquals(sorted.size() - 2, sorted.bisect(Decimal.FIVE, BisectDuplicateKeyHandling.UNDEFINED));
+        Assertions.checkEquals(sorted.size() - 1, sorted.bisect(Decimal.TEN, BisectDuplicateKeyHandling.UNDEFINED));
+        Assertions.checkEquals(sorted.size() - 1,
+                sorted.bisect(new Decimal(20D), BisectDuplicateKeyHandling.UNDEFINED));
     }
 
     @Test
@@ -62,7 +79,7 @@ public class BisectSortedListTest {
         for (int i = 0; i < 10000; i++) {
             final List<Decimal> input = new ArrayList<Decimal>(original);
             Collections.shuffle(input, random);
-            final List<Decimal> sorted = new BisectSortedList<Decimal>(Decimal.COMPARATOR.asNotNullSafe());
+            final BisectSortedList<Decimal> sorted = new BisectSortedList<Decimal>(Decimal.COMPARATOR.asNotNullSafe());
             //            System.out.println("----------------"); //SUPPRESS CHECKSTYLE single line
             for (final Decimal in : input) {
                 final boolean add0 = random.nextBoolean();
@@ -74,6 +91,7 @@ public class BisectSortedListTest {
                     //                    System.out.println("sorted.add(new Decimal(\"" + in + "\"));"); //SUPPRESS CHECKSTYLE single line
                 }
                 Comparators.assertOrderAll(Decimal.COMPARATOR.asAscending().asNotNullSafe(), sorted);
+                Assertions.checkEquals(sorted.indexOf(in), sorted.bisect(in, BisectDuplicateKeyHandling.LOWEST));
             }
         }
     }

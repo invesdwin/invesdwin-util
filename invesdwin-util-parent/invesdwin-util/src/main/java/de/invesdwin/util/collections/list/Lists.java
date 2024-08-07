@@ -17,6 +17,10 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.list.internal.AListsStaticFacade;
+import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.time.date.BisectDuplicateKeyHandling;
+import de.invesdwin.util.time.date.FDates;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.list.internal.AListsStaticFacade", targets = {
@@ -359,6 +363,85 @@ public final class Lists extends AListsStaticFacade {
             }
         }
         return false;
+    }
+
+    /**
+     * Tells at which index to insert an item using list.add(index, item) to keep the list sorted
+     */
+    public static <T> int bisectForAdd(final List<T> values, final IComparator<T> comparator,
+            final T skippingKeysAbove) {
+        if (values.isEmpty()) {
+            return 0;
+        }
+        int lo = 0;
+        if (comparator.compareTyped(values.get(lo), skippingKeysAbove) > 0) {
+            return lo;
+        }
+        int hi = values.size();
+        if (comparator.compareTyped(values.get(hi - 1), skippingKeysAbove) <= 0) {
+            return hi;
+        }
+        while (lo < hi) {
+            final int mid = (lo + hi) / 2;
+            //if (x < list.get(mid)) {
+            if (comparator.compareTyped(values.get(mid), skippingKeysAbove) > 0) {
+                hi = mid;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        return lo;
+    }
+
+    public static <T> int bisect(final List<T> values, final IComparator<T> comparator, final T skippingKeysAbove,
+            final BisectDuplicateKeyHandling duplicateKeyHandling) {
+        if (values.isEmpty()) {
+            return FDates.MISSING_INDEX;
+        }
+        int lo = 0;
+        final T firstKey = values.get(lo);
+        if (comparator.compareTyped(firstKey, skippingKeysAbove) >= 0) {
+            return duplicateKeyHandling.apply(values, comparator, lo, firstKey);
+        }
+        int hi = values.size();
+        final int lastIndex = hi - 1;
+        final T lastKey = values.get(lastIndex);
+        if (comparator.compareTyped(lastKey, skippingKeysAbove) <= 0) {
+            return duplicateKeyHandling.apply(values, comparator, lastIndex, lastKey);
+        }
+        while (lo < hi) {
+            // same as (low+high)/2
+            final int mid = (lo + hi) >>> 1;
+            //if (x < list.get(mid)) {
+            final T midKey = values.get(mid);
+            final int compareTo = comparator.compareTyped(midKey, skippingKeysAbove);
+            switch (compareTo) {
+            case FDates.MISSING_INDEX:
+                lo = mid + 1;
+                break;
+            case 0:
+                return duplicateKeyHandling.apply(values, comparator, mid, midKey);
+            case 1:
+                hi = mid;
+                break;
+            default:
+                throw UnknownArgumentException.newInstance(Integer.class, compareTo);
+            }
+        }
+        if (lo <= 0) {
+            return 0;
+        }
+        if (lo >= values.size()) {
+            lo = lo - 1;
+        }
+        final T loKey = values.get(lo);
+        if (comparator.compareTypedNotNullSafe(loKey, skippingKeysAbove) > 0) {
+            //no duplicate key handling needed because this is the last value before the actual requested key
+            final int index = lo - 1;
+            return index;
+        } else {
+            return duplicateKeyHandling.apply(values, comparator, lo, loKey);
+        }
     }
 
 }

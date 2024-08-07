@@ -288,4 +288,16 @@ public final class Longs extends ALongsStaticFacade {
         }
     }
 
+    public static long combine(final int first, final int second) {
+        return (((long) first) << 32) | (second & 0xffffffffL);
+    }
+
+    public static int combinedExtractFirst(final long combined) {
+        return (int) (combined >> 32);
+    }
+
+    public static int combinedExtractSecond(final long combined) {
+        return (int) combined;
+    }
+
 }

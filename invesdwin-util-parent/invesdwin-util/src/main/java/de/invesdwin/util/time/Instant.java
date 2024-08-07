@@ -15,7 +15,8 @@ import de.invesdwin.util.time.duration.Duration;
 public class Instant extends Number implements Comparable<Object> {
 
     public static final FTimeUnit DEFAULT_TIME_UNIT = FTimeUnit.NANOSECONDS;
-    public static final Instant DUMMY = new Instant(-100, FTimeUnit.YEARS);
+    public static final long DUMMY_NANOS = DEFAULT_TIME_UNIT.convert(-100, FTimeUnit.YEARS);
+    public static final Instant DUMMY = new Instant(DUMMY_NANOS);
 
     private static final long serialVersionUID = 1L;
 

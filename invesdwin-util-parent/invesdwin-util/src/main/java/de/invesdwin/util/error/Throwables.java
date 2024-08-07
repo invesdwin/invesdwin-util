@@ -213,4 +213,8 @@ public final class Throwables extends AThrowablesStaticFacade {
         throw (RuntimeException) t;
     }
 
+    public static IndexOutOfBoundsException newIndexOutOfBoundsException(final int index) {
+        return new IndexOutOfBoundsException("Index out of range: " + index);
+    }
+
 }
