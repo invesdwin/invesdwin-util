@@ -140,6 +140,9 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
     }
 
     public static Percent newRateZero(final ADecimal<?> dividend, final ADecimal<?> divisor) {
+        if (dividend == null || divisor == null) {
+            return Percent.ZERO;
+        }
         return new Percent(newRateZero(dividend.getDefaultValue(), divisor.getDefaultValue()), PercentScale.RATE);
     }
 
