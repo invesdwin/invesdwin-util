@@ -805,6 +805,14 @@ public final class Doubles extends ADoublesStaticFacade {
         return !isZero(value);
     }
 
+    public static boolean isZeroRounded(final double value) {
+        return compare(value, 0D) == 0;
+    }
+
+    public static boolean isNotZeroRounded(final double value) {
+        return !isZeroRounded(value);
+    }
+
     /**
      * Alias for isPositiveOrZero.
      */
