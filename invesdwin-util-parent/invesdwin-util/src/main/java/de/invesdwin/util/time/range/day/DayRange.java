@@ -15,6 +15,7 @@ import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FDayTime;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.range.TimeRange;
 
 @Immutable
 public class DayRange extends AValueObject implements IDayRangeData {
@@ -192,6 +193,19 @@ public class DayRange extends AValueObject implements IDayRangeData {
             return (DayRange) value;
         } else {
             return new DayRange(FDayTime.valueOf(value.getFrom()), FDayTime.valueOf(value.getTo()));
+        }
+    }
+
+    public static DayRange valueOf(final TimeRange value) {
+        if (value == null) {
+            return null;
+        } else if (value.isSame()) {
+            final FDayTime fromAndTo = FDayTime.valueOf(value.getFrom());
+            return new DayRange(fromAndTo, fromAndTo);
+        } else {
+            final FDayTime from = FDayTime.valueOf(value.getFrom());
+            final FDayTime to = FDayTime.valueOf(value.getTo());
+            return new DayRange(from, to);
         }
     }
 

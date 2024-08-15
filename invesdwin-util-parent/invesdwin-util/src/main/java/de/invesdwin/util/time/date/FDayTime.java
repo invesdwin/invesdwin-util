@@ -274,6 +274,14 @@ public class FDayTime extends Number implements Comparable<Object>, IDayTimeData
         return new FDayTime(FDates.getDefaultTimeZone().getMinDate().add(value));
     }
 
+    public static FDayTime valueOf(final FDate value) {
+        if (value == null) {
+            return null;
+        } else {
+            return new FDayTime(value);
+        }
+    }
+
     public Duration durationValue() {
         return new Duration(hour, FTimeUnit.HOURS).add(minute, FTimeUnit.MINUTES)
                 .add(second, FTimeUnit.SECONDS)
