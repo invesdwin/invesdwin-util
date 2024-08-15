@@ -24,8 +24,6 @@ public final class TimeZoneRange extends AValueObject {
         }
     };
 
-    public static final TimeZoneRange UNLIMITED = new TimeZoneRange(null, null);
-
     private final FTimeZone from;
     private final FTimeZone to;
 
