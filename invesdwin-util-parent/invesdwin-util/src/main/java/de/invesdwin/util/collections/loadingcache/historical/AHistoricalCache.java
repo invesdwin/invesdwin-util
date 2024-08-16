@@ -433,7 +433,9 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     @Override
     public void clear() {
         if (valuesMap != null) {
-            valuesMap.clear();
+            if (!valuesMap.isEmpty()) {
+                valuesMap.clear();
+            }
         }
         //when clearing other caches they might become inconsistent...
         if (adjustKeyProvider.getParent() == this) {
