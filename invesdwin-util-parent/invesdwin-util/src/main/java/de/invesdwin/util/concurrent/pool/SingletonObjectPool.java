@@ -6,9 +6,15 @@ import javax.annotation.concurrent.Immutable;
 public class SingletonObjectPool<E> implements IObjectPool<E> {
 
     protected final E singleton;
+    private int size;
 
     public SingletonObjectPool(final E singleton) {
         this.singleton = singleton;
+        if (singleton == null) {
+            size = 0;
+        } else {
+            size = 1;
+        }
     }
 
     @Override
@@ -24,5 +30,10 @@ public class SingletonObjectPool<E> implements IObjectPool<E> {
 
     @Override
     public void invalidateObject(final E element) {}
+
+    @Override
+    public int size() {
+        return size;
+    }
 
 }

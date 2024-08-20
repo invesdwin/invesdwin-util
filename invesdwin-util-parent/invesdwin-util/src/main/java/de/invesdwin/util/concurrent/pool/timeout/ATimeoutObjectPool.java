@@ -13,12 +13,12 @@ import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
 import de.invesdwin.util.collections.iterable.buffer.NodeBufferingIterator;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedScheduledExecutorService;
-import de.invesdwin.util.concurrent.pool.ICloseableSizedObjectPool;
+import de.invesdwin.util.concurrent.pool.ICloseableObjectPool;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
-public abstract class ATimeoutObjectPool<E> implements ICloseableSizedObjectPool<E> {
+public abstract class ATimeoutObjectPool<E> implements ICloseableObjectPool<E> {
 
     public static final AtomicLong ACTIVE_POOLS = new AtomicLong();
     private static WrappedScheduledExecutorService scheduledExecutor;

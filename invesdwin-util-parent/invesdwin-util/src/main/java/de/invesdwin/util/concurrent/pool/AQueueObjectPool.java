@@ -54,4 +54,9 @@ public abstract class AQueueObjectPool<E> implements IObjectPool<E> {
         queue.clear();
     }
 
+    @Override
+    public int size() {
+        return queue.size();
+    }
+
 }

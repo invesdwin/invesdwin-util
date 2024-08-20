@@ -2,7 +2,6 @@ package de.invesdwin.util.concurrent.pool;
 
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.IntSupplier;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -11,10 +10,9 @@ import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
-public class LimitedObjectPool<E> implements ISizedObjectPool<E> {
+public class LimitedObjectPool<E> implements IObjectPool<E> {
 
     private final IObjectPool<E> delegate;
-    private final IntSupplier delegateSize;
     private final int maximumSize;
     private final AtomicInteger leasedInstances = new AtomicInteger();
     private final ASpinWait leasedWait = new ASpinWait() {
@@ -27,12 +25,6 @@ public class LimitedObjectPool<E> implements ISizedObjectPool<E> {
 
     public LimitedObjectPool(final IObjectPool<E> delegate, final int maximumSize, final Duration timeout) {
         this.delegate = delegate;
-        if (delegate instanceof ISizedObjectPool) {
-            final ISizedObjectPool<E> cDelegate = (ISizedObjectPool<E>) delegate;
-            delegateSize = cDelegate::size;
-        } else {
-            delegateSize = () -> 0;
-        }
         this.maximumSize = maximumSize;
         this.timeout = timeout;
     }
@@ -90,7 +82,7 @@ public class LimitedObjectPool<E> implements ISizedObjectPool<E> {
     @Override
     public int size() {
         final int lSize = leasedInstances.get();
-        final int dSize = delegateSize.getAsInt();
+        final int dSize = delegate.size();
         return lSize + dSize;
     }
 
