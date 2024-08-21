@@ -130,6 +130,10 @@ public abstract class ATimeoutObjectPool<E> implements ICloseableObjectPool<E> {
         }
     }
 
+    public synchronized int size() {
+        return bufferingIterator.size();
+    }
+
     @Override
     public void close() {
         Assertions.checkNotNull(scheduledFuture);

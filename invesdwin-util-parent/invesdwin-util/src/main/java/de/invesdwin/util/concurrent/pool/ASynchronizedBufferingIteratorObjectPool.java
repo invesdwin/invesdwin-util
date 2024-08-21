@@ -31,4 +31,9 @@ public abstract class ASynchronizedBufferingIteratorObjectPool<E> extends ABuffe
         super.clear();
     }
 
+    @Override
+    public synchronized int size() {
+        return super.size();
+    }
+
 }

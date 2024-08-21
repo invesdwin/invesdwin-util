@@ -98,7 +98,7 @@ public final class Components {
     }
 
     public static boolean isMouseOverComponent(final Component component) {
-        if (!isShowingAndWindowIsActive(component)) {
+        if (!component.isShowing()) {
             return false;
         } else {
             final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
@@ -203,11 +203,15 @@ public final class Components {
 
     public static boolean isShowingAndWindowIsActive(final Component component) {
         if (component.isShowing()) {
-            final Window window = SwingUtilities.getWindowAncestor(component);
-            return window.isActive();
+            return isWindowActive(component);
         } else {
             return false;
         }
+    }
+
+    public static boolean isWindowActive(final Component component) {
+        final Window window = SwingUtilities.getWindowAncestor(component);
+        return window.isActive();
     }
 
     public static Point getMouseLocationOnComponent(final Component component) {

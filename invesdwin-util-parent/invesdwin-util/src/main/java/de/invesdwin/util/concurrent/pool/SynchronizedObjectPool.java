@@ -45,6 +45,13 @@ public class SynchronizedObjectPool<E> implements IObjectPool<E> {
         }
     }
 
+    @Override
+    public int size() {
+        synchronized (lock) {
+            return delegate.size();
+        }
+    }
+
     public static <T> SynchronizedObjectPool<T> valueOf(final IObjectPool<T> delegate) {
         return new SynchronizedObjectPool<>(delegate);
     }
