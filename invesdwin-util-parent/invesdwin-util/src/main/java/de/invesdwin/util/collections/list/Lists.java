@@ -1,5 +1,8 @@
 package de.invesdwin.util.collections.list;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Method;
 import java.util.AbstractSequentialList;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,6 +22,7 @@ import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.list.internal.AListsStaticFacade;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.time.date.BisectDuplicateKeyHandling;
 import de.invesdwin.util.time.date.FDates;
 
@@ -27,7 +31,34 @@ import de.invesdwin.util.time.date.FDates;
         com.google.common.collect.Lists.class, org.apache.commons.collections4.ListUtils.class })
 public final class Lists extends AListsStaticFacade {
 
+    public static final MethodHandle ARRAYLIST_REMOVERANGE_MH;
+
+    static {
+        final Method removeRange = Reflections.findMethod(ArrayList.class, "removeRange", int.class, int.class);
+        Reflections.makeAccessible(removeRange);
+        try {
+            ARRAYLIST_REMOVERANGE_MH = MethodHandles.lookup().unreflect(removeRange);
+        } catch (final IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Lists() {}
+
+    public static void removeRange(final List<?> list, final int fromIndexInclusive, final int toIndexExclusive) {
+        if (list instanceof ArrayList) {
+            try {
+                ARRAYLIST_REMOVERANGE_MH.invoke(list, fromIndexInclusive, toIndexExclusive);
+            } catch (final Throwable e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            final int index = fromIndexInclusive;
+            for (int i = fromIndexInclusive; i < toIndexExclusive; i++) {
+                list.remove(index);
+            }
+        }
+    }
 
     public static <T> List<T> join(final Collection<? extends Collection<T>> lists) {
         final List<T> result = new ArrayList<T>();
