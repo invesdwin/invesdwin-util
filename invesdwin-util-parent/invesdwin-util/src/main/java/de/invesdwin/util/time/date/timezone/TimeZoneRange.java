@@ -97,11 +97,11 @@ public final class TimeZoneRange extends AValueObject {
             return null;
         } else if (split.length == 1) {
             final FTimeZone startAndEnd = TimeZones.getFTimeZone(split[0]);
-            return new TimeZoneRange(startAndEnd);
+            return valueOf(startAndEnd);
         } else if (split.length == 2) {
             final FTimeZone start = TimeZones.getFTimeZone(split[0]);
             final FTimeZone end = TimeZones.getFTimeZone(split[1]);
-            return new TimeZoneRange(start, end);
+            return valueOf(start, end);
         } else {
             throw new IllegalArgumentException("Expecting 1 or 2 timeZones separated by [" + SEPARATOR + "]");
         }

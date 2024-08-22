@@ -14,6 +14,7 @@ import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FWeekTime;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
+import de.invesdwin.util.time.date.timezone.TimeZoneRange;
 import de.invesdwin.util.time.duration.Duration;
 
 @Immutable
@@ -38,9 +39,6 @@ public class WeekRange extends AValueObject {
         if (to == null) {
             throw new NullPointerException("to should not be null");
         }
-        if (!from.isBefore(to)) {
-            throw new IllegalArgumentException("from [" + from + "] should be before to [" + to + "]");
-        }
         this.from = from;
         this.to = to;
     }
@@ -54,11 +52,55 @@ public class WeekRange extends AValueObject {
     }
 
     public Duration getDuration() {
+        return getDuration(FDates.MIN_DATE);
+    }
+
+    public Duration getDuration(final FDate day) {
         if (from == null || to == null) {
             return null;
         } else {
-            return new Duration(FDates.MIN_DATE.setFWeekTime(from), FDates.MIN_DATE.addWeeks(1).setFWeekTime(to));
+            final FDate weekFrom = day.setFWeekTime(from);
+            final FDate weekTo = day.setFWeekTime(to);
+            return getDuration(weekFrom, weekTo);
         }
+    }
+
+    public Duration getDuration(final FDate day, final FTimeZone offsetTimeZone) {
+        if (from == null || to == null) {
+            return null;
+        } else {
+            final FDate dayZoned = day.applyTimeZoneOffset(offsetTimeZone);
+            final FDate weekFrom = dayZoned.setFWeekTime(from);
+            final FDate weekTo = dayZoned.setFWeekTime(to);
+            return getDuration(weekFrom, weekTo);
+        }
+    }
+
+    public Duration getDuration(final FDate day, final TimeZoneRange offsetTimeZone) {
+        if (offsetTimeZone == null) {
+            return getDuration(day);
+        }
+        if (offsetTimeZone.isSame()) {
+            return getDuration(day, offsetTimeZone.getFrom());
+        }
+        if (from == null || to == null) {
+            return null;
+        } else {
+            final TimeRange dayZoned = day.applyTimeZoneOffset(offsetTimeZone);
+            final FDate weekFrom = dayZoned.getFrom().setFWeekTime(from);
+            final FDate weekTo = dayZoned.getTo().setFWeekTime(to);
+            return getDuration(weekFrom, weekTo);
+        }
+    }
+
+    private Duration getDuration(final FDate weekFrom, final FDate weekTo) {
+        final FDate endWeekTime;
+        if (weekFrom.isBeforeNotNullSafe(weekTo)) {
+            endWeekTime = weekTo;
+        } else {
+            endWeekTime = weekTo.addWeeks(1);
+        }
+        return new Duration(weekFrom, endWeekTime);
     }
 
     @Override
@@ -103,6 +145,9 @@ public class WeekRange extends AValueObject {
     }
 
     public boolean containsInclusive(final FDate time) {
+        if (time == null) {
+            return false;
+        }
         final FDate weekendFrom = time.setFWeekTime(from);
         FDate weekendTo = time.setFWeekTime(to);
         if (weekendTo.isBeforeOrEqualTo(weekendFrom)) {
@@ -112,10 +157,16 @@ public class WeekRange extends AValueObject {
     }
 
     public boolean containsExclusive(final FDate time, final FTimeZone timeZone) {
+        if (time == null) {
+            return false;
+        }
         return containsExclusive(time.applyTimeZoneOffset(timeZone));
     }
 
     public boolean containsExclusive(final FDate time) {
+        if (time == null) {
+            return false;
+        }
         final FDate weekendFrom = time.setFWeekTime(from);
         FDate weekendTo = time.setFWeekTime(to);
         if (weekendTo.isBeforeOrEqualTo(weekendFrom)) {
