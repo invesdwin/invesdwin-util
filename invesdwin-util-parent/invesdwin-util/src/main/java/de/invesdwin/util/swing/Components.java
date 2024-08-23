@@ -97,21 +97,6 @@ public final class Components {
         }
     }
 
-    public static boolean isMouseOverComponent(final Component component) {
-        if (!component.isShowing()) {
-            return false;
-        } else {
-            final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
-            if (pointerInfo == null) {
-                return false;
-            }
-            final Point locationOnScreen = pointerInfo.getLocation();
-            final Point locationOnComponent = new Point(locationOnScreen);
-            SwingUtilities.convertPointFromScreen(locationOnComponent, component);
-            return component.contains(locationOnComponent);
-        }
-    }
-
     public static void setToolTipText(final JComponent component, final String text, final boolean update) {
         setToolTipText(component, text, update, defaultToolTipFormatter);
     }
@@ -214,10 +199,26 @@ public final class Components {
         return window.isActive();
     }
 
+    public static boolean isMouseOverComponent(final Component component) {
+        final Point locationOnComponent = getMouseLocationOnComponent(component);
+        return locationOnComponent != null;
+    }
+
     public static Point getMouseLocationOnComponent(final Component component) {
+        if (!component.isShowing()) {
+            return null;
+        }
+        return internalGetMouseLocationOnComponent(component);
+    }
+
+    public static Point getActiveMouseLocationOnComponent(final Component component) {
         if (isShowingAndWindowIsActive(component)) {
             return null;
         }
+        return internalGetMouseLocationOnComponent(component);
+    }
+
+    private static Point internalGetMouseLocationOnComponent(final Component component) {
         final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
         if (pointerInfo == null) {
             return null;
@@ -240,7 +241,7 @@ public final class Components {
         final int oldDelay = ttm.getInitialDelay();
         ttm.setInitialDelay(0);
 
-        final Point mousePoint = getMouseLocationOnComponent(component);
+        final Point mousePoint = getActiveMouseLocationOnComponent(component);
         final int id = -1;
         final long when = System.currentTimeMillis();
         final int modifiers = 0;
