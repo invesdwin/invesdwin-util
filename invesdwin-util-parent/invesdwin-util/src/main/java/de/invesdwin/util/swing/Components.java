@@ -204,20 +204,20 @@ public final class Components {
         return locationOnComponent != null;
     }
 
-    public static boolean isActiveMouseOverComponent(final Component component) {
-        final Point locationOnComponent = getActiveMouseLocationOnComponent(component);
+    public static boolean isMouseOverComponentWithActiveWindow(final Component component) {
+        final Point locationOnComponent = getMouseLocationOnComponentWithActiveWindow(component);
         return locationOnComponent != null;
     }
 
-    public static Point getMouseLocationOnComponent(final Component component) {
-        if (!component.isShowing()) {
+    public static Point getMouseLocationOnComponentWithActiveWindow(final Component component) {
+        if (isShowingAndWindowIsActive(component)) {
             return null;
         }
         return internalGetMouseLocationOnComponent(component);
     }
 
-    public static Point getActiveMouseLocationOnComponent(final Component component) {
-        if (isShowingAndWindowIsActive(component)) {
+    public static Point getMouseLocationOnComponent(final Component component) {
+        if (!component.isShowing()) {
             return null;
         }
         return internalGetMouseLocationOnComponent(component);
@@ -246,7 +246,7 @@ public final class Components {
         final int oldDelay = ttm.getInitialDelay();
         ttm.setInitialDelay(0);
 
-        final Point mousePoint = getActiveMouseLocationOnComponent(component);
+        final Point mousePoint = getMouseLocationOnComponentWithActiveWindow(component);
         final int id = -1;
         final long when = System.currentTimeMillis();
         final int modifiers = 0;
