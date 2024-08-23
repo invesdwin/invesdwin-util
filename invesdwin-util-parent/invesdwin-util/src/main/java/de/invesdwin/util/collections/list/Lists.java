@@ -16,6 +16,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
@@ -45,19 +46,39 @@ public final class Lists extends AListsStaticFacade {
 
     private Lists() {}
 
-    public static void removeRange(final List<?> list, final int fromIndexInclusive, final int toIndexExclusive) {
-        if (list instanceof ArrayList) {
+    public static int maybeTrimSizeStart(final List<?> list, final int maxSize) {
+        if (list.size() > maxSize) {
+            final int tooMany = list.size() - maxSize;
+            return removeRange(list, 0, tooMany);
+        } else {
+            return 0;
+        }
+    }
+
+    public static int removeRange(final List<?> list, final int fromIndexInclusive, final int toIndexExclusive) {
+        if (fromIndexInclusive == toIndexExclusive) {
+            return 0;
+        }
+        if (list instanceof IFastIterableList) {
+            final IFastIterableList<?> cList = (IFastIterableList<?>) list;
+            return cList.removeRange(fromIndexInclusive, toIndexExclusive);
+        } else if (list instanceof ArrayList) {
             try {
                 ARRAYLIST_REMOVERANGE_MH.invoke(list, fromIndexInclusive, toIndexExclusive);
             } catch (final Throwable e) {
                 throw new RuntimeException(e);
             }
         } else {
+            if (fromIndexInclusive > toIndexExclusive) {
+                throw new IndexOutOfBoundsException(
+                        "From Index: " + fromIndexInclusive + " > To Index: " + toIndexExclusive);
+            }
             final int index = fromIndexInclusive;
             for (int i = fromIndexInclusive; i < toIndexExclusive; i++) {
                 list.remove(index);
             }
         }
+        return toIndexExclusive - fromIndexInclusive;
     }
 
     public static <T> List<T> join(final Collection<? extends Collection<T>> lists) {

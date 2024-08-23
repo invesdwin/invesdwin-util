@@ -16,6 +16,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.SingleValueIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.ImmutableHistoricalEntry;
@@ -420,10 +421,8 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
         if (maximumSize != null) {
             maximumSize = maybeIncreaseMaximumSize(trailing.size());
             //ensure we stay in size limit
-            while (cachedPreviousEntries.size() > maximumSize) {
-                cachedPreviousEntries.remove(0);
-                cachedPreviousEntries_modIncrementIndex.decrement();
-            }
+            final int removed = Lists.maybeTrimSizeStart(cachedPreviousEntries, maximumSize);
+            cachedPreviousEntries_modIncrementIndex.subtract(removed);
         }
     }
 

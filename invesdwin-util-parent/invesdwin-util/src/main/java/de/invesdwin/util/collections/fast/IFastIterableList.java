@@ -4,4 +4,6 @@ import java.util.List;
 
 public interface IFastIterableList<E> extends List<E>, IFastIterableCollection<E> {
 
+    int removeRange(int fromIndexInclusive, int toIndexExclusive);
+
 }
