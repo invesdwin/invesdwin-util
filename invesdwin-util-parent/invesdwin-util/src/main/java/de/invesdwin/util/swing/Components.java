@@ -204,6 +204,11 @@ public final class Components {
         return locationOnComponent != null;
     }
 
+    public static boolean isActiveMouseOverComponent(final Component component) {
+        final Point locationOnComponent = getActiveMouseLocationOnComponent(component);
+        return locationOnComponent != null;
+    }
+
     public static Point getMouseLocationOnComponent(final Component component) {
         if (!component.isShowing()) {
             return null;
