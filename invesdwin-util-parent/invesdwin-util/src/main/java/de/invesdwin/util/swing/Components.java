@@ -170,7 +170,7 @@ public final class Components {
 
     public static void triggerMouseMovedWithWindowActive(final JComponent component,
             final MouseMotionListener listener) {
-        if (isShowingAndWindowIsActive(component)) {
+        if (isShowingAndWindowActive(component)) {
             internalTriggerMouseMoved(component, listener);
         }
     }
@@ -198,7 +198,7 @@ public final class Components {
         }
     }
 
-    public static boolean isShowingAndWindowIsActive(final Component component) {
+    public static boolean isShowingAndWindowActive(final Component component) {
         if (component.isShowing()) {
             return isWindowActive(component);
         } else {
@@ -222,7 +222,7 @@ public final class Components {
     }
 
     public static Point getMouseLocationOnComponentWithActiveWindow(final Component component) {
-        if (isShowingAndWindowIsActive(component)) {
+        if (isShowingAndWindowActive(component)) {
             return null;
         }
         return internalGetMouseLocationOnComponent(component);
