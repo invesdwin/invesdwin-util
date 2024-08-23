@@ -6,6 +6,7 @@ import java.util.TimeZone;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -222,28 +223,6 @@ public class FDateTest {
 
     @Test
     public void testWeeknumberOfMonth() {
-        //        April 1998 Nr.   Mo  Di  Mi  Do  Fr  Sa  So
-        //                   14             1   2   3   4   5
-        //                   15     6   7   8   9   10  11  12
-        //                   16     13  14  15  16  17  18  19
-        //                   17     20  21  22  23  24  25  26
-        //                   18     27  28  29  30
-        for (int i = 1; i <= 5; i++) {
-            testWeekNumberOfMonth(i, 1);
-        }
-        for (int i = 6; i <= 12; i++) {
-            testWeekNumberOfMonth(i, 2);
-        }
-        for (int i = 13; i <= 19; i++) {
-            testWeekNumberOfMonth(i, 3);
-        }
-        for (int i = 20; i <= 16; i++) {
-            testWeekNumberOfMonth(i, 4);
-        }
-        for (int i = 27; i <= 30; i++) {
-            testWeekNumberOfMonth(i, 5);
-        }
-
         Assertions.assertThat(FDateBuilder.newDate(1998, 4, 7).getWeekNumberOfMonth()).isEqualTo(2);
         Assertions.assertThat(DateTimeFormatter.ofPattern("W").format(FDateBuilder.newDate(1998, 4, 7).javaTimeValue()))
                 .isEqualTo("2");
@@ -258,10 +237,67 @@ public class FDateTest {
         Assertions.assertThat(DateTimeFormatter.ofPattern("W").format(date.addDays(-1).javaTimeValue())).isEqualTo("5");
     }
 
-    private void testWeekNumberOfMonth(final int day, final int expected) {
-        final FDate date = FDateBuilder.newDate(1998, 4, day);
-        Assertions.assertThat(date.calendarValue().get(Calendar.WEEK_OF_MONTH)).isEqualTo(expected);
-        Assertions.assertThat(date.getWeekNumberOfMonth()).as("%s", date).isEqualTo(expected);
+    @Test
+    public void testWekkNumberOfMonth199804() {
+        //        April 1998 Nr.   Mo  Di  Mi  Do  Fr  Sa  So
+        //                   14             1   2   3   4   5
+        //                   15     6   7   8   9   10  11  12
+        //                   16     13  14  15  16  17  18  19
+        //                   17     20  21  22  23  24  25  26
+        //                   18     27  28  29  30
+        for (int i = 1; i <= 5; i++) {
+            testWeekNumberOfMonth(1998, 4, i, 1, 1);
+        }
+        for (int i = 6; i <= 12; i++) {
+            testWeekNumberOfMonth(1998, 4, i, 2, 2);
+        }
+        for (int i = 13; i <= 19; i++) {
+            testWeekNumberOfMonth(1998, 4, i, 3, 3);
+        }
+        for (int i = 20; i <= 16; i++) {
+            testWeekNumberOfMonth(1998, 4, i, 4, 4);
+        }
+        for (int i = 27; i <= 30; i++) {
+            testWeekNumberOfMonth(1998, 4, i, 5, 5);
+        }
+    }
+
+    @Test
+    public void testWeekOfMonth202406() {
+        //        Juni 2024 Nr.    Mo  Di  Mi  Do  Fr  Sa  So
+        //                  22                         1   2
+        //                  23     3   4   5   6   7   8   9
+        //                  24     10  11  12  13  14  15  16
+        //                  25     17  18  19  20  21  22  23
+        //                  26     24  25  26  27  28  29  30
+        for (int i = 1; i <= 2; i++) {
+            testWeekNumberOfMonth(2024, 6, i, 1, 0);
+        }
+        for (int i = 3; i <= 9; i++) {
+            testWeekNumberOfMonth(2024, 6, i, 2, 1);
+        }
+        for (int i = 10; i <= 16; i++) {
+            testWeekNumberOfMonth(2024, 6, i, 3, 2);
+        }
+        for (int i = 17; i <= 23; i++) {
+            testWeekNumberOfMonth(2024, 6, i, 4, 3);
+        }
+        for (int i = 26; i <= 30; i++) {
+            testWeekNumberOfMonth(2024, 6, i, 5, 4);
+        }
+    }
+
+    private void testWeekNumberOfMonth(final int year, final int month, final int day, final int expectedJoda,
+            final int expectedCalendar) {
+        final FDate date = FDateBuilder.newDate(year, month, day);
+        Assertions.assertThat(date.calendarValue().get(Calendar.WEEK_OF_MONTH)).isEqualTo(expectedCalendar);
+        Assertions.assertThat(getWeekOfMonthJoda(date.jodaTimeValueZoned())).isEqualTo(expectedJoda);
+        Assertions.assertThat(date.getWeekNumberOfMonth()).as("%s", date).isEqualTo(expectedJoda);
+    }
+
+    private int getWeekOfMonthJoda(final DateTime date) {
+        final DateTime.Property dayOfWeeks = date.dayOfWeek();
+        return (int) (Math.ceil((date.dayOfMonth().get() - dayOfWeeks.get()) / 7.0)) + 1;
     }
 
     @Test
