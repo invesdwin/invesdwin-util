@@ -1,6 +1,7 @@
 package de.invesdwin.util.time.date;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.TimeZone;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -221,6 +222,28 @@ public class FDateTest {
 
     @Test
     public void testWeeknumberOfMonth() {
+        //        April 1998 Nr.   Mo  Di  Mi  Do  Fr  Sa  So
+        //                   14             1   2   3   4   5
+        //                   15     6   7   8   9   10  11  12
+        //                   16     13  14  15  16  17  18  19
+        //                   17     20  21  22  23  24  25  26
+        //                   18     27  28  29  30
+        for (int i = 1; i <= 5; i++) {
+            testWeekNumberOfMonth(i, 1);
+        }
+        for (int i = 6; i <= 12; i++) {
+            testWeekNumberOfMonth(i, 2);
+        }
+        for (int i = 13; i <= 19; i++) {
+            testWeekNumberOfMonth(i, 3);
+        }
+        for (int i = 20; i <= 16; i++) {
+            testWeekNumberOfMonth(i, 4);
+        }
+        for (int i = 27; i <= 30; i++) {
+            testWeekNumberOfMonth(i, 5);
+        }
+
         Assertions.assertThat(FDateBuilder.newDate(1998, 4, 7).getWeekNumberOfMonth()).isEqualTo(2);
         Assertions.assertThat(DateTimeFormatter.ofPattern("W").format(FDateBuilder.newDate(1998, 4, 7).javaTimeValue()))
                 .isEqualTo("2");
@@ -233,6 +256,12 @@ public class FDateTest {
         Assertions.assertThat(DateTimeFormatter.ofPattern("W").format(date.javaTimeValue())).isEqualTo("1");
         Assertions.assertThat(DateTimeFormatter.ofPattern("W").format(date.addWeeks(1).javaTimeValue())).isEqualTo("2");
         Assertions.assertThat(DateTimeFormatter.ofPattern("W").format(date.addDays(-1).javaTimeValue())).isEqualTo("5");
+    }
+
+    private void testWeekNumberOfMonth(final int day, final int expected) {
+        final FDate date = FDateBuilder.newDate(1998, 4, day);
+        Assertions.assertThat(date.calendarValue().get(Calendar.WEEK_OF_MONTH)).isEqualTo(expected);
+        Assertions.assertThat(date.getWeekNumberOfMonth()).as("%s", date).isEqualTo(expected);
     }
 
     @Test
