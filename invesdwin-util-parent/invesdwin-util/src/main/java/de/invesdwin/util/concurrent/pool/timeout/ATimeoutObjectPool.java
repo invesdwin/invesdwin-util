@@ -49,13 +49,13 @@ public abstract class ATimeoutObjectPool<E> implements ICloseableObjectPool<E> {
                     final TimeoutReference<E> reference = iterator.next();
                     if (reference.isTimeoutExceeded(timeoutMillis)) {
                         iterator.remove();
-                        if (bufferingIterator.size() <= minimumSize) {
-                            return;
-                        }
                         final E element = reference.get();
                         if (element != null) {
                             invalidateObject(element);
                             reference.clear();
+                        }
+                        if (bufferingIterator.size() <= minimumSize) {
+                            return;
                         }
                     }
                 }
