@@ -1,9 +1,12 @@
 package de.invesdwin.util.math;
 
+import java.math.MathContext;
 import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -18,6 +21,7 @@ import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.internal.ADoublesStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastDoubles;
 import de.invesdwin.util.math.internal.CheckedCastDoublesObj;
+import io.netty.util.concurrent.FastThreadLocal;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ADoublesStaticFacade", targets = {
         CheckedCastDoubles.class, CheckedCastDoublesObj.class,
@@ -47,6 +51,17 @@ public final class Doubles extends ADoublesStaticFacade {
     public static final double FALSE = 0D;
     public static final double TRUE = 1D;
     private static final long RAW_BITS_NEGATIVE_ZERO = Double.doubleToRawLongBits(-0.0);
+
+    private static final FastThreadLocal<NumberFormat> NUMBER_FORMAT = new FastThreadLocal<NumberFormat>() {
+        @Override
+        protected NumberFormat initialValue() throws Exception {
+            final NumberFormat format = NumberFormat.getNumberInstance(Locale.ENGLISH);
+            format.setMaximumFractionDigits(MathContext.DECIMAL128.getPrecision());
+            format.setRoundingMode(Decimal.DEFAULT_ROUNDING_MODE);
+            format.setGroupingUsed(false);
+            return format;
+        }
+    };
 
     private Doubles() {}
 
@@ -1530,6 +1545,10 @@ public final class Doubles extends ADoublesStaticFacade {
         } else {
             return value;
         }
+    }
+
+    public static String toString(final double value) {
+        return NUMBER_FORMAT.get().format(value);
     }
 
 }
