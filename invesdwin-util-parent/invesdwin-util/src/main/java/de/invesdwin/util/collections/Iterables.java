@@ -12,7 +12,8 @@ import de.invesdwin.util.collections.internal.AIterablesStaticFacade;
                 "com.google.common.collect.Iterables#frequency(java.lang.Iterable, java.lang.Object)",
                 "com.google.common.collect.Iterables#unmodifiableIterable(java.lang.Iterable)",
                 "com.google.common.collect.Iterables#contains(java.lang.Iterable, java.lang.Object)",
-                "com.google.common.collect.Iterables#toString(java.lang.Iterable)" })
+                "com.google.common.collect.Iterables#toString(java.lang.Iterable)",
+                "com.google.common.collect.Iterables#get(java.lang.Iterable, int)" })
 public final class Iterables extends AIterablesStaticFacade {
 
     private Iterables() {}

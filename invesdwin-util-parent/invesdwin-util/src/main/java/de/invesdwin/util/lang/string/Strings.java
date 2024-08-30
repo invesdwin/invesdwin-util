@@ -27,9 +27,9 @@ import de.invesdwin.util.lang.string.internal.MultilineToStringStyle;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.string.internal.AStringsStaticFacade", targets = {
-        CheckedCastStrings.class, BeanPathStrings.class, com.google.common.base.Strings.class,
-        org.assertj.core.util.Strings.class, org.apache.commons.text.StringEscapeUtils.class,
-        org.apache.commons.text.WordUtils.class, CommentRemover.class }, filterMethodSignatureExpressions = {
+        CheckedCastStrings.class, BeanPathStrings.class, org.assertj.core.util.Strings.class,
+        org.apache.commons.text.StringEscapeUtils.class, org.apache.commons.text.WordUtils.class, CommentRemover.class,
+        com.google.common.base.Strings.class }, filterMethodSignatureExpressions = {
                 ".* isNullOrEmpty\\(.*" }, filterSeeMethodSignatures = {
                         "com.google.common.base.Strings#repeat(java.lang.String, int)" })
 public final class Strings extends AStringsStaticFacade {

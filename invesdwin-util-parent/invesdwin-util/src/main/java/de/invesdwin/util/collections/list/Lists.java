@@ -29,7 +29,9 @@ import de.invesdwin.util.time.date.FDates;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.list.internal.AListsStaticFacade", targets = {
-        com.google.common.collect.Lists.class, org.apache.commons.collections4.ListUtils.class })
+        org.apache.commons.collections4.ListUtils.class,
+        com.google.common.collect.Lists.class }, filterSeeMethodSignatures = {
+                "com.google.common.collect.Lists#partition(java.util.List, int)" })
 public final class Lists extends AListsStaticFacade {
 
     public static final MethodHandle ARRAYLIST_REMOVERANGE_MH;
