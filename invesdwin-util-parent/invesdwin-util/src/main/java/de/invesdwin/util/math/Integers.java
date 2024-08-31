@@ -75,7 +75,7 @@ public final class Integers extends AIntegersStaticFacade {
         return matrixAsList;
     }
 
-    public static Integer max(final int first, final Integer second) {
+    public static int max(final int first, final Integer second) {
         if (second == null) {
             return first;
         } else {
@@ -83,7 +83,7 @@ public final class Integers extends AIntegersStaticFacade {
         }
     }
 
-    public static Integer max(final Integer first, final int second) {
+    public static int max(final Integer first, final int second) {
         if (first == null) {
             return second;
         } else {
@@ -109,7 +109,7 @@ public final class Integers extends AIntegersStaticFacade {
         return Math.min(first, second);
     }
 
-    public static Integer min(final int first, final Integer second) {
+    public static int min(final int first, final Integer second) {
         if (second == null) {
             return first;
         } else {
@@ -117,7 +117,7 @@ public final class Integers extends AIntegersStaticFacade {
         }
     }
 
-    public static Integer min(final Integer first, final int second) {
+    public static int min(final Integer first, final int second) {
         if (first == null) {
             return second;
         } else {
@@ -135,20 +135,33 @@ public final class Integers extends AIntegersStaticFacade {
         }
     }
 
-    public static Integer avg(final Integer first, final Integer second) {
+    public static int avg(final int first, final int second) {
         final long sum = (long) first + (long) second;
         return (int) sum / 2;
     }
 
-    public static Integer avg(final Integer... values) {
+    public static int avg(final Integer... values) {
         long sum = 0;
-        for (final Integer value : values) {
+        for (int i = 0; i < values.length; i++) {
+            final Integer value = values[i];
             sum += value;
         }
         return (int) (sum / values.length);
     }
 
-    public static Integer avg(final Collection<Integer> values) {
+    public static int avg(final int... values) {
+        long sum = 0;
+        for (int i = 0; i < values.length; i++) {
+            final int value = values[i];
+            sum += value;
+        }
+        return (int) (sum / values.length);
+    }
+
+    public static int avg(final Collection<Integer> values) {
+        if (values instanceof List) {
+            return avg((List<Integer>) values);
+        }
         long sum = 0;
         for (final Integer value : values) {
             sum += value;
@@ -156,7 +169,19 @@ public final class Integers extends AIntegersStaticFacade {
         return (int) (sum / values.size());
     }
 
-    public static Integer sum(final Collection<Integer> values) {
+    public static int avg(final List<Integer> values) {
+        long sum = 0;
+        for (int i = 0; i < values.size(); i++) {
+            final Integer value = values.get(i);
+            sum += value;
+        }
+        return (int) (sum / values.size());
+    }
+
+    public static int sum(final Iterable<Integer> values) {
+        if (values instanceof List) {
+            return sum((List<Integer>) values);
+        }
         int sum = 0;
         for (final Integer value : values) {
             sum += value;
@@ -164,7 +189,19 @@ public final class Integers extends AIntegersStaticFacade {
         return sum;
     }
 
+    public static int sum(final List<Integer> values) {
+        int sum = 0;
+        for (int i = 0; i < values.size(); i++) {
+            final Integer value = values.get(i);
+            sum += value;
+        }
+        return sum;
+    }
+
     public static Integer median(final Collection<Integer> values) {
+        if (values instanceof List) {
+            return median((List<Integer>) values);
+        }
         final RunningMedian median = new RunningMedian(values.size());
         for (final Integer value : values) {
             median.add(Doubles.checkedCastObj(value));
@@ -172,28 +209,97 @@ public final class Integers extends AIntegersStaticFacade {
         return checkedCastObj(median.getMedian());
     }
 
-    public static Integer max(final Collection<Integer> values) {
-        Integer max = 0;
+    public static Integer median(final List<Integer> values) {
+        final RunningMedian median = new RunningMedian(values.size());
+        for (int i = 0; i < values.size(); i++) {
+            final Integer value = values.get(i);
+            median.add(Doubles.checkedCastObj(value));
+        }
+        return checkedCastObj(median.getMedian());
+    }
+
+    public static Integer maxNullable(final Integer... values) {
+        Integer maxValue = null;
+        for (int i = 0; i < values.length; i++) {
+            final Integer value = values[i];
+            maxValue = max(maxValue, value);
+        }
+        return maxValue;
+    }
+
+    public static int max(final int... values) {
+        int maxValue = values[0];
+        for (int i = 1; i < values.length; i++) {
+            final int value = values[i];
+            maxValue = max(maxValue, value);
+        }
+        return maxValue;
+    }
+
+    public static Integer max(final Iterable<Integer> values) {
+        if (values instanceof List) {
+            return max((List<Integer>) values);
+        }
+        Integer max = null;
         for (final Integer value : values) {
             max = max(max, value);
         }
         return max;
     }
 
-    public static Integer min(final Collection<Integer> values) {
-        Integer min = 0;
+    public static Integer minNullable(final Integer... values) {
+        Integer minValue = null;
+        for (int i = 0; i < values.length; i++) {
+            final Integer value = values[i];
+            minValue = min(minValue, value);
+        }
+        return minValue;
+    }
+
+    public static int min(final int... values) {
+        int minValue = values[0];
+        for (int i = 1; i < values.length; i++) {
+            final int value = values[i];
+            minValue = min(minValue, value);
+        }
+        return minValue;
+    }
+
+    public static Integer min(final Iterable<Integer> values) {
+        if (values instanceof List) {
+            return min((List<Integer>) values);
+        }
+        Integer min = null;
         for (final Integer value : values) {
             min = min(min, value);
         }
         return min;
     }
 
-    public static Integer between(final Integer value, final Integer min, final Integer max) {
-        return max(min(value, max), min);
+    public static Integer max(final List<Integer> values) {
+        Integer max = null;
+        for (int i = 0; i < values.size(); i++) {
+            final Integer value = values.get(i);
+            max = max(max, value);
+        }
+        return max;
     }
 
-    public static int between(final int value, final int min, final int max) {
-        return max(min(value, max), min);
+    public static Integer min(final List<Integer> values) {
+        Integer min = null;
+        for (int i = 0; i < values.size(); i++) {
+            final Integer value = values.get(i);
+            min = min(min, value);
+        }
+        return min;
+    }
+
+    public static Integer between(final Integer value, final Integer minInclusive, final Integer maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
+    }
+
+    public static int between(final int value, final int minInclusive, final int maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
     }
 
     public static <T> int[][] fixInconsistentMatrixDimensions(final int[][] matrix) {

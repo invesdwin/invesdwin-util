@@ -77,6 +77,24 @@ public final class Floats extends AFloatsStaticFacade {
         return matrixAsList;
     }
 
+    public static Float maxNullable(final Float... values) {
+        Float maxValue = null;
+        for (int i = 0; i < values.length; i++) {
+            final Float value = values[i];
+            maxValue = max(maxValue, value);
+        }
+        return maxValue;
+    }
+
+    public static float max(final float... values) {
+        float maxValue = values[0];
+        for (int i = 1; i < values.length; i++) {
+            final float value = values[i];
+            maxValue = max(maxValue, value);
+        }
+        return maxValue;
+    }
+
     public static Float max(final Float first, final Float second) {
         if (first == null) {
             return second;
@@ -85,6 +103,44 @@ public final class Floats extends AFloatsStaticFacade {
         } else {
             return Math.max(first, second);
         }
+    }
+
+    public static float max(final float first, final Float second) {
+        if (second == null) {
+            return first;
+        } else {
+            return Math.max(first, second);
+        }
+    }
+
+    public static float max(final Float first, final float second) {
+        if (first == null) {
+            return second;
+        } else {
+            return Math.max(first, second);
+        }
+    }
+
+    public static float max(final float first, final float second) {
+        return Math.max(first, second);
+    }
+
+    public static Float minNullable(final Float... values) {
+        Float minValue = null;
+        for (int i = 0; i < values.length; i++) {
+            final Float value = values[i];
+            minValue = min(minValue, value);
+        }
+        return minValue;
+    }
+
+    public static float min(final float... values) {
+        float minValue = values[0];
+        for (int i = 1; i < values.length; i++) {
+            final float value = values[i];
+            minValue = min(minValue, value);
+        }
+        return minValue;
     }
 
     public static Float min(final Float first, final Float second) {
@@ -97,8 +153,32 @@ public final class Floats extends AFloatsStaticFacade {
         }
     }
 
-    public static Float between(final Float value, final Float min, final Float max) {
-        return max(min(value, max), min);
+    public static float min(final float first, final Float second) {
+        if (second == null) {
+            return first;
+        } else {
+            return Math.min(first, second);
+        }
+    }
+
+    public static float min(final Float first, final float second) {
+        if (first == null) {
+            return second;
+        } else {
+            return Math.min(first, second);
+        }
+    }
+
+    public static float min(final float first, final float second) {
+        return Math.min(first, second);
+    }
+
+    public static Float between(final Float value, final Float minInclusive, final Float maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
+    }
+
+    public static float between(final float value, final float minInclusive, final float maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
     }
 
     public static <T> float[][] fixInconsistentMatrixDimensions(final float[][] matrix) {

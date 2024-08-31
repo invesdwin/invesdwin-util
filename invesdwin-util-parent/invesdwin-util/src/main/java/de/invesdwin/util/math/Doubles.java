@@ -134,7 +134,7 @@ public final class Doubles extends ADoublesStaticFacade {
         return matrixAsList;
     }
 
-    public static Double max(final double first, final Double second) {
+    public static double max(final double first, final Double second) {
         if (second == null) {
             return first;
         } else {
@@ -142,7 +142,7 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    public static Double max(final Double first, final double second) {
+    public static double max(final Double first, final double second) {
         if (first == null) {
             return second;
         } else {
@@ -160,7 +160,7 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    public static Double min(final double first, final Double second) {
+    public static double min(final double first, final Double second) {
         if (second == null) {
             return first;
         } else {
@@ -168,7 +168,7 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    public static Double min(final Double first, final double second) {
+    public static double min(final Double first, final double second) {
         if (first == null) {
             return second;
         } else {
@@ -186,12 +186,12 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    public static double between(final double value, final double min, final double max) {
-        return max(min(value, max), min);
+    public static double between(final double value, final double minInclusive, final double maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
     }
 
-    public static Double between(final Double value, final Double min, final Double max) {
-        return max(min(value, max), min);
+    public static Double between(final Double value, final Double minInclusive, final Double maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
     }
 
     public static <T> double[][] fixInconsistentMatrixDimensions(final double[][] matrix) {
@@ -709,18 +709,34 @@ public final class Doubles extends ADoublesStaticFacade {
         return digits;
     }
 
-    public static double min(final double... array) {
-        double min = array[0];
-        for (int i = 1; i < array.length; i++) {
-            min = min(min, array[i]);
+    public static double min(final double... values) {
+        double min = values[0];
+        for (int i = 1; i < values.length; i++) {
+            min = min(min, values[i]);
         }
         return min;
     }
 
-    public static double max(final double... array) {
-        double max = array[0];
-        for (int i = 1; i < array.length; i++) {
-            max = max(max, array[i]);
+    public static Double minNullable(final Double... values) {
+        Double min = null;
+        for (int i = 0; i < values.length; i++) {
+            min = min(min, values[i]);
+        }
+        return min;
+    }
+
+    public static double max(final double... values) {
+        double max = values[0];
+        for (int i = 1; i < values.length; i++) {
+            max = max(max, values[i]);
+        }
+        return max;
+    }
+
+    public static Double maxNullable(final Double... values) {
+        Double max = null;
+        for (int i = 0; i < values.length; i++) {
+            max = max(max, values[i]);
         }
         return max;
     }
