@@ -1571,4 +1571,12 @@ public final class Doubles extends ADoublesStaticFacade {
         return (min + max) / 2;
     }
 
+    public static double maxInclusiveToExclusive(final double maxInclusive) {
+        return maxInclusive + Doubles.FIRST_ABOVE_ZERO;
+    }
+
+    public static double maxExclusiveToInclusive(final double maxExclusive) {
+        return maxExclusive - Doubles.FIRST_ABOVE_ZERO;
+    }
+
 }

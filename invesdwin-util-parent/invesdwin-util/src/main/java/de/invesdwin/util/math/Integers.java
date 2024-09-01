@@ -549,4 +549,12 @@ public final class Integers extends AIntegersStaticFacade {
         return (int) Doubles.roundToStep(value, step, roundingMode);
     }
 
+    public static int maxInclusiveToExclusive(final int maxInclusive) {
+        return maxInclusive + 1;
+    }
+
+    public static int maxExclusiveToInclusive(final int maxExclusive) {
+        return maxExclusive - 1;
+    }
+
 }
