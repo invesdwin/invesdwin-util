@@ -1567,4 +1567,8 @@ public final class Doubles extends ADoublesStaticFacade {
         return NUMBER_FORMAT.get().format(value);
     }
 
+    public static double avg(final double min, final double max) {
+        return (min + max) / 2;
+    }
+
 }
