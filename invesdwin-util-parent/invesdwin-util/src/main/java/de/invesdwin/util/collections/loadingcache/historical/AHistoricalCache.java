@@ -541,6 +541,22 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         public void putDirectly(final FDate key, final IHistoricalEntry<V> value) {
             getDelegate().putDirectly(key, value);
         }
+
+        @Override
+        public boolean isEmpty() {
+            if (valuesMap == this) {
+                return true;
+            }
+            return super.isEmpty();
+        }
+
+        @Override
+        public void clear() {
+            if (valuesMap == this) {
+                return;
+            }
+            super.clear();
+        }
     }
 
     private final class ValuesMap extends ADelegateLoadingCache<FDate, IHistoricalEntry<V>> implements IValuesMap<V> {
