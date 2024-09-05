@@ -19,6 +19,7 @@ public final class WrappedRunnable implements IPriorityRunnable {
     private final String parentThreadName;
     private final boolean executeCalledWithoutFuture;
     private final Runnable delegate;
+    private final boolean threadRetryDisabled;
     private volatile boolean started;
 
     private WrappedRunnable(final IWrappedExecutorServiceInternal parent, final boolean executeCalledWithoutFuture,
@@ -33,6 +34,7 @@ public final class WrappedRunnable implements IPriorityRunnable {
         if (parent != null) {
             parent.incrementPendingCount(skipWaitOnFullPendingCount);
         }
+        this.threadRetryDisabled = Threads.isThreadRetryDisabled();
     }
 
     @Override
@@ -46,7 +48,16 @@ public final class WrappedRunnable implements IPriorityRunnable {
             originalThreadName = null;
         }
         try {
-            delegate.run();
+            if (threadRetryDisabled) {
+                final boolean registerThreadRetryDisabled = Threads.registerThreadRetryDisabled();
+                try {
+                    delegate.run();
+                } finally {
+                    Threads.unregisterThreadRetryDisabled(registerThreadRetryDisabled);
+                }
+            } else {
+                delegate.run();
+            }
         } catch (final Throwable t) {
             final Throwable handled = parent.getExecutorExceptionHandler()
                     .handleExecutorException(t, executeCalledWithoutFuture, false);
