@@ -42,6 +42,7 @@ public class Duration extends Number implements Comparable<Object> {
     public static final Duration FIFTEEN_SECONDS = new Duration(15, FTimeUnit.SECONDS);
     public static final Duration THIRTY_SECONDS = new Duration(30, FTimeUnit.SECONDS);
     public static final Duration ONE_MINUTE = new Duration(1, FTimeUnit.MINUTES);
+    public static final Duration TWO_MINUTES = new Duration(2, FTimeUnit.MINUTES);
     public static final Duration THREE_MINUTES = new Duration(3, FTimeUnit.MINUTES);
     public static final Duration FIVE_MINUTES = new Duration(5, FTimeUnit.MINUTES);
     public static final Duration TEN_MINUTES = new Duration(10, FTimeUnit.MINUTES);
@@ -49,6 +50,8 @@ public class Duration extends Number implements Comparable<Object> {
     public static final Duration THIRTY_MINUTES = new Duration(30, FTimeUnit.MINUTES);
     public static final Duration ONE_HOUR = new Duration(1, FTimeUnit.HOURS);
     public static final Duration ONE_DAY = new Duration(1, FTimeUnit.DAYS);
+    public static final Duration TWO_DAYS = new Duration(2, FTimeUnit.DAYS);
+    public static final Duration FOUR_DAYS = new Duration(4, FTimeUnit.DAYS);
     public static final Duration ONE_WEEK = new Duration(1, FTimeUnit.WEEKS);
     public static final Duration TWO_WEEKS = new Duration(2, FTimeUnit.WEEKS);
     public static final Duration ONE_MONTH = new Duration(1, FTimeUnit.MONTHS);
@@ -649,6 +652,14 @@ public class Duration extends Number implements Comparable<Object> {
 
     public org.joda.time.Duration jodaTimeValue() {
         return org.joda.time.Duration.millis(longValue(FTimeUnit.MILLISECONDS));
+    }
+
+    public static Duration valueOf(final FDate from, final FDate to) {
+        if (from.equalsNotNullSafe(to)) {
+            return ZERO;
+        } else {
+            return new Duration(from, to);
+        }
     }
 
     public static Duration valueOf(final java.time.Duration duration) {

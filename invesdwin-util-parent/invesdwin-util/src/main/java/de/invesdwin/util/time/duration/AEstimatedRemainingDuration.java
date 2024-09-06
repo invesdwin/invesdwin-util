@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.bean.AValueObject;
+import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.date.FDate;
@@ -57,18 +58,14 @@ public abstract class AEstimatedRemainingDuration extends AValueObject {
             previousEstimatedFullDurations.add(fullDuration);
             previousEstimatedFullDurationsUpdateTimes.add(curTime);
             previousEstimatedFullDurationProgressPercents.add(progressPercent);
-            while (previousEstimatedFullDurations.size() > MAX_HISTORY_COUNT) {
-                previousEstimatedFullDurations.remove(0);
-                previousEstimatedFullDurationsUpdateTimes.remove(0);
-                previousEstimatedFullDurationProgressPercents.remove(0);
-            }
+            Lists.maybeTrimSizeStart(previousEstimatedFullDurations, MAX_HISTORY_COUNT);
+            Lists.maybeTrimSizeStart(previousEstimatedFullDurationsUpdateTimes, MAX_HISTORY_COUNT);
+            Lists.maybeTrimSizeStart(previousEstimatedFullDurationProgressPercents, MAX_HISTORY_COUNT);
 
             maxEstimatedFullDuration = Duration.valueOf(previousEstimatedFullDurations).avgWeightedAsc();
             final Percent newUnsurenessMultiplicator = determineUnsurenessMultiplicator(progressPercent);
             previousUnsurenessMultiplicators.add(newUnsurenessMultiplicator);
-            while (previousUnsurenessMultiplicators.size() > MAX_HISTORY_COUNT) {
-                previousUnsurenessMultiplicators.remove(0);
-            }
+            Lists.maybeTrimSizeStart(previousUnsurenessMultiplicators, MAX_HISTORY_COUNT);
             final Percent unsurenessMultiplicator = Percent.valueOf(previousUnsurenessMultiplicators).avg();
             maxEstimatedFullDuration = maxEstimatedFullDuration.multiply(unsurenessMultiplicator);
         }

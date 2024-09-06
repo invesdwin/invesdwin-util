@@ -9,6 +9,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.ImmutableHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.query.index.IndexedFDate;
@@ -144,10 +145,8 @@ public abstract class ACachedEntriesHistoricalCacheQueryCore<V> implements IHist
             final Integer maximumSize = getParent().getMaximumSize();
             if (maximumSize != null) {
                 //ensure we stay in size limit
-                while (cachedPreviousEntries.size() > maximumSize) {
-                    cachedPreviousEntries.remove(0);
-                    cachedPreviousEntries_modIncrementIndex.decrement();
-                }
+                final int removed = Lists.maybeTrimSizeStart(cachedPreviousEntries, maximumSize);
+                cachedPreviousEntries_modIncrementIndex.subtract(removed);
             }
         }
         //attach indexed key to outer key at least

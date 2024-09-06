@@ -40,4 +40,14 @@ public class LockedFastIterableList<E> extends LockedList<E> implements IFastIte
         }
     }
 
+    @Override
+    public int removeRange(final int fromIndexInclusive, final int toIndexExclusive) {
+        getLock().lock();
+        try {
+            return getDelegate().removeRange(fromIndexInclusive, toIndexExclusive);
+        } finally {
+            getLock().unlock();
+        }
+    }
+
 }

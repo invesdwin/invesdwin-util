@@ -359,18 +359,11 @@ public final class FDateMillis {
     }
 
     /**
-     * https://stackoverflow.com/questions/24280370/get-week-of-month-with-joda-time <br>
-     * The formerly used solution was wrong everytime the day was a divider of 7.. WeekOfMonths always had 1 day added
-     * to the correct value.
+     * https://stackoverflow.com/questions/24280370/get-week-of-month-with-joda-time
      */
     public static int getWeekNumberOfMonth(final long millis) {
-        final int day = getDay(millis);
-        int weekOfMonth = day / 7;
-        if (day % 7 != 0) {
-            weekOfMonth++;
-        }
-
-        return weekOfMonth;
+        final int weekday = getWeekday(millis);
+        return (int) (Math.ceil((getDay(millis) - weekday) / 7.0)) + 1;
     }
 
     public static long truncate(final long millis, final FDateField field, final FTimeZone timeZone) {

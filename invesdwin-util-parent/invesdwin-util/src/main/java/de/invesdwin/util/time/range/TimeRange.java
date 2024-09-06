@@ -128,6 +128,18 @@ public class TimeRange extends AValueObject {
         return COMPARATOR.compare(this, o);
     }
 
+    public boolean isSame() {
+        final boolean fromNull = from == null;
+        final boolean toNull = to == null;
+        if (fromNull == toNull) {
+            return true;
+        }
+        if (fromNull != toNull) {
+            return false;
+        }
+        return from.equalsNotNullSafe(to);
+    }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(TimeRange.class, from, to);
@@ -199,7 +211,6 @@ public class TimeRange extends AValueObject {
         if (timeRange.getTo() == null) {
             throw new NullPointerException("timeRange.to should not be null");
         }
-
     }
 
     public boolean isUnlimited() {
@@ -260,6 +271,14 @@ public class TimeRange extends AValueObject {
             usedTo = to;
         }
         return new TimeRange(usedFrom, usedTo);
+    }
+
+    public TimeRange addDuration(final Duration duration) {
+        return new TimeRange(from.add(duration), to.add(duration));
+    }
+
+    public TimeRange subtractDuration(final Duration duration) {
+        return new TimeRange(from.subtract(duration), to.subtract(duration));
     }
 
 }

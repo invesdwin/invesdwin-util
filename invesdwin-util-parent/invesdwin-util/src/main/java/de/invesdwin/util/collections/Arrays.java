@@ -7,6 +7,10 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.collections.internal.AArraysStaticFacade;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
+import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.time.date.BisectDuplicateKeyHandling;
+import de.invesdwin.util.time.date.FDates;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.internal.AArraysStaticFacade", targets = {
@@ -192,6 +196,57 @@ public class Arrays extends AArraysStaticFacade {
             cloned[i] = clone(array[i]);
         }
         return cloned;
+    }
+
+    public static <T> int bisect(final T[] values, final IComparator<T> comparator, final T skippingKeysAbove,
+            final BisectDuplicateKeyHandling duplicateKeyHandling) {
+        if (values.length == 0) {
+            return FDates.MISSING_INDEX;
+        }
+        int lo = 0;
+        final T firstKey = values[lo];
+        if (comparator.compareTyped(firstKey, skippingKeysAbove) >= 0) {
+            return duplicateKeyHandling.apply(values, comparator, lo, firstKey);
+        }
+        int hi = values.length;
+        final int lastIndex = hi - 1;
+        final T lastKey = values[lastIndex];
+        if (comparator.compareTyped(lastKey, skippingKeysAbove) <= 0) {
+            return duplicateKeyHandling.apply(values, comparator, lastIndex, lastKey);
+        }
+        while (lo < hi) {
+            // same as (low+high)/2
+            final int mid = (lo + hi) >>> 1;
+            //if (x < list.get(mid)) {
+            final T midKey = values[mid];
+            final int compareTo = comparator.compareTyped(midKey, skippingKeysAbove);
+            switch (compareTo) {
+            case FDates.MISSING_INDEX:
+                lo = mid + 1;
+                break;
+            case 0:
+                return duplicateKeyHandling.apply(values, comparator, mid, midKey);
+            case 1:
+                hi = mid;
+                break;
+            default:
+                throw UnknownArgumentException.newInstance(Integer.class, compareTo);
+            }
+        }
+        if (lo <= 0) {
+            return 0;
+        }
+        if (lo >= values.length) {
+            lo = lo - 1;
+        }
+        final T loKey = values[lo];
+        if (comparator.compareTypedNotNullSafe(loKey, skippingKeysAbove) > 0) {
+            //no duplicate key handling needed because this is the last value before the actual requested key
+            final int index = lo - 1;
+            return index;
+        } else {
+            return duplicateKeyHandling.apply(values, comparator, lo, loKey);
+        }
     }
 
 }

@@ -27,4 +27,9 @@ public class UnmodifiableFastIterableList<E> extends UnmodifiableList<E> impleme
         return getDelegate().iterator();
     }
 
+    @Override
+    public int removeRange(final int fromIndexInclusive, final int toIndexExclusive) {
+        throw new UnsupportedOperationException();
+    }
+
 }

@@ -24,11 +24,14 @@ import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.LongPair;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.millis.FDateMillis;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
+import de.invesdwin.util.time.date.timezone.TimeZoneRange;
 import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.range.TimeRange;
 import jakarta.persistence.Transient;
 
 /**
@@ -480,6 +483,14 @@ public class FDate
         return new FDate(FDateMillis.applyTimeZoneOffset(millis, timeZone));
     }
 
+    public TimeRange applyTimeZoneOffset(final TimeZoneRange timeZone) {
+        if (timeZone == null || timeZone.equals(getTimeZone())) {
+            return new TimeRange(this, this);
+        } else {
+            return timeZone.applyTimeZoneOffset(this);
+        }
+    }
+
     /**
      * Pretend that this date is inside the given timezone. E.g. UTC will add 2 hours for becoming EET.
      */
@@ -490,8 +501,32 @@ public class FDate
         return new FDate(FDateMillis.applyTimeZoneOffset(millis, timeZoneOffsetMilliseconds));
     }
 
+    public TimeRange applyTimeZoneOffset(final LongPair timeZoneOffsetMilliseconds) {
+        if (timeZoneOffsetMilliseconds.getFirstValue() == 0 && timeZoneOffsetMilliseconds.getSecondValue() == 0) {
+            return new TimeRange(this, this);
+        } else if (timeZoneOffsetMilliseconds.getFirstValue() == timeZoneOffsetMilliseconds.getSecondValue()) {
+            final FDate fromAndTo = new FDate(
+                    FDateMillis.applyTimeZoneOffset(millis, timeZoneOffsetMilliseconds.getFirstValue()));
+            return new TimeRange(fromAndTo, fromAndTo);
+        } else {
+            final FDate from = new FDate(
+                    FDateMillis.applyTimeZoneOffset(millis, timeZoneOffsetMilliseconds.getFirstValue()));
+            final FDate to = new FDate(
+                    FDateMillis.applyTimeZoneOffset(millis, timeZoneOffsetMilliseconds.getSecondValue()));
+            return new TimeRange(from, to);
+        }
+    }
+
     public long getTimeZoneOffsetMilliseconds(final FTimeZone timeZone) {
         return FDateMillis.getTimeZoneOffsetMilliseconds(millis, timeZone);
+    }
+
+    public LongPair getTimeZoneOffsetMilliseconds(final TimeZoneRange timeZone) {
+        if (timeZone == null) {
+            return LongPair.empty();
+        } else {
+            return timeZone.getTimeZoneOffsetMilliseconds(this);
+        }
     }
 
     /**

@@ -19,6 +19,7 @@ public final class WrappedCallable<V> implements Callable<V>, IPriorityProvider 
     private final boolean executeCalledWithoutFuture;
     private final Callable<V> delegate;
     private final IWrappedExecutorServiceInternal parent;
+    private final boolean threadRetryDisabled;
     private volatile boolean started;
 
     private WrappedCallable(final IWrappedExecutorServiceInternal parent, final boolean executeCalledWithoutFuture,
@@ -33,6 +34,7 @@ public final class WrappedCallable<V> implements Callable<V>, IPriorityProvider 
         if (parent != null) {
             parent.incrementPendingCount(skipWaitOnFullPendingCount);
         }
+        this.threadRetryDisabled = Threads.isThreadRetryDisabled();
     }
 
     @Override
@@ -46,7 +48,16 @@ public final class WrappedCallable<V> implements Callable<V>, IPriorityProvider 
             originalThreadName = null;
         }
         try {
-            return delegate.call();
+            if (threadRetryDisabled) {
+                final boolean registerThreadRetryDisabled = Threads.registerThreadRetryDisabled();
+                try {
+                    return delegate.call();
+                } finally {
+                    Threads.unregisterThreadRetryDisabled(registerThreadRetryDisabled);
+                }
+            } else {
+                return delegate.call();
+            }
         } catch (final Throwable t) {
             if (parent != null) {
                 final Throwable handled = parent.getExecutorExceptionHandler()

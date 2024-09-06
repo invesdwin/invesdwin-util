@@ -101,4 +101,13 @@ public abstract class ASingletonTimeoutObjectPool<E> implements ICloseableObject
         ATimeoutObjectPool.maybeCloseScheduledExecutor();
     }
 
+    @Override
+    public int size() {
+        if (singleton == null) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+
 }

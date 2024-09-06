@@ -23,8 +23,7 @@ public final class Shorts extends AShortsStaticFacade {
     public static final Short DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
     public static final IComparator<Short> COMPARATOR = IComparator.getDefaultInstance();
 
-    private Shorts() {
-    }
+    private Shorts() {}
 
     public static short[] toArray(final Collection<? extends Number> vector) {
         if (vector == null) {
@@ -72,9 +71,19 @@ public final class Shorts extends AShortsStaticFacade {
         return matrixAsList;
     }
 
-    public static Short min(final Short... values) {
+    public static Short minNullable(final Short... values) {
         Short minValue = null;
-        for (final Short value : values) {
+        for (int i = 0; i < values.length; i++) {
+            final Short value = values[i];
+            minValue = min(minValue, value);
+        }
+        return minValue;
+    }
+
+    public static short min(final short... values) {
+        short minValue = values[0];
+        for (int i = 1; i < values.length; i++) {
+            final short value = values[i];
             minValue = min(minValue, value);
         }
         return minValue;
@@ -94,9 +103,51 @@ public final class Shorts extends AShortsStaticFacade {
         }
     }
 
-    public static Short max(final Short... values) {
+    public static short min(final short value1, final Short value2) {
+        if (value2 == null) {
+            return value1;
+        }
+
+        if (value1 < value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static short min(final Short value1, final short value2) {
+        if (value1 == null) {
+            return value2;
+        }
+
+        if (value1 < value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static short min(final short value1, final short value2) {
+        if (value1 < value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static Short maxNullable(final Short... values) {
         Short maxValue = null;
-        for (final Short value : values) {
+        for (int i = 0; i < values.length; i++) {
+            final Short value = values[i];
+            maxValue = max(maxValue, value);
+        }
+        return maxValue;
+    }
+
+    public static short max(final short... values) {
+        short maxValue = values[0];
+        for (int i = 0; i < values.length; i++) {
+            final short value = values[i];
             maxValue = max(maxValue, value);
         }
         return maxValue;
@@ -116,8 +167,44 @@ public final class Shorts extends AShortsStaticFacade {
         }
     }
 
-    public static Short between(final Short value, final Short min, final Short max) {
-        return max(min(value, max), min);
+    public static short max(final short value1, final Short value2) {
+        if (value2 == null) {
+            return value1;
+        }
+
+        if (value1 > value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static short max(final Short value1, final short value2) {
+        if (value1 == null) {
+            return value2;
+        }
+
+        if (value1 > value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static short max(final short value1, final short value2) {
+        if (value1 > value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static Short between(final Short value, final Short minInclusive, final Short maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
+    }
+
+    public static short between(final short value, final short minInclusive, final short maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
     }
 
     public static <T> short[][] fixInconsistentMatrixDimensions(final short[][] matrix) {

@@ -12,6 +12,7 @@ import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
+import de.invesdwin.util.collections.list.Lists;
 
 @ThreadSafe
 public abstract class ASynchronizedFastIterableDelegateList<E> implements IFastIterableList<E> {
@@ -98,6 +99,15 @@ public abstract class ASynchronizedFastIterableDelegateList<E> implements IFastI
     public synchronized E remove(final int index) {
         final E removed = delegate.remove(index);
         refreshFastIterable();
+        return removed;
+    }
+
+    @Override
+    public synchronized int removeRange(final int fromIndexInclusive, final int toIndexExclusive) {
+        final int removed = Lists.removeRange(delegate, fromIndexInclusive, toIndexExclusive);
+        if (removed > 0) {
+            refreshFastIterable();
+        }
         return removed;
     }
 

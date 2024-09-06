@@ -556,6 +556,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
      * key, if this fails it tries to load values >= key. If the caller does not accept values from the future, this
      * will get handled properly later. For example financial backtests may not use values from the future to keep the
      * test realistic.
+     * 
+     * This method may return null, in which case the cache only relies on data returned from
+     * readAllValuesAscendingFrom().
      */
     protected abstract V readLatestValueFor(FDate key);
 

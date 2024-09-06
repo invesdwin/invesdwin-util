@@ -39,4 +39,9 @@ public class ReverseUnmodifiableFastIterableList<E> extends ReverseUnmodifiableL
         return prevReverseAsArray;
     }
 
+    @Override
+    public int removeRange(final int fromIndexInclusive, final int toIndexExclusive) {
+        throw new UnsupportedOperationException();
+    }
+
 }

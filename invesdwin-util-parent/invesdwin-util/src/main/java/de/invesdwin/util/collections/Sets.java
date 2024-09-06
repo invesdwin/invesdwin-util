@@ -9,11 +9,16 @@ import de.invesdwin.util.collections.internal.ASetsStaticFacade;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.internal.ASetsStaticFacade", targets = {
-        org.apache.commons.collections4.SetUtils.class, com.google.common.collect.Sets.class })
+        org.apache.commons.collections4.SetUtils.class,
+        com.google.common.collect.Sets.class }, filterSeeMethodSignatures = {
+                "com.google.common.collect.Sets#unmodifiableNavigableSet(java.util.NavigableSet)",
+                "com.google.common.collect.Sets#difference(java.util.Set, java.util.Set)",
+                "com.google.common.collect.Sets#intersection(java.util.Set, java.util.Set)",
+                "com.google.common.collect.Sets#union(java.util.Set, java.util.Set)",
+                "com.google.common.collect.Sets#newIdentityHashSet()" })
 public final class Sets extends ASetsStaticFacade {
 
-    private Sets() {
-    }
+    private Sets() {}
 
     public static boolean equals(final Set<?> set1, final Set<?> set2) {
         final boolean set1NullOrEmpty = set1 == null || set1.isEmpty();

@@ -19,6 +19,11 @@ public class DisabledObjectPool<E> implements ICloseableObjectPool<E> {
     }
 
     @Override
+    public int size() {
+        return 0;
+    }
+
+    @Override
     public void returnObject(final E element) {}
 
     @Override

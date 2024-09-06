@@ -10,12 +10,17 @@ import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.statistics.RunningMedian;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
 public class RunningMedianTest {
+
+    static {
+        Reflections.disableJavaModuleSystemRestrictions();
+    }
 
     private static final int ITERATIONS = 10_000;
     private static final int SIZE = 300;

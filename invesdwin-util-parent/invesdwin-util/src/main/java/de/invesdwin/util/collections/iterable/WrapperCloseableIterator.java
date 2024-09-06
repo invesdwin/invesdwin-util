@@ -74,7 +74,9 @@ public final class WrapperCloseableIterator<E> implements ICloseableIterator<E> 
     @Deprecated
     @SuppressWarnings("unchecked")
     public static <T> ICloseableIterator<T> maybeWrap(final Iterator<? extends T> iterator) {
-        if (iterator instanceof ICloseableIterator) {
+        if (iterator == null) {
+            return EmptyCloseableIterator.getInstance();
+        } else if (iterator instanceof ICloseableIterator) {
             return (ICloseableIterator<T>) iterator;
         } else {
             return new WrapperCloseableIterator<T>(iterator);

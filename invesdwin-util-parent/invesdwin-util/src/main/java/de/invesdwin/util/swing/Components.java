@@ -39,6 +39,12 @@ import de.invesdwin.util.swing.text.ToolTipFormatter;
 public final class Components {
 
     private static ToolTipFormatter defaultToolTipFormatter = new ToolTipFormatter();
+    private static MouseMotionListener lazyTooltipManagerMotionListener = new ADelegateMouseMotionListener() {
+        @Override
+        protected MouseMotionListener newDelegate() {
+            return ToolTipManager.sharedInstance();
+        }
+    };
 
     private static final long COMPONENT_MINSIZE_FIELD_OFFSET;
     private static final long COMPONENT_MINSIZESET_FIELD_OFFSET;
@@ -97,21 +103,6 @@ public final class Components {
         }
     }
 
-    public static boolean isMouseOverComponent(final Component component) {
-        if (!isShowingAndWindowIsActive(component)) {
-            return false;
-        } else {
-            final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
-            if (pointerInfo == null) {
-                return false;
-            }
-            final Point locationOnScreen = pointerInfo.getLocation();
-            final Point locationOnComponent = new Point(locationOnScreen);
-            SwingUtilities.convertPointFromScreen(locationOnComponent, component);
-            return component.contains(locationOnComponent);
-        }
-    }
-
     public static void setToolTipText(final JComponent component, final String text, final boolean update) {
         setToolTipText(component, text, update, defaultToolTipFormatter);
     }
@@ -158,12 +149,7 @@ public final class Components {
     }
 
     public static void updateToolTip(final JComponent component) {
-        triggerMouseMoved(component, new ADelegateMouseMotionListener() {
-            @Override
-            protected MouseMotionListener newDelegate() {
-                return ToolTipManager.sharedInstance();
-            }
-        });
+        triggerMouseMovedWithWindowActive(component, lazyTooltipManagerMotionListener);
     }
 
     /**
@@ -182,38 +168,74 @@ public final class Components {
         }
     }
 
-    /**
-     * https://stackoverflow.com/questions/12822819/dynamically-update-tooltip-currently-displayed
-     */
-    public static void triggerMouseMoved(final JComponent component, final MouseMotionListener listener) {
-        if (isShowingAndWindowIsActive(component)) {
-            final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
-            if (pointerInfo == null) {
-                return;
-            }
-            final Point locationOnScreen = pointerInfo.getLocation();
-            final Point locationOnComponent = new Point(locationOnScreen);
-            SwingUtilities.convertPointFromScreen(locationOnComponent, component);
-            if (component.contains(locationOnComponent)) {
-                listener.mouseMoved(new MouseEvent(component, -1, System.currentTimeMillis(), 0, locationOnComponent.x,
-                        locationOnComponent.y, locationOnScreen.x, locationOnScreen.y, 0, false, 0));
-            }
+    public static void triggerMouseMovedWithWindowActive(final JComponent component,
+            final MouseMotionListener listener) {
+        if (isShowingAndWindowActive(component)) {
+            internalTriggerMouseMoved(component, listener);
         }
     }
 
-    public static boolean isShowingAndWindowIsActive(final Component component) {
+    public static void triggerMouseMoved(final JComponent component, final MouseMotionListener listener) {
         if (component.isShowing()) {
-            final Window window = SwingUtilities.getWindowAncestor(component);
-            return window.isActive();
+            internalTriggerMouseMoved(component, listener);
+        }
+    }
+
+    /**
+     * https://stackoverflow.com/questions/12822819/dynamically-update-tooltip-currently-displayed
+     */
+    private static void internalTriggerMouseMoved(final JComponent component, final MouseMotionListener listener) {
+        final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
+        if (pointerInfo == null) {
+            return;
+        }
+        final Point locationOnScreen = pointerInfo.getLocation();
+        final Point locationOnComponent = new Point(locationOnScreen);
+        SwingUtilities.convertPointFromScreen(locationOnComponent, component);
+        if (component.contains(locationOnComponent)) {
+            listener.mouseMoved(new MouseEvent(component, -1, System.currentTimeMillis(), 0, locationOnComponent.x,
+                    locationOnComponent.y, locationOnScreen.x, locationOnScreen.y, 0, false, 0));
+        }
+    }
+
+    public static boolean isShowingAndWindowActive(final Component component) {
+        if (component.isShowing()) {
+            return isWindowActive(component);
         } else {
             return false;
         }
     }
 
-    public static Point getMouseLocationOnComponent(final Component component) {
-        if (isShowingAndWindowIsActive(component)) {
+    public static boolean isWindowActive(final Component component) {
+        final Window window = SwingUtilities.getWindowAncestor(component);
+        return window.isActive();
+    }
+
+    public static boolean isMouseOverComponent(final Component component) {
+        final Point locationOnComponent = getMouseLocationOnComponent(component);
+        return locationOnComponent != null;
+    }
+
+    public static boolean isMouseOverComponentWithActiveWindow(final Component component) {
+        final Point locationOnComponent = getMouseLocationOnComponentWithActiveWindow(component);
+        return locationOnComponent != null;
+    }
+
+    public static Point getMouseLocationOnComponentWithActiveWindow(final Component component) {
+        if (isShowingAndWindowActive(component)) {
             return null;
         }
+        return internalGetMouseLocationOnComponent(component);
+    }
+
+    public static Point getMouseLocationOnComponent(final Component component) {
+        if (!component.isShowing()) {
+            return null;
+        }
+        return internalGetMouseLocationOnComponent(component);
+    }
+
+    private static Point internalGetMouseLocationOnComponent(final Component component) {
         final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
         if (pointerInfo == null) {
             return null;
@@ -236,7 +258,7 @@ public final class Components {
         final int oldDelay = ttm.getInitialDelay();
         ttm.setInitialDelay(0);
 
-        final Point mousePoint = getMouseLocationOnComponent(component);
+        final Point mousePoint = getMouseLocationOnComponentWithActiveWindow(component);
         final int id = -1;
         final long when = System.currentTimeMillis();
         final int modifiers = 0;

@@ -36,7 +36,9 @@ public abstract class ADelegateLoadingCache<K, V> implements ILoadingCache<K, V>
     @Override
     public void clear() {
         if (delegate != null) {
-            delegate.clear();
+            if (!delegate.isEmpty()) {
+                delegate.clear();
+            }
         }
     }
 

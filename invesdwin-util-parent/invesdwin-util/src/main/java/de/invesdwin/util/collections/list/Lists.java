@@ -1,5 +1,8 @@
 package de.invesdwin.util.collections.list;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Method;
 import java.util.AbstractSequentialList;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,21 +16,72 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.list.internal.AListsStaticFacade;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.time.date.BisectDuplicateKeyHandling;
 import de.invesdwin.util.time.date.FDates;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.list.internal.AListsStaticFacade", targets = {
-        com.google.common.collect.Lists.class, org.apache.commons.collections4.ListUtils.class })
+        org.apache.commons.collections4.ListUtils.class,
+        com.google.common.collect.Lists.class }, filterSeeMethodSignatures = {
+                "com.google.common.collect.Lists#partition(java.util.List, int)" })
 public final class Lists extends AListsStaticFacade {
 
+    public static final MethodHandle ARRAYLIST_REMOVERANGE_MH;
+
+    static {
+        final Method removeRange = Reflections.findMethod(ArrayList.class, "removeRange", int.class, int.class);
+        Reflections.makeAccessible(removeRange);
+        try {
+            ARRAYLIST_REMOVERANGE_MH = MethodHandles.lookup().unreflect(removeRange);
+        } catch (final IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Lists() {}
+
+    public static int maybeTrimSizeStart(final List<?> list, final int maxSize) {
+        if (list.size() > maxSize) {
+            final int tooMany = list.size() - maxSize;
+            return removeRange(list, 0, tooMany);
+        } else {
+            return 0;
+        }
+    }
+
+    public static int removeRange(final List<?> list, final int fromIndexInclusive, final int toIndexExclusive) {
+        if (fromIndexInclusive == toIndexExclusive) {
+            return 0;
+        }
+        if (list instanceof IFastIterableList) {
+            final IFastIterableList<?> cList = (IFastIterableList<?>) list;
+            return cList.removeRange(fromIndexInclusive, toIndexExclusive);
+        } else if (list instanceof ArrayList) {
+            try {
+                ARRAYLIST_REMOVERANGE_MH.invoke(list, fromIndexInclusive, toIndexExclusive);
+            } catch (final Throwable e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            if (fromIndexInclusive > toIndexExclusive) {
+                throw new IndexOutOfBoundsException(
+                        "From Index: " + fromIndexInclusive + " > To Index: " + toIndexExclusive);
+            }
+            final int index = fromIndexInclusive;
+            for (int i = fromIndexInclusive; i < toIndexExclusive; i++) {
+                list.remove(index);
+            }
+        }
+        return toIndexExclusive - fromIndexInclusive;
+    }
 
     public static <T> List<T> join(final Collection<? extends Collection<T>> lists) {
         final List<T> result = new ArrayList<T>();

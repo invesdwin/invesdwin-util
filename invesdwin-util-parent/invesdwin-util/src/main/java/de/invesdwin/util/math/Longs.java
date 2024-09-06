@@ -73,88 +73,136 @@ public final class Longs extends ALongsStaticFacade {
         return matrixAsList;
     }
 
-    public static long min(final long... times) {
-        long minTime = times[0];
-        for (int i = 1; i < times.length; i++) {
-            minTime = min(minTime, times[i]);
+    public static long min(final long... values) {
+        long minValue = values[0];
+        for (int i = 1; i < values.length; i++) {
+            minValue = min(minValue, values[i]);
         }
-        return minTime;
+        return minValue;
     }
 
-    public static Long minNullable(final Long... times) {
-        Long minTime = null;
-        for (final Long time : times) {
-            minTime = min(minTime, time);
+    public static Long minNullable(final Long... values) {
+        Long minValue = null;
+        for (int i = 0; i < values.length; i++) {
+            minValue = min(minValue, values[i]);
         }
-        return minTime;
+        return minValue;
     }
 
-    public static Long min(final Long time1, final Long time2) {
-        if (time1 == null) {
-            return time2;
-        } else if (time2 == null) {
-            return time1;
+    public static Long min(final Long value1, final Long value2) {
+        if (value1 == null) {
+            return value2;
+        } else if (value2 == null) {
+            return value1;
         }
 
-        if (time1 < time2) {
-            return time1;
+        if (value1 < value2) {
+            return value1;
         } else {
-            return time2;
+            return value2;
         }
     }
 
-    public static long min(final long time1, final long time2) {
-        if (time1 < time2) {
-            return time1;
+    public static long min(final long value1, final Long value2) {
+        if (value2 == null) {
+            return value1;
+        }
+
+        if (value1 < value2) {
+            return value1;
         } else {
-            return time2;
+            return value2;
         }
     }
 
-    public static long max(final long... times) {
-        long maxTime = times[0];
-        for (int i = 1; i < times.length; i++) {
-            maxTime = max(maxTime, times[i]);
-        }
-        return maxTime;
-    }
-
-    public static Long maxNullable(final Long... times) {
-        Long maxTime = null;
-        for (final Long time : times) {
-            maxTime = max(maxTime, time);
-        }
-        return maxTime;
-    }
-
-    public static Long max(final Long time1, final Long time2) {
-        if (time1 == null) {
-            return time2;
-        } else if (time2 == null) {
-            return time1;
+    public static long min(final Long value1, final long value2) {
+        if (value1 == null) {
+            return value2;
         }
 
-        if (time1 > time2) {
-            return time1;
+        if (value1 < value2) {
+            return value1;
         } else {
-            return time2;
+            return value2;
         }
     }
 
-    public static long max(final long time1, final long time2) {
-        if (time1 > time2) {
-            return time1;
+    public static long min(final long value1, final long value2) {
+        if (value1 < value2) {
+            return value1;
         } else {
-            return time2;
+            return value2;
         }
     }
 
-    public static Long between(final Long value, final Long min, final Long max) {
-        return max(min(value, max), min);
+    public static long max(final long... values) {
+        long maxValue = values[0];
+        for (int i = 1; i < values.length; i++) {
+            maxValue = max(maxValue, values[i]);
+        }
+        return maxValue;
     }
 
-    public static long between(final long value, final long min, final long max) {
-        return max(min(value, max), min);
+    public static Long maxNullable(final Long... values) {
+        Long maxValue = null;
+        for (int i = 0; i < values.length; i++) {
+            maxValue = max(maxValue, values[i]);
+        }
+        return maxValue;
+    }
+
+    public static Long max(final Long value1, final Long value2) {
+        if (value1 == null) {
+            return value2;
+        } else if (value2 == null) {
+            return value1;
+        }
+
+        if (value1 > value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static long max(final long value1, final Long value2) {
+        if (value2 == null) {
+            return value1;
+        }
+
+        if (value1 > value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static long max(final Long value1, final long value2) {
+        if (value1 == null) {
+            return value2;
+        }
+
+        if (value1 > value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static long max(final long value1, final long value2) {
+        if (value1 > value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static Long between(final Long value, final Long minInclusive, final Long maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
+    }
+
+    public static long between(final long value, final long minInclusive, final long maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
     }
 
     public static <T> long[][] fixInconsistentMatrixDimensions(final long[][] matrix) {
