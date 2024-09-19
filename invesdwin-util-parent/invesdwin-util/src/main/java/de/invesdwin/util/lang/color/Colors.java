@@ -110,6 +110,10 @@ public final class Colors {
     }
 
     public static boolean isBrightColor(final Color color) {
+        final Percent transparency = getTransparency(color);
+        if (transparency.getRate() >= 0.5) {
+            return true;
+        }
         final double y = (299 * color.getRed() + 587 * color.getGreen() + 114 * color.getBlue()) / 1000;
         return y >= 128;
     }
