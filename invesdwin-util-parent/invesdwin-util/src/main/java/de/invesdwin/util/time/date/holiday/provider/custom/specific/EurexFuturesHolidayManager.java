@@ -13,8 +13,6 @@ public class EurexFuturesHolidayManager implements IHolidayManager {
 
     private final IHolidayManager weekend = WeekendHolidayManager.INSTANCE;
     private final IHolidayManager holidays = HolidayManagers.EUREX;
-    private final IHolidayManager quarterlyExpirationDay = new HolidayAdjustedExpirationDayHolidayManager(holidays,
-            QuarterlyExpirationDayHolidayManager.INSTANCE);
 
     @Override
     public boolean isHoliday(final FDate date) {
@@ -22,9 +20,6 @@ public class EurexFuturesHolidayManager implements IHolidayManager {
             return true;
         }
         if (holidays.isHoliday(date)) {
-            return true;
-        }
-        if (quarterlyExpirationDay.isHoliday(date)) {
             return true;
         }
         return false;
