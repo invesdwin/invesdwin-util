@@ -28,8 +28,11 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
         if (curIterator == null && delegate.hasNext()) {
             curIterator = WrapperCloseableIterator.maybeWrap(delegate.next());
         }
-        while (curIterator != null) {
-            if (curIterator.hasNext()) {
+        while (true) {
+            final ICloseableIterator<? extends E> curIteratorCopy = curIterator;
+            if (curIteratorCopy == null) {
+                break;
+            } else if (curIteratorCopy.hasNext()) {
                 return true;
             } else if (delegate.hasNext()) {
                 try {
@@ -46,8 +49,9 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
     }
 
     private void nextIterator() {
-        if (curIterator != null) {
-            curIterator.close();
+        final ICloseableIterator<? extends E> curIteratorCopy = curIterator;
+        if (curIteratorCopy != null) {
+            curIteratorCopy.close();
             curIterator = null;
         }
         //might throw another final NoSuchElement exception
@@ -63,9 +67,13 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
                 throw new NullPointerException();
             }
         }
-        while (curIterator != null) {
+        while (true) {
+            final ICloseableIterator<? extends E> curIteratorCopy = curIterator;
+            if (curIteratorCopy == null) {
+                break;
+            }
             try {
-                final E next = curIterator.next();
+                final E next = curIteratorCopy.next();
                 if (next == null) {
                     throw new NullPointerException("FlatteningIterator: next() curIterator.next() returned null");
                 }
@@ -102,8 +110,9 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
         //                curIterator = null;
         //            }
         //        }
-        if (curIterator != null) {
-            curIterator.close();
+        final ICloseableIterator<? extends E> curIteratorCopy = curIterator;
+        if (curIteratorCopy != null) {
+            curIteratorCopy.close();
             curIterator = null;
         }
         delegate.close();
