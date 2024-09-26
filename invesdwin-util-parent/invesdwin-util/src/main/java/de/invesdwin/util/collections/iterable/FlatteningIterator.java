@@ -46,8 +46,10 @@ public class FlatteningIterator<E> implements ICloseableIterator<E> {
     }
 
     private void nextIterator() {
-        curIterator.close();
-        curIterator = null;
+        if (curIterator != null) {
+            curIterator.close();
+            curIterator = null;
+        }
         //might throw another final NoSuchElement exception
         curIterator = delegateNext();
     }
