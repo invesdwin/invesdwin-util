@@ -144,7 +144,7 @@ public class CircularGenericArray<E> {
             return array;
         }
         for (int i = 0; i < size; i++) {
-            array[i] = get(i);
+            a[i] = get(i);
         }
         if (a.length > size) {
             a[size] = null;
