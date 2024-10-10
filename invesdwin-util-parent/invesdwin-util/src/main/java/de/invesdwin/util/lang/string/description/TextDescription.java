@@ -18,6 +18,14 @@ public class TextDescription extends Description {
         this.args = args;
     }
 
+    public String getMessage() {
+        return value;
+    }
+
+    public Object[] getArgs() {
+        return args;
+    }
+
     @Override
     public String value() {
         if (formattedMessage == null) {
