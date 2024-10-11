@@ -55,6 +55,8 @@ public class Duration extends Number implements Comparable<Object> {
     public static final Duration ONE_WEEK = new Duration(1, FTimeUnit.WEEKS);
     public static final Duration TWO_WEEKS = new Duration(2, FTimeUnit.WEEKS);
     public static final Duration ONE_MONTH = new Duration(1, FTimeUnit.MONTHS);
+    public static final Duration TWO_MONTHS = new Duration(2, FTimeUnit.MONTHS);
+    public static final Duration THREE_MONTHS = new Duration(3, FTimeUnit.MONTHS);
     public static final Duration ONE_YEAR = new Duration(1, FTimeUnit.YEARS);
 
     private static final long serialVersionUID = 1L;
