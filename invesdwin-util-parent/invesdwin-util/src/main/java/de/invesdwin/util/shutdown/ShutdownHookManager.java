@@ -184,6 +184,12 @@ public final class ShutdownHookManager {
         }
     }
 
+    /**
+     * This method can be called to prevent deadlocks by allowing the outer thread to unwind the call stack due to an
+     * InterruptedException that will not be retried, thus unlocking locks. Blocking on System.exit will happen in an
+     * asynchronous thread which prevents deadlocks in asynchronous shutdown hooks that might try to lock the same locks
+     * that the caller thread had.
+     */
     public static InterruptedRuntimeException systemExitAsync(final int exitCode) {
         final int callCount = SYSTEM_EXIT_ASYNC_COUNT.incrementAndGet();
         if (callCount == 1) {
