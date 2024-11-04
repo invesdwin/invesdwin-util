@@ -201,8 +201,8 @@ public final class Throwables extends AThrowablesStaticFacade {
     }
 
     public static boolean isCausedByInterrupt(final Throwable t) {
-        return Threads.isInterrupted()
-                || Throwables.isCausedByAnyType(t, InterruptedException.class, ClosedByInterruptException.class);
+        return Threads.isInterrupted() || Throwables.isCausedByAnyType(t, InterruptedException.class,
+                ClosedByInterruptException.class, InterruptedRuntimeException.class);
     }
 
     /**

@@ -5,12 +5,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.loop.LoopInterruptedCheck;
+import de.invesdwin.util.error.InterruptedRuntimeException;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -33,6 +35,8 @@ public final class ShutdownHookManager {
             return true;
         }
     };
+    private static final AtomicInteger SYSTEM_EXIT_ASYNC_COUNT = new AtomicInteger();
+    private static volatile int asyncExitCode = -1;
 
     static {
         /**
@@ -175,6 +179,29 @@ public final class ShutdownHookManager {
                 return false;
             }
         }
+    }
+
+    public static InterruptedRuntimeException systemExitAsync(final int exitCode) {
+        final int callCount = SYSTEM_EXIT_ASYNC_COUNT.incrementAndGet();
+        if (callCount == 1) {
+            asyncExitCode = exitCode;
+            final String threadName = newSystemExitAsyncThreadName(exitCode);
+            new Thread(threadName) {
+                @Override
+                public void run() {
+                    System.exit(asyncExitCode);
+                }
+            }.start();
+            throw new InterruptedRuntimeException("Initially calling System.exit(" + exitCode
+                    + ") asynchronously in thread: " + newSystemExitAsyncThreadName(exitCode));
+        } else {
+            throw new InterruptedRuntimeException("Already calling System.exit(" + exitCode
+                    + ") asynchronously in thread: " + newSystemExitAsyncThreadName(asyncExitCode));
+        }
+    }
+
+    private static String newSystemExitAsyncThreadName(final int exitCode) {
+        return ShutdownHookManager.class.getSimpleName() + ".systemExitAsync(" + exitCode + ")";
     }
 
 }
