@@ -35,6 +35,7 @@ public final class ShutdownHookManager {
             return true;
         }
     };
+    private static final AtomicInteger SHUTDOWN_HOOK_THREAD_COUNT = new AtomicInteger();
     private static final AtomicInteger SYSTEM_EXIT_ASYNC_COUNT = new AtomicInteger();
     private static volatile int asyncExitCode = -1;
 
@@ -144,6 +145,8 @@ public final class ShutdownHookManager {
         private final int identityHashCode;
 
         ShutdownHookThread(final int identityHashCode, final IShutdownHook shutdownable) {
+            super(ShutdownHookManager.class.getSimpleName() + "." + ShutdownHookThread.class.getSimpleName() + "."
+                    + SHUTDOWN_HOOK_THREAD_COUNT.incrementAndGet());
             this.identityHashCode = identityHashCode;
             this.shutdownable = new WeakReference<IShutdownHook>(shutdownable);
         }
@@ -192,10 +195,10 @@ public final class ShutdownHookManager {
                     System.exit(asyncExitCode);
                 }
             }.start();
-            throw new InterruptedRuntimeException("Initially calling System.exit(" + exitCode
+            return new InterruptedRuntimeException("Initially calling System.exit(" + exitCode
                     + ") asynchronously in thread: " + newSystemExitAsyncThreadName(exitCode));
         } else {
-            throw new InterruptedRuntimeException("Already calling System.exit(" + exitCode
+            return new InterruptedRuntimeException("Already calling System.exit(" + exitCode
                     + ") asynchronously in thread: " + newSystemExitAsyncThreadName(asyncExitCode));
         }
     }
