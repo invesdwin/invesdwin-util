@@ -14,8 +14,7 @@ public final class EmptyAttributesMap implements IAttributesMap {
 
     public static final EmptyAttributesMap INSTANCE = new EmptyAttributesMap();
 
-    private EmptyAttributesMap() {
-    }
+    private EmptyAttributesMap() {}
 
     @Override
     public int size() {
@@ -58,8 +57,7 @@ public final class EmptyAttributesMap implements IAttributesMap {
     }
 
     @Override
-    public void clear() {
-    }
+    public void clear() {}
 
     @Override
     public Set<String> keySet() {
@@ -79,6 +77,16 @@ public final class EmptyAttributesMap implements IAttributesMap {
     @Override
     public <T> T getOrCreate(final String key, final Supplier<T> createSupplier) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IAttributesMapContract getSoft() {
+        return this;
+    }
+
+    @Override
+    public IAttributesMapContract getWeak() {
+        return this;
     }
 
 }
