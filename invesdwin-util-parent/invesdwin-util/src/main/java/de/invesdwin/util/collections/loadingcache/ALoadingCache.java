@@ -123,7 +123,15 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
     private V preventRecursiveLoad(final Set<K> alreadyLoading, final K key) {
         if (alreadyLoading.add(key)) {
             try {
-                return loadValue(key);
+                final V loaded = loadValue(key);
+                final ILoadingCache<K, V> delegate = getDelegate();
+                if (delegate.containsKey(key)) {
+                    final V existing = delegate.get(key);
+                    if (loaded != existing) {
+                        throw new IllegalStateException("Already loaded key: " + key);
+                    }
+                }
+                return loaded;
             } finally {
                 alreadyLoading.remove(key);
             }
