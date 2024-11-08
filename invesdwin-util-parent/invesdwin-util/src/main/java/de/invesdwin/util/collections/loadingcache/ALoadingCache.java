@@ -1,16 +1,20 @@
 package de.invesdwin.util.collections.loadingcache;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.eviction.EvictionMode;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.loadingcache.map.CaffeineLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.EvictionMapLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.NoCachingLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.SynchronizedEvictionMapLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.SynchronizedUnlimitedCachingLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.UnlimitedCachingLoadingCache;
+import de.invesdwin.util.concurrent.reference.WeakThreadLocalReference;
 
 @ThreadSafe
 public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
@@ -43,17 +47,19 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
         return ALoadingCacheConfig.DEFAULT_EVICTION_MODE;
     }
 
+    /**
+     * default is false, since this comes at a cost
+     */
+    protected boolean isPreventRecursiveLoad() {
+        return ALoadingCacheConfig.DEFAULT_PREVENT_RECURSIVE_LOAD;
+    }
+
     protected abstract V loadValue(K key);
 
     @Override
     protected ILoadingCache<K, V> newDelegate() {
         final Integer maximumSize = getInitialMaximumSize();
-        final Function<K, V> loadValue = new Function<K, V>() {
-            @Override
-            public V apply(final K key) {
-                return loadValue(key);
-            }
-        };
+        final Function<K, V> loadValue = newLoadValueF();
         if (isHighConcurrency()) {
             return newConcurrentLoadingCache(maximumSize, loadValue);
         } else if (maximumSize == null) {
@@ -70,6 +76,59 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
             } else {
                 return new EvictionMapLoadingCache<>(loadValue, getEvictionMode().newMap(maximumSize));
             }
+        }
+    }
+
+    private Function<K, V> newLoadValueF() {
+        if (isPreventRecursiveLoad()) {
+            if (isHighConcurrency()) {
+                return new Function<K, V>() {
+                    private final Set<K> alreadyLoading = ILockCollectionFactory.getInstance(true).newConcurrentSet();
+
+                    @Override
+                    public V apply(final K t) {
+                        return preventRecursiveLoad(alreadyLoading, t);
+                    }
+                };
+            } else if (isThreadSafe()) {
+                return new Function<K, V>() {
+                    private final WeakThreadLocalReference<Set<K>> alreadyLoadingRef = new WeakThreadLocalReference<Set<K>>() {
+                        @Override
+                        protected Set<K> initialValue() {
+                            return new HashSet<K>();
+                        }
+                    };
+
+                    @Override
+                    public V apply(final K t) {
+                        final Set<K> alreadyLoading = alreadyLoadingRef.get();
+                        return preventRecursiveLoad(alreadyLoading, t);
+                    }
+                };
+            } else {
+                return new Function<K, V>() {
+                    private final Set<K> alreadyLoading = new HashSet<K>();
+
+                    @Override
+                    public V apply(final K t) {
+                        return preventRecursiveLoad(alreadyLoading, t);
+                    }
+                };
+            }
+        } else {
+            return this::loadValue;
+        }
+    }
+
+    private V preventRecursiveLoad(final Set<K> alreadyLoading, final K key) {
+        if (alreadyLoading.add(key)) {
+            try {
+                return loadValue(key);
+            } finally {
+                alreadyLoading.remove(key);
+            }
+        } else {
+            throw new IllegalStateException("Already loading recursively key: " + key);
         }
     }
 

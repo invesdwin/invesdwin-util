@@ -11,12 +11,14 @@ public abstract class ALoadingCacheConfig<K, V> {
     public static final boolean DEFAULT_HIGH_CONCURRENCY = false;
     public static final boolean DEFAULT_THREAD_SAFE = true;
     public static final EvictionMode DEFAULT_EVICTION_MODE = EvictionMode.LeastRecentlyUsed;
+    public static final boolean DEFAULT_PREVENT_RECURSIVE_LOAD = false;
 
     private boolean initialMaximumSizeOverrideEnabled = false;
     private Integer initialMaximumSizeOverride;
     private Boolean highConcurrencyOverride;
     private Boolean threadSafeOverride;
     private EvictionMode evictionModeOverride;
+    private Boolean preventRecursiveLoadOverride;
 
     /**
      * default unlimited size
@@ -65,6 +67,13 @@ public abstract class ALoadingCacheConfig<K, V> {
         this.evictionModeOverride = evictionModeOverride;
     }
 
+    /**
+     * default is false, since this comes at a cost
+     */
+    protected boolean isPreventRecursiveLoad() {
+        return DEFAULT_PREVENT_RECURSIVE_LOAD;
+    }
+
     protected abstract V loadValue(K key);
 
     public ALoadingCache<K, V> newInstance() {
@@ -92,6 +101,12 @@ public abstract class ALoadingCacheConfig<K, V> {
         } else {
             evictionMode = getEvictionMode();
         }
+        final boolean preventRecursiveLoad;
+        if (preventRecursiveLoadOverride != null) {
+            preventRecursiveLoad = preventRecursiveLoadOverride;
+        } else {
+            preventRecursiveLoad = isPreventRecursiveLoad();
+        }
         return new ALoadingCache<K, V>() {
 
             @Override
@@ -112,6 +127,11 @@ public abstract class ALoadingCacheConfig<K, V> {
             @Override
             protected EvictionMode getEvictionMode() {
                 return evictionMode;
+            }
+
+            @Override
+            protected boolean isPreventRecursiveLoad() {
+                return preventRecursiveLoad;
             }
 
             @Override
