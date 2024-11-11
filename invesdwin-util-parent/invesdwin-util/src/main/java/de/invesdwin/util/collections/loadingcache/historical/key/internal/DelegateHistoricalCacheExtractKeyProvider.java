@@ -24,6 +24,10 @@ public final class DelegateHistoricalCacheExtractKeyProvider<V> implements IHist
         this.hashCode = delegate.getExtractKeyProvider().hashCode();
     }
 
+    public IHistoricalCache<Object> getDelegate() {
+        return delegate;
+    }
+
     @Override
     public FDate extractKey(final IFDateProvider pKey, final V value) {
         if (value == null) {
