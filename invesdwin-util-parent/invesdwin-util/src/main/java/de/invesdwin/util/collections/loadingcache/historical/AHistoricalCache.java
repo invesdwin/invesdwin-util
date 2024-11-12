@@ -208,19 +208,48 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     }
 
     protected void setShiftKeyDelegate(final IHistoricalCache<?> shiftKeyDelegate, final boolean alsoExtractKey) {
-        Assertions.assertThat(shiftKeyDelegate).as("Use null instead of this").isNotSameAs(this);
-        Assertions.assertThat(this.shiftKeyProvider)
-                .as("%s can only be set once", IHistoricalCacheShiftKeyProvider.class.getSimpleName())
-                .isInstanceOf(InnerHistoricalCacheShiftKeyProvider.class);
-        this.shiftKeyProvider = DelegateHistoricalCacheShiftKeyProvider.maybeWrap(internalMethods, shiftKeyDelegate);
-        if (alsoExtractKey) {
-            this.extractKeyProvider = DelegateHistoricalCacheExtractKeyProvider.maybeWrap(shiftKeyDelegate);
+        if (isSetShiftKeyDelegateNeeded(shiftKeyDelegate)) {
+            Assertions.assertThat(shiftKeyDelegate).as("Use null instead of this").isNotSameAs(this);
+            Assertions.assertThat(this.shiftKeyProvider)
+                    .as("%s can only be set once", IHistoricalCacheShiftKeyProvider.class.getSimpleName())
+                    .isInstanceOf(InnerHistoricalCacheShiftKeyProvider.class);
+            this.shiftKeyProvider = DelegateHistoricalCacheShiftKeyProvider.maybeWrap(internalMethods,
+                    shiftKeyDelegate);
+            //propagate the maximum size setting downwards without risking an endless recursion
+            registerIncreaseMaximumSizeListener(shiftKeyDelegate);
+            //and upwards
+            shiftKeyDelegate.registerIncreaseMaximumSizeListener(this);
+            isPutDisabled = false;
+            if (alsoExtractKey && isSetExtractKeyDelegateNeeded(shiftKeyDelegate)) {
+                this.extractKeyProvider = DelegateHistoricalCacheExtractKeyProvider.maybeWrap(shiftKeyDelegate);
+            }
+        } else {
+            final boolean alsoExtractKeyBefore = !isSetExtractKeyDelegateNeeded(shiftKeyDelegate);
+            Assertions.assertThat(alsoExtractKey)
+                    .as("Same shiftKeyDelegate was already set with alsoExtractKeyBefore=%s and now it is requested again with alsoExtractKey=%s",
+                            alsoExtractKeyBefore, alsoExtractKey)
+                    .isEqualTo(alsoExtractKeyBefore);
         }
-        //propagate the maximum size setting downwards without risking an endless recursion
-        registerIncreaseMaximumSizeListener(shiftKeyDelegate);
-        //and upwards
-        shiftKeyDelegate.registerIncreaseMaximumSizeListener(this);
-        isPutDisabled = false;
+    }
+
+    private boolean isSetExtractKeyDelegateNeeded(final IHistoricalCache<?> shiftKeyDelegate) {
+        if (this.extractKeyProvider instanceof DelegateHistoricalCacheExtractKeyProvider) {
+            final DelegateHistoricalCacheExtractKeyProvider<V> cShiftKeyProvider = (DelegateHistoricalCacheExtractKeyProvider<V>) this.extractKeyProvider;
+            if (cShiftKeyProvider.getDelegate() == shiftKeyDelegate) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isSetShiftKeyDelegateNeeded(final IHistoricalCache<?> shiftKeyDelegate) {
+        if (this.shiftKeyProvider instanceof DelegateHistoricalCacheShiftKeyProvider) {
+            final DelegateHistoricalCacheShiftKeyProvider<V> cShiftKeyProvider = (DelegateHistoricalCacheShiftKeyProvider<V>) this.shiftKeyProvider;
+            if (cShiftKeyProvider.getParent() == shiftKeyDelegate) {
+                return false;
+            }
+        }
+        return true;
     }
 
     protected void setPutDelegate(final AHistoricalCache<? extends V> putDelegate) {
