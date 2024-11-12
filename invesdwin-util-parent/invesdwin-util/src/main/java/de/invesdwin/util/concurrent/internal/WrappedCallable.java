@@ -49,7 +49,7 @@ public final class WrappedCallable<V> implements Callable<V>, IPriorityProvider 
         }
         try {
             if (threadRetryDisabled) {
-                final boolean registerThreadRetryDisabled = Threads.registerThreadRetryDisabled();
+                final Boolean registerThreadRetryDisabled = Threads.registerThreadRetryDisabled();
                 try {
                     return delegate.call();
                 } finally {

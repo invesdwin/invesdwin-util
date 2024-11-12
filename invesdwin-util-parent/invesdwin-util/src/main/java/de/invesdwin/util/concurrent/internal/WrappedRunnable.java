@@ -49,7 +49,7 @@ public final class WrappedRunnable implements IPriorityRunnable {
         }
         try {
             if (threadRetryDisabled) {
-                final boolean registerThreadRetryDisabled = Threads.registerThreadRetryDisabled();
+                final Boolean registerThreadRetryDisabled = Threads.registerThreadRetryDisabled();
                 try {
                     delegate.run();
                 } finally {

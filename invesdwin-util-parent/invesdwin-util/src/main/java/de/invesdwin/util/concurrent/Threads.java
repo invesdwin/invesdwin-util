@@ -1,5 +1,6 @@
 package de.invesdwin.util.concurrent;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -23,6 +24,8 @@ public final class Threads {
     private static final FastThreadLocal<String> THREAD_POOL_NAME = new FastThreadLocal<>();
 
     private static final FastThreadLocal<Boolean> THREAD_RETRY_DISABLED = new FastThreadLocal<>();
+    @GuardedBy("explcitly not volatile since cached information per thread is fine")
+    private static boolean registerThreadRetryDisabledUsed;
 
     private Threads() {}
 
@@ -104,23 +107,39 @@ public final class Threads {
     }
 
     public static boolean isThreadRetryDisabled() {
-        return Booleans.isTrue(THREAD_RETRY_DISABLED.get()) || AFinalizer.isThreadFinalizerActive()
-                || EventDispatchThreadUtil.isEventDispatchThread() || Threads.isInterrupted();
+        if (registerThreadRetryDisabledUsed && Booleans.isTrue(THREAD_RETRY_DISABLED.get())) {
+            return true;
+        }
+        return AFinalizer.isThreadFinalizerActive() || EventDispatchThreadUtil.isEventDispatchThread()
+                || Threads.isInterrupted();
     }
 
-    public static boolean registerThreadRetryDisabled() {
-        final boolean retryDisabledBefore = BooleanUtils.isTrue(THREAD_RETRY_DISABLED.get());
-        if (!retryDisabledBefore) {
-            THREAD_RETRY_DISABLED.set(true);
-            return true;
+    public static Boolean registerThreadRetryDisabled() {
+        return registerThreadRetryDisabled(true);
+    }
+
+    public static Boolean registerThreadRetryDisabled(final boolean threadRetryDisabled) {
+        final boolean threadRetryDisabledBefore = registerThreadRetryDisabledUsed
+                && BooleanUtils.isTrue(THREAD_RETRY_DISABLED.get());
+        if (threadRetryDisabledBefore != threadRetryDisabled) {
+            THREAD_RETRY_DISABLED.set(threadRetryDisabled);
+            registerThreadRetryDisabledUsed = true;
+            return threadRetryDisabledBefore;
         } else {
-            return false;
+            return null;
         }
     }
 
-    public static void unregisterThreadRetryDisabled(final boolean registerThreadRetryDisabled) {
-        if (registerThreadRetryDisabled) {
+    public static void unregisterThreadRetryDisabled(final Boolean registerThreadRetryDisabled) {
+        if (registerThreadRetryDisabled == null) {
+            //nothing to do since we did not change anything
+            return;
+        }
+        //restore before state
+        if (!registerThreadRetryDisabled) {
             THREAD_RETRY_DISABLED.remove();
+        } else {
+            THREAD_RETRY_DISABLED.set(true);
         }
     }
 

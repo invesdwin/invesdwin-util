@@ -44,6 +44,8 @@ public abstract class AFinalizer implements Closeable, Runnable {
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AFinalizer.class);
     private static final FastThreadLocal<Boolean> THREAD_FINALIZER_ACTIVE = new FastThreadLocal<>();
+    @GuardedBy("explcitly not volatile since cached information per thread is fine")
+    private static boolean threadFinalizerActiveUsed;
     private static final FastThreadLocal<Boolean> UNREGISTERING = new FastThreadLocal<>();
 
     @GuardedBy("this")
@@ -162,13 +164,14 @@ public abstract class AFinalizer implements Closeable, Runnable {
     public abstract boolean isThreadLocal();
 
     public static boolean isThreadFinalizerActive() {
-        return Booleans.isTrue(THREAD_FINALIZER_ACTIVE.get());
+        return threadFinalizerActiveUsed && Booleans.isTrue(THREAD_FINALIZER_ACTIVE.get());
     }
 
     public static boolean registerThreadFinalizerActive() {
         final boolean threadFinalizerActiveBefore = BooleanUtils.isTrue(THREAD_FINALIZER_ACTIVE.get());
         if (!threadFinalizerActiveBefore) {
             THREAD_FINALIZER_ACTIVE.set(true);
+            threadFinalizerActiveUsed = true;
             return true;
         } else {
             return false;
