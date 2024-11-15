@@ -488,7 +488,7 @@ public final class Locks extends ALocksStaticFacade {
     @SuppressWarnings("unchecked")
     public static <L extends Lock> void unlockAll(final L... locks) {
         for (int i = 0; i < locks.length; i++) {
-            locks[i].unlock();
+            tryUnlock(locks[i]);
         }
     }
 
@@ -500,13 +500,13 @@ public final class Locks extends ALocksStaticFacade {
     @SuppressWarnings("unchecked")
     public static <L extends Lock> void unlockAllReverse(final int fromIndex, final L... locks) {
         for (int i = fromIndex; i >= 0; i--) {
-            locks[i].unlock();
+            tryUnlock(locks[i]);
         }
     }
 
     public static <L extends Lock> void unlockAll(final List<L> locks) {
         for (int i = 0; i < locks.size(); i++) {
-            locks.get(i).unlock();
+            tryUnlock(locks.get(i));
         }
     }
 
@@ -516,7 +516,19 @@ public final class Locks extends ALocksStaticFacade {
 
     public static <L extends Lock> void unlockAllReverse(final int fromIndex, final List<L> locks) {
         for (int i = fromIndex; i >= 0; i--) {
-            locks.get(i).unlock();
+            tryUnlock(locks.get(i));
+        }
+    }
+
+    /**
+     * Does not throw an exception when lock is not held by current thread
+     */
+    public static boolean tryUnlock(final Lock lock) {
+        try {
+            lock.unlock();
+            return true;
+        } catch (final Throwable t) {
+            return false;
         }
     }
 

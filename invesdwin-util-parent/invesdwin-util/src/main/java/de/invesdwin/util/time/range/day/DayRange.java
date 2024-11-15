@@ -14,7 +14,9 @@ import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FDayTime;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
+import de.invesdwin.util.time.date.timezone.TimeZoneRange;
 import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.range.TimeRange;
 
 @Immutable
 public class DayRange extends AValueObject implements IDayRangeData {
@@ -51,11 +53,55 @@ public class DayRange extends AValueObject implements IDayRangeData {
     }
 
     public Duration getDuration() {
+        return getDuration(FDates.MIN_DATE);
+    }
+
+    public Duration getDuration(final FDate day) {
         if (from == null || to == null) {
             return null;
         } else {
-            return new Duration(FDates.MIN_DATE.setFDayTime(from), FDates.MIN_DATE.addWeeks(1).setFDayTime(to));
+            final FDate dayFrom = day.setFDayTime(from);
+            final FDate dayTo = day.setFDayTime(to);
+            return getDuration(dayFrom, dayTo);
         }
+    }
+
+    public Duration getDuration(final FDate day, final FTimeZone offsetTimeZone) {
+        if (from == null || to == null) {
+            return null;
+        } else {
+            final FDate dayZoned = day.applyTimeZoneOffset(offsetTimeZone);
+            final FDate dayFrom = dayZoned.setFDayTime(from);
+            final FDate dayTo = dayZoned.setFDayTime(to);
+            return getDuration(dayFrom, dayTo);
+        }
+    }
+
+    public Duration getDuration(final FDate day, final TimeZoneRange offsetTimeZone) {
+        if (offsetTimeZone == null) {
+            return getDuration(day);
+        }
+        if (offsetTimeZone.isSame()) {
+            return getDuration(day, offsetTimeZone.getFrom());
+        }
+        if (from == null || to == null) {
+            return null;
+        } else {
+            final TimeRange dayZoned = day.applyTimeZoneOffset(offsetTimeZone);
+            final FDate dayFrom = dayZoned.getFrom().setFDayTime(from);
+            final FDate dayTo = dayZoned.getTo().setFDayTime(to);
+            return getDuration(dayFrom, dayTo);
+        }
+    }
+
+    private Duration getDuration(final FDate dayFrom, final FDate dayTo) {
+        final FDate endDayTime;
+        if (dayFrom.isBeforeNotNullSafe(dayTo)) {
+            endDayTime = dayTo;
+        } else {
+            endDayTime = dayTo.addDays(1);
+        }
+        return new Duration(dayFrom, endDayTime);
     }
 
     @Override
@@ -192,6 +238,19 @@ public class DayRange extends AValueObject implements IDayRangeData {
             return (DayRange) value;
         } else {
             return new DayRange(FDayTime.valueOf(value.getFrom()), FDayTime.valueOf(value.getTo()));
+        }
+    }
+
+    public static DayRange valueOf(final TimeRange value) {
+        if (value == null) {
+            return null;
+        } else if (value.isSame()) {
+            final FDayTime fromAndTo = FDayTime.valueOf(value.getFrom());
+            return new DayRange(fromAndTo, fromAndTo);
+        } else {
+            final FDayTime from = FDayTime.valueOf(value.getFrom());
+            final FDayTime to = FDayTime.valueOf(value.getTo());
+            return new DayRange(from, to);
         }
     }
 

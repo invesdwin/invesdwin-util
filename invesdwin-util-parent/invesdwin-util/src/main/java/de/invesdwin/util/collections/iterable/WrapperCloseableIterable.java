@@ -40,12 +40,18 @@ public final class WrapperCloseableIterable<E> implements ICloseableIterable<E> 
 
     @SuppressWarnings("unchecked")
     public static <T> ICloseableIterable<T> maybeWrap(final T... iterable) {
-        return new ArrayCloseableIterable<>(iterable);
+        if (iterable == null || iterable.length == 0) {
+            return EmptyCloseableIterable.getInstance();
+        } else {
+            return new ArrayCloseableIterable<>(iterable);
+        }
     }
 
     @SuppressWarnings("unchecked")
     public static <T> ICloseableIterable<T> maybeWrap(final Iterable<? extends T> iterable) {
-        if (iterable instanceof ICloseableIterable) {
+        if (iterable == null) {
+            return EmptyCloseableIterable.getInstance();
+        } else if (iterable instanceof ICloseableIterable) {
             return (ICloseableIterable<T>) iterable;
         } else if (iterable instanceof Collection) {
             return maybeWrap((Collection<T>) iterable);
@@ -56,7 +62,9 @@ public final class WrapperCloseableIterable<E> implements ICloseableIterable<E> 
 
     @SuppressWarnings("unchecked")
     public static <T> ICloseableIterable<T> maybeWrap(final List<? extends T> iterable) {
-        if (iterable instanceof ICloseableIterable) {
+        if (iterable == null) {
+            return EmptyCloseableIterable.getInstance();
+        } else if (iterable instanceof ICloseableIterable) {
             return (ICloseableIterable<T>) iterable;
         }
         final List<? extends T> unwrappedList = ADelegateList.maybeUnwrapToRoot(iterable);
@@ -73,7 +81,9 @@ public final class WrapperCloseableIterable<E> implements ICloseableIterable<E> 
 
     @SuppressWarnings("unchecked")
     public static <T> ICloseableIterable<T> maybeWrap(final Collection<? extends T> iterable) {
-        if (iterable instanceof List) {
+        if (iterable == null) {
+            return EmptyCloseableIterable.getInstance();
+        } else if (iterable instanceof List) {
             return maybeWrap((List<T>) iterable);
         } else if (iterable instanceof ICloseableIterable) {
             return (ICloseableIterable<T>) iterable;

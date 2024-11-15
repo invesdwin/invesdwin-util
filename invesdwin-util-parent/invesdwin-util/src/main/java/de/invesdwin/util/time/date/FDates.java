@@ -538,8 +538,20 @@ public final class FDates {
 
     public static int bisect(final FDate[] keys, final FDate skippingKeysAbove,
             final BisectDuplicateKeyHandling duplicateKeyHandling) {
+        if (keys.length == 0) {
+            return MISSING_INDEX;
+        }
         int lo = 0;
+        final FDate firstKey = keys[lo];
+        if (firstKey.compareToNotNullSafe(skippingKeysAbove) >= 0) {
+            return duplicateKeyHandling.apply(keys, lo, firstKey);
+        }
         int hi = keys.length;
+        final int lastIndex = hi - 1;
+        final FDate lastKey = keys[lastIndex];
+        if (lastKey.compareToNotNullSafe(skippingKeysAbove) <= 0) {
+            return duplicateKeyHandling.apply(keys, lastIndex, lastKey);
+        }
         while (lo < hi) {
             // same as (low+high)/2
             final int mid = (lo + hi) >>> 1;
@@ -577,8 +589,20 @@ public final class FDates {
 
     public static int bisect(final IGenericArray<? extends FDate> keys, final FDate skippingKeysAbove,
             final BisectDuplicateKeyHandling duplicateKeyHandling) {
+        if (keys.size() == 0) {
+            return MISSING_INDEX;
+        }
         int lo = 0;
+        final FDate firstKey = keys.get(lo);
+        if (firstKey.compareToNotNullSafe(skippingKeysAbove) >= 0) {
+            return duplicateKeyHandling.apply(keys, lo, firstKey);
+        }
         int hi = keys.size();
+        final int lastIndex = hi - 1;
+        final FDate lastKey = keys.get(lastIndex);
+        if (lastKey.compareToNotNullSafe(skippingKeysAbove) <= 0) {
+            return duplicateKeyHandling.apply(keys, lastIndex, lastKey);
+        }
         while (lo < hi) {
             // same as (low+high)/2
             final int mid = (lo + hi) >>> 1;
@@ -616,8 +640,20 @@ public final class FDates {
 
     public static <T> int bisect(final Function<T, FDate> extractKey, final List<T> values,
             final FDate skippingKeysAbove, final BisectDuplicateKeyHandling duplicateKeyHandling) {
+        if (values.size() == 0) {
+            return MISSING_INDEX;
+        }
         int lo = 0;
+        final FDate firstKey = extractKey.apply(values.get(lo));
+        if (firstKey.compareToNotNullSafe(skippingKeysAbove) >= 0) {
+            return duplicateKeyHandling.apply(extractKey, values, lo, firstKey);
+        }
         int hi = values.size();
+        final int lastIndex = hi - 1;
+        final FDate lastKey = extractKey.apply(values.get(lastIndex));
+        if (lastKey.compareToNotNullSafe(skippingKeysAbove) <= 0) {
+            return duplicateKeyHandling.apply(extractKey, values, lastIndex, lastKey);
+        }
         while (lo < hi) {
             // same as (low+high)/2
             final int mid = (lo + hi) >>> 1;

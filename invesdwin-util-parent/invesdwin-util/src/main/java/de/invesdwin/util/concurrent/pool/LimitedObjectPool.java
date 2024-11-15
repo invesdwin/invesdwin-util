@@ -29,6 +29,10 @@ public class LimitedObjectPool<E> implements IObjectPool<E> {
         this.timeout = timeout;
     }
 
+    public int getMaximumSize() {
+        return maximumSize;
+    }
+
     @Override
     public E borrowObject() {
         try {
@@ -73,6 +77,13 @@ public class LimitedObjectPool<E> implements IObjectPool<E> {
     @Override
     public void clear() {
         delegate.clear();
+    }
+
+    @Override
+    public int size() {
+        final int lSize = leasedInstances.get();
+        final int dSize = delegate.size();
+        return lSize + dSize;
     }
 
 }

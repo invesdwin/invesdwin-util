@@ -6,11 +6,23 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.date.FWeekTime;
 import de.invesdwin.util.time.date.FWeekday;
+import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
 public class WeekRangeTest {
+
+    @Test
+    public void testGetDuration() {
+        final FWeekTime tueTen = new FWeekTime(FWeekday.Tuesday, 10, 0, 0, 0);
+        final FWeekTime satTwenty = new FWeekTime(FWeekday.Saturday, 20, 0, 0, 0);
+        Assertions.assertThat(new WeekRange(tueTen, satTwenty).getDuration())
+                .isEqualTo(new Duration(4, FTimeUnit.DAYS).add(new Duration(10, FTimeUnit.HOURS)));
+        Assertions.assertThat(new WeekRange(satTwenty, tueTen).getDuration())
+                .isEqualTo(new Duration(2, FTimeUnit.DAYS).add(new Duration(14, FTimeUnit.HOURS)));
+    }
 
     @Test
     public void testParse() {

@@ -34,8 +34,7 @@ public final class Bytes extends ABytesStaticFacade {
     public static final byte ZERO = (byte) 0;
     public static final byte MINUES_ONE = (byte) -1;
 
-    private Bytes() {
-    }
+    private Bytes() {}
 
     public static byte[] toArray(final Collection<? extends Number> vector) {
         if (vector == null) {
@@ -83,52 +82,140 @@ public final class Bytes extends ABytesStaticFacade {
         return matrixAsList;
     }
 
-    public static Byte min(final Byte... times) {
-        Byte minTime = null;
-        for (final Byte time : times) {
-            minTime = min(minTime, time);
+    public static Byte minNullable(final Byte... values) {
+        Byte minValue = null;
+        for (int i = 0; i < values.length; i++) {
+            final Byte value = values[i];
+            minValue = min(minValue, value);
         }
-        return minTime;
+        return minValue;
     }
 
-    public static Byte min(final Byte time1, final Byte time2) {
-        if (time1 == null) {
-            return time2;
-        } else if (time2 == null) {
-            return time1;
+    public static byte min(final byte... values) {
+        byte minValue = values[0];
+        for (int i = 1; i < values.length; i++) {
+            final byte value = values[i];
+            minValue = min(minValue, value);
+        }
+        return minValue;
+    }
+
+    public static Byte min(final Byte value1, final Byte value2) {
+        if (value1 == null) {
+            return value2;
+        } else if (value2 == null) {
+            return value1;
         }
 
-        if (time1 < time2) {
-            return time1;
+        if (value1 < value2) {
+            return value1;
         } else {
-            return time2;
+            return value2;
         }
     }
 
-    public static Byte max(final Byte... times) {
-        Byte maxTime = null;
-        for (final Byte time : times) {
-            maxTime = max(maxTime, time);
-        }
-        return maxTime;
-    }
-
-    public static Byte max(final Byte time1, final Byte time2) {
-        if (time1 == null) {
-            return time2;
-        } else if (time2 == null) {
-            return time1;
+    public static byte min(final byte value1, final Byte value2) {
+        if (value2 == null) {
+            return value1;
         }
 
-        if (time1 > time2) {
-            return time1;
+        if (value1 < value2) {
+            return value1;
         } else {
-            return time2;
+            return value2;
         }
     }
 
-    public static Byte between(final Byte value, final Byte min, final Byte max) {
-        return max(min(value, max), min);
+    public static byte min(final Byte value1, final byte value2) {
+        if (value1 == null) {
+            return value2;
+        }
+
+        if (value1 < value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static byte min(final byte value1, final byte value2) {
+        if (value1 < value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static Byte maxNullable(final Byte... values) {
+        Byte maxValue = null;
+        for (int i = 0; i < values.length; i++) {
+            final Byte value = values[i];
+            maxValue = max(maxValue, value);
+        }
+        return maxValue;
+    }
+
+    public static byte max(final byte... values) {
+        byte maxValue = values[0];
+        for (int i = 1; i < values.length; i++) {
+            final byte value = values[i];
+            maxValue = max(maxValue, value);
+        }
+        return maxValue;
+    }
+
+    public static Byte max(final Byte value1, final Byte value2) {
+        if (value1 == null) {
+            return value2;
+        } else if (value2 == null) {
+            return value1;
+        }
+
+        if (value1 > value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static byte max(final byte value1, final Byte value2) {
+        if (value2 == null) {
+            return value1;
+        }
+
+        if (value1 > value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static byte max(final Byte value1, final byte value2) {
+        if (value1 == null) {
+            return value2;
+        }
+
+        if (value1 > value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static byte max(final byte value1, final byte value2) {
+        if (value1 > value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static Byte between(final Byte value, final Byte minInclusive, final Byte maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
+    }
+
+    public static byte between(final byte value, final byte minInclusive, final byte maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
     }
 
     public static <T> byte[][] fixInconsistentMatrixDimensions(final byte[][] matrix) {

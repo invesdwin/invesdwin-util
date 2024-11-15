@@ -49,4 +49,9 @@ public abstract class ABufferingIteratorObjectPool<E> implements IObjectPool<E> 
         bufferingIterator.clear();
     }
 
+    @Override
+    public int size() {
+        return bufferingIterator.size();
+    }
+
 }

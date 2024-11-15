@@ -10,4 +10,6 @@ public interface IObjectPool<E> {
 
     void invalidateObject(E element);
 
+    int size();
+
 }

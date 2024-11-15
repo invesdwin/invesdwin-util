@@ -36,8 +36,13 @@ public abstract class ATimeoutObjectPool<E> implements ICloseableObjectPool<E> {
                 checkInverval.longValue(), checkInverval.getTimeUnit().timeUnitValue());
     }
 
+    protected int getMinimumSize() {
+        return 0;
+    }
+
     protected synchronized void checkTimeouts() {
-        if (!bufferingIterator.isEmpty()) {
+        final int minimumSize = getMinimumSize();
+        if (bufferingIterator.size() > minimumSize) {
             final ICloseableIterator<TimeoutReference<E>> iterator = bufferingIterator.iterator();
             try {
                 while (true) {
@@ -48,6 +53,9 @@ public abstract class ATimeoutObjectPool<E> implements ICloseableObjectPool<E> {
                         if (element != null) {
                             invalidateObject(element);
                             reference.clear();
+                        }
+                        if (bufferingIterator.size() <= minimumSize) {
+                            return;
                         }
                     }
                 }
@@ -128,6 +136,11 @@ public abstract class ATimeoutObjectPool<E> implements ICloseableObjectPool<E> {
         } catch (final NoSuchElementException e) {
             //end reached
         }
+    }
+
+    @Override
+    public synchronized int size() {
+        return bufferingIterator.size();
     }
 
     @Override

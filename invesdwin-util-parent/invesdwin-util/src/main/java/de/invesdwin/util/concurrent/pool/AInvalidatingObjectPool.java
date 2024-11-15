@@ -18,11 +18,14 @@ public abstract class AInvalidatingObjectPool<E> implements IObjectPool<E> {
     }
 
     @Override
-    public final void clear() {
-    }
+    public final void clear() {}
 
     @Override
-    public void invalidateObject(final E element) {
+    public void invalidateObject(final E element) {}
+
+    @Override
+    public int size() {
+        return 0;
     }
 
 }

@@ -323,11 +323,12 @@ public final class Files extends AFilesStaticFacade {
     }
 
     public static String getExtension(final File f) {
-        final int i = f.getName().lastIndexOf('.');
+        final String fileName = f.getName();
+        final int i = fileName.lastIndexOf('.');
         if (i < 0) {
             return "";
         }
-        final String extension = f.getName().substring(i);
+        final String extension = fileName.substring(i);
         return extension;
     }
 

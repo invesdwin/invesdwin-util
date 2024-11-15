@@ -76,52 +76,140 @@ public final class Characters extends ACharactersStaticFacade {
         return matrixAsList;
     }
 
-    public static Character min(final Character... times) {
-        Character minTime = null;
-        for (final Character time : times) {
-            minTime = min(minTime, time);
+    public static Character minNullable(final Character... values) {
+        Character minValue = null;
+        for (int i = 0; i < values.length; i++) {
+            final Character value = values[i];
+            minValue = min(minValue, value);
         }
-        return minTime;
+        return minValue;
     }
 
-    public static Character min(final Character time1, final Character time2) {
-        if (time1 == null) {
-            return time2;
-        } else if (time2 == null) {
-            return time1;
+    public static char min(final char... values) {
+        char minValue = values[0];
+        for (int i = 1; i < values.length; i++) {
+            final char value = values[i];
+            minValue = min(minValue, value);
+        }
+        return minValue;
+    }
+
+    public static Character min(final Character value1, final Character value2) {
+        if (value1 == null) {
+            return value2;
+        } else if (value2 == null) {
+            return value1;
         }
 
-        if (time1 < time2) {
-            return time1;
+        if (value1 < value2) {
+            return value1;
         } else {
-            return time2;
+            return value2;
         }
     }
 
-    public static Character max(final Character... times) {
-        Character maxTime = null;
-        for (final Character time : times) {
-            maxTime = max(maxTime, time);
-        }
-        return maxTime;
-    }
-
-    public static Character max(final Character time1, final Character time2) {
-        if (time1 == null) {
-            return time2;
-        } else if (time2 == null) {
-            return time1;
+    public static char min(final char value1, final Character value2) {
+        if (value2 == null) {
+            return value1;
         }
 
-        if (time1 > time2) {
-            return time1;
+        if (value1 < value2) {
+            return value1;
         } else {
-            return time2;
+            return value2;
         }
     }
 
-    public static Character between(final Character value, final Character min, final Character max) {
-        return max(min(value, max), min);
+    public static char min(final Character value1, final char value2) {
+        if (value1 == null) {
+            return value2;
+        }
+
+        if (value1 < value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static char min(final char value1, final char value2) {
+        if (value1 < value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static Character maxNullable(final Character... values) {
+        Character maxValue = null;
+        for (int i = 0; i < values.length; i++) {
+            final Character value = values[i];
+            maxValue = max(maxValue, value);
+        }
+        return maxValue;
+    }
+
+    public static char max(final char... values) {
+        char maxValue = values[0];
+        for (int i = 0; i < values.length; i++) {
+            final char value = values[i];
+            maxValue = max(maxValue, value);
+        }
+        return maxValue;
+    }
+
+    public static Character max(final Character value1, final Character value2) {
+        if (value1 == null) {
+            return value2;
+        } else if (value2 == null) {
+            return value1;
+        }
+
+        if (value1 > value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static char max(final char value1, final Character value2) {
+        if (value2 == null) {
+            return value1;
+        }
+
+        if (value1 > value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static char max(final Character value1, final char value2) {
+        if (value1 == null) {
+            return value2;
+        }
+
+        if (value1 > value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static char max(final char value1, final char value2) {
+        if (value1 > value2) {
+            return value1;
+        } else {
+            return value2;
+        }
+    }
+
+    public static Character between(final Character value, final Character minInclusive, final Character maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
+    }
+
+    public static char between(final char value, final char minInclusive, final char maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
     }
 
     public static <T> char[][] fixInconsistentMatrixDimensions(final char[][] matrix) {

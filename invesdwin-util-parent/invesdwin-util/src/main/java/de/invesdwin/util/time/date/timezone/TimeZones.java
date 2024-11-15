@@ -63,14 +63,7 @@ public final class TimeZones {
     }
 
     public static FTimeZone getFTimeZone(final String timeZoneId) {
-        final ZoneId zoneId = getZoneId(timeZoneId);
-        if (zoneId == null) {
-            return null;
-        } else {
-            //CHECKSTYLE:OFF
-            return new FTimeZone(zoneId);
-            //CHECKSTYLE:ON
-        }
+        return FTimeZone.valueOf(timeZoneId);
     }
 
     public static ZoneId getZoneId(final String id) {

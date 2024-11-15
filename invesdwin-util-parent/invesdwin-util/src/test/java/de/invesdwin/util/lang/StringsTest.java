@@ -18,6 +18,13 @@ import de.invesdwin.util.time.date.FDate;
 public class StringsTest {
 
     @Test
+    public void testSplit() {
+        Assertions.assertThat(Strings.splitPreserveAllTokens("", ";").length).isEqualTo(0);
+        Assertions.assertThat(Strings.splitPreserveAllTokens("a", ";").length).isEqualTo(1);
+        Assertions.assertThat(Strings.splitPreserveAllTokens(";", ";").length).isEqualTo(2);
+    }
+
+    @Test
     public void testRemoveEnd() {
         Assertions.assertThat(Strings.removeEnd(new StringBuilder("asdasd"), "asd").toString()).isEqualTo("asd");
         Assertions.assertThat(Strings.removeEnd(new StringBuilder("asdasd"), "d").toString()).isEqualTo("asdas");

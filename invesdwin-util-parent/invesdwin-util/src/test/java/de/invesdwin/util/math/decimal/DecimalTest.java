@@ -62,7 +62,9 @@ public class DecimalTest {
 
     @Test
     public void testDivide() {
-        Assertions.assertThat(new Decimal("1").divide(new Decimal("3")).toString()).isEqualTo("0.3333333333333333");
+        Assertions.assertThat(String.valueOf(new Decimal("1").divide(new Decimal("3")).doubleValue()))
+                .isEqualTo("0.3333333333333333");
+        Assertions.assertThat(new Decimal("1").divide(new Decimal("3")).toString()).isEqualTo("0.333333333");
         Assertions.assertThat(new Decimal("1").divide(new Decimal("3"))).isEqualTo(new Decimal("0.333333333"));
         Assertions.assertThat(new Decimal("0").divide(new Decimal("3"))).isEqualTo(new Decimal("0"));
     }
@@ -124,7 +126,7 @@ public class DecimalTest {
         values.add(new Decimal("4"));
         values.add(new Decimal("5"));
         final IDecimalAggregate<Decimal> growthRates = Decimal.valueOf(values).growthRates().defaultValues();
-        Assertions.assertThat(growthRates.toString()).isEqualTo("[1, 0.5, 0.3333333333333333, 0.25]");
+        Assertions.assertThat(growthRates.toString()).isEqualTo("[1, 0.5, 0.333333333, 0.25]");
         final List<Decimal> expectedList = Arrays.asList(new Decimal("1"), new Decimal("0.5"),
                 new Decimal("0.333333333"), new Decimal("0.25"));
         Assertions.assertThat(Decimal.valueOf(values).growthRates().values().size())

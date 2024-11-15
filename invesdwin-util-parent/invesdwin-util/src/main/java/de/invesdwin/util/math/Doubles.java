@@ -1,9 +1,12 @@
 package de.invesdwin.util.math;
 
+import java.math.MathContext;
 import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -18,6 +21,7 @@ import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.internal.ADoublesStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastDoubles;
 import de.invesdwin.util.math.internal.CheckedCastDoublesObj;
+import io.netty.util.concurrent.FastThreadLocal;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ADoublesStaticFacade", targets = {
         CheckedCastDoubles.class, CheckedCastDoublesObj.class,
@@ -47,6 +51,17 @@ public final class Doubles extends ADoublesStaticFacade {
     public static final double FALSE = 0D;
     public static final double TRUE = 1D;
     private static final long RAW_BITS_NEGATIVE_ZERO = Double.doubleToRawLongBits(-0.0);
+
+    private static final FastThreadLocal<NumberFormat> NUMBER_FORMAT = new FastThreadLocal<NumberFormat>() {
+        @Override
+        protected NumberFormat initialValue() throws Exception {
+            final NumberFormat format = NumberFormat.getNumberInstance(Locale.ENGLISH);
+            format.setMaximumFractionDigits(MathContext.DECIMAL128.getPrecision());
+            format.setRoundingMode(Decimal.DEFAULT_ROUNDING_MODE);
+            format.setGroupingUsed(false);
+            return format;
+        }
+    };
 
     private Doubles() {}
 
@@ -119,7 +134,7 @@ public final class Doubles extends ADoublesStaticFacade {
         return matrixAsList;
     }
 
-    public static Double max(final double first, final Double second) {
+    public static double max(final double first, final Double second) {
         if (second == null) {
             return first;
         } else {
@@ -127,7 +142,7 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    public static Double max(final Double first, final double second) {
+    public static double max(final Double first, final double second) {
         if (first == null) {
             return second;
         } else {
@@ -145,7 +160,7 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    public static Double min(final double first, final Double second) {
+    public static double min(final double first, final Double second) {
         if (second == null) {
             return first;
         } else {
@@ -153,7 +168,7 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    public static Double min(final Double first, final double second) {
+    public static double min(final Double first, final double second) {
         if (first == null) {
             return second;
         } else {
@@ -171,12 +186,12 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    public static double between(final double value, final double min, final double max) {
-        return max(min(value, max), min);
+    public static double between(final double value, final double minInclusive, final double maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
     }
 
-    public static Double between(final Double value, final Double min, final Double max) {
-        return max(min(value, max), min);
+    public static Double between(final Double value, final Double minInclusive, final Double maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
     }
 
     public static <T> double[][] fixInconsistentMatrixDimensions(final double[][] matrix) {
@@ -694,18 +709,34 @@ public final class Doubles extends ADoublesStaticFacade {
         return digits;
     }
 
-    public static double min(final double... array) {
-        double min = array[0];
-        for (int i = 1; i < array.length; i++) {
-            min = min(min, array[i]);
+    public static double min(final double... values) {
+        double min = values[0];
+        for (int i = 1; i < values.length; i++) {
+            min = min(min, values[i]);
         }
         return min;
     }
 
-    public static double max(final double... array) {
-        double max = array[0];
-        for (int i = 1; i < array.length; i++) {
-            max = max(max, array[i]);
+    public static Double minNullable(final Double... values) {
+        Double min = null;
+        for (int i = 0; i < values.length; i++) {
+            min = min(min, values[i]);
+        }
+        return min;
+    }
+
+    public static double max(final double... values) {
+        double max = values[0];
+        for (int i = 1; i < values.length; i++) {
+            max = max(max, values[i]);
+        }
+        return max;
+    }
+
+    public static Double maxNullable(final Double... values) {
+        Double max = null;
+        for (int i = 0; i < values.length; i++) {
+            max = max(max, values[i]);
         }
         return max;
     }
@@ -803,6 +834,14 @@ public final class Doubles extends ADoublesStaticFacade {
 
     public static boolean isNotZero(final double value) {
         return !isZero(value);
+    }
+
+    public static boolean isZeroRounded(final double value) {
+        return compare(value, 0D) == 0;
+    }
+
+    public static boolean isNotZeroRounded(final double value) {
+        return !isZeroRounded(value);
     }
 
     /**
@@ -1522,6 +1561,22 @@ public final class Doubles extends ADoublesStaticFacade {
         } else {
             return value;
         }
+    }
+
+    public static String toString(final double value) {
+        return NUMBER_FORMAT.get().format(value);
+    }
+
+    public static double avg(final double min, final double max) {
+        return (min + max) / 2;
+    }
+
+    public static double maxInclusiveToExclusive(final double maxInclusive) {
+        return maxInclusive + Doubles.FIRST_ABOVE_ZERO;
+    }
+
+    public static double maxExclusiveToInclusive(final double maxExclusive) {
+        return maxExclusive - Doubles.FIRST_ABOVE_ZERO;
     }
 
 }

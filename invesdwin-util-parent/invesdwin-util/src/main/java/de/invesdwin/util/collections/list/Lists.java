@@ -1,5 +1,8 @@
 package de.invesdwin.util.collections.list;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Method;
 import java.util.AbstractSequentialList;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,17 +16,72 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.list.internal.AListsStaticFacade;
+import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.lang.reflection.Reflections;
+import de.invesdwin.util.time.date.BisectDuplicateKeyHandling;
+import de.invesdwin.util.time.date.FDates;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.list.internal.AListsStaticFacade", targets = {
-        com.google.common.collect.Lists.class, org.apache.commons.collections4.ListUtils.class })
+        org.apache.commons.collections4.ListUtils.class,
+        com.google.common.collect.Lists.class }, filterSeeMethodSignatures = {
+                "com.google.common.collect.Lists#partition(java.util.List, int)" })
 public final class Lists extends AListsStaticFacade {
 
+    public static final MethodHandle ARRAYLIST_REMOVERANGE_MH;
+
+    static {
+        final Method removeRange = Reflections.findMethod(ArrayList.class, "removeRange", int.class, int.class);
+        Reflections.makeAccessible(removeRange);
+        try {
+            ARRAYLIST_REMOVERANGE_MH = MethodHandles.lookup().unreflect(removeRange);
+        } catch (final IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Lists() {}
+
+    public static int maybeTrimSizeStart(final List<?> list, final int maxSize) {
+        if (list.size() > maxSize) {
+            final int tooMany = list.size() - maxSize;
+            return removeRange(list, 0, tooMany);
+        } else {
+            return 0;
+        }
+    }
+
+    public static int removeRange(final List<?> list, final int fromIndexInclusive, final int toIndexExclusive) {
+        if (fromIndexInclusive == toIndexExclusive) {
+            return 0;
+        }
+        if (list instanceof IFastIterableList) {
+            final IFastIterableList<?> cList = (IFastIterableList<?>) list;
+            return cList.removeRange(fromIndexInclusive, toIndexExclusive);
+        } else if (list instanceof ArrayList) {
+            try {
+                ARRAYLIST_REMOVERANGE_MH.invoke(list, fromIndexInclusive, toIndexExclusive);
+            } catch (final Throwable e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            if (fromIndexInclusive > toIndexExclusive) {
+                throw new IndexOutOfBoundsException(
+                        "From Index: " + fromIndexInclusive + " > To Index: " + toIndexExclusive);
+            }
+            final int index = fromIndexInclusive;
+            for (int i = fromIndexInclusive; i < toIndexExclusive; i++) {
+                list.remove(index);
+            }
+        }
+        return toIndexExclusive - fromIndexInclusive;
+    }
 
     public static <T> List<T> join(final Collection<? extends Collection<T>> lists) {
         final List<T> result = new ArrayList<T>();
@@ -359,6 +417,85 @@ public final class Lists extends AListsStaticFacade {
             }
         }
         return false;
+    }
+
+    /**
+     * Tells at which index to insert an item using list.add(index, item) to keep the list sorted
+     */
+    public static <T> int bisectForAdd(final List<T> values, final IComparator<T> comparator,
+            final T skippingKeysAbove) {
+        if (values.isEmpty()) {
+            return 0;
+        }
+        int lo = 0;
+        if (comparator.compareTyped(values.get(lo), skippingKeysAbove) > 0) {
+            return lo;
+        }
+        int hi = values.size();
+        if (comparator.compareTyped(values.get(hi - 1), skippingKeysAbove) <= 0) {
+            return hi;
+        }
+        while (lo < hi) {
+            final int mid = (lo + hi) / 2;
+            //if (x < list.get(mid)) {
+            if (comparator.compareTyped(values.get(mid), skippingKeysAbove) > 0) {
+                hi = mid;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        return lo;
+    }
+
+    public static <T> int bisect(final List<T> values, final IComparator<T> comparator, final T skippingKeysAbove,
+            final BisectDuplicateKeyHandling duplicateKeyHandling) {
+        if (values.isEmpty()) {
+            return FDates.MISSING_INDEX;
+        }
+        int lo = 0;
+        final T firstKey = values.get(lo);
+        if (comparator.compareTyped(firstKey, skippingKeysAbove) >= 0) {
+            return duplicateKeyHandling.apply(values, comparator, lo, firstKey);
+        }
+        int hi = values.size();
+        final int lastIndex = hi - 1;
+        final T lastKey = values.get(lastIndex);
+        if (comparator.compareTyped(lastKey, skippingKeysAbove) <= 0) {
+            return duplicateKeyHandling.apply(values, comparator, lastIndex, lastKey);
+        }
+        while (lo < hi) {
+            // same as (low+high)/2
+            final int mid = (lo + hi) >>> 1;
+            //if (x < list.get(mid)) {
+            final T midKey = values.get(mid);
+            final int compareTo = comparator.compareTyped(midKey, skippingKeysAbove);
+            switch (compareTo) {
+            case FDates.MISSING_INDEX:
+                lo = mid + 1;
+                break;
+            case 0:
+                return duplicateKeyHandling.apply(values, comparator, mid, midKey);
+            case 1:
+                hi = mid;
+                break;
+            default:
+                throw UnknownArgumentException.newInstance(Integer.class, compareTo);
+            }
+        }
+        if (lo <= 0) {
+            return 0;
+        }
+        if (lo >= values.size()) {
+            lo = lo - 1;
+        }
+        final T loKey = values.get(lo);
+        if (comparator.compareTypedNotNullSafe(loKey, skippingKeysAbove) > 0) {
+            //no duplicate key handling needed because this is the last value before the actual requested key
+            final int index = lo - 1;
+            return index;
+        } else {
+            return duplicateKeyHandling.apply(values, comparator, lo, loKey);
+        }
     }
 
 }
