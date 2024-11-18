@@ -52,6 +52,13 @@ public class SynchronizedIntReference implements IMutableIntReference, ISerializ
     }
 
     @Override
+    public int incrementAndGet() {
+        synchronized (lock) {
+            return ++value;
+        }
+    }
+
+    @Override
     public String toString() {
         return Objects.toStringHelper(this).addValue(value).toString();
     }

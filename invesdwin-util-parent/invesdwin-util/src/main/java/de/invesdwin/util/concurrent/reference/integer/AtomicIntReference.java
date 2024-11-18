@@ -29,6 +29,11 @@ public class AtomicIntReference implements IMutableIntReference, ISerializableVa
     }
 
     @Override
+    public int incrementAndGet() {
+        return value.incrementAndGet();
+    }
+
+    @Override
     public int getAndSet(final int value) {
         return this.value.getAndSet(value);
     }

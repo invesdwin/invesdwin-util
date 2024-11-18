@@ -27,6 +27,11 @@ public final class UnmodifiableIntReference implements IMutableIntReference {
     }
 
     @Override
+    public int incrementAndGet() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public int hashCode() {
         return Integer.hashCode(value);
     }
