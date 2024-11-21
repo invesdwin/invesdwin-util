@@ -109,8 +109,7 @@ public final class Currencies {
         CURRENCY_CODE_2_CURRENCY_SYMBOL.put(ABS, ABS_SYMBOL);
     }
 
-    private Currencies() {
-    }
+    private Currencies() {}
 
     /**
      * This method uses symbols for the most common currencies.
