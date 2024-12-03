@@ -492,4 +492,14 @@ public final class Files extends AFilesStaticFacade {
         }
     }
 
+    public static File createFolder(final File parent, final String name) {
+        final File folder = new File(parent, name);
+        try {
+            Files.forceMkdir(folder);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+        return folder;
+    }
+
 }
