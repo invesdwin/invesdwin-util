@@ -13,6 +13,8 @@ import de.invesdwin.util.concurrent.handler.IExecutorExceptionHandler;
 import de.invesdwin.util.concurrent.handler.UncaughtExecutorExceptionHandler;
 import de.invesdwin.util.error.internal.AThrowablesStaticFacade;
 import de.invesdwin.util.lang.string.Strings;
+import de.invesdwin.util.math.Integers;
+import it.unimi.dsi.fastutil.objects.Object2BooleanFunction;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.error.internal.AThrowablesStaticFacade", targets = {
@@ -157,6 +159,47 @@ public final class Throwables extends AThrowablesStaticFacade {
             final StackTraceElement stackTraceElement = stackTrace[i];
             sb.append(" -> ");
             sb.append(stackTraceElement);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Prints the first X stack trace elements with the exception info up to the stop condition
+     */
+    public static String getShortStackTrace(final Throwable e, final int maxStacksAround,
+            final Object2BooleanFunction<StackTraceElement> stopCondition) {
+        final StringBuilder sb = new StringBuilder(e.toString());
+        final StackTraceElement[] stackTrace = e.getStackTrace();
+        int ignoredStacks = 0;
+        for (int i = 0; i < stackTrace.length; i++) {
+            final StackTraceElement stackTraceElement = stackTrace[i];
+            if (i < maxStacksAround) {
+                sb.append(" -> ");
+                sb.append(stackTraceElement);
+                if (stopCondition.getBoolean(stackTraceElement)) {
+                    break;
+                }
+            } else if (stopCondition.getBoolean(stackTraceElement)) {
+                if (ignoredStacks > 0) {
+                    final int countSuffix = Integers.min(ignoredStacks, maxStacksAround);
+                    ignoredStacks -= countSuffix;
+                    if (ignoredStacks > 0) {
+                        sb.append(" -> ... ");
+                        sb.append(ignoredStacks);
+                        sb.append(" more ... ");
+                    }
+                    for (int s = countSuffix; s > 0; s--) {
+                        final StackTraceElement suffixStackTraceElement = stackTrace[i - s];
+                        sb.append(" -> ");
+                        sb.append(suffixStackTraceElement);
+                    }
+                }
+                sb.append(" -> ");
+                sb.append(stackTraceElement);
+                break;
+            } else {
+                ignoredStacks++;
+            }
         }
         return sb.toString();
     }
