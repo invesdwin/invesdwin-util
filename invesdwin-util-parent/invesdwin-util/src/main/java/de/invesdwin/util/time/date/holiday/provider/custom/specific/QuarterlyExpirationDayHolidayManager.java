@@ -33,8 +33,7 @@ public final class QuarterlyExpirationDayHolidayManager implements IHolidayManag
     private static final int FRIDAY = FWeekday.Friday.indexValue();
     private static final int THIRD_WEEK_OF_MONTH = 3;
 
-    private QuarterlyExpirationDayHolidayManager() {
-    }
+    private QuarterlyExpirationDayHolidayManager() {}
 
     @Override
     public boolean isHoliday(final FDate date) {
@@ -46,8 +45,10 @@ public final class QuarterlyExpirationDayHolidayManager implements IHolidayManag
         if (weekday != FRIDAY) {
             return false;
         }
-        final int weekNumberOfMonth = date.getWeekNumberOfMonth();
-        if (weekNumberOfMonth != THIRD_WEEK_OF_MONTH) {
+
+        final FDate firstFridayOfMonth = date.getFirstWeekdayOfMonth(FWeekday.Friday);
+        final FDate thirdFridayOfMonth = firstFridayOfMonth.addWeeks(THIRD_WEEK_OF_MONTH - 1);
+        if (!date.withoutTime().equals(thirdFridayOfMonth)) {
             return false;
         }
         return true;
