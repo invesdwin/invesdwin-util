@@ -554,14 +554,6 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    public static double nonFiniteToZero(final double value) {
-        if (isNonFinite(value)) {
-            return 0;
-        } else {
-            return value;
-        }
-    }
-
     public static double zeroToNan(final Number value) {
         if (value == null) {
             return Double.NaN;
@@ -613,7 +605,7 @@ public final class Doubles extends ADoublesStaticFacade {
         return !Double.isInfinite(value);
     }
 
-    public static boolean isNonFinite(final double value) {
+    public static boolean isNotFinite(final double value) {
         return !Double.isFinite(value);
     }
 

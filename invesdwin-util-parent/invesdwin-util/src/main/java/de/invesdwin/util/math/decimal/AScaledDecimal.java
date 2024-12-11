@@ -32,7 +32,7 @@ public abstract class AScaledDecimal<T extends AScaledDecimal<T, S>, S extends I
         final S defaultScale = getDefaultScale();
         assert defaultScale != null : "defaultScale should not be null";
         validateScale(defaultScale);
-        this.scaledValue = Doubles.nonFiniteToZero(value);
+        this.scaledValue = Doubles.nanToZero(value);
         validateScale(scale);
         if (scale.equals(defaultScale)) {
             defaultValue = value;
