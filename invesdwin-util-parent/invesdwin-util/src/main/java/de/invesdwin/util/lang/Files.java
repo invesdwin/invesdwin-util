@@ -524,6 +524,11 @@ public final class Files extends AFilesStaticFacade {
 
     public static boolean createRedirectFile(final File redirectFile, final File redirectedFile) {
         if (redirectedFile != null && redirectedFile.exists()) {
+            try {
+                Files.forceMkdirParent(redirectFile);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
             Files.writeStringToFileIfDifferent(redirectFile, redirectedFile.getAbsolutePath());
             return true;
         } else {
