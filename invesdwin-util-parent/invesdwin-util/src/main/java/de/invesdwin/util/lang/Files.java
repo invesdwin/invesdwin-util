@@ -22,6 +22,7 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.lang.internal.AFilesStaticFacade;
+import de.invesdwin.util.lang.string.Charsets;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.time.date.FDate;
@@ -500,6 +501,35 @@ public final class Files extends AFilesStaticFacade {
             throw new RuntimeException(e);
         }
         return folder;
+    }
+
+    public static boolean redirectedFileExists(final File redirectFile) {
+        if (!redirectFile.exists()) {
+            return false;
+        }
+        try {
+            final String firstFileStr = Files.readFileToString(redirectFile, Charsets.DEFAULT);
+            if (Strings.isBlank(firstFileStr)) {
+                return false;
+            }
+            final File firstFile = new File(firstFileStr);
+            if (firstFile.exists()) {
+                return true;
+            }
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+        return false;
+    }
+
+    public static boolean createRedirectFile(final File redirectFile, final File redirectedFile) {
+        if (redirectedFile != null && redirectedFile.exists()) {
+            Files.writeStringToFileIfDifferent(redirectFile, redirectedFile.getAbsolutePath());
+            return true;
+        } else {
+            Files.deleteQuietly(redirectFile);
+            return false;
+        }
     }
 
 }
