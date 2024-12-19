@@ -144,7 +144,7 @@ public class SynchronizedMap<K, V> implements Map<K, V> {
             //bad idea to synchronize in apply, this might cause deadlocks when threads are used inside of it
             v = mappingFunction.apply(key);
             if (v != null) {
-            	delegate = getDelegate();
+                delegate = getDelegate();
                 synchronized (lock) {
                     final V oldV = delegate.get(key);
                     if (oldV != null) {
