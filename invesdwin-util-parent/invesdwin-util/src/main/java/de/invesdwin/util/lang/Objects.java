@@ -236,7 +236,7 @@ public final class Objects extends AObjectsStaticFacade {
         final int prime = 31;
         int result = 1;
         for (final Object element : objects) {
-            result = prime * result + hashCode(element.hashCode());
+            result = prime * result + hashCode(element);
         }
         return result;
     }
