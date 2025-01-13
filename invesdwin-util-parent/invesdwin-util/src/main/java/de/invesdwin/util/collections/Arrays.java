@@ -249,4 +249,132 @@ public class Arrays extends AArraysStaticFacade {
         }
     }
 
+    public static String matrixToString(final byte[][] matrix) {
+        final int lastIndex = matrix.length - 1;
+        final StringBuilder sb = new StringBuilder("[\n");
+        for (int i = 0; i < matrix.length; i++) {
+            final byte[] vector = matrix[i];
+            sb.append("  ");
+            sb.append(Arrays.toString(vector));
+            if (i < lastIndex) {
+                sb.append(",");
+            }
+            sb.append('\n');
+        }
+        sb.append("\n]");
+        return sb.toString();
+    }
+
+    public static String matrixToString(final short[][] matrix) {
+        final int lastIndex = matrix.length - 1;
+        final StringBuilder sb = new StringBuilder("[\n");
+        for (int i = 0; i < matrix.length; i++) {
+            final short[] vector = matrix[i];
+            sb.append("  ");
+            sb.append(Arrays.toString(vector));
+            if (i < lastIndex) {
+                sb.append(",");
+            }
+            sb.append('\n');
+        }
+        sb.append("\n]");
+        return sb.toString();
+    }
+
+    public static String matrixToString(final char[][] matrix) {
+        final int lastIndex = matrix.length - 1;
+        final StringBuilder sb = new StringBuilder("[\n");
+        for (int i = 0; i < matrix.length; i++) {
+            final char[] vector = matrix[i];
+            sb.append("  ");
+            sb.append(Arrays.toString(vector));
+            if (i < lastIndex) {
+                sb.append(",");
+            }
+            sb.append('\n');
+        }
+        sb.append("\n]");
+        return sb.toString();
+    }
+
+    public static String matrixToString(final int[][] matrix) {
+        final int lastIndex = matrix.length - 1;
+        final StringBuilder sb = new StringBuilder("[\n");
+        for (int i = 0; i < matrix.length; i++) {
+            final int[] vector = matrix[i];
+            sb.append("  ");
+            sb.append(Arrays.toString(vector));
+            if (i < lastIndex) {
+                sb.append(",");
+            }
+            sb.append('\n');
+        }
+        sb.append("\n]");
+        return sb.toString();
+    }
+
+    public static String matrixToString(final long[][] matrix) {
+        final int lastIndex = matrix.length - 1;
+        final StringBuilder sb = new StringBuilder("[\n");
+        for (int i = 0; i < matrix.length; i++) {
+            final long[] vector = matrix[i];
+            sb.append("  ");
+            sb.append(Arrays.toString(vector));
+            if (i < lastIndex) {
+                sb.append(",");
+            }
+            sb.append('\n');
+        }
+        sb.append("\n]");
+        return sb.toString();
+    }
+
+    public static String matrixToString(final float[][] matrix) {
+        final int lastIndex = matrix.length - 1;
+        final StringBuilder sb = new StringBuilder("[\n");
+        for (int i = 0; i < matrix.length; i++) {
+            final float[] vector = matrix[i];
+            sb.append("  ");
+            sb.append(Arrays.toString(vector));
+            if (i < lastIndex) {
+                sb.append(",");
+            }
+            sb.append('\n');
+        }
+        sb.append("\n]");
+        return sb.toString();
+    }
+
+    public static String matrixToString(final double[][] matrix) {
+        final int lastIndex = matrix.length - 1;
+        final StringBuilder sb = new StringBuilder("[\n");
+        for (int i = 0; i < matrix.length; i++) {
+            final double[] vector = matrix[i];
+            sb.append("  ");
+            sb.append(Arrays.toString(vector));
+            if (i < lastIndex) {
+                sb.append(",");
+            }
+            sb.append('\n');
+        }
+        sb.append("\n]");
+        return sb.toString();
+    }
+
+    public static String matrixToString(final Object[][] matrix) {
+        final int lastIndex = matrix.length - 1;
+        final StringBuilder sb = new StringBuilder("[\n");
+        for (int i = 0; i < matrix.length; i++) {
+            final Object[] vector = matrix[i];
+            sb.append("  ");
+            sb.append(Arrays.toString(vector));
+            if (i < lastIndex) {
+                sb.append(",");
+            }
+            sb.append('\n');
+        }
+        sb.append("\n]");
+        return sb.toString();
+    }
+
 }
