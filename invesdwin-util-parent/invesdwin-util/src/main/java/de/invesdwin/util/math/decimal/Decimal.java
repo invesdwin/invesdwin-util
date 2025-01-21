@@ -2,6 +2,7 @@ package de.invesdwin.util.math.decimal;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -401,7 +402,19 @@ public class Decimal extends ADecimal<Decimal> {
     }
 
     /**
-     * Removes grouping characters for 1000's and then parses the clean double string.
+     * Parses a formatted double string. Uses the given DecimalFormat instance to handle the whole formatting.
+     */
+    public static double parseDouble(final String value, final DecimalFormat format) {
+        try {
+            final Number parsed = format.parse(value);
+            return parsed.doubleValue();
+        } catch (final ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Parses a formatted double string. Removes grouping characters for 1000's and then parses the clean double string.
      */
     public static double parseDouble(final String value) {
         return Double
