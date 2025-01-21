@@ -209,6 +209,10 @@ public final class FDates {
         return date.toString(format, timeZone);
     }
 
+    public static FDate min(final FDate date1, final FDate date2, final FDate date3) {
+        return min(min(date1, date2), date3);
+    }
+
     public static FDate min(final FDate... dates) {
         FDate minDate = null;
         for (final FDate date : dates) {
@@ -249,6 +253,10 @@ public final class FDates {
             maxDate = max(maxDate, date);
         }
         return maxDate;
+    }
+
+    public static FDate max(final FDate date1, final FDate date2, final FDate date3) {
+        return max(max(date1, date2), date3);
     }
 
     public static FDate max(final FDate... dates) {
