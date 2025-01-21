@@ -403,7 +403,7 @@ public class Decimal extends ADecimal<Decimal> {
     /**
      * Removes grouping characters for 1000's and then parses the clean double string.
      */
-    public static double parseDouble(final String value) {
+    public static double parseDoubleFormatted(final String value) {
         return Double
                 .parseDouble(Strings.replace(value, Decimal.DEFAULT_DECIMAL_FORMAT_SYMBOLS_GROUPING_SEPARATOR_STR, ""));
     }
