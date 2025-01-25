@@ -17,7 +17,7 @@ import de.invesdwin.util.time.duration.Duration;
 @Immutable
 public enum FTimeUnit {
 
-    MILLENIA("MILLENIUM") {
+    MILLENIA("mil", "MILLENIUM", "MIL", "MILS") {
         @Override
         public FTimeUnitFractional asFractional() {
             return FTimeUnitFractional.MILLENIA;
@@ -108,7 +108,7 @@ public enum FTimeUnit {
             return duration * YEARS_IN_MILLENIUM;
         }
     },
-    CENTURIES("CENTURY") {
+    CENTURIES("cen", "CENTURY", "CEN", "CENS") {
         @Override
         public FTimeUnitFractional asFractional() {
             return FTimeUnitFractional.CENTURIES;
@@ -199,7 +199,7 @@ public enum FTimeUnit {
             return duration * YEARS_IN_CENTURY;
         }
     },
-    DECADES("DECADE") {
+    DECADES("dec", "DECADE", "DEC", "DECS") {
 
         @Override
         public FTimeUnitFractional asFractional() {
@@ -291,7 +291,7 @@ public enum FTimeUnit {
             return duration * YEARS_IN_DECADE;
         }
     },
-    YEARS("YEAR", "Y") {
+    YEARS("y", "YEAR", "Y") {
 
         @Override
         public FTimeUnitFractional asFractional() {
@@ -384,7 +384,7 @@ public enum FTimeUnit {
         }
 
     },
-    MONTHS("MONTH", "MON", "MONS") {
+    MONTHS("mon", "MONTH", "MON", "MONS") {
 
         @Override
         public FTimeUnitFractional asFractional() {
@@ -477,7 +477,7 @@ public enum FTimeUnit {
         }
 
     },
-    WEEKS("WEEK", "W") {
+    WEEKS("w", "WEEK", "W") {
 
         @Override
         public FTimeUnitFractional asFractional() {
@@ -570,7 +570,7 @@ public enum FTimeUnit {
         }
 
     },
-    DAYS("DAY", "D") {
+    DAYS("d", "DAY", "D") {
 
         @Override
         public FTimeUnitFractional asFractional() {
@@ -663,7 +663,7 @@ public enum FTimeUnit {
         }
 
     },
-    HOURS("HOUR", "H") {
+    HOURS("h", "HOUR", "H") {
 
         @Override
         public FTimeUnitFractional asFractional() {
@@ -756,7 +756,7 @@ public enum FTimeUnit {
         }
 
     },
-    MINUTES("MINUTE", "MIN", "MINS", "M") {
+    MINUTES("m", "MINUTE", "MIN", "MINS", "M") {
 
         @Override
         public FTimeUnitFractional asFractional() {
@@ -849,7 +849,7 @@ public enum FTimeUnit {
         }
 
     },
-    SECONDS("SECOND", "SEC", "SECS", "S") {
+    SECONDS("s", "SECOND", "SEC", "SECS", "S") {
 
         @Override
         public FTimeUnitFractional asFractional() {
@@ -942,7 +942,7 @@ public enum FTimeUnit {
         }
 
     },
-    MILLISECONDS("MILLISECOND", "MILLIS", "MS") {
+    MILLISECONDS("ms", "MILLISECOND", "MILLIS", "MS") {
 
         @Override
         public FTimeUnitFractional asFractional() {
@@ -1035,7 +1035,7 @@ public enum FTimeUnit {
         }
 
     },
-    MICROSECONDS("MICROSECOND", "MICROS", "MICRO") {
+    MICROSECONDS("µs", "MICROSECOND", "MICROS", "MICRO") {
 
         @Override
         public FTimeUnitFractional asFractional() {
@@ -1128,7 +1128,7 @@ public enum FTimeUnit {
         }
 
     },
-    NANOSECONDS("NANOSECOND", "NANOS", "NS") {
+    NANOSECONDS("ns", "NANOSECOND", "NANOS", "NS") {
 
         @Override
         public FTimeUnitFractional asFractional() {
@@ -1288,12 +1288,15 @@ public enum FTimeUnit {
                     throw new IllegalArgumentException("Duplicate alias: " + alias);
                 }
             }
+            ALIAS_LOOKUP.put(f.getShortName().toUpperCase(), f);
         }
     }
 
-    private String[] aliases;
+    private final String shortName;
+    private final String[] aliases;
 
-    FTimeUnit(final String... aliases) {
+    FTimeUnit(final String shortName, final String... aliases) {
+        this.shortName = shortName;
         this.aliases = aliases;
     }
 
@@ -1369,6 +1372,10 @@ public enum FTimeUnit {
     public abstract DurationField durationFieldValue();
 
     public abstract FTimeUnitFractional asFractional();
+
+    public String getShortName() {
+        return shortName;
+    }
 
     public static FTimeUnit valueOf(final Duration duration) {
         return DURATION_NANOS_LOOKUP.get(duration.longValue(FTimeUnit.NANOSECONDS));
