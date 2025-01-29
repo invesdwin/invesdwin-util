@@ -167,7 +167,7 @@ public final class FDates {
                             first = false;
                             return spot;
                         } else {
-                            if (spot.isBefore(endFinal) || end) {
+                            if (spot.isBeforeNotNullSafe(endFinal) || end) {
                                 throw FastNoSuchElementException
                                         .getInstance("FDateIterable: decrementing next reached end");
                             }
