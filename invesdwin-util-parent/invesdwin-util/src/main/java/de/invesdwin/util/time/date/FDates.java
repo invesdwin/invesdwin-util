@@ -9,6 +9,7 @@ import java.util.function.Function;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.array.IGenericArray;
+import de.invesdwin.util.collections.iterable.EmptyCloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
@@ -51,12 +52,30 @@ public final class FDates {
     }
 
     public static ICloseableIterable<FDate> iterable(final FDate start, final FDate end, final Duration increment) {
-        return new FDateIterable(start, end, increment.getTimeUnit(), increment.intValue());
+        return iterable(start, end, increment.getTimeUnit(), increment.intValue());
     }
 
     public static ICloseableIterable<FDate> iterable(final FDate start, final FDate end, final FTimeUnit timeUnit,
             final int incrementAmount) {
         return new FDateIterable(start, end, timeUnit, incrementAmount);
+    }
+
+    public static ICloseableIterable<FDate> iterableNoThrow(final FDate start, final FDate end,
+            final Duration increment) {
+        return iterableNoThrow(start, end, increment.getTimeUnit(), increment.intValue());
+    }
+
+    public static ICloseableIterable<FDate> iterableNoThrow(final FDate start, final FDate end,
+            final FTimeUnit timeUnit, final int incrementAmount) {
+        if (incrementAmount == 0) {
+            return EmptyCloseableIterable.getInstance();
+        } else if (start.isBefore(end) && incrementAmount < 0) {
+            return EmptyCloseableIterable.getInstance();
+        } else if (start.isAfter(end) && incrementAmount > 0) {
+            return EmptyCloseableIterable.getInstance();
+        } else {
+            return iterable(start, end, timeUnit, incrementAmount);
+        }
     }
 
     static class FDateIterable implements ICloseableIterable<FDate> {
