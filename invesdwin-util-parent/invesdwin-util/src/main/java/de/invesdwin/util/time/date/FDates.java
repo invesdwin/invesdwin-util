@@ -69,9 +69,9 @@ public final class FDates {
             final FTimeUnit timeUnit, final int incrementAmount) {
         if (incrementAmount == 0) {
             return EmptyCloseableIterable.getInstance();
-        } else if (start.isBefore(end) && incrementAmount < 0) {
+        } else if (start.isBeforeNotNullSafe(end) && incrementAmount < 0) {
             return EmptyCloseableIterable.getInstance();
-        } else if (start.isAfter(end) && incrementAmount > 0) {
+        } else if (start.isAfterNotNullSafe(end) && incrementAmount > 0) {
             return EmptyCloseableIterable.getInstance();
         } else {
             return iterable(start, end, timeUnit, incrementAmount);
@@ -93,10 +93,10 @@ public final class FDates {
             if (incrementAmount == 0) {
                 throw new IllegalArgumentException("incrementAmount must not be 0");
             }
-            if (startFinal.isBefore(endFinal) && incrementAmount < 0) {
+            if (startFinal.isBeforeNotNullSafe(endFinal) && incrementAmount < 0) {
                 throw new IllegalArgumentException("When iterating forward [" + startFinal + " -> " + endFinal
                         + "], incrementAmount [" + incrementAmount + "] needs to be positive.");
-            } else if (startFinal.isAfter(endFinal) && incrementAmount > 0) {
+            } else if (startFinal.isAfterNotNullSafe(endFinal) && incrementAmount > 0) {
                 throw new IllegalArgumentException("When iterating backward [" + startFinal + " -> " + endFinal
                         + "], incrementAmount [" + incrementAmount + "] needs to be negative.");
             }
@@ -122,12 +122,12 @@ public final class FDates {
                             first = false;
                             return spot;
                         } else {
-                            if (spot.isAfter(endFinal) || end) {
+                            if (spot.isAfterNotNullSafe(endFinal) || end) {
                                 throw FastNoSuchElementException
                                         .getInstance("FDateIterable: incrementing next reached end");
                             }
                             spot = spot.add(timeUnit, incrementAmount);
-                            if (spot.isAfterOrEqualTo(endFinal)) {
+                            if (spot.isAfterOrEqualToNotNullSafe(endFinal)) {
                                 end = true;
                                 return endFinal;
                             } else {
@@ -158,7 +158,7 @@ public final class FDates {
 
                     @Override
                     public boolean hasNext() {
-                        return first || spot.isAfter(endFinal);
+                        return first || spot.isAfterNotNullSafe(endFinal);
                     }
 
                     @Override
@@ -172,7 +172,7 @@ public final class FDates {
                                         .getInstance("FDateIterable: decrementing next reached end");
                             }
                             spot = spot.add(timeUnit, incrementAmount);
-                            if (spot.isBeforeOrEqualTo(endFinal)) {
+                            if (spot.isBeforeOrEqualToNotNullSafe(endFinal)) {
                                 end = true;
                                 return endFinal;
                             } else {
