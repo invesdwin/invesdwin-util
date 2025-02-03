@@ -58,16 +58,16 @@ public final class Throwables extends AThrowablesStaticFacade {
         return UncaughtExecutorExceptionHandler.INSTANCE;
     }
 
-    public static <T extends Throwable> boolean isCausedByType(final Throwable e, final Class<T> type) {
+    public static <T> boolean isCausedByType(final Throwable e, final Class<T> type) {
         return getCauseByType(e, type) != null;
     }
 
     @SafeVarargs
-    public static boolean isCausedByAnyType(final Throwable e, final Class<? extends Throwable>... types) {
+    public static boolean isCausedByAnyType(final Throwable e, final Class<?>... types) {
         Throwable cause = e;
         while (cause != null) {
             for (int i = 0; i < types.length; i++) {
-                final Class<? extends Throwable> type = types[i];
+                final Class<?> type = types[i];
                 if (type.isInstance(cause)) {
                     return true;
                 }
@@ -78,7 +78,7 @@ public final class Throwables extends AThrowablesStaticFacade {
     }
 
     @SuppressWarnings("unchecked" /* is safe since typecheck is done */)
-    public static <T extends Throwable> T getCauseByType(final Throwable e, final Class<T> type) {
+    public static <T> T getCauseByType(final Throwable e, final Class<T> type) {
         Throwable cause = e;
         while (cause != null) {
             if (type.isInstance(cause)) {
