@@ -110,6 +110,10 @@ public final class Threads {
         if (registerThreadRetryDisabledUsed && Booleans.isTrue(THREAD_RETRY_DISABLED.get())) {
             return true;
         }
+        return isThreadRetryDisabledDefault();
+    }
+
+    public static boolean isThreadRetryDisabledDefault() {
         return AFinalizer.isThreadFinalizerActive() || EventDispatchThreadUtil.isEventDispatchThread()
                 || Threads.isInterrupted();
     }
