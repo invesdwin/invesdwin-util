@@ -537,4 +537,12 @@ public final class Files extends AFilesStaticFacade {
         }
     }
 
+    public static void cleanDirectoryQuietly(final File directory) {
+        try {
+            cleanDirectory(directory);
+        } catch (final IOException e) {
+            //ignore
+        }
+    }
+
 }
