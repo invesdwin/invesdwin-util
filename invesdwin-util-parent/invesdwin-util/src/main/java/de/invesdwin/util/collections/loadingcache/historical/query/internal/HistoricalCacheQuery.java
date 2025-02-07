@@ -355,7 +355,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     /**
      * Returns all values in the given time range.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public ICloseableIterable<IHistoricalEntry<V>> getEntries(final FDate from, final FDate to) {
         final ICloseableIterable<? extends IHistoricalEntry<V>> iterableInterceptor = internalMethods.getQueryCore()
