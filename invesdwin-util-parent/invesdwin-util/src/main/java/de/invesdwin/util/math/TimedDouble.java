@@ -15,6 +15,7 @@ public class TimedDouble extends Number
         implements IHistoricalValue<TimedDouble>, Comparable<Object>, IPair<FDate, Number> {
 
     public static final TimedDouble DUMMY = new TimedDouble(FDates.MIN_DATE, Double.NaN);
+    public static final TimedDouble NAN = new TimedDouble(null, Double.NaN);
 
     private final FDate time;
     private final double value;
