@@ -601,6 +601,10 @@ public final class Doubles extends ADoublesStaticFacade {
         return Doubles.isNaN(number.doubleValue());
     }
 
+    public static boolean isNullOrNaN(final Double value) {
+        return value == null || isNaN(value);
+    }
+
     public static double scaleByPowerOfTen(final double value, final int n) {
         return value * pow(10, n);
     }

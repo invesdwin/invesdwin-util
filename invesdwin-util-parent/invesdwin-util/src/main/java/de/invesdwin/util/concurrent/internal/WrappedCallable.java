@@ -7,6 +7,7 @@ import java.util.concurrent.Callable;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.concurrent.RetryThreads;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.priority.IPriorityProvider;
 import de.invesdwin.util.error.Throwables;
@@ -34,7 +35,7 @@ public final class WrappedCallable<V> implements Callable<V>, IPriorityProvider 
         if (parent != null) {
             parent.incrementPendingCount(skipWaitOnFullPendingCount);
         }
-        this.threadRetryDisabled = Threads.isThreadRetryDisabled();
+        this.threadRetryDisabled = RetryThreads.isThreadRetryDisabled();
     }
 
     @Override
@@ -49,11 +50,11 @@ public final class WrappedCallable<V> implements Callable<V>, IPriorityProvider 
         }
         try {
             if (threadRetryDisabled) {
-                final Boolean registerThreadRetryDisabled = Threads.registerThreadRetryDisabled();
+                final Boolean registerThreadRetryDisabled = RetryThreads.registerThreadRetryDisabled();
                 try {
                     return delegate.call();
                 } finally {
-                    Threads.unregisterThreadRetryDisabled(registerThreadRetryDisabled);
+                    RetryThreads.unregisterThreadRetryDisabled(registerThreadRetryDisabled);
                 }
             } else {
                 return delegate.call();
