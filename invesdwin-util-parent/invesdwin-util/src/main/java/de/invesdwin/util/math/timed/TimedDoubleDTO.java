@@ -2,10 +2,11 @@ package de.invesdwin.util.math.timed;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
-public class TimedDoubleDTO implements ITimedDouble {
+public class TimedDoubleDTO implements ITimedDouble, ISerializableValueObject {
 
     private FDate time;
     private double value;
