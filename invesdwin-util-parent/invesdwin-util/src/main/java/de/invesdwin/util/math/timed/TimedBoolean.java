@@ -1,4 +1,4 @@
-package de.invesdwin.util.math;
+package de.invesdwin.util.math.timed;
 
 import javax.annotation.concurrent.Immutable;
 

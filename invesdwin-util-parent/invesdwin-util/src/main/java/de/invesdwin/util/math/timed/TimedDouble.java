@@ -1,18 +1,20 @@
-package de.invesdwin.util.math;
+package de.invesdwin.util.math.timed;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.tuple.IPair;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
-import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Floats;
+import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 
 @Immutable
 public class TimedDouble extends Number
-        implements IHistoricalValue<TimedDouble>, Comparable<Object>, IPair<FDate, Number> {
+        implements IHistoricalValue<TimedDouble>, Comparable<Object>, IPair<FDate, Number>, ITimedDouble {
 
     public static final TimedDouble DUMMY = new TimedDouble(FDates.MIN_DATE, Double.NaN);
     public static final TimedDouble NAN = new TimedDouble(null, Double.NaN);
@@ -20,27 +22,39 @@ public class TimedDouble extends Number
     private final FDate time;
     private final double value;
 
+    public TimedDouble(final ITimedDouble copyOf) {
+        this.time = copyOf.getTime();
+        this.value = copyOf.getValue();
+    }
+
     public TimedDouble(final FDate time, final double value) {
         this.time = time;
         this.value = value;
     }
 
+    @Override
     public FDate getTime() {
         return time;
     }
 
+    @Override
     public double getValue() {
         return value;
     }
 
     @Override
+    public int hashCode() {
+        return TimedDoubleBaseMethods.hashCode(this);
+    }
+
+    @Override
     public boolean equals(final Object obj) {
-        if (obj instanceof Number) {
-            final Number cObj = (Number) obj;
-            return Objects.equals(value, cObj.doubleValue());
-        } else {
-            return false;
-        }
+        return TimedDoubleBaseMethods.equals(this, obj);
+    }
+
+    @Override
+    public String toString() {
+        return TimedDoubleBaseMethods.toString(this);
     }
 
     public int compareTo(final double o) {
@@ -61,11 +75,6 @@ public class TimedDouble extends Number
             return Doubles.compare(value, cO.doubleValue());
         }
         return 1;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(TimedDouble.class, time, value);
     }
 
     @Override
@@ -105,11 +114,6 @@ public class TimedDouble extends Number
     }
 
     @Override
-    public String toString() {
-        return time + ": " + Decimal.toString(value);
-    }
-
-    @Override
     public FDate getFirst() {
         return time;
     }
@@ -117,6 +121,16 @@ public class TimedDouble extends Number
     @Override
     public Number getSecond() {
         return this;
+    }
+
+    public static TimedDouble valueOf(final ITimedDouble value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof TimedDouble) {
+            return (TimedDouble) value;
+        }
+        return new TimedDouble(value);
     }
 
 }
