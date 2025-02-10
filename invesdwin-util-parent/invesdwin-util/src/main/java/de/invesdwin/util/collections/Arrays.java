@@ -357,7 +357,7 @@ public class Arrays extends AArraysStaticFacade {
             }
             sb.append('\n');
         }
-        sb.append("\n]");
+        sb.append("]");
         return sb.toString();
     }
 
@@ -373,7 +373,7 @@ public class Arrays extends AArraysStaticFacade {
             }
             sb.append('\n');
         }
-        sb.append("\n]");
+        sb.append("]");
         return sb.toString();
     }
 

@@ -22,6 +22,14 @@ public class RandomGeneratorAdapter implements IRandomGenerator {
         }
     }
 
+    public java.util.random.RandomGenerator getRandomGenerator() {
+        return randomGenerator;
+    }
+
+    public java.util.Random getRandom() {
+        return random;
+    }
+
     @Override
     public String toString() {
         return randomGenerator.toString();

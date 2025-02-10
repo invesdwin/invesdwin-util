@@ -1587,4 +1587,47 @@ public final class Doubles extends ADoublesStaticFacade {
         return maxExclusive - Doubles.FIRST_ABOVE_ZERO;
     }
 
+    public static double scaleByPowerOfTenNearReference(final double value, final double reference) {
+        if (value == 0D || reference == 0D) {
+            return value;
+        }
+        final boolean positive = isPositive(reference);
+        final double r;
+        if (positive) {
+            r = reference;
+        } else {
+            r = -reference;
+        }
+        double v = applySignFromReference(value, r);
+        double difference = abs(r - v);
+        for (int tries = 0; tries < 20; tries++) {
+            final double newV;
+            if (r > v) {
+                newV = v * 10;
+            } else {
+                newV = v / 10;
+            }
+            final double newDifference = abs(r - newV);
+            if (newDifference > difference) {
+                //minimum scale found
+                break;
+            }
+            difference = newDifference;
+            v = newV;
+        }
+        if (positive) {
+            return v;
+        } else {
+            return -v;
+        }
+    }
+
+    public static double applySignFromReference(final double value, final double reference) {
+        if (Doubles.isPositive(value) != Doubles.isPositive(reference)) {
+            return -value;
+        } else {
+            return value;
+        }
+    }
+
 }
