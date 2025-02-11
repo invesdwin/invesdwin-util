@@ -27,7 +27,7 @@ public final class TimedDoubleBaseMethods {
     }
 
     public static String toString(final ITimedDouble thisObj) {
-        return thisObj.getTime() + ": " + Decimal.toString(thisObj.getValue());
+        return thisObj.getTime() + ":" + Decimal.toString(thisObj.getValue());
     }
 
 }

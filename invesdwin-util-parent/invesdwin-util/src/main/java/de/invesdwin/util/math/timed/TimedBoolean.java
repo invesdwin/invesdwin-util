@@ -93,7 +93,7 @@ public class TimedBoolean implements IHistoricalValue<TimedBoolean>, Comparable<
 
     @Override
     public String toString() {
-        return time + ": " + value;
+        return time + ":" + value;
     }
 
     @Override
