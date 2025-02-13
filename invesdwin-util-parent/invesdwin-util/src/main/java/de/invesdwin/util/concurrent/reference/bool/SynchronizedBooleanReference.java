@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent.reference.integer;
+package de.invesdwin.util.concurrent.reference.bool;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -6,20 +6,20 @@ import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
-public class SynchronizedIntReference implements IMutableIntReference, ISerializableValueObject {
+public class SynchronizedBooleanReference implements IMutableBooleanReference, ISerializableValueObject {
 
     private final Object lock;
-    private int value;
+    private boolean value;
 
-    public SynchronizedIntReference() {
+    public SynchronizedBooleanReference() {
         this(null);
     }
 
-    public SynchronizedIntReference(final Object lock) {
-        this(lock, 0);
+    public SynchronizedBooleanReference(final Object lock) {
+        this(lock, false);
     }
 
-    public SynchronizedIntReference(final Object lock, final int value) {
+    public SynchronizedBooleanReference(final Object lock, final boolean value) {
         if (lock == null) {
             this.lock = this;
         } else {
@@ -29,39 +29,25 @@ public class SynchronizedIntReference implements IMutableIntReference, ISerializ
     }
 
     @Override
-    public int get() {
+    public boolean get() {
         synchronized (lock) {
             return value;
         }
     }
 
     @Override
-    public void set(final int value) {
+    public void set(final boolean value) {
         synchronized (lock) {
             this.value = value;
         }
     }
 
     @Override
-    public int getAndSet(final int value) {
+    public boolean getAndSet(final boolean value) {
         synchronized (lock) {
-            final int get = this.value;
+            final boolean get = this.value;
             this.value = value;
             return get;
-        }
-    }
-
-    @Override
-    public int incrementAndGet() {
-        synchronized (lock) {
-            return ++value;
-        }
-    }
-
-    @Override
-    public int decrementAndGet() {
-        synchronized (lock) {
-            return --value;
         }
     }
 
@@ -73,15 +59,15 @@ public class SynchronizedIntReference implements IMutableIntReference, ISerializ
     @Override
     public int hashCode() {
         synchronized (lock) {
-            return Integer.hashCode(value);
+            return Boolean.hashCode(value);
         }
     }
 
     @Override
     public boolean equals(final Object obj) {
         synchronized (lock) {
-            if (obj instanceof IIntReference) {
-                final IIntReference cObj = (IIntReference) obj;
+            if (obj instanceof IBooleanReference) {
+                final IBooleanReference cObj = (IBooleanReference) obj;
                 return value == cObj.get();
             } else {
                 return obj.equals(value);

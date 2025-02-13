@@ -32,6 +32,11 @@ public final class ImmutableMutableIntReference implements IMutableIntReference 
     }
 
     @Override
+    public int decrementAndGet() {
+        return value;
+    }
+
+    @Override
     public int hashCode() {
         return Integer.hashCode(value);
     }

@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent.reference.integer;
+package de.invesdwin.util.concurrent.reference.bool;
 
 import java.util.concurrent.locks.Lock;
 
@@ -8,22 +8,22 @@ import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
-public class LockedIntReference implements IMutableIntReference, ISerializableValueObject {
+public class LockedBooleanReference implements IMutableBooleanReference, ISerializableValueObject {
 
     private final Lock lock;
-    private int value;
+    private boolean value;
 
-    public LockedIntReference(final Lock lock) {
-        this(lock, 0);
+    public LockedBooleanReference(final Lock lock) {
+        this(lock, false);
     }
 
-    public LockedIntReference(final Lock lock, final int value) {
+    public LockedBooleanReference(final Lock lock, final boolean value) {
         this.lock = lock;
         this.value = value;
     }
 
     @Override
-    public int get() {
+    public boolean get() {
         lock.lock();
         try {
             return value;
@@ -33,10 +33,10 @@ public class LockedIntReference implements IMutableIntReference, ISerializableVa
     }
 
     @Override
-    public int getAndSet(final int value) {
+    public boolean getAndSet(final boolean value) {
         lock.lock();
         try {
-            final int get = this.value;
+            final boolean get = this.value;
             this.value = value;
             return get;
         } finally {
@@ -45,27 +45,7 @@ public class LockedIntReference implements IMutableIntReference, ISerializableVa
     }
 
     @Override
-    public int incrementAndGet() {
-        lock.lock();
-        try {
-            return ++value;
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public int decrementAndGet() {
-        lock.lock();
-        try {
-            return --value;
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public void set(final int value) {
+    public void set(final boolean value) {
         lock.lock();
         try {
             this.value = value;
@@ -83,7 +63,7 @@ public class LockedIntReference implements IMutableIntReference, ISerializableVa
     public int hashCode() {
         lock.lock();
         try {
-            return Integer.hashCode(value);
+            return Boolean.hashCode(value);
         } finally {
             lock.unlock();
         }
@@ -93,8 +73,8 @@ public class LockedIntReference implements IMutableIntReference, ISerializableVa
     public boolean equals(final Object obj) {
         lock.lock();
         try {
-            if (obj instanceof IIntReference) {
-                final IIntReference cObj = (IIntReference) obj;
+            if (obj instanceof IBooleanReference) {
+                final IBooleanReference cObj = (IBooleanReference) obj;
                 return value == cObj.get();
             } else {
                 return obj.equals(value);

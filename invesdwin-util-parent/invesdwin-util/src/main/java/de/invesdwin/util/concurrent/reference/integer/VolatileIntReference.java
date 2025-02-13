@@ -39,6 +39,11 @@ public class VolatileIntReference implements IMutableIntReference, ISerializable
     }
 
     @Override
+    public int decrementAndGet() {
+        return --value;
+    }
+
+    @Override
     public String toString() {
         return Objects.toStringHelper(this).addValue(value).toString();
     }

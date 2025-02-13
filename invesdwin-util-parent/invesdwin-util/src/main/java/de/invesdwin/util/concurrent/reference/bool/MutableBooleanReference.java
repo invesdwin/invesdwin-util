@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent.reference.integer;
+package de.invesdwin.util.concurrent.reference.bool;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -6,41 +6,31 @@ import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
-public class MutableIntReference implements IMutableIntReference, ISerializableValueObject {
+public class MutableBooleanReference implements IMutableBooleanReference, ISerializableValueObject {
 
-    private int value;
+    private boolean value;
 
-    public MutableIntReference() {}
+    public MutableBooleanReference() {}
 
-    public MutableIntReference(final int value) {
+    public MutableBooleanReference(final boolean value) {
         this.value = value;
     }
 
     @Override
-    public int get() {
+    public boolean get() {
         return value;
     }
 
     @Override
-    public void set(final int value) {
+    public void set(final boolean value) {
         this.value = value;
     }
 
     @Override
-    public int getAndSet(final int value) {
-        final int get = this.value;
+    public boolean getAndSet(final boolean value) {
+        final boolean get = this.value;
         this.value = value;
         return get;
-    }
-
-    @Override
-    public int incrementAndGet() {
-        return ++value;
-    }
-
-    @Override
-    public int decrementAndGet() {
-        return --value;
     }
 
     @Override
@@ -50,13 +40,13 @@ public class MutableIntReference implements IMutableIntReference, ISerializableV
 
     @Override
     public int hashCode() {
-        return Integer.hashCode(value);
+        return Boolean.hashCode(value);
     }
 
     @Override
     public boolean equals(final Object obj) {
-        if (obj instanceof IIntReference) {
-            final IIntReference cObj = (IIntReference) obj;
+        if (obj instanceof IBooleanReference) {
+            final IBooleanReference cObj = (IBooleanReference) obj;
             return value == cObj.get();
         } else {
             return obj.equals(value);

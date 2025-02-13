@@ -3,11 +3,11 @@ package de.invesdwin.util.concurrent.reference.integer;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public final class DisabledMMutableIntReference implements IMutableIntReference {
+public final class DisabledMutableIntReference implements IMutableIntReference {
 
-    public static final DisabledMMutableIntReference INSTANCE = new DisabledMMutableIntReference();
+    public static final DisabledMutableIntReference INSTANCE = new DisabledMutableIntReference();
 
-    private DisabledMMutableIntReference() {}
+    private DisabledMutableIntReference() {}
 
     @Override
     public int get() {
@@ -24,6 +24,11 @@ public final class DisabledMMutableIntReference implements IMutableIntReference 
 
     @Override
     public int incrementAndGet() {
+        return 0;
+    }
+
+    @Override
+    public int decrementAndGet() {
         return 0;
     }
 
