@@ -1,8 +1,11 @@
 package de.invesdwin.util.concurrent.reference.bool;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import de.invesdwin.util.concurrent.reference.integer.IMutableIntReference;
 import de.invesdwin.util.concurrent.reference.integer.MutableIntReference;
 
+@NotThreadSafe
 public class CountingMutableBooleanReference implements IMutableBooleanReference {
 
     private final IMutableIntReference count;
@@ -15,6 +18,10 @@ public class CountingMutableBooleanReference implements IMutableBooleanReference
 
     protected IMutableIntReference newCount() {
         return new MutableIntReference();
+    }
+
+    public int getExpectedTrueCount() {
+        return expectedTrueCount;
     }
 
     @Override
