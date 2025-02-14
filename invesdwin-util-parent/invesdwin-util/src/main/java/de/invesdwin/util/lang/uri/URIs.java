@@ -6,7 +6,9 @@ import java.net.Proxy.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
@@ -15,7 +17,9 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.EncoderException;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.lang.Files;
+import de.invesdwin.util.lang.string.Charsets;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.uri.connect.IURIsConnect;
 import de.invesdwin.util.lang.uri.connect.IURIsConnectFactory;
@@ -233,6 +237,39 @@ public final class URIs {
 
     public static String normalizePath(final String path) {
         return Files.normalizePathMaxLength(Strings.replaceEach(path, NORMALIZE_PATH_SEARCH, NORMALIZE_PATH_REPLACE));
+    }
+
+    public static Map<String, String> getParams(final URI uri) {
+        final String query = uri.getQuery();
+        final String[] queryPairs = Strings.splitPreserveAllTokens(query, "&");
+        if (queryPairs.length == 0) {
+            return Collections.emptyMap();
+        }
+        final Map<String, String> result = new LinkedHashMap<String, String>();
+        splitQueryPairs(queryPairs, result);
+        return result;
+    }
+
+    public static void splitQuery(final URI uri, final Map<String, String> result) {
+        final String query = uri.getQuery();
+        final String[] queryPairs = Strings.splitPreserveAllTokens(query, "&");
+        if (queryPairs.length == 0) {
+            return;
+        }
+        splitQueryPairs(queryPairs, result);
+    }
+
+    private static void splitQueryPairs(final String[] queryPairs, final Map<String, String> result) {
+        for (int i = 0; i < queryPairs.length; i++) {
+            final String queryPair = queryPairs[i];
+            final int indexOf = queryPair.indexOf("=");
+            final String key = indexOf > 0 ? URLDecoder.decode(queryPair.substring(0, indexOf), Charsets.DEFAULT)
+                    : queryPair;
+            final String value = indexOf > 0 && queryPair.length() > indexOf + 1
+                    ? URLDecoder.decode(queryPair.substring(indexOf + 1), Charsets.DEFAULT)
+                    : null;
+            result.put(key, value);
+        }
     }
 
 }
