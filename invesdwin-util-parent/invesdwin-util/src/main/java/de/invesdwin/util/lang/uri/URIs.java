@@ -7,9 +7,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -263,12 +265,27 @@ public final class URIs {
         for (int i = 0; i < queryPairs.length; i++) {
             final String queryPair = queryPairs[i];
             final int indexOf = queryPair.indexOf("=");
-            final String key = indexOf > 0 ? URLDecoder.decode(queryPair.substring(0, indexOf), Charsets.DEFAULT)
+            final String key = indexOf > 0 ? URLDecoder.decode(queryPair.substring(0, indexOf), Charsets.UTF_8)
                     : queryPair;
             final String value = indexOf > 0 && queryPair.length() > indexOf + 1
-                    ? URLDecoder.decode(queryPair.substring(indexOf + 1), Charsets.DEFAULT)
+                    ? URLDecoder.decode(queryPair.substring(indexOf + 1), Charsets.UTF_8)
                     : null;
             result.put(key, value);
+        }
+    }
+
+    public static void joinQuery(final Map<String, String> queryPairs) {
+        final StringBuilder sb = new StringBuilder();
+        for (final Entry<String, String> entry : queryPairs.entrySet()) {
+            if (!sb.isEmpty()) {
+                sb.append("&");
+            }
+            sb.append(URLEncoder.encode(entry.getKey(), Charsets.UTF_8));
+            final String value = entry.getValue();
+            if (value != null) {
+                sb.append("=");
+                sb.append(URLEncoder.encode(value, Charsets.UTF_8));
+            }
         }
     }
 
