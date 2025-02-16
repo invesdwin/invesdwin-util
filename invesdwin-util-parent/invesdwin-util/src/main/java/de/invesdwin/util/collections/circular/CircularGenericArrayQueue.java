@@ -4,7 +4,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.queue.IQueue;
-import de.invesdwin.util.error.FastNoSuchElementException;
 
 @NotThreadSafe
 public class CircularGenericArrayQueue<E> implements IQueue<E> {
@@ -159,16 +158,6 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
         return a;
     }
 
-    @Override
-    public boolean add(final E value) {
-        if (size >= capacity) {
-            throw new IllegalStateException("capacity reached");
-        } else {
-            circularAdd(value);
-            return true;
-        }
-    }
-
     /**
      * Adds an element to the array, if capacity is exceeded, the first element is replaced silently by the rollover (so
      * that it can be garbage collected).
@@ -195,29 +184,9 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
         if (size >= capacity) {
             return false;
         } else {
-            return add(value);
+            circularAdd(value);
+            return true;
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public E remove() {
-        if (isEmpty()) {
-            throw FastNoSuchElementException.getInstance("empty");
-        }
-        final E first = (E) array[startArrayIndex];
-        incrementStartArrayIndex();
-        return first;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public E element() {
-        if (isEmpty()) {
-            throw FastNoSuchElementException.getInstance("empty");
-        }
-        final E first = (E) array[startArrayIndex];
-        return first;
     }
 
     @SuppressWarnings("unchecked")

@@ -3,6 +3,8 @@ package de.invesdwin.util.collections.queue;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 
+import de.invesdwin.util.error.FastNoSuchElementException;
+
 public interface IQueue<E> {
 
     int size();
@@ -26,7 +28,13 @@ public interface IQueue<E> {
      * @throws IllegalArgumentException
      *             if some property of this element prevents it from being added to this queue
      */
-    boolean add(E e);
+    default boolean add(final E e) {
+        if (offer(e)) {
+            return true;
+        } else {
+            throw new IllegalStateException("offer returned false");
+        }
+    }
 
     /**
      * Inserts the specified element into this queue if it is possible to do so immediately without violating capacity
@@ -53,7 +61,14 @@ public interface IQueue<E> {
      * @throws NoSuchElementException
      *             if this queue is empty
      */
-    E remove();
+    default E remove() {
+        final E poll = poll();
+        if (poll != null) {
+            return poll;
+        } else {
+            throw FastNoSuchElementException.getInstance("poll returned null");
+        }
+    }
 
     /**
      * Retrieves and removes the head of this queue, or returns {@code null} if this queue is empty.
@@ -70,7 +85,14 @@ public interface IQueue<E> {
      * @throws NoSuchElementException
      *             if this queue is empty
      */
-    E element();
+    default E element() {
+        final E peek = peek();
+        if (peek != null) {
+            return peek;
+        } else {
+            throw FastNoSuchElementException.getInstance("peek returned null");
+        }
+    }
 
     /**
      * Retrieves, but does not remove, the head of this queue, or returns {@code null} if this queue is empty.
