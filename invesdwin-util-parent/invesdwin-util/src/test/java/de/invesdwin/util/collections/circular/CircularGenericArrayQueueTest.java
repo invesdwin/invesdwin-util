@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import de.invesdwin.util.assertions.Assertions;
 
 @NotThreadSafe
-public class CircularGenericArrayTest {
+public class CircularGenericArrayQueueTest {
 
     private static final int TURNS = 10;
     private static final int COUNT = 3;
@@ -18,14 +18,14 @@ public class CircularGenericArrayTest {
 
     @Test
     public void testAppend() {
-        final CircularGenericArray<Integer> array = new CircularGenericArray<>(SIZE);
+        final CircularGenericArrayQueue<Integer> array = new CircularGenericArrayQueue<>(SIZE);
         int added = 0;
         final List<Integer> fromEndList = new ArrayList<>();
         final List<Integer> fromStartList = new ArrayList<>();
         for (int turn = 0; turn < TURNS; turn++) {
             for (int i = 0; i < COUNT; i++) {
                 added++;
-                array.add(i);
+                array.circularAdd(i);
                 Assertions.assertThat(array.getReverse(0)).isEqualTo(i);
                 fromStartList.add(i);
                 if (fromStartList.size() > SIZE) {

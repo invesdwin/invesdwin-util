@@ -3,9 +3,11 @@ package de.invesdwin.util.collections.circular;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.queue.IQueue;
+import de.invesdwin.util.error.FastNoSuchElementException;
 
 @NotThreadSafe
-public class CircularGenericArray<E> {
+public class CircularGenericArrayQueue<E> implements IQueue<E> {
 
     private final Object[] array;
     private final int capacity;
@@ -13,7 +15,7 @@ public class CircularGenericArray<E> {
     private int startArrayIndex = -1;
     private int endArrayIndex = -1;
 
-    public CircularGenericArray(final int capacity) {
+    public CircularGenericArrayQueue(final int capacity) {
         this.array = new Object[capacity];
         this.capacity = array.length;
         if (capacity == 0) {
@@ -37,10 +39,12 @@ public class CircularGenericArray<E> {
         return (E) array[arrayIndex(index)];
     }
 
+    @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
+    @Override
     public int size() {
         return size;
     }
@@ -49,11 +53,10 @@ public class CircularGenericArray<E> {
         return capacity;
     }
 
-    public void add(final E value) {
-        pretendAdd();
-        array[endArrayIndex] = value;
-    }
-
+    /**
+     * Rolls over one element without adding or removing anything. Useful to circle the indexes around the existing
+     * values (e.g. when reusing the values in the circular array).
+     */
     public void pretendAdd() {
         endArrayIndex++;
         if (endArrayIndex >= capacity) {
@@ -63,12 +66,16 @@ public class CircularGenericArray<E> {
             startArrayIndex = 0;
         }
         if (size == capacity) {
-            startArrayIndex++;
-            if (startArrayIndex >= capacity) {
-                startArrayIndex = 0;
-            }
+            incrementStartArrayIndex();
         } else {
             size++;
+        }
+    }
+
+    private void incrementStartArrayIndex() {
+        startArrayIndex++;
+        if (startArrayIndex >= capacity) {
+            startArrayIndex = 0;
         }
     }
 
@@ -150,6 +157,96 @@ public class CircularGenericArray<E> {
             a[size] = null;
         }
         return a;
+    }
+
+    @Override
+    public boolean add(final E value) {
+        if (size >= capacity) {
+            throw new IllegalStateException("capacity reached");
+        } else {
+            circularAdd(value);
+            return true;
+        }
+    }
+
+    /**
+     * Adds an element to the array, if capacity is exceeded, the first element is replaced silently by the rollover (so
+     * that it can be garbage collected).
+     */
+    public void circularAdd(final E value) {
+        pretendAdd();
+        array[endArrayIndex] = value;
+    }
+
+    /**
+     * Adds an element to the array, if capacity is exceeded, the first element is replaced by the rollover and returned
+     * (e.g. to clean up the instance).
+     */
+    @SuppressWarnings("unchecked")
+    public E evictAdd(final E value) {
+        pretendAdd();
+        final E evicted = (E) array[endArrayIndex];
+        array[endArrayIndex] = value;
+        return evicted;
+    }
+
+    @Override
+    public boolean offer(final E value) {
+        if (size >= capacity) {
+            return false;
+        } else {
+            return add(value);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public E remove() {
+        if (isEmpty()) {
+            throw FastNoSuchElementException.getInstance("empty");
+        }
+        final E first = (E) array[startArrayIndex];
+        incrementStartArrayIndex();
+        return first;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public E element() {
+        if (isEmpty()) {
+            throw FastNoSuchElementException.getInstance("empty");
+        }
+        final E first = (E) array[startArrayIndex];
+        return first;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public E peek() {
+        if (isEmpty()) {
+            return null;
+        }
+        final E first = (E) array[startArrayIndex];
+        return first;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public E poll() {
+        if (isEmpty()) {
+            return null;
+        }
+        final E first = (E) array[startArrayIndex];
+        incrementStartArrayIndex();
+        return first;
+    }
+
+    @Override
+    public void clear() {
+        this.size = 0;
+        this.startArrayIndex = -1;
+        this.endArrayIndex = -1;
+        Arrays.fill(array, null);
     }
 
 }
