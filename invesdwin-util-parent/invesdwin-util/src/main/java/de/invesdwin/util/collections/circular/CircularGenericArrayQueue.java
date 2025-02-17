@@ -5,6 +5,13 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.queue.IQueue;
 
+/**
+ * Similar to org.apache.commons.collections4.queue.CircularFifoQueue<E> or
+ * org.jctools.queues.ConcurrentCircularArrayQueue<E>
+ * 
+ * Though with classic queue semantics and special functions for using the circular features with specialities for
+ * memory management.
+ */
 @NotThreadSafe
 public class CircularGenericArrayQueue<E> implements IQueue<E> {
 
