@@ -1,12 +1,15 @@
 package de.invesdwin.util.collections.queue;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Queue;
 
+import javax.annotation.concurrent.Immutable;
+
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.lang.Objects;
 
+@Immutable
 public class QueueJavaAdapter<E> implements Queue<E>, IQueue<E> {
 
     private final IQueue<E> delegate;
