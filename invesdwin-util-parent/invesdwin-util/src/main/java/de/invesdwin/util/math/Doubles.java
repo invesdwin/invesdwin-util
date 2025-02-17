@@ -1037,6 +1037,51 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static boolean equalsMatrix(final double[][] a, final double[][] b) {
+        if (a == b) {
+            return true;
+        }
+        if (a == null || b == null) {
+            return false;
+        }
+        final int length = a.length;
+        if (b.length != length) {
+            return false;
+        }
+
+        for (int i = 0; i < length; i++) {
+            final double[] vectorA = a[i];
+            final double[] vectorB = b[i];
+            if (!equalsVector(vectorA, vectorB)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean equalsVector(final double[] a, final double[] b) {
+        if (a == b) {
+            return true;
+        }
+        if (a == null || b == null) {
+            return false;
+        }
+
+        final int length = a.length;
+        if (b.length != length) {
+            return false;
+        }
+
+        for (int i = 0; i < length; i++) {
+            final double valueA = a[i];
+            final double valueB = b[i];
+            if (!equals(valueA, valueB)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static boolean equalsNaNable(final Double value, final Double otherValue) {
         return equalsNaNable(nullToNan(value), nullToNan(otherValue));
     }
@@ -1502,6 +1547,10 @@ public final class Doubles extends ADoublesStaticFacade {
 
     public static boolean isBetween(final double value, final double lowerBound, final double upperBound) {
         return isGreaterThanOrEqualTo(value, lowerBound) && isLessThanOrEqualTo(value, upperBound);
+    }
+
+    public static boolean isBetweenExclusive(final double value, final double lowerBound, final double upperBound) {
+        return isGreaterThan(value, lowerBound) && isLessThan(value, upperBound);
     }
 
     public static String getSign(final double value) {
