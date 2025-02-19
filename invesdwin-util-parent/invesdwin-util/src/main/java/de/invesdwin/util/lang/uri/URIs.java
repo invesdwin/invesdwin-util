@@ -241,7 +241,7 @@ public final class URIs {
         return Files.normalizePathMaxLength(Strings.replaceEach(path, NORMALIZE_PATH_SEARCH, NORMALIZE_PATH_REPLACE));
     }
 
-    public static Map<String, String> getParams(final URI uri) {
+    public static Map<String, String> splitQuery(final URI uri) {
         final String query = uri.getQuery();
         final String[] queryPairs = Strings.splitPreserveAllTokens(query, "&");
         if (queryPairs.length == 0) {
@@ -274,7 +274,27 @@ public final class URIs {
         }
     }
 
-    public static void joinQuery(final Map<String, String> queryPairs) {
+    public static String maybeAddQuery(final String host, final Map<String, String> queryPairs) {
+        final String query = joinQuery(queryPairs);
+        return maybeAddQuery(host, query);
+    }
+
+    public static String maybeAddQuery(final String host, final String query) {
+        if (Strings.isBlank(query)) {
+            return host;
+        } else {
+            return host + "?" + query;
+        }
+    }
+
+    public static String maybeRemoveQuery(final String uri) {
+        return Strings.substringBefore(uri, '?');
+    }
+
+    public static String joinQuery(final Map<String, String> queryPairs) {
+        if (queryPairs.isEmpty()) {
+            return "";
+        }
         final StringBuilder sb = new StringBuilder();
         for (final Entry<String, String> entry : queryPairs.entrySet()) {
             if (!sb.isEmpty()) {
@@ -287,6 +307,7 @@ public final class URIs {
                 sb.append(URLEncoder.encode(value, Charsets.UTF_8));
             }
         }
+        return sb.toString();
     }
 
 }
