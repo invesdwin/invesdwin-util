@@ -243,6 +243,9 @@ public final class URIs {
 
     public static Map<String, String> splitQuery(final URI uri) {
         final String query = uri.getQuery();
+        if (Strings.isBlank(query)) {
+            return Collections.emptyMap();
+        }
         final String[] queryPairs = Strings.splitPreserveAllTokens(query, "&");
         if (queryPairs.length == 0) {
             return Collections.emptyMap();
@@ -254,6 +257,9 @@ public final class URIs {
 
     public static void splitQuery(final URI uri, final Map<String, String> result) {
         final String query = uri.getQuery();
+        if (Strings.isBlank(query)) {
+            return;
+        }
         final String[] queryPairs = Strings.splitPreserveAllTokens(query, "&");
         if (queryPairs.length == 0) {
             return;
