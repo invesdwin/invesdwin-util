@@ -50,6 +50,10 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
         return size == 0;
     }
 
+    public boolean isFull() {
+        return size == capacity;
+    }
+
     @Override
     public int size() {
         return size;
@@ -93,11 +97,12 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
         if (index < 0) {
             throw new IndexOutOfBoundsException("index[" + index + "] should not be negative");
         }
-        final int arrayIndex = endArrayIndex - index;
-        if (arrayIndex < 0) {
-            return arrayIndex + size;
+        final int idx = (endArrayIndex - index);
+        if (idx < 0) {
+            final int adjIdx = (capacity + idx);
+            return adjIdx;
         } else {
-            return arrayIndex;
+            return idx;
         }
     }
 
@@ -109,12 +114,8 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
         if (index < 0) {
             throw new IndexOutOfBoundsException("index[" + index + "] should not be negative");
         }
-        final int arrayIndex = startArrayIndex + index;
-        if (arrayIndex >= size) {
-            return arrayIndex - size;
-        } else {
-            return arrayIndex;
-        }
+        final int idx = (startArrayIndex + index) % capacity;
+        return idx;
     }
 
     @Override
@@ -124,7 +125,7 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
 
     public String toString(final int index, final int size) {
         final StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < size; i++) {
+        for (int i = index; i < size; i++) {
             if (i > 0) {
                 sb.append(", ");
             }
@@ -136,7 +137,7 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
 
     public String toStringReverse(final int index, final int size) {
         final StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < size; i++) {
+        for (int i = index; i < size; i++) {
             if (i > 0) {
                 sb.append(", ");
             }
@@ -188,7 +189,7 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
 
     @Override
     public boolean offer(final E value) {
-        if (size >= capacity) {
+        if (isFull()) {
             return false;
         } else {
             circularAdd(value);
@@ -213,7 +214,14 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
             return null;
         }
         final E first = (E) array[startArrayIndex];
-        incrementStartArrayIndex();
+        array[startArrayIndex] = null;
+        size--;
+        if (isEmpty()) {
+            startArrayIndex = -1;
+            endArrayIndex = -1;
+        } else {
+            incrementStartArrayIndex();
+        }
         return first;
     }
 
