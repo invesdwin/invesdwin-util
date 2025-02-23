@@ -51,7 +51,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
         this.closeAllowed = closeAllowed;
         this.offset = offset;
         this.length = length;
-        list = initList(path, readOnly, segmentLength);
+        this.list = initList(path, readOnly, segmentLength);
     }
 
     public SegmentedMemoryMappedFile(final boolean closeAllowed, final IMemoryMappedFile... list) {
