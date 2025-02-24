@@ -38,6 +38,11 @@ public class HeapIntegerArray implements IIntegerArray {
     }
 
     @Override
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    @Override
     public IIntegerArray slice(final int fromIndex, final int length) {
         return new SliceDelegateIntegerArray(this, fromIndex, length);
     }

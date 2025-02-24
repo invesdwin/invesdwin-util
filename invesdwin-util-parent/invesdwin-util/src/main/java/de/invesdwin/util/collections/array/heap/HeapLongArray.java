@@ -38,6 +38,11 @@ public class HeapLongArray implements ILongArray {
     }
 
     @Override
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    @Override
     public ILongArray slice(final int fromIndex, final int length) {
         return new SliceDelegateLongArray(this, fromIndex, length);
     }

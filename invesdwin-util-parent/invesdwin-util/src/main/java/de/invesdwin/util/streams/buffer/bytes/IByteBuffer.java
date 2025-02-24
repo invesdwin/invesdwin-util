@@ -579,6 +579,11 @@ public interface IByteBuffer extends IByteBufferProvider, Cloneable, IPrimitiveA
         return capacity();
     }
 
+    @Override
+    default boolean isEmpty() {
+        return capacity() == 0;
+    }
+
     IByteBuffer asImmutableSlice();
 
 }

@@ -44,6 +44,11 @@ public class HeapGenericArray<E> implements IGenericArray<E> {
     }
 
     @Override
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    @Override
     public IGenericArray<E> slice(final int fromIndex, final int length) {
         return new SliceDelegateGenericArray<E>(this, fromIndex, length);
     }

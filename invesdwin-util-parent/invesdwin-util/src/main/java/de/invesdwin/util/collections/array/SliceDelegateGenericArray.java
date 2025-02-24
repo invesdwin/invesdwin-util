@@ -36,6 +36,11 @@ public class SliceDelegateGenericArray<E> implements IGenericArray<E> {
     }
 
     @Override
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    @Override
     public IGenericArray<E> slice(final int fromIndex, final int length) {
         return delegate.slice(fromIndex + from, length);
     }

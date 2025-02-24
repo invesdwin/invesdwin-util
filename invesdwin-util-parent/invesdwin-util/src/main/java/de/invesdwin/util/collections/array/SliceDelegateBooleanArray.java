@@ -36,6 +36,11 @@ public class SliceDelegateBooleanArray implements IBooleanArray {
     }
 
     @Override
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    @Override
     public IBooleanArray slice(final int fromIndex, final int length) {
         return delegate.slice(fromIndex + from, length);
     }

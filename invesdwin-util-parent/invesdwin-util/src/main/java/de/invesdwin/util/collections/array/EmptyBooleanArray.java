@@ -26,6 +26,11 @@ public final class EmptyBooleanArray implements IBooleanArray {
     }
 
     @Override
+    public boolean isEmpty() {
+        return true;
+    }
+
+    @Override
     public IBooleanArray slice(final int fromIndex, final int length) {
         return this;
     }

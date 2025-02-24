@@ -36,6 +36,11 @@ public class BufferDoubleArray implements IDoubleArray {
     }
 
     @Override
+    public boolean isEmpty() {
+        return buffer.isEmpty();
+    }
+
+    @Override
     public IDoubleArray slice(final int fromIndex, final int length) {
         return new SliceDelegateDoubleArray(this, fromIndex, length);
     }

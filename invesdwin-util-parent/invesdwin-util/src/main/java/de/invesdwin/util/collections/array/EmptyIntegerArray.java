@@ -26,6 +26,11 @@ public final class EmptyIntegerArray implements IIntegerArray {
     }
 
     @Override
+    public boolean isEmpty() {
+        return true;
+    }
+
+    @Override
     public IIntegerArray slice(final int fromIndex, final int length) {
         return this;
     }

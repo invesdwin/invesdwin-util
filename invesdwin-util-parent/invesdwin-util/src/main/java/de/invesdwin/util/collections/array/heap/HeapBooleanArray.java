@@ -41,6 +41,11 @@ public class HeapBooleanArray implements IBooleanArray {
     }
 
     @Override
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    @Override
     public IBooleanArray slice(final int fromIndex, final int length) {
         return new SliceDelegateBooleanArray(this, fromIndex, length);
     }

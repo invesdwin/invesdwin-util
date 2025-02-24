@@ -36,6 +36,11 @@ public class BufferIntegerArray implements IIntegerArray {
     }
 
     @Override
+    public boolean isEmpty() {
+        return buffer.isEmpty();
+    }
+
+    @Override
     public IIntegerArray slice(final int fromIndex, final int length) {
         return new SliceDelegateIntegerArray(this, fromIndex, length);
     }

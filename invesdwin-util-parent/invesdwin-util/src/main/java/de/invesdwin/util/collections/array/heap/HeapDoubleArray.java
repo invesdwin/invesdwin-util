@@ -38,6 +38,11 @@ public class HeapDoubleArray implements IDoubleArray {
     }
 
     @Override
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    @Override
     public IDoubleArray slice(final int fromIndex, final int length) {
         return new SliceDelegateDoubleArray(this, fromIndex, length);
     }
