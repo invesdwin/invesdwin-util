@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.circular;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.array.IGenericArrayAccessor;
 import de.invesdwin.util.collections.queue.IQueue;
 
 /**
@@ -13,10 +14,11 @@ import de.invesdwin.util.collections.queue.IQueue;
  * memory management.
  */
 @NotThreadSafe
-public class CircularGenericArrayQueue<E> implements IQueue<E> {
+public class CircularGenericArrayQueue<E> implements IQueue<E>, IGenericArrayAccessor<E> {
 
     private final Object[] array;
     private final int capacity;
+    private final int lastPossibleIndex;
     private int size = 0;
     private int startArrayIndex = -1;
     private int endArrayIndex = -1;
@@ -24,6 +26,7 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
     public CircularGenericArrayQueue(final int capacity) {
         this.array = new Object[capacity];
         this.capacity = array.length;
+        this.lastPossibleIndex = capacity - 1;
         if (capacity == 0) {
             throw new IllegalArgumentException("size should not be 0");
         }
@@ -40,6 +43,7 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
     /**
      * The first value has index 0, the value after the first has index 1.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public E get(final int index) {
         return (E) array[arrayIndex(index)];
@@ -64,8 +68,8 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
     }
 
     /**
-     * Rolls over one element without adding or removing anything. Useful to circle the indexes around the existing
-     * values (e.g. when reusing the values in the circular array).
+     * Rolls over one element higher without adding or removing anything. Useful to circle the indexes around the
+     * existing values (e.g. when reusing the values in the circular array).
      */
     public void pretendAdd() {
         endArrayIndex++;
@@ -74,9 +78,24 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
         }
         if (size == 0) {
             startArrayIndex = 0;
-        }
-        if (size == capacity) {
+            size++;
+        } else if (size == capacity) {
             incrementStartArrayIndex();
+        } else {
+            size++;
+        }
+    }
+
+    public void pretendPrepend() {
+        startArrayIndex--;
+        if (startArrayIndex < 0) {
+            startArrayIndex = lastPossibleIndex;
+        }
+        if (size == 0) {
+            endArrayIndex = lastPossibleIndex;
+            size++;
+        } else if (size == capacity) {
+            decrementEndArrayIndex();
         } else {
             size++;
         }
@@ -86,6 +105,13 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
         startArrayIndex++;
         if (startArrayIndex >= capacity) {
             startArrayIndex = 0;
+        }
+    }
+
+    private void decrementEndArrayIndex() {
+        endArrayIndex--;
+        if (endArrayIndex < 0) {
+            endArrayIndex = lastPossibleIndex;
         }
     }
 
@@ -175,6 +201,11 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
         array[endArrayIndex] = value;
     }
 
+    public void circularPrepend(final E value) {
+        pretendPrepend();
+        array[startArrayIndex] = value;
+    }
+
     /**
      * Adds an element to the array, if capacity is exceeded, the first element is replaced by the rollover and returned
      * (e.g. to clean up the instance).
@@ -187,6 +218,14 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
         return evicted;
     }
 
+    @SuppressWarnings("unchecked")
+    public E evictPrepend(final E value) {
+        pretendPrepend();
+        final E evicted = (E) array[startArrayIndex];
+        array[startArrayIndex] = value;
+        return evicted;
+    }
+
     @Override
     public boolean offer(final E value) {
         if (isFull()) {
@@ -194,6 +233,23 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
         } else {
             circularAdd(value);
             return true;
+        }
+    }
+
+    public boolean offerPrepend(final E value) {
+        if (isFull()) {
+            return false;
+        } else {
+            circularPrepend(value);
+            return true;
+        }
+    }
+
+    public boolean prepend(final E e) {
+        if (offerPrepend(e)) {
+            return true;
+        } else {
+            throw new IllegalStateException("offer returned false");
         }
     }
 
@@ -227,10 +283,14 @@ public class CircularGenericArrayQueue<E> implements IQueue<E> {
 
     @Override
     public void clear() {
+        pretendClear();
+        Arrays.fill(array, null);
+    }
+
+    public void pretendClear() {
         this.size = 0;
         this.startArrayIndex = -1;
         this.endArrayIndex = -1;
-        Arrays.fill(array, null);
     }
 
 }

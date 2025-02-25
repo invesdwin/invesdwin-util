@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.array.IGenericArray;
+import de.invesdwin.util.collections.array.IGenericArrayAccessor;
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
@@ -614,7 +614,7 @@ public final class FDates {
         }
     }
 
-    public static int bisect(final IGenericArray<? extends FDate> keys, final FDate skippingKeysAbove,
+    public static int bisect(final IGenericArrayAccessor<? extends FDate> keys, final FDate skippingKeysAbove,
             final BisectDuplicateKeyHandling duplicateKeyHandling) {
         if (keys.size() == 0) {
             return MISSING_INDEX;
@@ -666,6 +666,57 @@ public final class FDates {
     }
 
     public static <T> int bisect(final Function<T, FDate> extractKey, final List<T> values,
+            final FDate skippingKeysAbove, final BisectDuplicateKeyHandling duplicateKeyHandling) {
+        if (values.size() == 0) {
+            return MISSING_INDEX;
+        }
+        int lo = 0;
+        final FDate firstKey = extractKey.apply(values.get(lo));
+        if (firstKey.compareToNotNullSafe(skippingKeysAbove) >= 0) {
+            return duplicateKeyHandling.apply(extractKey, values, lo, firstKey);
+        }
+        int hi = values.size();
+        final int lastIndex = hi - 1;
+        final FDate lastKey = extractKey.apply(values.get(lastIndex));
+        if (lastKey.compareToNotNullSafe(skippingKeysAbove) <= 0) {
+            return duplicateKeyHandling.apply(extractKey, values, lastIndex, lastKey);
+        }
+        while (lo < hi) {
+            // same as (low+high)/2
+            final int mid = (lo + hi) >>> 1;
+            //if (x < list.get(mid)) {
+            final FDate midKey = extractKey.apply(values.get(mid));
+            final int compareTo = midKey.compareToNotNullSafe(skippingKeysAbove);
+            switch (compareTo) {
+            case MISSING_INDEX:
+                lo = mid + 1;
+                break;
+            case 0:
+                return duplicateKeyHandling.apply(extractKey, values, mid, midKey);
+            case 1:
+                hi = mid;
+                break;
+            default:
+                throw UnknownArgumentException.newInstance(Integer.class, compareTo);
+            }
+        }
+        if (lo <= 0) {
+            return 0;
+        }
+        if (lo >= values.size()) {
+            lo = lo - 1;
+        }
+        final FDate loKey = extractKey.apply(values.get(lo));
+        if (loKey.isAfterNotNullSafe(skippingKeysAbove)) {
+            //no duplicate key handling needed because this is the last value before the actual requested key
+            final int index = lo - 1;
+            return index;
+        } else {
+            return duplicateKeyHandling.apply(extractKey, values, lo, loKey);
+        }
+    }
+
+    public static <T> int bisect(final Function<T, FDate> extractKey, final IGenericArrayAccessor<T> values,
             final FDate skippingKeysAbove, final BisectDuplicateKeyHandling duplicateKeyHandling) {
         if (values.size() == 0) {
             return MISSING_INDEX;

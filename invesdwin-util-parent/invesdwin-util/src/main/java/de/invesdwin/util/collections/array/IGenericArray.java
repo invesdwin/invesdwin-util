@@ -2,11 +2,9 @@ package de.invesdwin.util.collections.array;
 
 import de.invesdwin.util.collections.array.heap.HeapGenericArray;
 
-public interface IGenericArray<E> extends IPrimitiveArray {
+public interface IGenericArray<E> extends IPrimitiveArray, IGenericArrayAccessor<E> {
 
     void set(int index, E value);
-
-    E get(int index);
 
     IGenericArray<E> slice(int fromIndex, int length);
 

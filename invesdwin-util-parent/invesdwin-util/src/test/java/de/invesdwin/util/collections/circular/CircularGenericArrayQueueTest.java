@@ -57,6 +57,44 @@ public class CircularGenericArrayQueueTest {
     }
 
     @Test
+    public void testPrepend() {
+        final CircularGenericArrayQueue<Integer> array = new CircularGenericArrayQueue<>(SIZE);
+        int step = 0;
+        final List<Integer> fromEndList = new ArrayList<>();
+        final List<Integer> fromStartList = new ArrayList<>();
+        for (int turn = 0; turn < TURNS; turn++) {
+            for (int i = 0; i < COUNT; i++) {
+                array.circularPrepend(i);
+                Assertions.assertThat(array.get(0)).isEqualTo(i);
+                fromStartList.add(0, i);
+                if (fromStartList.size() > SIZE) {
+                    fromStartList.remove(SIZE);
+                }
+                fromEndList.add(i);
+                if (fromEndList.size() > SIZE) {
+                    fromEndList.remove(0);
+                }
+                //CHECKSTYLE:OFF
+                System.out.println(step + ": add=" + i + " toString=" + array.toString(0, array.size())
+                        + " toStringReverse=" + array.toStringReverse(0, array.size()));
+                //CHECKSTYLE:ON
+                Assertions.assertThat(array.toString(0, array.size())).isEqualTo(fromStartList.toString());
+                Assertions.assertThat(array.toStringReverse(0, array.size())).isEqualTo(fromEndList.toString());
+                int fromEndExpected = i;
+                for (int rel = 0; rel <= i; rel++) {
+                    final Integer relValue = array.get(rel);
+                    //CHECKSTYLE:OFF
+                    System.out.println("index=" + rel + " relExpected=" + fromEndExpected + " relValue=" + relValue);
+                    //CHECKSTYLE:ON
+                    Assertions.assertThat(relValue).isEqualTo(fromEndExpected);
+                    fromEndExpected--;
+                }
+                step++;
+            }
+        }
+    }
+
+    @Test
     public void testQueue() {
         final IRandomGenerator random = PseudoRandomGenerators.newPseudoRandom();
         final int iterations = TURNS * COUNT;
