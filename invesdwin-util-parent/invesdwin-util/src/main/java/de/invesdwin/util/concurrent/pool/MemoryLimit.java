@@ -116,7 +116,8 @@ public final class MemoryLimit {
             }
             final AMemoryLimitClearable[] clearables = IDENTITY_LASTCLEAR.values()
                     .toArray(AMemoryLimitClearable.EMPTY_ARRAY);
-            final int countRandomClears = Integers.max(100, clearables.length / 100);
+            //go with 20% of caches so that we recover within about 5 minutes
+            final int countRandomClears = Integers.max(10, clearables.length / 5);
             for (int i = 0; i < clearables.length && i < countRandomClears; i++) {
                 final IRandomGenerator random = PseudoRandomGenerators.getThreadLocalPseudoRandom();
                 final int randomIndex = random.nextInt(0, clearables.length);
