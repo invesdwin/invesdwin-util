@@ -1,5 +1,6 @@
 package de.invesdwin.util.concurrent.pool;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
@@ -10,12 +11,22 @@ import com.github.benmanes.caffeine.cache.AsyncCache;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.Locks;
+import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
 import de.invesdwin.util.concurrent.loop.SynchronizedLoopInterruptedCheck;
+import de.invesdwin.util.concurrent.reference.IReference;
+import de.invesdwin.util.concurrent.reference.ImmutableReference;
+import de.invesdwin.util.concurrent.reference.ImmutableWeakReference;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
+import de.invesdwin.util.math.random.IRandomGenerator;
+import de.invesdwin.util.math.random.PseudoRandomGenerators;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
@@ -47,13 +58,19 @@ public final class MemoryLimit {
             return true;
         }
     };
+    private static final ILock CLEAR_CACHE_SWEEP_LOCK = Locks
+            .newReentrantLock(MemoryLimit.class.getSimpleName() + "clearCacheSweepLock");
     private static volatile boolean prevMemoryLimitReached = false;
     private static volatile double prevFreeMemoryRate = getFreeMemoryRate();
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(MemoryLimit.class);
-    private static final ConcurrentMap<Integer, Instant> IDENTITY_LASTCLEAR;
+    private static final ConcurrentMap<Integer, AMemoryLimitClearable<?>> IDENTITY_LASTCLEAR;
+    private static long lastClearCacheSweepNanos = System.nanoTime();
 
     static {
-        IDENTITY_LASTCLEAR = Caffeine.newBuilder().maximumSize(10_000).<Integer, Instant> build().asMap();
+        IDENTITY_LASTCLEAR = Caffeine.newBuilder()
+                .maximumSize(10_000)
+                .<Integer, AMemoryLimitClearable<?>> build()
+                .asMap();
     }
 
     private MemoryLimit() {}
@@ -82,6 +99,39 @@ public final class MemoryLimit {
         return freeMemoryRate;
     }
 
+    public static void maybeClearCacheSweep() {
+        if (isMemoryLimitReached()) {
+            maybeClearCacheSweepUnchecked();
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static void maybeClearCacheSweepUnchecked() {
+        if (!CLEAR_CACHE_SWEEP_LOCK.tryLock()) {
+            return;
+        }
+        try {
+            if (CLEAR_CACHE_INTERVAL.isGreaterThanNanos(System.nanoTime() - lastClearCacheSweepNanos)) {
+                return;
+            }
+            final AMemoryLimitClearable[] clearables = IDENTITY_LASTCLEAR.values()
+                    .toArray(AMemoryLimitClearable.EMPTY_ARRAY);
+            final int countRandomClears = Integers.max(100, clearables.length / 100);
+            for (int i = 0; i < clearables.length && i < countRandomClears; i++) {
+                final IRandomGenerator random = PseudoRandomGenerators.getThreadLocalPseudoRandom();
+                final int randomIndex = random.nextInt(0, clearables.length);
+                final AMemoryLimitClearable clearable = clearables[randomIndex];
+                if (clearable != null && clearable.maybeClear()) {
+                    clearable.evict();
+                }
+                clearables[randomIndex] = null;
+            }
+            lastClearCacheSweepNanos = System.nanoTime();
+        } finally {
+            CLEAR_CACHE_SWEEP_LOCK.unlock();
+        }
+    }
+
     public static void maybeClearCache(final Object holder, final String name, final Cache<?, ?> cache,
             final Lock lock) {
         if (isMemoryLimitReached()) {
@@ -95,19 +145,20 @@ public final class MemoryLimit {
             if (lock.tryLock()) {
                 try {
                     if (cache.estimatedSize() >= MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
-                        final int cacheIdentity = System.identityHashCode(holder);
-                        final Instant lastClear = IDENTITY_LASTCLEAR.get(cacheIdentity);
-                        if (lastClear == null || lastClear.isGreaterThan(CLEAR_CACHE_INTERVAL)) {
-                            logWarning(holder, name, cache.estimatedSize());
-                            cache.asMap().clear();
-                            IDENTITY_LASTCLEAR.put(cacheIdentity, new Instant());
+                        final int holderIdentity = System.identityHashCode(holder);
+                        AMemoryLimitClearable<?> lastClear = IDENTITY_LASTCLEAR.get(holderIdentity);
+                        if (lastClear == null || lastClear.shouldReplace(holder, name, cache, lock)) {
+                            lastClear = new CacheMemoryLimitClearable(holderIdentity, holder, name, cache, lock);
+                            IDENTITY_LASTCLEAR.put(holderIdentity, lastClear);
                         }
+                        lastClear.maybeClear();
                     }
                 } finally {
                     lock.unlock();
                 }
             }
         }
+        maybeClearCacheSweepUnchecked();
     }
 
     public static void maybeClearCache(final Object holder, final String name, final AsyncCache<?, ?> cache,
@@ -123,19 +174,20 @@ public final class MemoryLimit {
             if (lock.tryLock()) {
                 try {
                     if (cache.asMap().size() >= MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
-                        final int cacheIdentity = System.identityHashCode(holder);
-                        final Instant lastClear = IDENTITY_LASTCLEAR.get(cacheIdentity);
-                        if (lastClear == null || lastClear.isGreaterThan(CLEAR_CACHE_INTERVAL)) {
-                            logWarning(holder, name, cache.asMap().size());
-                            cache.asMap().clear();
-                            IDENTITY_LASTCLEAR.put(cacheIdentity, new Instant());
+                        final int holderIdentity = System.identityHashCode(holder);
+                        AMemoryLimitClearable<?> lastClear = IDENTITY_LASTCLEAR.get(holderIdentity);
+                        if (lastClear == null || lastClear.shouldReplace(holder, name, cache, lock)) {
+                            lastClear = new AsyncCacheMemoryLimitClearable(holderIdentity, holder, name, cache, lock);
+                            IDENTITY_LASTCLEAR.put(holderIdentity, lastClear);
                         }
+                        lastClear.maybeClear();
                     }
                 } finally {
                     lock.unlock();
                 }
             }
         }
+        maybeClearCacheSweepUnchecked();
     }
 
     public static void maybeClearCache(final Object holder, final String name, final Map<?, ?> cache, final Lock lock) {
@@ -150,19 +202,20 @@ public final class MemoryLimit {
             if (lock.tryLock()) {
                 try {
                     if (cache.size() >= MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
-                        final int cacheIdentity = System.identityHashCode(holder);
-                        final Instant lastClear = IDENTITY_LASTCLEAR.get(cacheIdentity);
-                        if (lastClear == null || lastClear.isGreaterThan(CLEAR_CACHE_INTERVAL)) {
-                            logWarning(holder, name, cache.size());
-                            cache.clear();
-                            IDENTITY_LASTCLEAR.put(cacheIdentity, new Instant());
+                        final int holderIdentity = System.identityHashCode(holder);
+                        AMemoryLimitClearable<?> lastClear = IDENTITY_LASTCLEAR.get(holderIdentity);
+                        if (lastClear == null || lastClear.shouldReplace(holder, name, cache, lock)) {
+                            lastClear = new MapMemoryLimitClearable(holderIdentity, holder, name, cache, lock);
+                            IDENTITY_LASTCLEAR.put(holderIdentity, lastClear);
                         }
+                        lastClear.maybeClear();
                     }
                 } finally {
                     lock.unlock();
                 }
             }
         }
+        maybeClearCacheSweepUnchecked();
     }
 
     private static void logWarning(final Object holder, final String name, final long size) {
@@ -193,16 +246,167 @@ public final class MemoryLimit {
         if (cache.size() >= CLEAR_CACHE_MIN_COUNT) {
             synchronized (cache) {
                 if (cache.size() >= CLEAR_CACHE_MIN_COUNT) {
-                    final int cacheIdentity = System.identityHashCode(holder);
-                    final Instant lastClear = IDENTITY_LASTCLEAR.get(cacheIdentity);
-                    if (lastClear == null || lastClear.isGreaterThan(CLEAR_CACHE_INTERVAL)) {
-                        logWarning(holder, name, cache.size());
-                        cache.clear();
-                        IDENTITY_LASTCLEAR.put(cacheIdentity, new Instant());
+                    final int holderIdentity = System.identityHashCode(holder);
+                    AMemoryLimitClearable<?> lastClear = IDENTITY_LASTCLEAR.get(holderIdentity);
+                    if (lastClear == null || lastClear.shouldReplace(holder, name, cache, null)) {
+                        lastClear = new MapMemoryLimitClearable(holderIdentity, holder, name, cache, null);
+                        IDENTITY_LASTCLEAR.put(holderIdentity, lastClear);
                     }
+                    lastClear.maybeClear();
                 }
             }
         }
+        maybeClearCacheSweepUnchecked();
+    }
+
+    private abstract static class AMemoryLimitClearable<V> {
+
+        @SuppressWarnings("rawtypes")
+        public static final AMemoryLimitClearable[] EMPTY_ARRAY = new AMemoryLimitClearable[0];
+
+        private final int holderIdentity;
+        private final WeakReference<Object> holderRef;
+        private final WeakReference<V> cacheRef;
+        private volatile String name;
+        private final IReference<Lock> lockRef;
+        private volatile long lastClearedNanos = Instant.DUMMY_NANOS;
+
+        protected AMemoryLimitClearable(final Integer holderIdentity, final Object holder, final String name,
+                final V cache, final Lock lock) {
+            this.holderIdentity = holderIdentity;
+            this.holderRef = new WeakReference<>(holder);
+            this.name = name;
+            this.cacheRef = new WeakReference<>(cache);
+            if (lock != null) {
+                this.lockRef = new ImmutableWeakReference<>(lock);
+            } else {
+                this.lockRef = ImmutableReference.of(
+                        Locks.newReentrantLock(getClass().getSimpleName() + ": " + holderIdentity + "[" + name + "]"));
+            }
+        }
+
+        public boolean shouldReplace(final Object holder, final String name, final Object cache, final Lock lock) {
+            if (holder != holderRef.get()) {
+                return true;
+            }
+            if (cache != cacheRef.get()) {
+                return true;
+            }
+            if ((lock == null) != (lockRef == null)) {
+                return true;
+            }
+            if (lock != lockRef.get()) {
+                return true;
+            }
+            this.name = name;
+            return false;
+        }
+
+        public boolean maybeClear() {
+            if (CLEAR_CACHE_INTERVAL.isGreaterThanNanos(System.nanoTime() - lastClearedNanos)) {
+                return false;
+            }
+            final Lock lock;
+            if (lockRef != null) {
+                lock = lockRef.get();
+                if (lock == null) {
+                    evict();
+                    return false;
+                }
+                if (!lock.tryLock()) {
+                    return false;
+                }
+            } else {
+                lock = DisabledLock.INSTANCE;
+            }
+            try {
+                final Object holder = holderRef.get();
+                if (holder == null) {
+                    evict();
+                    return false;
+                }
+                final V cache = cacheRef.get();
+                if (cache == null) {
+                    evict();
+                    return false;
+                }
+                final long size = internalSize(cache);
+                if (size < MemoryLimit.CLEAR_CACHE_MIN_COUNT) {
+                    return false;
+                }
+                logWarning(holder, name, size);
+                internalClear(cache);
+                lastClearedNanos = System.nanoTime();
+                return true;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        public void evict() {
+            Assertions.checkSame(this, IDENTITY_LASTCLEAR.remove(holderIdentity));
+        }
+
+        public abstract long internalSize(V cache);
+
+        public abstract void internalClear(V cache);
+    }
+
+    private static final class CacheMemoryLimitClearable extends AMemoryLimitClearable<Cache<?, ?>> {
+
+        private CacheMemoryLimitClearable(final int holderIdentity, final Object holder, final String name,
+                final Cache<?, ?> cache, final Lock lock) {
+            super(holderIdentity, holder, name, cache, lock);
+        }
+
+        @Override
+        public long internalSize(final Cache<?, ?> cache) {
+            return cache.estimatedSize();
+        }
+
+        @Override
+        public void internalClear(final Cache<?, ?> cache) {
+            cache.asMap().clear();
+        }
+
+    }
+
+    private static final class AsyncCacheMemoryLimitClearable extends AMemoryLimitClearable<AsyncCache<?, ?>> {
+
+        private AsyncCacheMemoryLimitClearable(final int holderIdentity, final Object holder, final String name,
+                final AsyncCache<?, ?> cache, final Lock lock) {
+            super(holderIdentity, holder, name, cache, lock);
+        }
+
+        @Override
+        public long internalSize(final AsyncCache<?, ?> cache) {
+            return cache.asMap().size();
+        }
+
+        @Override
+        public void internalClear(final AsyncCache<?, ?> cache) {
+            cache.asMap().clear();
+        }
+
+    }
+
+    private static final class MapMemoryLimitClearable extends AMemoryLimitClearable<Map<?, ?>> {
+
+        private MapMemoryLimitClearable(final int holderIdentity, final Object holder, final String name,
+                final Map<?, ?> cache, final Lock lock) {
+            super(holderIdentity, holder, name, cache, lock);
+        }
+
+        @Override
+        public long internalSize(final Map<?, ?> cache) {
+            return cache.size();
+        }
+
+        @Override
+        public void internalClear(final Map<?, ?> cache) {
+            cache.clear();
+        }
+
     }
 
 }
