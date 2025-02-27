@@ -16,23 +16,22 @@ import de.invesdwin.util.collections.loadingcache.caffeine.CaffeineLoadingCacheM
 @ThreadSafe
 public class CaffeineLoadingCache<K, V> implements ILoadingCache<K, V> {
 
-    private final ACaffeineLoadingCacheMap<K, V> delegate = new ACaffeineLoadingCacheMap<K, V>() {
-        @Override
-        protected V loadValue(final K key) {
-            return loadValue.apply(key);
-        }
-
-        @Override
-        protected CaffeineLoadingCacheMapConfig newConfig() {
-            return CaffeineLoadingCache.this.getConfig();
-        }
-    };
-    private final Function<K, V> loadValue;
+    private final ACaffeineLoadingCacheMap<K, V> delegate;
     private final Integer maximumSize;
 
     public CaffeineLoadingCache(final Function<K, V> loadValue, final Integer maximumSize) {
-        this.loadValue = loadValue;
         this.maximumSize = maximumSize;
+        this.delegate = new ACaffeineLoadingCacheMap<K, V>() {
+            @Override
+            protected V loadValue(final K key) {
+                return loadValue.apply(key);
+            }
+
+            @Override
+            protected CaffeineLoadingCacheMapConfig newConfig() {
+                return CaffeineLoadingCache.this.getConfig();
+            }
+        };
     }
 
     protected CaffeineLoadingCacheMapConfig getConfig() {

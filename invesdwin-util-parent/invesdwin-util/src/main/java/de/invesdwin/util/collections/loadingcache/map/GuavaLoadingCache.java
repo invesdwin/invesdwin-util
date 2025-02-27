@@ -16,26 +16,25 @@ import de.invesdwin.util.collections.loadingcache.guava.GuavaLoadingCacheMapConf
 @ThreadSafe
 public class GuavaLoadingCache<K, V> implements ILoadingCache<K, V> {
 
-    private final AGuavaLoadingCacheMap<K, V> delegate = new AGuavaLoadingCacheMap<K, V>() {
-        @Override
-        protected V loadValue(final K key) {
-            return loadValue.apply(key);
-        }
-
-        @Override
-        protected GuavaLoadingCacheMapConfig getConfig() {
-            return GuavaLoadingCache.this.getConfig();
-        }
-    };
-    private final Function<K, V> loadValue;
+    private final AGuavaLoadingCacheMap<K, V> delegate;
     private final Integer maximumSize;
 
     public GuavaLoadingCache(final Function<K, V> loadValue, final Integer maximumSize) {
-        this.loadValue = loadValue;
         this.maximumSize = maximumSize;
+        this.delegate = new AGuavaLoadingCacheMap<K, V>() {
+            @Override
+            protected V loadValue(final K key) {
+                return loadValue.apply(key);
+            }
+
+            @Override
+            protected GuavaLoadingCacheMapConfig getConfig() {
+                return GuavaLoadingCache.this.newConfig();
+            }
+        };
     }
 
-    protected GuavaLoadingCacheMapConfig getConfig() {
+    protected GuavaLoadingCacheMapConfig newConfig() {
         return new GuavaLoadingCacheMapConfig().setMaximumSize(maximumSize);
     }
 
