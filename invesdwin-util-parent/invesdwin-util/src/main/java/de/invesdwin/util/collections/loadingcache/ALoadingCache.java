@@ -6,6 +6,7 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.eviction.EvictionMode;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.loadingcache.map.CaffeineLoadingCache;
@@ -61,7 +62,8 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
         final Integer maximumSize = getInitialMaximumSize();
         final Function<K, V> loadValue = newLoadValueF();
         if (isHighConcurrency()) {
-            return newConcurrentLoadingCache(maximumSize, loadValue);
+            Assertions.checkTrue(isThreadSafe());
+            return newConcurrentLoadingCache(loadValue, maximumSize);
         } else if (maximumSize == null) {
             if (isThreadSafe()) {
                 return new SynchronizedUnlimitedCachingLoadingCache<K, V>(loadValue);
@@ -79,7 +81,7 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
         }
     }
 
-    private Function<K, V> newLoadValueF() {
+    protected Function<K, V> newLoadValueF() {
         if (isPreventRecursiveLoad()) {
             if (isHighConcurrency()) {
                 return new Function<K, V>() {
@@ -120,7 +122,7 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
         }
     }
 
-    private V preventRecursiveLoad(final Set<K> alreadyLoading, final K key) {
+    protected V preventRecursiveLoad(final Set<K> alreadyLoading, final K key) {
         if (alreadyLoading.add(key)) {
             try {
                 final V loaded = loadValue(key);
@@ -140,7 +142,7 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
         }
     }
 
-    protected ILoadingCache<K, V> newConcurrentLoadingCache(final Integer maximumSize, final Function<K, V> loadValue) {
+    protected ILoadingCache<K, V> newConcurrentLoadingCache(final Function<K, V> loadValue, final Integer maximumSize) {
         return new CaffeineLoadingCache<K, V>(loadValue, maximumSize);
     }
 
