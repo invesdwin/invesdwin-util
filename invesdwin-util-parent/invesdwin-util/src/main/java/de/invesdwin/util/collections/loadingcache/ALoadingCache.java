@@ -8,6 +8,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.eviction.EvictionMode;
+import de.invesdwin.util.collections.eviction.IEvictionMap;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.loadingcache.map.CaffeineLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.EvictionMapLoadingCache;
@@ -61,11 +62,12 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
     protected ILoadingCache<K, V> newDelegate() {
         final Integer maximumSize = getInitialMaximumSize();
         final Function<K, V> loadValue = newLoadValueF();
+        final boolean threadSafe = isThreadSafe();
         if (isHighConcurrency()) {
-            Assertions.checkTrue(isThreadSafe());
+            Assertions.checkTrue(threadSafe);
             return newConcurrentLoadingCache(loadValue, maximumSize);
         } else if (maximumSize == null) {
-            if (isThreadSafe()) {
+            if (threadSafe) {
                 return new SynchronizedUnlimitedCachingLoadingCache<K, V>(loadValue);
             } else {
                 return new UnlimitedCachingLoadingCache<K, V>(loadValue);
@@ -73,10 +75,15 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
         } else if (maximumSize == 0) {
             return new NoCachingLoadingCache<K, V>(loadValue);
         } else {
-            if (isThreadSafe()) {
-                return new SynchronizedEvictionMapLoadingCache<K, V>(loadValue, getEvictionMode().newMap(maximumSize));
+            final EvictionMode evictionMode = getEvictionMode();
+            final IEvictionMap<K, V> evictionMap = evictionMode.newMap(maximumSize);
+            if (evictionMap.isThreadSafe()) {
+                Assertions.checkTrue(threadSafe);
+            }
+            if (threadSafe && !evictionMap.isThreadSafe()) {
+                return new SynchronizedEvictionMapLoadingCache<K, V>(loadValue, evictionMap);
             } else {
-                return new EvictionMapLoadingCache<>(loadValue, getEvictionMode().newMap(maximumSize));
+                return new EvictionMapLoadingCache<>(loadValue, evictionMap);
             }
         }
     }

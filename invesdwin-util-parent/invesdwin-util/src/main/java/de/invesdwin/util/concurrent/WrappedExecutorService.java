@@ -180,7 +180,7 @@ public class WrappedExecutorService implements ListeningExecutorService, Closeab
         return finalizer.name;
     }
 
-    private void incrementPendingCount(final boolean skipWaitOnFullPendingCount) throws InterruptedException {
+    protected void incrementPendingCount(final boolean skipWaitOnFullPendingCount) throws InterruptedException {
         if (isWaitOnFullPendingCount() && !skipWaitOnFullPendingCount) {
             if (pendingCount.get() >= fullPendingCountCondition.getLimit()) {
                 /*
@@ -203,11 +203,11 @@ public class WrappedExecutorService implements ListeningExecutorService, Closeab
         }
     }
 
-    private void decrementPendingCount() {
+    protected void decrementPendingCount() {
         notifyPendingCountListeners(pendingCount.decrementAndGet());
     }
 
-    private void notifyPendingCountListeners(final int currentPendingCount) {
+    protected void notifyPendingCountListeners(final int currentPendingCount) {
         if (!pendingCount_condition.isEmpty()) {
             final PendingCountCondition[] conditionArray = pendingCount_condition
                     .asValueArray(PendingCountCondition.EMPTY_ARRAY);

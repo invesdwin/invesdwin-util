@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.loadingcache.caffeine;
 
+import java.util.concurrent.ExecutorService;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -22,8 +24,7 @@ import de.invesdwin.util.time.duration.Duration;
 @NotThreadSafe
 public class CaffeineLoadingCacheMapConfig {
 
-    public static final WrappedExecutorService DISABLED_EXECUTOR = Executors
-            .newDisabledExecutor(CaffeineLoadingCacheMapConfig.class.getSimpleName() + "_DISABLED");
+    public static final ExecutorService DISABLED_EXECUTOR = Executors.SIMPLE_DISABLED_EXECUTOR;
     private static final WrappedExecutorService RECURSIVE_EXECUTOR = Executors
             .newCachedThreadPool(CaffeineLoadingCacheMapConfig.class.getSimpleName() + "_RECURSIVE")
             .setDynamicThreadName(false);
@@ -152,7 +153,6 @@ public class CaffeineLoadingCacheMapConfig {
         return new WrapperLoadingCacheMap<K, V>(delegate);
     }
 
-    @SuppressWarnings("null")
     private <K, V> Caffeine<Object, Object> newCacheBuilder() {
         final Caffeine<Object, Object> builder = Caffeine.newBuilder();
         if (BooleanUtils.isTrue(recursiveLoading)) {
@@ -160,10 +160,9 @@ public class CaffeineLoadingCacheMapConfig {
         } else {
             builder.executor(DISABLED_EXECUTOR);
         }
-        //System.out.println("TODO: reenable this as soon as possible");
-        //        if (maximumSize != null) {
-        //            builder.maximumSize(maximumSize);
-        //        }
+        if (maximumSize != null) {
+            builder.maximumSize(maximumSize);
+        }
         if (expireAfterAccess != null) {
             builder.expireAfterAccess(expireAfterAccess.longValue(), expireAfterAccess.getTimeUnit().timeUnitValue());
         }

@@ -20,7 +20,7 @@ public abstract class ADelegateMap<K, V> implements Map<K, V>, ISerializableValu
         this.delegate = newDelegate();
     }
 
-    ADelegateMap(final Map<K, V> delegate) {
+    protected ADelegateMap(final Map<K, V> delegate) {
         this.delegate = delegate;
     }
 

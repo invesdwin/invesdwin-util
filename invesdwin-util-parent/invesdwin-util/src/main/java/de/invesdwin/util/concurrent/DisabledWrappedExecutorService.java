@@ -18,6 +18,21 @@ public class DisabledWrappedExecutorService extends WrappedExecutorService {
     }
 
     @Override
+    protected void incrementPendingCount(final boolean skipWaitOnFullPendingCount) throws InterruptedException {
+        //noop
+    }
+
+    @Override
+    protected void decrementPendingCount() {
+        //noop
+    }
+
+    @Override
+    protected void notifyPendingCountListeners(final int currentPendingCount) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     protected IShutdownHook newShutdownHook(final ExecutorService delegate) {
         //shutdown hook disabled
         return null;

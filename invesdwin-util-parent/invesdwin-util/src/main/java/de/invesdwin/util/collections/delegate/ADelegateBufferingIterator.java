@@ -21,7 +21,7 @@ public abstract class ADelegateBufferingIterator<E> implements IBufferingIterato
         this.delegate = (IBufferingIterator<E>) newDelegate();
     }
 
-    ADelegateBufferingIterator(final IBufferingIterator<E> delegate) {
+    protected ADelegateBufferingIterator(final IBufferingIterator<E> delegate) {
         this.delegate = delegate;
     }
 
