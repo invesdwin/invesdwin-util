@@ -1,7 +1,5 @@
 package de.invesdwin.util.collections.loadingcache.caffeine;
 
-import java.util.concurrent.ExecutorService;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -24,7 +22,8 @@ import de.invesdwin.util.time.duration.Duration;
 @NotThreadSafe
 public class CaffeineLoadingCacheMapConfig {
 
-    public static final ExecutorService DISABLED_EXECUTOR = Executors.SIMPLE_DISABLED_EXECUTOR;
+    public static final WrappedExecutorService DISABLED_EXECUTOR = Executors
+            .newDisabledExecutor(CaffeineLoadingCacheMapConfig.class.getSimpleName() + "_DISABLED");
     private static final WrappedExecutorService RECURSIVE_EXECUTOR = Executors
             .newCachedThreadPool(CaffeineLoadingCacheMapConfig.class.getSimpleName() + "_RECURSIVE")
             .setDynamicThreadName(false);
