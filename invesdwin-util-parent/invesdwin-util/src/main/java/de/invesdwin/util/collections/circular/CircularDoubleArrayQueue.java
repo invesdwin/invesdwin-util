@@ -3,8 +3,8 @@ package de.invesdwin.util.collections.circular;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.collections.array.accessor.IGenericArrayAccessor;
-import de.invesdwin.util.collections.queue.IGenericQueue;
+import de.invesdwin.util.collections.array.accessor.IDoubleArrayAccessor;
+import de.invesdwin.util.collections.queue.IDoubleQueue;
 
 /**
  * Similar to org.apache.commons.collections4.queue.CircularFifoQueue<E> or
@@ -14,17 +14,18 @@ import de.invesdwin.util.collections.queue.IGenericQueue;
  * memory management.
  */
 @NotThreadSafe
-public class CircularGenericArrayQueue<E> implements IGenericQueue<E>, IGenericArrayAccessor<E> {
+public class CircularDoubleArrayQueue implements IDoubleQueue, IDoubleArrayAccessor {
 
-    private final Object[] array;
+    private final double[] array;
     private final int capacity;
     private final int lastPossibleIndex;
     private int size = 0;
     private int startArrayIndex = -1;
     private int endArrayIndex = -1;
 
-    public CircularGenericArrayQueue(final int capacity) {
-        this.array = new Object[capacity];
+    public CircularDoubleArrayQueue(final int capacity) {
+        this.array = new double[capacity];
+        Arrays.fill(array, Double.NaN);
         this.capacity = array.length;
         this.lastPossibleIndex = capacity - 1;
         if (capacity == 0) {
@@ -35,18 +36,16 @@ public class CircularGenericArrayQueue<E> implements IGenericQueue<E>, IGenericA
     /**
      * The last value has index 0, the value before the last has index 1.
      */
-    @SuppressWarnings("unchecked")
-    public E getReverse(final int index) {
-        return (E) array[arrayIndexReverse(index)];
+    public double getReverse(final int index) {
+        return array[arrayIndexReverse(index)];
     }
 
     /**
      * The first value has index 0, the value after the first has index 1.
      */
     @Override
-    @SuppressWarnings("unchecked")
-    public E get(final int index) {
-        return (E) array[arrayIndex(index)];
+    public double get(final int index) {
+        return array[arrayIndex(index)];
     }
 
     @Override
@@ -173,11 +172,10 @@ public class CircularGenericArrayQueue<E> implements IGenericQueue<E>, IGenericA
         return sb.toString();
     }
 
-    @SuppressWarnings("unchecked")
-    public E[] toArray(final E[] a) {
+    public double[] toArray(final double[] a) {
         if (a.length < size) {
             // Make a new array of a's runtime type, but my contents:
-            final E[] array = (E[]) Arrays.newInstance(a.getClass().getComponentType(), size);
+            final double[] array = new double[size];
             for (int i = 0; i < array.length; i++) {
                 array[i] = get(i);
             }
@@ -187,7 +185,7 @@ public class CircularGenericArrayQueue<E> implements IGenericQueue<E>, IGenericA
             a[i] = get(i);
         }
         if (a.length > size) {
-            a[size] = null;
+            a[size] = Double.NaN;
         }
         return a;
     }
@@ -196,12 +194,12 @@ public class CircularGenericArrayQueue<E> implements IGenericQueue<E>, IGenericA
      * Adds an element to the array, if capacity is exceeded, the first element is replaced silently by the rollover (so
      * that it can be garbage collected).
      */
-    public void circularAdd(final E value) {
+    public void circularAdd(final double value) {
         pretendAdd();
         array[endArrayIndex] = value;
     }
 
-    public void circularPrepend(final E value) {
+    public void circularPrepend(final double value) {
         pretendPrepend();
         array[startArrayIndex] = value;
     }
@@ -210,24 +208,23 @@ public class CircularGenericArrayQueue<E> implements IGenericQueue<E>, IGenericA
      * Adds an element to the array, if capacity is exceeded, the first element is replaced by the rollover and returned
      * (e.g. to clean up the instance).
      */
-    @SuppressWarnings("unchecked")
-    public E evictAdd(final E value) {
+
+    public double evictAdd(final double value) {
         pretendAdd();
-        final E evicted = (E) array[endArrayIndex];
+        final double evicted = array[endArrayIndex];
         array[endArrayIndex] = value;
         return evicted;
     }
 
-    @SuppressWarnings("unchecked")
-    public E evictPrepend(final E value) {
+    public double evictPrepend(final double value) {
         pretendPrepend();
-        final E evicted = (E) array[startArrayIndex];
+        final double evicted = array[startArrayIndex];
         array[startArrayIndex] = value;
         return evicted;
     }
 
     @Override
-    public boolean offer(final E value) {
+    public boolean offer(final double value) {
         if (isFull()) {
             return false;
         } else {
@@ -236,7 +233,7 @@ public class CircularGenericArrayQueue<E> implements IGenericQueue<E>, IGenericA
         }
     }
 
-    public boolean offerPrepend(final E value) {
+    public boolean offerPrepend(final double value) {
         if (isFull()) {
             return false;
         } else {
@@ -245,7 +242,7 @@ public class CircularGenericArrayQueue<E> implements IGenericQueue<E>, IGenericA
         }
     }
 
-    public boolean prepend(final E e) {
+    public boolean prepend(final double e) {
         if (offerPrepend(e)) {
             return true;
         } else {
@@ -253,24 +250,22 @@ public class CircularGenericArrayQueue<E> implements IGenericQueue<E>, IGenericA
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public E peek() {
+    public double peek() {
         if (isEmpty()) {
-            return null;
+            return Double.NaN;
         }
-        final E first = (E) array[startArrayIndex];
+        final double first = array[startArrayIndex];
         return first;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public E poll() {
+    public double poll() {
         if (isEmpty()) {
-            return null;
+            return Double.NaN;
         }
-        final E first = (E) array[startArrayIndex];
-        array[startArrayIndex] = null;
+        final double first = array[startArrayIndex];
+        array[startArrayIndex] = Double.NaN;
         size--;
         if (isEmpty()) {
             startArrayIndex = -1;
@@ -284,7 +279,7 @@ public class CircularGenericArrayQueue<E> implements IGenericQueue<E>, IGenericA
     @Override
     public void clear() {
         pretendClear();
-        Arrays.fill(array, null);
+        Arrays.fill(array, Double.NaN);
     }
 
     public void pretendClear() {

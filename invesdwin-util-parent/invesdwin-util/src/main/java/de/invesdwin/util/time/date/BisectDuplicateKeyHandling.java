@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.array.IGenericArrayAccessor;
+import de.invesdwin.util.collections.array.accessor.IGenericArrayAccessor;
 import de.invesdwin.util.lang.comparator.IComparator;
 
 @Immutable

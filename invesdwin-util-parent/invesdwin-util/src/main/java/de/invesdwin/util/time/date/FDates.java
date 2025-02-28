@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.array.IGenericArrayAccessor;
+import de.invesdwin.util.collections.array.accessor.IGenericArrayAccessor;
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;

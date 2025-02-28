@@ -6,12 +6,15 @@ import java.util.Queue;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.lang.Objects;
+
 @Immutable
-public class JavaQueueAdapter<E> implements Queue<E>, IQueue<E> {
+public class GenericQueueToJavaAdapter<E> implements Queue<E>, IGenericQueue<E> {
 
-    private final Queue<E> delegate;
+    private final IGenericQueue<E> delegate;
 
-    public JavaQueueAdapter(final Queue<E> delegate) {
+    public GenericQueueToJavaAdapter(final IGenericQueue<E> delegate) {
         this.delegate = delegate;
     }
 
@@ -27,47 +30,47 @@ public class JavaQueueAdapter<E> implements Queue<E>, IQueue<E> {
 
     @Override
     public boolean contains(final Object o) {
-        return delegate.contains(o);
+        return false;
     }
 
     @Override
     public Iterator<E> iterator() {
-        return delegate.iterator();
+        return Collections.emptyIterator();
     }
 
     @Override
     public Object[] toArray() {
-        return delegate.toArray();
+        return Objects.EMPTY_ARRAY;
     }
 
     @Override
     public <T> T[] toArray(final T[] a) {
-        return delegate.toArray(a);
+        return (T[]) Objects.EMPTY_ARRAY;
     }
 
     @Override
     public boolean remove(final Object o) {
-        return delegate.remove(o);
+        return false;
     }
 
     @Override
     public boolean containsAll(final Collection<?> c) {
-        return delegate.containsAll(c);
+        return false;
     }
 
     @Override
     public boolean addAll(final Collection<? extends E> c) {
-        return delegate.addAll(c);
+        return false;
     }
 
     @Override
     public boolean removeAll(final Collection<?> c) {
-        return delegate.removeAll(c);
+        return false;
     }
 
     @Override
     public boolean retainAll(final Collection<?> c) {
-        return delegate.retainAll(c);
+        return false;
     }
 
     @Override

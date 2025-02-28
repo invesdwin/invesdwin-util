@@ -1,5 +1,6 @@
 package de.invesdwin.util.collections.array;
 
+import de.invesdwin.util.collections.array.accessor.IGenericArrayAccessor;
 import de.invesdwin.util.collections.array.heap.HeapGenericArray;
 
 public interface IGenericArray<E> extends IPrimitiveArray, IGenericArrayAccessor<E> {

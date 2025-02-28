@@ -1,12 +1,11 @@
 package de.invesdwin.util.collections.array;
 
+import de.invesdwin.util.collections.array.accessor.IIntegerArrayAccessor;
 import de.invesdwin.util.collections.array.heap.HeapIntegerArray;
 
-public interface IIntegerArray extends IPrimitiveArray {
+public interface IIntegerArray extends IPrimitiveArray, IIntegerArrayAccessor {
 
     void set(int index, int value);
-
-    int get(int index);
 
     IIntegerArray slice(int fromIndex, int length);
 

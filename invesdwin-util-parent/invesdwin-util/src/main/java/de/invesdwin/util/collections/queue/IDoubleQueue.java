@@ -4,8 +4,9 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 
 import de.invesdwin.util.error.FastNoSuchElementException;
+import de.invesdwin.util.math.Doubles;
 
-public interface IQueue<E> {
+public interface IDoubleQueue {
 
     int size();
 
@@ -28,7 +29,7 @@ public interface IQueue<E> {
      * @throws IllegalArgumentException
      *             if some property of this element prevents it from being added to this queue
      */
-    default boolean add(final E e) {
+    default boolean add(final double e) {
         if (offer(e)) {
             return true;
         } else {
@@ -51,7 +52,7 @@ public interface IQueue<E> {
      * @throws IllegalArgumentException
      *             if some property of this element prevents it from being added to this queue
      */
-    boolean offer(E e);
+    boolean offer(double e);
 
     /**
      * Retrieves and removes the head of this queue. This method differs from {@link #poll() poll()} only in that it
@@ -61,12 +62,12 @@ public interface IQueue<E> {
      * @throws NoSuchElementException
      *             if this queue is empty
      */
-    default E remove() {
-        final E poll = poll();
-        if (poll != null) {
+    default double remove() {
+        final double poll = poll();
+        if (!Doubles.isNaN(poll)) {
             return poll;
         } else {
-            throw FastNoSuchElementException.getInstance("poll returned null");
+            throw FastNoSuchElementException.getInstance("poll returned NaN");
         }
     }
 
@@ -75,7 +76,7 @@ public interface IQueue<E> {
      *
      * @return the head of this queue, or {@code null} if this queue is empty
      */
-    E poll();
+    double poll();
 
     /**
      * Retrieves, but does not remove, the head of this queue. This method differs from {@link #peek peek} only in that
@@ -85,12 +86,12 @@ public interface IQueue<E> {
      * @throws NoSuchElementException
      *             if this queue is empty
      */
-    default E element() {
-        final E peek = peek();
-        if (peek != null) {
+    default double element() {
+        final double peek = peek();
+        if (!Doubles.isNaN(peek)) {
             return peek;
         } else {
-            throw FastNoSuchElementException.getInstance("peek returned null");
+            throw FastNoSuchElementException.getInstance("peek returned NaN");
         }
     }
 
@@ -99,7 +100,7 @@ public interface IQueue<E> {
      *
      * @return the head of this queue, or {@code null} if this queue is empty
      */
-    E peek();
+    double peek();
 
     void clear();
 
