@@ -160,9 +160,10 @@ public class CaffeineLoadingCacheMapConfig {
         } else {
             builder.executor(DISABLED_EXECUTOR);
         }
-        if (maximumSize != null) {
-            builder.maximumSize(maximumSize);
-        }
+        //System.out.println("TODO: reenable this as soon as possible");
+        //        if (maximumSize != null) {
+        //            builder.maximumSize(maximumSize);
+        //        }
         if (expireAfterAccess != null) {
             builder.expireAfterAccess(expireAfterAccess.longValue(), expireAfterAccess.getTimeUnit().timeUnitValue());
         }
