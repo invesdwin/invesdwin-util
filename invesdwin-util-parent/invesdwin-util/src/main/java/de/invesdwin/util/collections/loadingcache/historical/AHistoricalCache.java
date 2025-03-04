@@ -556,7 +556,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
             if (valuesMap == this) {
                 synchronized (AHistoricalCache.this) {
                     if (valuesMap == this) {
-                        valuesMap = new ValuesMap();
+                        valuesMap = newValuesMap();
                         if (maximumSize != null && maximumSize != initialMaximumSize) {
                             innerIncreaseMaximumSize(maximumSize, "innerLoadCache lazy init");
                         }
@@ -588,7 +588,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         }
     }
 
-    private final class ValuesMap extends ADelegateLoadingCache<FDate, IHistoricalEntry<V>> implements IValuesMap<V> {
+    protected class ValuesMap extends ADelegateLoadingCache<FDate, IHistoricalEntry<V>> implements IValuesMap<V> {
 
         @Override
         public IHistoricalEntry<V> get(final FDate key) {
@@ -1117,6 +1117,10 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     @Override
     public void putPreviousKey(final FDate previousKey, final FDate valueKey) {
         queryCore.putPreviousKey(previousKey, valueKey);
+    }
+
+    protected IValuesMap<V> newValuesMap() {
+        return new ValuesMap();
     }
 
     @Override

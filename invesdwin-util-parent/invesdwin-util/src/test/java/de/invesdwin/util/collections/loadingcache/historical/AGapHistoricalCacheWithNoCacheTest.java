@@ -20,6 +20,7 @@ import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistori
 import de.invesdwin.util.collections.loadingcache.historical.key.APushingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
+import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDateBuilder;
 import de.invesdwin.util.time.date.FDates;
@@ -27,6 +28,10 @@ import de.invesdwin.util.time.date.FDates;
 @ThreadSafe
 public class AGapHistoricalCacheWithNoCacheTest {
     //CHECKSTYLE:ON
+
+    static {
+        Reflections.disableJavaModuleSystemRestrictions();
+    }
 
     //marker object
     private final List<FDate> entities;

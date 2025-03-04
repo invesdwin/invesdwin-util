@@ -1,9 +1,7 @@
-// CHECKSTYLE:OFF
 package de.invesdwin.util.collections.loadingcache.historical;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -14,8 +12,10 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.bean.tuple.Pair;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.list.Lists;
+import de.invesdwin.util.collections.loadingcache.historical.internal.IValuesMap;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.APushingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
@@ -28,8 +28,7 @@ import de.invesdwin.util.time.date.FDateBuilder;
 import de.invesdwin.util.time.date.FDates;
 
 @ThreadSafe
-public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest {
-    //CHECKSTYLE:ON
+public class NoGapValuesMapAGapHistoricalCacheWithNoCacheAndNoQueryCacheTest {
 
     static {
         Reflections.disableJavaModuleSystemRestrictions();
@@ -48,7 +47,7 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest {
     private final int testReturnMaxResultsValue = 2;
     private final TestGapHistoricalCache cache = new TestGapHistoricalCache();
 
-    public AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest() {
+    public NoGapValuesMapAGapHistoricalCacheWithNoCacheAndNoQueryCacheTest() {
         this.entities = new ArrayList<FDate>();
         entities.add(FDateBuilder.newDate(1990, 1, 1));
         entities.add(FDateBuilder.newDate(1991, 1, 1));
@@ -691,7 +690,7 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest {
             previousKeys.add(d);
         }
         Assertions.assertThat(previousKeys).isEqualTo(entities);
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(6);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(4);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
     }
 
@@ -1370,6 +1369,11 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest {
     }
 
     private final class TestGapHistoricalCache extends AGapHistoricalCache<FDate> {
+
+        @Override
+        protected IValuesMap<FDate> newValuesMap() {
+            return new ValuesMap();
+        }
 
         @Override
         protected IHistoricalCacheQueryCore<FDate> newQueryCore() {

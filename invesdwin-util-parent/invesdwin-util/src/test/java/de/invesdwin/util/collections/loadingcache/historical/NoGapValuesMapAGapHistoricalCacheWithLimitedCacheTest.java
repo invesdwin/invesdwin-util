@@ -1,9 +1,7 @@
-// CHECKSTYLE:OFF
 package de.invesdwin.util.collections.loadingcache.historical;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -14,8 +12,10 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.bean.tuple.Pair;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.list.Lists;
+import de.invesdwin.util.collections.loadingcache.historical.internal.IValuesMap;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.APushingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
@@ -26,8 +26,7 @@ import de.invesdwin.util.time.date.FDateBuilder;
 import de.invesdwin.util.time.date.FDates;
 
 @ThreadSafe
-public class AGapHistoricalCacheWithLimitedCacheTest {
-    //CHECKSTYLE:ON
+public class NoGapValuesMapAGapHistoricalCacheWithLimitedCacheTest {
 
     static {
         Reflections.disableJavaModuleSystemRestrictions();
@@ -46,7 +45,7 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
     private final int testReturnMaxResultsValue = 2;
     private final TestGapHistoricalCache cache = new TestGapHistoricalCache();
 
-    public AGapHistoricalCacheWithLimitedCacheTest() {
+    public NoGapValuesMapAGapHistoricalCacheWithLimitedCacheTest() {
         this.entities = new ArrayList<FDate>();
         entities.add(FDateBuilder.newDate(1990, 1, 1));
         entities.add(FDateBuilder.newDate(1991, 1, 1));
@@ -1514,6 +1513,11 @@ public class AGapHistoricalCacheWithLimitedCacheTest {
 
         {
             enableTrailingQueryCore();
+        }
+
+        @Override
+        protected IValuesMap<FDate> newValuesMap() {
+            return new ValuesMap();
         }
 
         @Override
