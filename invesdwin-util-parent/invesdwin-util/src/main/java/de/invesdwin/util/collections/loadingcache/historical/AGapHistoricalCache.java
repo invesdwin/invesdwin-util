@@ -269,7 +269,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         if (maxKeyInDB != null && key.compareTo(maxKeyInDB) >= 0 && containsKey(maxKeyInDB)) {
             return thisQueryWithFuture.getEntry(maxKeyInDB).getValueIfPresent();
         }
-        return (V) null;
+        return null;
     }
 
     private V eventuallyGetMinValue(final FDate key, final boolean newMinKey) {
