@@ -19,18 +19,28 @@ public abstract class ALatestValueByGapCache<V> {
 
     private final CircularGenericArrayQueue<V> values = new CircularGenericArrayQueue<>(5);
     private int prevResetIndex = getLastResetIndex() - 1;
-    private FDate prevHighestAllowedKey = FDates.MIN_DATE;
+    private FDate lastHighestAllowedKey = FDates.MIN_DATE;
     private boolean queryActive = false;
     private V firstValue;
     private FDate firstValueKey;
 
     protected abstract int getLastResetIndex();
 
-    protected abstract FDate getHighestAllowedKey();
+    protected abstract FDate getHighestAllowedKey(int lastResetIndex);
+
+    private FDate getHighestAllowedKeyMaybe(final FDate date, final int lastResetIndex) {
+        if (lastHighestAllowedKey != null && date.isBeforeOrEqualToNotNullSafe(lastHighestAllowedKey)) {
+            return lastHighestAllowedKey;
+        } else {
+            return getHighestAllowedKey(lastResetIndex);
+        }
+    }
+
+    protected abstract V getFirstValue();
 
     protected abstract V getLatestValue(FDate key);
 
-    protected abstract V getNextValue(V value);
+    protected abstract V getNextValue(V value, boolean reloadNextKey);
 
     protected abstract V getPreviousValue(V value);
 
@@ -49,58 +59,134 @@ public abstract class ALatestValueByGapCache<V> {
         try {
             final int lastResetIndex = getLastResetIndex();
             if (prevResetIndex != lastResetIndex) {
-                initFirstValue();
-                return init(date, lastResetIndex);
-            }
-            final FDate highestAllowedKey = getHighestAllowedKey();
-            if (highestAllowedKey != null && !prevHighestAllowedKey.equalsNotNullSafe(highestAllowedKey)) {
-                prevHighestAllowedKey = highestAllowedKey;
-                return init(date, lastResetIndex);
-            }
-            final FDate prevPrevKey = getKey(PREV_PREV_INDEX);
-            final FDate nextNextKey = getKey(NEXT_NEXT_INDEX);
-            if (!date.isBetweenInclusiveNotNullSafe(prevPrevKey, nextNextKey)) {
-                return init(date, lastResetIndex);
-            }
-            final int bisect = FDates.bisect(this::extractEndTime, values, date, BisectDuplicateKeyHandling.UNDEFINED);
-            switch (bisect) {
-            case PREV_PREV_INDEX: {
-                final V prevPrevValue = values.get(PREV_PREV_INDEX);
-                //now for sure move backward
-                moveBackward();
-                return prevPrevValue;
-            }
-            case PREV_INDEX: {
-                return values.get(PREV_INDEX);
-            }
-            case CUR_INDEX: {
-                return values.get(CUR_INDEX);
-            }
-            case NEXT_INDEX: {
-                final V nextValue = values.get(NEXT_INDEX);
-                final FDate nextKey = extractEndTime(nextValue);
-                if (date.isAfterNotNullSafe(nextKey)) {
-                    //move forward a bit earlier to increase hit rate
-                    moveForward();
+                final FDate newHighestAllowedKey = getHighestAllowedKey(lastResetIndex);
+                if (newHighestAllowedKey == null) {
+                    return getLatestValue(date);
+                } else if (date.isAfterOrEqualToNotNullSafe(newHighestAllowedKey)) {
+                    lastHighestAllowedKey = newHighestAllowedKey;
+                    return getLatestValue(newHighestAllowedKey);
+                } else {
+                    lastHighestAllowedKey = newHighestAllowedKey;
+                    initFirstValue();
+                    return init(date, lastResetIndex);
                 }
-                return nextValue;
             }
-            case NEXT_NEXT_INDEX: {
-                final V nextNextValue = values.get(NEXT_NEXT_INDEX);
-                //now for sure move forward
-                moveForward();
-                return nextNextValue;
+            final FDate newHighestAllowedKey = getHighestAllowedKeyMaybe(date, lastResetIndex);
+            if (newHighestAllowedKey != null) {
+                if (!lastHighestAllowedKey.equalsNotNullSafe(newHighestAllowedKey)) {
+                    final FDate prevHighestAllowedKeyCopy = lastHighestAllowedKey;
+                    lastHighestAllowedKey = newHighestAllowedKey;
+                    return trailForwardMaybe(date, prevHighestAllowedKeyCopy, newHighestAllowedKey, lastResetIndex);
+                } else if (date.isAfterOrEqualToNotNullSafe(newHighestAllowedKey)) {
+                    return getLatestValue(newHighestAllowedKey);
+                }
             }
-            default:
-                throw UnknownArgumentException.newInstance(Integer.class, bisect);
-            }
+            return lookupValue(date, lastResetIndex, true);
         } finally {
             queryActive = false;
         }
     }
 
+    private V lookupValue(final FDate date, final int lastResetIndex, final boolean moveForward) {
+        final FDate prevPrevKey = getKey(PREV_PREV_INDEX);
+        final FDate nextNextKey = getKey(NEXT_NEXT_INDEX);
+        if (!date.isBetweenInclusiveNotNullSafe(prevPrevKey, nextNextKey)) {
+            if (!moveForward) {
+                System.out.println("blaaaa");
+            }
+            return init(date, lastResetIndex);
+        } else {
+            return bisectValue(date, moveForward);
+        }
+    }
+
+    private V bisectValue(final FDate date, final boolean moveForward) {
+        final int bisect = FDates.bisect(this::extractEndTime, values, date, BisectDuplicateKeyHandling.UNDEFINED);
+        switch (bisect) {
+        case PREV_PREV_INDEX: {
+            final V prevPrevValue = values.get(PREV_PREV_INDEX);
+            //now for sure move backward
+            moveBackward();
+            return prevPrevValue;
+        }
+        case PREV_INDEX: {
+            return values.get(PREV_INDEX);
+        }
+        case CUR_INDEX: {
+            return values.get(CUR_INDEX);
+        }
+        case NEXT_INDEX: {
+            final V nextValue = values.get(NEXT_INDEX);
+            if (moveForward) {
+                final FDate nextKey = extractEndTime(nextValue);
+                if (date.isAfterNotNullSafe(nextKey)) {
+                    //move forward a bit earlier to increase hit rate
+                    moveForward();
+                }
+            }
+            return nextValue;
+        }
+        case NEXT_NEXT_INDEX: {
+            final V nextNextValue = values.get(NEXT_NEXT_INDEX);
+            if (moveForward) {
+                //now for sure move forward
+                moveForward();
+            }
+            return nextNextValue;
+        }
+        default:
+            throw UnknownArgumentException.newInstance(Integer.class, bisect);
+        }
+    }
+
+    private V trailForwardMaybe(final FDate date, final FDate prevHighestAllowedKey, final FDate newHighestAllowedKey,
+            final int lastResetIndex) {
+        while (values.size() > 1) {
+            final FDate nextNextKey = extractEndTime(values.getReverse(0));
+            final FDate nextKey = extractEndTime(values.getReverse(1));
+            if (nextNextKey.equalsNotNullSafe(nextKey)) {
+                values.removeLast();
+            } else {
+                break;
+            }
+        }
+        if (values.size() < values.capacity()) {
+            if (values.isEmpty()) {
+                return init(date, lastResetIndex);
+            }
+            boolean reloadNextKey = true;
+            while (values.size() < values.capacity()) {
+                final V tailValue = values.getTail();
+                final V nextValue = getNextValueMaybe(tailValue, reloadNextKey);
+                values.circularAdd(nextValue);
+                reloadNextKey = false;
+            }
+        }
+        if (date.isAfterOrEqualToNotNullSafe(prevHighestAllowedKey)) {
+            final FDate prevPrevKey = getKey(PREV_PREV_INDEX);
+            final FDate nextNextKey = getKey(NEXT_NEXT_INDEX);
+            final long valuesDistance = nextNextKey.millisValue() - prevPrevKey.millisValue();
+            final long highestValueDistance = newHighestAllowedKey.millisValue() - prevHighestAllowedKey.millisValue();
+            if (highestValueDistance <= valuesDistance) {
+                FDate lastKey = nextNextKey;
+                while (true) {
+                    moveForward();
+                    final FDate updatedKey = getKey(NEXT_NEXT_INDEX);
+                    if (updatedKey.isBeforeOrEqualToNotNullSafe(lastKey)) {
+                        break;
+                    } else {
+                        lastKey = updatedKey;
+                    }
+                }
+            }
+            return lookupValue(date, lastResetIndex, false);
+        } else {
+            return lookupValue(date, lastResetIndex, true);
+        }
+    }
+
     private void initFirstValue() {
-        firstValue = getLatestValue(FDates.MIN_DATE);
+        firstValue = getFirstValue();
         if (firstValue != null) {
             firstValueKey = extractEndTime(firstValue);
         } else {
@@ -111,11 +197,15 @@ public abstract class ALatestValueByGapCache<V> {
     private void moveForward() {
         final V nextNextValue = values.get(NEXT_NEXT_INDEX);
         final FDate nextNextKey = extractEndTime(nextNextValue);
+        if (nextNextKey.isAfterOrEqualToNotNullSafe(lastHighestAllowedKey)) {
+            //nothing to update to
+            return;
+        }
         if (nextNextKey.equalsNotNullSafe(getKey(NEXT_INDEX))) {
             //no more data to move to
             return;
         }
-        final V nextNextNextValue = getNextValueMaybe(nextNextValue);
+        final V nextNextNextValue = getNextValueMaybe(nextNextValue, false);
         values.circularAdd(nextNextNextValue);
     }
 
@@ -135,8 +225,8 @@ public abstract class ALatestValueByGapCache<V> {
         if (curValue != null) {
             final V prevValue = getPreviousValueMaybe(curValue);
             final V prevPrevValue = getPreviousValueMaybe(prevValue);
-            final V nextValue = getNextValueMaybe(curValue);
-            final V nextNextValue = getNextValueMaybe(nextValue);
+            final V nextValue = getNextValueMaybe(curValue, false);
+            final V nextNextValue = getNextValueMaybe(nextValue, false);
 
             values.pretendClear();
             values.add(prevPrevValue);
@@ -168,12 +258,12 @@ public abstract class ALatestValueByGapCache<V> {
         }
     }
 
-    private V getNextValueMaybe(final V value) {
+    private V getNextValueMaybe(final V value, final boolean reloadNextKey) {
         final FDate key = extractEndTime(value);
-        if (key.isAfterOrEqualToNotNullSafe(prevHighestAllowedKey)) {
+        if (key.isAfterOrEqualToNotNullSafe(lastHighestAllowedKey)) {
             return value;
         } else {
-            return getNextValue(value);
+            return getNextValue(value, reloadNextKey);
         }
     }
 

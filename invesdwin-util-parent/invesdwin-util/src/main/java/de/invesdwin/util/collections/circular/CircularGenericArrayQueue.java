@@ -5,6 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.array.accessor.IGenericArrayAccessor;
 import de.invesdwin.util.collections.queue.IGenericQueue;
+import de.invesdwin.util.error.FastNoSuchElementException;
 
 /**
  * Similar to org.apache.commons.collections4.queue.CircularFifoQueue<E> or
@@ -279,6 +280,31 @@ public class CircularGenericArrayQueue<E> implements IGenericQueue<E>, IGenericA
             incrementStartArrayIndex();
         }
         return first;
+    }
+
+    public E pollLast() {
+        if (isEmpty()) {
+            return null;
+        }
+        final E last = (E) array[endArrayIndex];
+        array[endArrayIndex] = null;
+        size--;
+        if (isEmpty()) {
+            startArrayIndex = -1;
+            endArrayIndex = -1;
+        } else {
+            decrementEndArrayIndex();
+        }
+        return last;
+    }
+
+    public E removeLast() {
+        final E pollLast = pollLast();
+        if (pollLast != null) {
+            return pollLast;
+        } else {
+            throw FastNoSuchElementException.getInstance("pollLast returned null");
+        }
     }
 
     @Override

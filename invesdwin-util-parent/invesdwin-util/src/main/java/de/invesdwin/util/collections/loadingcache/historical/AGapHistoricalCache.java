@@ -1,5 +1,6 @@
 package de.invesdwin.util.collections.loadingcache.historical;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -350,7 +351,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 }
                 final FDate tailKey = innerExtractKey(furtherValues.getTail());
                 maybeLimitOptimalReadBackStepByLoadFurtherValuesRange(furtherValuesEmpty, tailKey);
-                if (tailKey.isAfterOrEqualTo(key) || tailKey.equals(maxKeyInDB)) {
+                if (tailKey.isAfterOrEqualTo(key) || tailKey.equals(maxKeyInDB)
+                        || curKey.isAfterOrEqualToNotNullSafe(tailKey)) {
                     //request fulfilled
                     break;
                 }
@@ -598,6 +600,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         super.clear();
         //don't synchronize this clear method, instead just set the flag so that next loadValue clears
         clearRequested = true;
+        lastResetIndex.incrementAndGet();
     }
 
     private void maybeClear() {
@@ -609,7 +612,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             furtherValues.clear();
             lastValuesFromFurtherValues.clear();
             clearRequested = false;
-            lastResetIndex.incrementAndGet();
         }
     }
 
@@ -624,49 +626,104 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
         @Override
         public IHistoricalEntry<V> get(final FDate key) {
+            invokeRefreshIfRequested();
             final ALatestValueByGapCache<IHistoricalEntry<V>> latestValueByGapCache = latestValueByGapCacheHolder.get();
-            return latestValueByGapCache.getLatestValueByGap(key);
+            final IHistoricalEntry<V> value = latestValueByGapCache.getLatestValueByGap(key);
+            return value;
         }
 
-        private IHistoricalEntry<V> superGet(final FDate key) {
-            return super.get(key);
+        private IHistoricalEntry<V> superSuperGet(final FDate key) {
+            return super.superGet(key);
         }
 
         private final class LatestValueByGapCache extends ALatestValueByGapCache<IHistoricalEntry<V>> {
+
+            private Optional<FDate> maxKeyInDB;
+            private int lastResetIndexMaxKey = getLastResetIndex() - 1;
+
             @Override
             protected int getLastResetIndex() {
                 return lastResetIndex.get();
             }
 
             @Override
-            protected FDate getHighestAllowedKey() {
+            public IHistoricalEntry<V> getLatestValueByGap(final FDate date) {
+                return super.getLatestValueByGap(date);
+            }
+
+            @Override
+            protected FDate getHighestAllowedKey(final int lastResetIndex) {
                 final FDate highestAllowedKey = getAdjustKeyProvider().getHighestAllowedKey();
                 if (highestAllowedKey != null) {
                     return highestAllowedKey;
                 }
-                final V maxValueInDB = readLatestValueFor(maxKey());
-                if (maxValueInDB == null) {
+                return getMaxKeyInDB(lastResetIndex);
+            }
+
+            private FDate getMaxKeyInDB(final int lastResetIndex) {
+                if (maxKeyInDB == null || lastResetIndexMaxKey != lastResetIndex) {
+                    //                    final V maxValueInDB = readLatestValueFor(maxKey());
+                    //                    if (maxValueInDB != null) {
+                    //                        maxKeyInDB = innerExtractKey(maxValueInDB);
+                    //                        lastResetIndexMaxKey = lastResetIndex;
+                    //                        return maxKeyInDB;
+                    //                    }
+                    lastResetIndexMaxKey = lastResetIndex;
+                    final IHistoricalEntry<V> maxEntryInDB = superGet(maxKey());
+                    if (maxEntryInDB != null) {
+                        maxKeyInDB = Optional.of(extractEndTime(maxEntryInDB));
+                        return maxKeyInDB.get();
+                    } else {
+                        maxKeyInDB = Optional.ofNullable(null);
+                    }
                     return null;
+                } else {
+                    return maxKeyInDB.orElse(null);
                 }
-                return innerExtractKey(maxValueInDB);
+            }
+
+            @Override
+            protected IHistoricalEntry<V> getFirstValue() {
+                final IHistoricalEntry<V> minValueInDB = getMinValueInDB();
+                //eager load value
+                minValueInDB.getValue();
+                return minValueInDB;
+            }
+
+            private IHistoricalEntry<V> getMinValueInDB() {
+                final FDate minKey = minKey();
+                //                final V firstValue = readLatestValueFor(minKey);
+                //                if (firstValue != null) {
+                //                    final FDate firstValueKey = innerExtractKey(firstValue);
+                //                    final IndexedHistoricalEntry<V> firstEntry = new IndexedHistoricalEntry<>(internalMethods,
+                //                            firstValueKey, firstValue);
+                //                    firstEntry.setPrevKey(firstValueKey);
+                //                    return firstEntry;
+                //                }
+                return superSuperGet(minKey);
             }
 
             @Override
             protected IHistoricalEntry<V> getLatestValue(final FDate key) {
-                return superGet(key);
+                return superSuperGet(key);
             }
 
             @Override
-            protected IHistoricalEntry<V> getNextValue(final IHistoricalEntry<V> value) {
+            protected IHistoricalEntry<V> getNextValue(final IHistoricalEntry<V> value, final boolean reloadNextKey) {
                 final IndexedHistoricalEntry<V> cValue = (IndexedHistoricalEntry<V>) value;
+                if (reloadNextKey) {
+                    cValue.setNextKey(null);
+                }
                 final FDate nextKey = cValue.getNextKey();
                 if (nextKey.equalsNotNullSafe(cValue.getKey())) {
                     return cValue;
                 }
-                final IHistoricalEntry<V> nextValue = superGet(nextKey);
+                final IHistoricalEntry<V> nextValue = superSuperGet(nextKey);
                 if (nextValue == null) {
                     return cValue;
                 }
+                //eager load value
+                nextValue.getValue();
                 return nextValue;
             }
 
@@ -677,10 +734,12 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 if (prevKey.equalsNotNullSafe(cValue.getKey())) {
                     return cValue;
                 }
-                final IHistoricalEntry<V> prevValue = superGet(prevKey);
+                final IHistoricalEntry<V> prevValue = superSuperGet(prevKey);
                 if (prevValue == null) {
                     return cValue;
                 }
+                //eager load value
+                prevValue.getValue();
                 return prevValue;
             }
 
@@ -688,6 +747,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             protected FDate extractEndTime(final IHistoricalEntry<V> value) {
                 return value.getKey();
             }
+
         }
 
     }

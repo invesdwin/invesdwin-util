@@ -309,7 +309,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         return lastRefreshMillis;
     }
 
-    private void invokeRefreshIfRequested() {
+    protected void invokeRefreshIfRequested() {
         final long lastRefreshMillisFromManager = HistoricalCacheRefreshManager.getLastRefreshMillis();
         if (lastRefreshMillis < lastRefreshMillisFromManager) {
             clear();
@@ -593,6 +593,10 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         @Override
         public IHistoricalEntry<V> get(final FDate key) {
             invokeRefreshIfRequested();
+            return super.get(key);
+        }
+
+        protected IHistoricalEntry<V> superGet(final FDate key) {
             return super.get(key);
         }
 
