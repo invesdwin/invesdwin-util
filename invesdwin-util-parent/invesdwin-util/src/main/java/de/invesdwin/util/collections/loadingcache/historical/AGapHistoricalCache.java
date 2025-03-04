@@ -172,9 +172,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     private boolean isPotentiallyAlreadyEvicted(final FDate key, final V value) {
-//        if (isInsideLastValuesFromFurtherValues(key)) {
-//            return false;
-//        }
+        if (isInsideLastValuesFromFurtherValues(key)) {
+            return false;
+        }
 
         final boolean isEvictedBeforeCurrentFurtherValues = (value == null || extractKey(null, value).isAfter(key))
                 && (key.isAfter(minKeyInDB) || key.isAfter(minKeyInDBFromLoadFurtherValues));
