@@ -293,4 +293,20 @@ public class CircularGenericArrayQueue<E> implements IGenericQueue<E>, IGenericA
         this.endArrayIndex = -1;
     }
 
+    public E getTail() {
+        if (isEmpty()) {
+            return null;
+        } else {
+            return getReverse(0);
+        }
+    }
+
+    public E getHead() {
+        if (isEmpty()) {
+            return null;
+        } else {
+            return get(0);
+        }
+    }
+
 }

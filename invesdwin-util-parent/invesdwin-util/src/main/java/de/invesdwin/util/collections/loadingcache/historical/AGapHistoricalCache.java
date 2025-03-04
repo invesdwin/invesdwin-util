@@ -4,6 +4,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.circular.CircularGenericArrayQueue;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.loadingcache.historical.internal.AGapHistoricalCacheMissCounter;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
@@ -49,7 +50,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     @GuardedBy("this")
     private final BufferingIterator<V> furtherValues = new BufferingIterator<V>();
     @GuardedBy("this")
-    private final BufferingIterator<V> lastValuesFromFurtherValues = new BufferingIterator<V>();
+    private final CircularGenericArrayQueue<V> lastValuesFromFurtherValues = new CircularGenericArrayQueue<V>(
+            MAX_LAST_VALUES_FROM_LOAD_FURTHER_VALUES);
     @GuardedBy("this")
     private final AGapHistoricalCacheMissCounter<V> cacheMissCounter = new AGapHistoricalCacheMissCounter<V>() {
 
@@ -420,7 +422,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         FDate prevKey = null;
         if (!lastValuesFromFurtherValues.isEmpty()) {
             //though maybe use the last one for smaller increments than the data itself is loaded
-            for (final V lastValueFromFurtherValues : lastValuesFromFurtherValues) {
+            for (int i = 0; i < lastValuesFromFurtherValues.size(); i++) {
+                final V lastValueFromFurtherValues = lastValuesFromFurtherValues.get(i);
                 final FDate keyLastValueFromFurtherValues = extractKey(null, lastValueFromFurtherValues);
                 if (keyLastValueFromFurtherValues.isBeforeOrEqualTo(key)) {
                     prevValue = lastValueFromFurtherValues;
@@ -484,10 +487,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     }
 
     private void pushLastValueFromFurtherValues() {
-        while (lastValuesFromFurtherValues.size() >= MAX_LAST_VALUES_FROM_LOAD_FURTHER_VALUES) {
-            lastValuesFromFurtherValues.next();
-        }
-        lastValuesFromFurtherValues.add(furtherValues.next());
+        lastValuesFromFurtherValues.circularAdd(furtherValues.next());
     }
 
     /**
