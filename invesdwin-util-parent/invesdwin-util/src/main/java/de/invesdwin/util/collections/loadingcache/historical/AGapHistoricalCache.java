@@ -475,6 +475,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             final FDate newValueKey = extractKey(null, newValue);
             final int compare = key.compareTo(newValueKey);
             if (compare < 0) {
+                if (newValueKey.isBeforeOrEqualToNotNullSafe(minKeyInDB)) {
+                    return newValue;
+                }
                 //key < newValueKey
                 //run over the key we wanted
                 break;
@@ -644,11 +647,6 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             @Override
             protected int getLastResetIndex() {
                 return lastResetIndex.get();
-            }
-
-            @Override
-            public IHistoricalEntry<V> getLatestValueByGap(final FDate date) {
-                return super.getLatestValueByGap(date);
             }
 
             @Override

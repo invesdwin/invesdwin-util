@@ -91,9 +91,6 @@ public abstract class ALatestValueByGapCache<V> {
         final FDate prevPrevKey = getKey(PREV_PREV_INDEX);
         final FDate nextNextKey = getKey(NEXT_NEXT_INDEX);
         if (!date.isBetweenInclusiveNotNullSafe(prevPrevKey, nextNextKey)) {
-            if (!moveForward) {
-                System.out.println("blaaaa");
-            }
             return init(date, lastResetIndex);
         } else {
             return bisectValue(date, moveForward);

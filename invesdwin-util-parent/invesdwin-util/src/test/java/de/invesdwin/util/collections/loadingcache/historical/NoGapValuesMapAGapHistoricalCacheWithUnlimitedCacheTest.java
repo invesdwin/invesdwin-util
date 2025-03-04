@@ -899,12 +899,12 @@ public class NoGapValuesMapAGapHistoricalCacheWithUnlimitedCacheTest {
         Assertions.assertThat(nextKey).isEqualTo(entities.get(entities.size() - 1));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
         //loading newest entity is faster than always loading all entities
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(2);
 
         nextKey = cache.query().setFutureEnabled().getNextKey(FDates.MIN_DATE, 1);
         Assertions.assertThat(nextKey).isEqualTo(entities.get(1));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(1);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(2);
     }
 
     @Test

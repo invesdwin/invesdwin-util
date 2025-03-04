@@ -880,7 +880,9 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         public IHistoricalEntry<V> put(final FDate key, final V value) {
             final IndexedHistoricalEntry<V> entry = (IndexedHistoricalEntry<V>) getValuesMap().computeIfAbsent(key,
                     computeEmpty);
-            entry.setValue(key, value);
+            if (value != null) {
+                entry.setValue(key, value);
+            }
             return entry;
         }
 
