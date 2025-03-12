@@ -588,7 +588,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         }
     }
 
-    protected class ValuesMap extends ADelegateLoadingCache<FDate, IHistoricalEntry<V>> implements IValuesMap<V> {
+    public class ValuesMap extends ADelegateLoadingCache<FDate, IHistoricalEntry<V>> implements IValuesMap<V> {
 
         @Override
         public IHistoricalEntry<V> get(final FDate key) {

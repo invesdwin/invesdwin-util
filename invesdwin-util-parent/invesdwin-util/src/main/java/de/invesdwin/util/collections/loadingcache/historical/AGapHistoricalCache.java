@@ -618,7 +618,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         }
     }
 
-    protected class GapValuesMap extends ValuesMap {
+    public class GapValuesMap extends ValuesMap {
 
         private final WeakThreadLocalReference<ALatestValueByGapCache<IHistoricalEntry<V>>> latestValueByGapCacheHolder = new WeakThreadLocalReference<ALatestValueByGapCache<IHistoricalEntry<V>>>() {
             @Override

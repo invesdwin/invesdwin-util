@@ -1,9 +1,7 @@
-// CHECKSTYLE:OFF
 package de.invesdwin.util.collections.loadingcache.historical;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -14,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.bean.tuple.Pair;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
@@ -25,6 +24,7 @@ import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDateBuilder;
 import de.invesdwin.util.time.date.FDates;
 
+// CHECKSTYLE:OFF
 @ThreadSafe
 public class AGapHistoricalCacheTest {
     //CHECKSTYLE:ON
@@ -734,7 +734,7 @@ public class AGapHistoricalCacheTest {
     public void testNextValuesGetsFilledUpWithDistance() {
         final Collection<FDate> nextValues = asList(
                 cache.query().setFutureEnabled().getNextValues(FDates.MAX_DATE, entities.size()));
-        Assertions.assertThat(nextValues.size()).isEqualByComparingTo(0);
+        Assertions.assertThat(nextValues.size()).isEqualTo(0);
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(0);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(2);
     }
