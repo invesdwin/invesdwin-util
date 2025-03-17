@@ -309,7 +309,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         return lastRefreshMillis;
     }
 
-    private void invokeRefreshIfRequested() {
+    protected void invokeRefreshIfRequested() {
         final long lastRefreshMillisFromManager = HistoricalCacheRefreshManager.getLastRefreshMillis();
         if (lastRefreshMillis < lastRefreshMillisFromManager) {
             clear();
@@ -556,7 +556,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
             if (valuesMap == this) {
                 synchronized (AHistoricalCache.this) {
                     if (valuesMap == this) {
-                        valuesMap = new ValuesMap();
+                        valuesMap = newValuesMap();
                         if (maximumSize != null && maximumSize != initialMaximumSize) {
                             innerIncreaseMaximumSize(maximumSize, "innerLoadCache lazy init");
                         }
@@ -588,11 +588,15 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         }
     }
 
-    private final class ValuesMap extends ADelegateLoadingCache<FDate, IHistoricalEntry<V>> implements IValuesMap<V> {
+    public class ValuesMap extends ADelegateLoadingCache<FDate, IHistoricalEntry<V>> implements IValuesMap<V> {
 
         @Override
         public IHistoricalEntry<V> get(final FDate key) {
             invokeRefreshIfRequested();
+            return super.get(key);
+        }
+
+        protected IHistoricalEntry<V> superGet(final FDate key) {
             return super.get(key);
         }
 
@@ -876,7 +880,9 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         public IHistoricalEntry<V> put(final FDate key, final V value) {
             final IndexedHistoricalEntry<V> entry = (IndexedHistoricalEntry<V>) getValuesMap().computeIfAbsent(key,
                     computeEmpty);
-            entry.setValue(key, value);
+            if (value != null) {
+                entry.setValue(key, value);
+            }
             return entry;
         }
 
@@ -1117,6 +1123,10 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     @Override
     public void putPreviousKey(final FDate previousKey, final FDate valueKey) {
         queryCore.putPreviousKey(previousKey, valueKey);
+    }
+
+    protected IValuesMap<V> newValuesMap() {
+        return new ValuesMap();
     }
 
     @Override

@@ -102,7 +102,8 @@ public interface IHistoricalEntry<V> extends Entry<FDate, V> {
             return new ASkippingIterator<IHistoricalEntry<V>>(entries) {
                 @Override
                 protected boolean skip(final IHistoricalEntry<V> element) {
-                    return !element.isValuePresent() || element.getValueIfPresent() == null;
+                    //explicitly load value
+                    return element.getValue() == null;
                 }
             };
         }
@@ -116,7 +117,8 @@ public interface IHistoricalEntry<V> extends Entry<FDate, V> {
             return new ASkippingIterable<IHistoricalEntry<V>>(entries) {
                 @Override
                 protected boolean skip(final IHistoricalEntry<V> element) {
-                    return !element.isValuePresent() || element.getValueIfPresent() == null;
+                    //explicitly load value
+                    return element.getValue() == null;
                 }
             };
         }

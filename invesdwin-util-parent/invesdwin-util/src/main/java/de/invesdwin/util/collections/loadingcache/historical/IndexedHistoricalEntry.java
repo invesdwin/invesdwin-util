@@ -173,7 +173,7 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
 
     @Override
     public String toString() {
-        return getKey() + " -> " + getValue();
+        return getKey() + " -> " + getValueIfPresent();
     }
 
 }
