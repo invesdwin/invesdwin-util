@@ -51,7 +51,7 @@ public class AddUndefinedBytesDelegateSerde<O> implements ISerde<O> {
     }
 
     protected void clear(final IByteBuffer buffer, final int index, final int length) {
-        //buffer.clear(PseudoRandomGenerators.getThreadLocalPseudoRandom(), index, length);
+        buffer.ensureCapacity(index + length);
     }
 
 }
