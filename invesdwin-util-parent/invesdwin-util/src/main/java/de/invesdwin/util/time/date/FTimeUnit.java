@@ -1284,7 +1284,7 @@ public enum FTimeUnit {
             DURATION_NANOS_LOOKUP.put(f.toNanos(1), f);
             ALIAS_LOOKUP.put(f.name(), f);
             for (final String alias : f.getAliases()) {
-                if (ALIAS_LOOKUP.put(alias, f) != null) {
+                if (ALIAS_LOOKUP.put(alias.toUpperCase(), f) != null) {
                     throw new IllegalArgumentException("Duplicate alias: " + alias);
                 }
             }
