@@ -11,7 +11,7 @@ public abstract class ADelegateSet<E> extends ADelegateCollection<E> implements 
         super();
     }
 
-    ADelegateSet(final Set<E> delegate) {
+    protected ADelegateSet(final Set<E> delegate) {
         super(delegate);
     }
 

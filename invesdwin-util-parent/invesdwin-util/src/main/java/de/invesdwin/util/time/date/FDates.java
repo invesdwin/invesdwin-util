@@ -8,7 +8,8 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.array.IGenericArray;
+import de.invesdwin.util.collections.array.accessor.IGenericArrayAccessor;
+import de.invesdwin.util.collections.iterable.EmptyCloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
@@ -51,12 +52,30 @@ public final class FDates {
     }
 
     public static ICloseableIterable<FDate> iterable(final FDate start, final FDate end, final Duration increment) {
-        return new FDateIterable(start, end, increment.getTimeUnit(), increment.intValue());
+        return iterable(start, end, increment.getTimeUnit(), increment.intValue());
     }
 
     public static ICloseableIterable<FDate> iterable(final FDate start, final FDate end, final FTimeUnit timeUnit,
             final int incrementAmount) {
         return new FDateIterable(start, end, timeUnit, incrementAmount);
+    }
+
+    public static ICloseableIterable<FDate> iterableNoThrow(final FDate start, final FDate end,
+            final Duration increment) {
+        return iterableNoThrow(start, end, increment.getTimeUnit(), increment.intValue());
+    }
+
+    public static ICloseableIterable<FDate> iterableNoThrow(final FDate start, final FDate end,
+            final FTimeUnit timeUnit, final int incrementAmount) {
+        if (incrementAmount == 0) {
+            return EmptyCloseableIterable.getInstance();
+        } else if (start.isBeforeNotNullSafe(end) && incrementAmount < 0) {
+            return EmptyCloseableIterable.getInstance();
+        } else if (start.isAfterNotNullSafe(end) && incrementAmount > 0) {
+            return EmptyCloseableIterable.getInstance();
+        } else {
+            return iterable(start, end, timeUnit, incrementAmount);
+        }
     }
 
     static class FDateIterable implements ICloseableIterable<FDate> {
@@ -74,10 +93,10 @@ public final class FDates {
             if (incrementAmount == 0) {
                 throw new IllegalArgumentException("incrementAmount must not be 0");
             }
-            if (startFinal.isBefore(endFinal) && incrementAmount < 0) {
+            if (startFinal.isBeforeNotNullSafe(endFinal) && incrementAmount < 0) {
                 throw new IllegalArgumentException("When iterating forward [" + startFinal + " -> " + endFinal
                         + "], incrementAmount [" + incrementAmount + "] needs to be positive.");
-            } else if (startFinal.isAfter(endFinal) && incrementAmount > 0) {
+            } else if (startFinal.isAfterNotNullSafe(endFinal) && incrementAmount > 0) {
                 throw new IllegalArgumentException("When iterating backward [" + startFinal + " -> " + endFinal
                         + "], incrementAmount [" + incrementAmount + "] needs to be negative.");
             }
@@ -103,12 +122,12 @@ public final class FDates {
                             first = false;
                             return spot;
                         } else {
-                            if (spot.isAfter(endFinal) || end) {
+                            if (spot.isAfterNotNullSafe(endFinal) || end) {
                                 throw FastNoSuchElementException
                                         .getInstance("FDateIterable: incrementing next reached end");
                             }
                             spot = spot.add(timeUnit, incrementAmount);
-                            if (spot.isAfterOrEqualTo(endFinal)) {
+                            if (spot.isAfterOrEqualToNotNullSafe(endFinal)) {
                                 end = true;
                                 return endFinal;
                             } else {
@@ -139,7 +158,7 @@ public final class FDates {
 
                     @Override
                     public boolean hasNext() {
-                        return first || spot.isAfter(endFinal);
+                        return first || spot.isAfterNotNullSafe(endFinal);
                     }
 
                     @Override
@@ -148,12 +167,12 @@ public final class FDates {
                             first = false;
                             return spot;
                         } else {
-                            if (spot.isBefore(endFinal) || end) {
+                            if (spot.isBeforeNotNullSafe(endFinal) || end) {
                                 throw FastNoSuchElementException
                                         .getInstance("FDateIterable: decrementing next reached end");
                             }
                             spot = spot.add(timeUnit, incrementAmount);
-                            if (spot.isBeforeOrEqualTo(endFinal)) {
+                            if (spot.isBeforeOrEqualToNotNullSafe(endFinal)) {
                                 end = true;
                                 return endFinal;
                             } else {
@@ -209,6 +228,10 @@ public final class FDates {
         return date.toString(format, timeZone);
     }
 
+    public static FDate min(final FDate date1, final FDate date2, final FDate date3) {
+        return min(min(date1, date2), date3);
+    }
+
     public static FDate min(final FDate... dates) {
         FDate minDate = null;
         for (final FDate date : dates) {
@@ -249,6 +272,10 @@ public final class FDates {
             maxDate = max(maxDate, date);
         }
         return maxDate;
+    }
+
+    public static FDate max(final FDate date1, final FDate date2, final FDate date3) {
+        return max(max(date1, date2), date3);
     }
 
     public static FDate max(final FDate... dates) {
@@ -587,7 +614,7 @@ public final class FDates {
         }
     }
 
-    public static int bisect(final IGenericArray<? extends FDate> keys, final FDate skippingKeysAbove,
+    public static int bisect(final IGenericArrayAccessor<? extends FDate> keys, final FDate skippingKeysAbove,
             final BisectDuplicateKeyHandling duplicateKeyHandling) {
         if (keys.size() == 0) {
             return MISSING_INDEX;
@@ -639,6 +666,57 @@ public final class FDates {
     }
 
     public static <T> int bisect(final Function<T, FDate> extractKey, final List<T> values,
+            final FDate skippingKeysAbove, final BisectDuplicateKeyHandling duplicateKeyHandling) {
+        if (values.size() == 0) {
+            return MISSING_INDEX;
+        }
+        int lo = 0;
+        final FDate firstKey = extractKey.apply(values.get(lo));
+        if (firstKey.compareToNotNullSafe(skippingKeysAbove) >= 0) {
+            return duplicateKeyHandling.apply(extractKey, values, lo, firstKey);
+        }
+        int hi = values.size();
+        final int lastIndex = hi - 1;
+        final FDate lastKey = extractKey.apply(values.get(lastIndex));
+        if (lastKey.compareToNotNullSafe(skippingKeysAbove) <= 0) {
+            return duplicateKeyHandling.apply(extractKey, values, lastIndex, lastKey);
+        }
+        while (lo < hi) {
+            // same as (low+high)/2
+            final int mid = (lo + hi) >>> 1;
+            //if (x < list.get(mid)) {
+            final FDate midKey = extractKey.apply(values.get(mid));
+            final int compareTo = midKey.compareToNotNullSafe(skippingKeysAbove);
+            switch (compareTo) {
+            case MISSING_INDEX:
+                lo = mid + 1;
+                break;
+            case 0:
+                return duplicateKeyHandling.apply(extractKey, values, mid, midKey);
+            case 1:
+                hi = mid;
+                break;
+            default:
+                throw UnknownArgumentException.newInstance(Integer.class, compareTo);
+            }
+        }
+        if (lo <= 0) {
+            return 0;
+        }
+        if (lo >= values.size()) {
+            lo = lo - 1;
+        }
+        final FDate loKey = extractKey.apply(values.get(lo));
+        if (loKey.isAfterNotNullSafe(skippingKeysAbove)) {
+            //no duplicate key handling needed because this is the last value before the actual requested key
+            final int index = lo - 1;
+            return index;
+        } else {
+            return duplicateKeyHandling.apply(extractKey, values, lo, loKey);
+        }
+    }
+
+    public static <T> int bisect(final Function<T, FDate> extractKey, final IGenericArrayAccessor<T> values,
             final FDate skippingKeysAbove, final BisectDuplicateKeyHandling duplicateKeyHandling) {
         if (values.size() == 0) {
             return MISSING_INDEX;

@@ -1,4 +1,4 @@
-package de.invesdwin.util.math;
+package de.invesdwin.util.math.timed;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -93,7 +93,7 @@ public class TimedBoolean implements IHistoricalValue<TimedBoolean>, Comparable<
 
     @Override
     public String toString() {
-        return time + ": " + value;
+        return time + ":" + value;
     }
 
     @Override

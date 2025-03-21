@@ -41,6 +41,11 @@ public class BitSetBooleanArray implements IBooleanArray {
     }
 
     @Override
+    public boolean isEmpty() {
+        return bitSet.isEmpty();
+    }
+
+    @Override
     public IBooleanArray slice(final int fromIndex, final int length) {
         return new SliceDelegateBooleanArray(this, fromIndex, length);
     }

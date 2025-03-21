@@ -6,4 +6,8 @@ public interface IMutableIntReference extends IIntReference {
 
     int getAndSet(int value);
 
+    int incrementAndGet();
+
+    int decrementAndGet();
+
 }

@@ -13,6 +13,7 @@ import de.invesdwin.util.error.Throwables;
 @Immutable
 public final class Closeables {
 
+    public static final Closeable[] EMPTY_ARRAY = new Closeable[0];
     private static final Executor ASYNC_EXECUTOR = Executors
             .newFixedThreadPool(Closeables.class.getSimpleName() + "_ASYNC", Executors.getCpuThreadPoolCount())
             .setDynamicThreadName(false)

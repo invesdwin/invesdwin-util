@@ -2,6 +2,7 @@ package de.invesdwin.util.math.decimal;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -27,6 +28,8 @@ public class Decimal extends ADecimal<Decimal> {
     public static final Locale DEFAULT_DECIMAL_FORMAT_LOCALE = Locale.ENGLISH;
     public static final DecimalFormatSymbols DEFAULT_DECIMAL_FORMAT_SYMBOLS = DecimalFormatSymbols
             .getInstance(DEFAULT_DECIMAL_FORMAT_LOCALE);
+    public static final String DEFAULT_DECIMAL_FORMAT_SYMBOLS_GROUPING_SEPARATOR_STR = String
+            .valueOf(Decimal.DEFAULT_DECIMAL_FORMAT_SYMBOLS.getGroupingSeparator());
     public static final int MONEY_PRECISION = 2;
     public static final String DEFAULT_DECIMAL_FORMAT = newDefaultDecimalFormat(MONEY_PRECISION);
     public static final String INTEGER_DECIMAL_FORMAT = "#,##0";
@@ -396,6 +399,26 @@ public class Decimal extends ADecimal<Decimal> {
 
     public static boolean toBoolean(final Decimal value) {
         return value != null && value.doubleValue() > 0D;
+    }
+
+    /**
+     * Parses a formatted double string. Uses the given DecimalFormat instance to handle the whole formatting.
+     */
+    public static double parseDouble(final String value, final DecimalFormat format) {
+        try {
+            final Number parsed = format.parse(value);
+            return parsed.doubleValue();
+        } catch (final ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Parses a formatted double string. Removes grouping characters for 1000's and then parses the clean double string.
+     */
+    public static double parseDouble(final String value) {
+        return Double
+                .parseDouble(Strings.replace(value, Decimal.DEFAULT_DECIMAL_FORMAT_SYMBOLS_GROUPING_SEPARATOR_STR, ""));
     }
 
 }

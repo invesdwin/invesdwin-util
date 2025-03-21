@@ -7,17 +7,20 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 @ThreadSafe
-public abstract class ACachedCallable<E> implements Callable<E>, Supplier<E> {
+public abstract class ALazyCallable<E> implements Callable<E>, Supplier<E> {
 
+    @GuardedBy("this")
+    private boolean initialized;
     @GuardedBy("this")
     private E cached;
 
     @Override
     public E call() {
-        if (cached == null) {
+        if (!initialized) {
             synchronized (this) {
-                if (cached == null) {
+                if (!initialized) {
                     cached = innerCall();
+                    initialized = true;
                 }
             }
         }

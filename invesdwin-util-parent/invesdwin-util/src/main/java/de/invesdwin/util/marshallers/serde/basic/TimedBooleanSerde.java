@@ -7,7 +7,7 @@ import de.invesdwin.util.marshallers.serde.FixedLengthBufferingIteratorDelegateS
 import de.invesdwin.util.marshallers.serde.ISerde;
 import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.math.Booleans;
-import de.invesdwin.util.math.TimedBoolean;
+import de.invesdwin.util.math.timed.TimedBoolean;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.time.date.FDate;
 

@@ -18,7 +18,7 @@ public abstract class ADelegateCollection<E> implements Collection<E>, ISerializ
         this.delegate = newDelegate();
     }
 
-    ADelegateCollection(final Collection<E> delegate) {
+    protected ADelegateCollection(final Collection<E> delegate) {
         this.delegate = delegate;
     }
 

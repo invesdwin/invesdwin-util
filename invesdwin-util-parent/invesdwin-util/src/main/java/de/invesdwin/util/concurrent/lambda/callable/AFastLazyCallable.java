@@ -6,14 +6,16 @@ import java.util.function.Supplier;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public abstract class AFastCachedCallable<E> implements Callable<E>, Supplier<E> {
+public abstract class AFastLazyCallable<E> implements Callable<E>, Supplier<E> {
 
+    private boolean initialized;
     private E cached;
 
     @Override
     public E call() {
-        if (cached == null) {
+        if (!initialized) {
             cached = innerCall();
+            initialized = true;
         }
         return cached;
     }

@@ -11,7 +11,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import de.invesdwin.util.collections.delegate.ADelegateMap;
 
 @ThreadSafe
-public class WeakAttributesMap extends ADelegateMap<String, Object> implements IAttributesMap {
+public class WeakAttributesMap extends ADelegateMap<String, Object> implements IAttributesMapContract {
 
     @Override
     protected Map<String, Object> newDelegate() {

@@ -26,6 +26,11 @@ public final class EmptyLongArray implements ILongArray {
     }
 
     @Override
+    public boolean isEmpty() {
+        return true;
+    }
+
+    @Override
     public ILongArray slice(final int fromIndex, final int length) {
         return this;
     }

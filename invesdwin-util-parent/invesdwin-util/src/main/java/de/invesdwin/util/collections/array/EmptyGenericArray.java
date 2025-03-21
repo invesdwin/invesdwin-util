@@ -27,6 +27,11 @@ public final class EmptyGenericArray<E> implements IGenericArray<E> {
     }
 
     @Override
+    public boolean isEmpty() {
+        return true;
+    }
+
+    @Override
     public IGenericArray<E> slice(final int fromIndex, final int length) {
         return this;
     }

@@ -2,13 +2,8 @@ package de.invesdwin.util.concurrent;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.commons.lang3.BooleanUtils;
-
-import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.string.Strings;
-import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
-import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import io.netty.util.concurrent.FastThreadLocal;
 
 @Immutable
@@ -21,8 +16,6 @@ public final class Threads {
     private static final int MAX_THREAD_NAME_LENGTH = 1800;
 
     private static final FastThreadLocal<String> THREAD_POOL_NAME = new FastThreadLocal<>();
-
-    private static final FastThreadLocal<Boolean> THREAD_RETRY_DISABLED = new FastThreadLocal<>();
 
     private Threads() {}
 
@@ -100,27 +93,6 @@ public final class Threads {
             THREAD_POOL_NAME.remove();
         } else {
             THREAD_POOL_NAME.set(name);
-        }
-    }
-
-    public static boolean isThreadRetryDisabled() {
-        return Booleans.isTrue(THREAD_RETRY_DISABLED.get()) || AFinalizer.isThreadFinalizerActive()
-                || EventDispatchThreadUtil.isEventDispatchThread() || Threads.isInterrupted();
-    }
-
-    public static boolean registerThreadRetryDisabled() {
-        final boolean retryDisabledBefore = BooleanUtils.isTrue(THREAD_RETRY_DISABLED.get());
-        if (!retryDisabledBefore) {
-            THREAD_RETRY_DISABLED.set(true);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public static void unregisterThreadRetryDisabled(final boolean registerThreadRetryDisabled) {
-        if (registerThreadRetryDisabled) {
-            THREAD_RETRY_DISABLED.remove();
         }
     }
 

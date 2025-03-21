@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.loadingcache.historical;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
+import de.invesdwin.norva.beanpath.spi.IUnwrap;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCachePutProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheShiftKeyProvider;
@@ -14,7 +15,8 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.IFDateProvider;
 
-public interface IHistoricalCache<V> extends IHistoricalCacheIncreaseMaximumSizeListener, IHistoricalCachePutListener {
+public interface IHistoricalCache<V>
+        extends IHistoricalCacheIncreaseMaximumSizeListener, IHistoricalCachePutListener, IUnwrap {
 
     /**
      * Return false to get a faster implementation
@@ -73,7 +75,5 @@ public interface IHistoricalCache<V> extends IHistoricalCacheIncreaseMaximumSize
     void preloadData(ExecutorService executor);
 
     int size();
-
-    <T> T unwrap(Class<T> type);
 
 }

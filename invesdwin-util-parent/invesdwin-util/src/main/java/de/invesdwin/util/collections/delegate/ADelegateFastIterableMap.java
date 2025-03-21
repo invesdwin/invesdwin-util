@@ -7,9 +7,11 @@ import de.invesdwin.util.collections.fast.IFastIterableMap;
 @NotThreadSafe
 public abstract class ADelegateFastIterableMap<K, V> extends ADelegateMap<K, V> implements IFastIterableMap<K, V> {
 
-    public ADelegateFastIterableMap() {}
+    public ADelegateFastIterableMap() {
+        super();
+    }
 
-    ADelegateFastIterableMap(final IFastIterableMap<K, V> delegate) {
+    protected ADelegateFastIterableMap(final IFastIterableMap<K, V> delegate) {
         super(delegate);
     }
 

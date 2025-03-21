@@ -15,7 +15,7 @@ public abstract class AGuavaLoadingCacheMap<K, V> extends ADelegateMap<K, V> imp
 
     @Override
     protected final ILoadingCacheMap<K, V> newDelegate() {
-        return getConfig().newMap(this);
+        return newConfig().newMap(this);
     }
 
     @Override
@@ -31,7 +31,7 @@ public abstract class AGuavaLoadingCacheMap<K, V> extends ADelegateMap<K, V> imp
      * 
      * Null may be returned by this.
      */
-    protected GuavaLoadingCacheMapConfig getConfig() {
+    protected GuavaLoadingCacheMapConfig newConfig() {
         return new GuavaLoadingCacheMapConfig();
     }
 

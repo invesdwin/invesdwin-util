@@ -22,6 +22,7 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.lang.internal.AFilesStaticFacade;
+import de.invesdwin.util.lang.string.Charsets;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.time.date.FDate;
@@ -342,6 +343,16 @@ public final class Files extends AFilesStaticFacade {
         }
     }
 
+    public static String removeExtension(final String fileName) {
+        final int i = fileName.lastIndexOf('.');
+        if (i < 0) {
+            return fileName;
+        } else {
+            final String name = fileName.substring(0, i);
+            return name;
+        }
+    }
+
     public static File prefixExtension(final File f, final String prefix) {
         final String newExtension = prefix + getExtension(f);
         return setExtension(f, newExtension);
@@ -489,6 +500,58 @@ public final class Files extends AFilesStaticFacade {
             return true;
         } catch (final IOException e) {
             return false;
+        }
+    }
+
+    public static File createFolder(final File parent, final String name) {
+        final File folder = new File(parent, name);
+        try {
+            Files.forceMkdir(folder);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+        return folder;
+    }
+
+    public static boolean redirectedFileExists(final File redirectFile) {
+        if (!redirectFile.exists()) {
+            return false;
+        }
+        try {
+            final String firstFileStr = Files.readFileToString(redirectFile, Charsets.DEFAULT);
+            if (Strings.isBlank(firstFileStr)) {
+                return false;
+            }
+            final File firstFile = new File(firstFileStr);
+            if (firstFile.exists()) {
+                return true;
+            }
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+        return false;
+    }
+
+    public static boolean createRedirectFile(final File redirectFile, final File redirectedFile) {
+        if (redirectedFile != null && redirectedFile.exists()) {
+            try {
+                Files.forceMkdirParent(redirectFile);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
+            Files.writeStringToFileIfDifferent(redirectFile, redirectedFile.getAbsolutePath());
+            return true;
+        } else {
+            Files.deleteQuietly(redirectFile);
+            return false;
+        }
+    }
+
+    public static void cleanDirectoryQuietly(final File directory) {
+        try {
+            cleanDirectory(directory);
+        } catch (final IOException e) {
+            //ignore
         }
     }
 

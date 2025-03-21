@@ -36,6 +36,11 @@ public class SliceDelegateLongArray implements ILongArray {
     }
 
     @Override
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    @Override
     public ILongArray slice(final int fromIndex, final int length) {
         return delegate.slice(fromIndex + from, length);
     }

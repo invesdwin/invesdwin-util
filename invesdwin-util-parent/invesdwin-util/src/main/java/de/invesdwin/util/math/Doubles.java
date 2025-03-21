@@ -554,6 +554,14 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
+    public static double nonFiniteToZero(final double value) {
+        if (isNonFinite(value)) {
+            return 0;
+        } else {
+            return value;
+        }
+    }
+
     public static double zeroToNan(final Number value) {
         if (value == null) {
             return Double.NaN;
@@ -593,6 +601,10 @@ public final class Doubles extends ADoublesStaticFacade {
         return Doubles.isNaN(number.doubleValue());
     }
 
+    public static boolean isNullOrNaN(final Double value) {
+        return value == null || isNaN(value);
+    }
+
     public static double scaleByPowerOfTen(final double value, final int n) {
         return value * pow(10, n);
     }
@@ -605,7 +617,7 @@ public final class Doubles extends ADoublesStaticFacade {
         return !Double.isInfinite(value);
     }
 
-    public static boolean isNotFinite(final double value) {
+    public static boolean isNonFinite(final double value) {
         return !Double.isFinite(value);
     }
 
@@ -1023,6 +1035,51 @@ public final class Doubles extends ADoublesStaticFacade {
             final double roundedOther = round(otherValue);
             return defaultRoundedValue == roundedOther;
         }
+    }
+
+    public static boolean equalsMatrix(final double[][] a, final double[][] b) {
+        if (a == b) {
+            return true;
+        }
+        if (a == null || b == null) {
+            return false;
+        }
+        final int length = a.length;
+        if (b.length != length) {
+            return false;
+        }
+
+        for (int i = 0; i < length; i++) {
+            final double[] vectorA = a[i];
+            final double[] vectorB = b[i];
+            if (!equalsVector(vectorA, vectorB)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean equalsVector(final double[] a, final double[] b) {
+        if (a == b) {
+            return true;
+        }
+        if (a == null || b == null) {
+            return false;
+        }
+
+        final int length = a.length;
+        if (b.length != length) {
+            return false;
+        }
+
+        for (int i = 0; i < length; i++) {
+            final double valueA = a[i];
+            final double valueB = b[i];
+            if (!equals(valueA, valueB)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static boolean equalsNaNable(final Double value, final Double otherValue) {
@@ -1492,6 +1549,10 @@ public final class Doubles extends ADoublesStaticFacade {
         return isGreaterThanOrEqualTo(value, lowerBound) && isLessThanOrEqualTo(value, upperBound);
     }
 
+    public static boolean isBetweenExclusive(final double value, final double lowerBound, final double upperBound) {
+        return isGreaterThan(value, lowerBound) && isLessThan(value, upperBound);
+    }
+
     public static String getSign(final double value) {
         return getSign(value, false);
     }
@@ -1577,6 +1638,49 @@ public final class Doubles extends ADoublesStaticFacade {
 
     public static double maxExclusiveToInclusive(final double maxExclusive) {
         return maxExclusive - Doubles.FIRST_ABOVE_ZERO;
+    }
+
+    public static double scaleByPowerOfTenNearReference(final double value, final double reference) {
+        if (value == 0D || reference == 0D) {
+            return value;
+        }
+        final boolean positive = isPositive(reference);
+        final double r;
+        if (positive) {
+            r = reference;
+        } else {
+            r = -reference;
+        }
+        double v = applySignFromReference(value, r);
+        double difference = abs(r - v);
+        for (int tries = 0; tries < 20; tries++) {
+            final double newV;
+            if (r > v) {
+                newV = v * 10;
+            } else {
+                newV = v / 10;
+            }
+            final double newDifference = abs(r - newV);
+            if (newDifference > difference) {
+                //minimum scale found
+                break;
+            }
+            difference = newDifference;
+            v = newV;
+        }
+        if (positive) {
+            return v;
+        } else {
+            return -v;
+        }
+    }
+
+    public static double applySignFromReference(final double value, final double reference) {
+        if (Doubles.isPositive(value) != Doubles.isPositive(reference)) {
+            return -value;
+        } else {
+            return value;
+        }
     }
 
 }

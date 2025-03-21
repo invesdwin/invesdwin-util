@@ -49,7 +49,7 @@ public class GuavaLoadingCacheMapConfig {
     }
 
     public GuavaLoadingCacheMapConfig setMaximumSize(final Integer maximumSize) {
-        if (this.maximumSize == null) {
+        if (maximumSize == null) {
             this.maximumSize = null;
         } else {
             this.maximumSize = maximumSize.longValue();

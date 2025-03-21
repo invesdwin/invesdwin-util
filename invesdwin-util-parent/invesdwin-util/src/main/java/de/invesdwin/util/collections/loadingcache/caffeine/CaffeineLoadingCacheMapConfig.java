@@ -48,7 +48,7 @@ public class CaffeineLoadingCacheMapConfig {
     }
 
     public CaffeineLoadingCacheMapConfig setMaximumSize(final Integer maximumSize) {
-        if (this.maximumSize == null) {
+        if (maximumSize == null) {
             this.maximumSize = null;
         } else {
             this.maximumSize = maximumSize.longValue();
@@ -152,7 +152,6 @@ public class CaffeineLoadingCacheMapConfig {
         return new WrapperLoadingCacheMap<K, V>(delegate);
     }
 
-    @SuppressWarnings("null")
     private <K, V> Caffeine<Object, Object> newCacheBuilder() {
         final Caffeine<Object, Object> builder = Caffeine.newBuilder();
         if (BooleanUtils.isTrue(recursiveLoading)) {

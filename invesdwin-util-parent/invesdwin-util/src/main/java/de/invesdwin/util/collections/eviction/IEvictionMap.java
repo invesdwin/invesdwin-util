@@ -10,4 +10,6 @@ public interface IEvictionMap<K, V> extends Map<K, V> {
 
     int getMaximumSize();
 
+    boolean isThreadSafe();
+
 }

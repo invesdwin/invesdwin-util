@@ -26,6 +26,11 @@ public final class EmptyDoubleArray implements IDoubleArray {
     }
 
     @Override
+    public boolean isEmpty() {
+        return true;
+    }
+
+    @Override
     public IDoubleArray slice(final int fromIndex, final int length) {
         return this;
     }

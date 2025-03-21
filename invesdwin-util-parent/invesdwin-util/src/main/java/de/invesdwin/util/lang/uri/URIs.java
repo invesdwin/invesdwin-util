@@ -6,8 +6,12 @@ import java.net.Proxy.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -15,7 +19,9 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.EncoderException;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.lang.Files;
+import de.invesdwin.util.lang.string.Charsets;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.uri.connect.IURIsConnect;
 import de.invesdwin.util.lang.uri.connect.IURIsConnectFactory;
@@ -233,6 +239,81 @@ public final class URIs {
 
     public static String normalizePath(final String path) {
         return Files.normalizePathMaxLength(Strings.replaceEach(path, NORMALIZE_PATH_SEARCH, NORMALIZE_PATH_REPLACE));
+    }
+
+    public static Map<String, String> splitQuery(final URI uri) {
+        final String query = uri.getQuery();
+        if (Strings.isBlank(query)) {
+            return Collections.emptyMap();
+        }
+        final String[] queryPairs = Strings.splitPreserveAllTokens(query, "&");
+        if (queryPairs.length == 0) {
+            return Collections.emptyMap();
+        }
+        final Map<String, String> result = new LinkedHashMap<String, String>();
+        splitQueryPairs(queryPairs, result);
+        return result;
+    }
+
+    public static void splitQuery(final URI uri, final Map<String, String> result) {
+        final String query = uri.getQuery();
+        if (Strings.isBlank(query)) {
+            return;
+        }
+        final String[] queryPairs = Strings.splitPreserveAllTokens(query, "&");
+        if (queryPairs.length == 0) {
+            return;
+        }
+        splitQueryPairs(queryPairs, result);
+    }
+
+    private static void splitQueryPairs(final String[] queryPairs, final Map<String, String> result) {
+        for (int i = 0; i < queryPairs.length; i++) {
+            final String queryPair = queryPairs[i];
+            final int indexOf = queryPair.indexOf("=");
+            final String key = indexOf > 0 ? URLDecoder.decode(queryPair.substring(0, indexOf), Charsets.UTF_8)
+                    : queryPair;
+            final String value = indexOf > 0 && queryPair.length() > indexOf + 1
+                    ? URLDecoder.decode(queryPair.substring(indexOf + 1), Charsets.UTF_8)
+                    : null;
+            result.put(key, value);
+        }
+    }
+
+    public static String maybeAddQuery(final String host, final Map<String, String> queryPairs) {
+        final String query = joinQuery(queryPairs);
+        return maybeAddQuery(host, query);
+    }
+
+    public static String maybeAddQuery(final String host, final String query) {
+        if (Strings.isBlank(query)) {
+            return host;
+        } else {
+            return host + "?" + query;
+        }
+    }
+
+    public static String maybeRemoveQuery(final String uri) {
+        return Strings.substringBefore(uri, '?');
+    }
+
+    public static String joinQuery(final Map<String, String> queryPairs) {
+        if (queryPairs.isEmpty()) {
+            return "";
+        }
+        final StringBuilder sb = new StringBuilder();
+        for (final Entry<String, String> entry : queryPairs.entrySet()) {
+            if (!sb.isEmpty()) {
+                sb.append("&");
+            }
+            sb.append(URLEncoder.encode(entry.getKey(), Charsets.UTF_8));
+            final String value = entry.getValue();
+            if (value != null) {
+                sb.append("=");
+                sb.append(URLEncoder.encode(value, Charsets.UTF_8));
+            }
+        }
+        return sb.toString();
     }
 
 }

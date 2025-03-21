@@ -10,10 +10,15 @@ import org.junit.jupiter.api.Test;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.ImmutableHistoricalEntry;
+import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.time.date.FDateBuilder;
 
 @NotThreadSafe
 public class FilterDuplicateKeysListTest {
+
+    static {
+        Reflections.disableJavaModuleSystemRestrictions();
+    }
 
     private final List<IHistoricalEntry<Integer>> expectedList = new ArrayList<IHistoricalEntry<Integer>>() {
         {

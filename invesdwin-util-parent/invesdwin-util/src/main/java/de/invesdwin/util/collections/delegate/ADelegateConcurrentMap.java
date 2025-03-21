@@ -11,7 +11,7 @@ public abstract class ADelegateConcurrentMap<K, V> extends ADelegateMap<K, V> im
         super();
     }
 
-    ADelegateConcurrentMap(final ConcurrentMap<K, V> delegate) {
+    protected ADelegateConcurrentMap(final ConcurrentMap<K, V> delegate) {
         super(delegate);
     }
 

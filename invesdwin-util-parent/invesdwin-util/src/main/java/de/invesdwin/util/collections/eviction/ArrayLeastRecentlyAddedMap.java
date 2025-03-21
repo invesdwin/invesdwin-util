@@ -200,4 +200,9 @@ public class ArrayLeastRecentlyAddedMap<K, V> implements Map<K, V>, IEvictionMap
         return maximumSize;
     }
 
+    @Override
+    public boolean isThreadSafe() {
+        return false;
+    }
+
 }

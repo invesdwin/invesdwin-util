@@ -208,19 +208,48 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     }
 
     protected void setShiftKeyDelegate(final IHistoricalCache<?> shiftKeyDelegate, final boolean alsoExtractKey) {
-        Assertions.assertThat(shiftKeyDelegate).as("Use null instead of this").isNotSameAs(this);
-        Assertions.assertThat(this.shiftKeyProvider)
-                .as("%s can only be set once", IHistoricalCacheShiftKeyProvider.class.getSimpleName())
-                .isInstanceOf(InnerHistoricalCacheShiftKeyProvider.class);
-        this.shiftKeyProvider = DelegateHistoricalCacheShiftKeyProvider.maybeWrap(internalMethods, shiftKeyDelegate);
-        if (alsoExtractKey) {
-            this.extractKeyProvider = DelegateHistoricalCacheExtractKeyProvider.maybeWrap(shiftKeyDelegate);
+        if (isSetShiftKeyDelegateNeeded(shiftKeyDelegate)) {
+            Assertions.assertThat(shiftKeyDelegate).as("Use null instead of this").isNotSameAs(this);
+            Assertions.assertThat(this.shiftKeyProvider)
+                    .as("%s can only be set once", IHistoricalCacheShiftKeyProvider.class.getSimpleName())
+                    .isInstanceOf(InnerHistoricalCacheShiftKeyProvider.class);
+            this.shiftKeyProvider = DelegateHistoricalCacheShiftKeyProvider.maybeWrap(internalMethods,
+                    shiftKeyDelegate);
+            //propagate the maximum size setting downwards without risking an endless recursion
+            registerIncreaseMaximumSizeListener(shiftKeyDelegate);
+            //and upwards
+            shiftKeyDelegate.registerIncreaseMaximumSizeListener(this);
+            isPutDisabled = false;
+            if (alsoExtractKey && isSetExtractKeyDelegateNeeded(shiftKeyDelegate)) {
+                this.extractKeyProvider = DelegateHistoricalCacheExtractKeyProvider.maybeWrap(shiftKeyDelegate);
+            }
+        } else {
+            final boolean alsoExtractKeyBefore = !isSetExtractKeyDelegateNeeded(shiftKeyDelegate);
+            Assertions.assertThat(alsoExtractKey)
+                    .as("Same shiftKeyDelegate was already set with alsoExtractKeyBefore=%s and now it is requested again with alsoExtractKey=%s",
+                            alsoExtractKeyBefore, alsoExtractKey)
+                    .isEqualTo(alsoExtractKeyBefore);
         }
-        //propagate the maximum size setting downwards without risking an endless recursion
-        registerIncreaseMaximumSizeListener(shiftKeyDelegate);
-        //and upwards
-        shiftKeyDelegate.registerIncreaseMaximumSizeListener(this);
-        isPutDisabled = false;
+    }
+
+    private boolean isSetExtractKeyDelegateNeeded(final IHistoricalCache<?> shiftKeyDelegate) {
+        if (this.extractKeyProvider instanceof DelegateHistoricalCacheExtractKeyProvider) {
+            final DelegateHistoricalCacheExtractKeyProvider<V> cShiftKeyProvider = (DelegateHistoricalCacheExtractKeyProvider<V>) this.extractKeyProvider;
+            if (cShiftKeyProvider.getDelegate() == shiftKeyDelegate) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isSetShiftKeyDelegateNeeded(final IHistoricalCache<?> shiftKeyDelegate) {
+        if (this.shiftKeyProvider instanceof DelegateHistoricalCacheShiftKeyProvider) {
+            final DelegateHistoricalCacheShiftKeyProvider<V> cShiftKeyProvider = (DelegateHistoricalCacheShiftKeyProvider<V>) this.shiftKeyProvider;
+            if (cShiftKeyProvider.getParent() == shiftKeyDelegate) {
+                return false;
+            }
+        }
+        return true;
     }
 
     protected void setPutDelegate(final AHistoricalCache<? extends V> putDelegate) {
@@ -280,7 +309,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         return lastRefreshMillis;
     }
 
-    private void invokeRefreshIfRequested() {
+    protected void invokeRefreshIfRequested() {
         final long lastRefreshMillisFromManager = HistoricalCacheRefreshManager.getLastRefreshMillis();
         if (lastRefreshMillis < lastRefreshMillisFromManager) {
             clear();
@@ -527,7 +556,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
             if (valuesMap == this) {
                 synchronized (AHistoricalCache.this) {
                     if (valuesMap == this) {
-                        valuesMap = new ValuesMap();
+                        valuesMap = newValuesMap();
                         if (maximumSize != null && maximumSize != initialMaximumSize) {
                             innerIncreaseMaximumSize(maximumSize, "innerLoadCache lazy init");
                         }
@@ -559,11 +588,15 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         }
     }
 
-    private final class ValuesMap extends ADelegateLoadingCache<FDate, IHistoricalEntry<V>> implements IValuesMap<V> {
+    public class ValuesMap extends ADelegateLoadingCache<FDate, IHistoricalEntry<V>> implements IValuesMap<V> {
 
         @Override
         public IHistoricalEntry<V> get(final FDate key) {
             invokeRefreshIfRequested();
+            return super.get(key);
+        }
+
+        protected IHistoricalEntry<V> superGet(final FDate key) {
             return super.get(key);
         }
 
@@ -847,7 +880,9 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         public IHistoricalEntry<V> put(final FDate key, final V value) {
             final IndexedHistoricalEntry<V> entry = (IndexedHistoricalEntry<V>) getValuesMap().computeIfAbsent(key,
                     computeEmpty);
-            entry.setValue(key, value);
+            if (value != null) {
+                entry.setValue(key, value);
+            }
             return entry;
         }
 
@@ -1088,6 +1123,10 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     @Override
     public void putPreviousKey(final FDate previousKey, final FDate valueKey) {
         queryCore.putPreviousKey(previousKey, valueKey);
+    }
+
+    protected IValuesMap<V> newValuesMap() {
+        return new ValuesMap();
     }
 
     @Override

@@ -36,6 +36,11 @@ public class BufferLongArray implements ILongArray {
     }
 
     @Override
+    public boolean isEmpty() {
+        return buffer.isEmpty();
+    }
+
+    @Override
     public ILongArray slice(final int fromIndex, final int length) {
         return new SliceDelegateLongArray(this, fromIndex, length);
     }

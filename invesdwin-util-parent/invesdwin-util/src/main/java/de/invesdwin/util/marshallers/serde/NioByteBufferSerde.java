@@ -28,7 +28,7 @@ public class NioByteBufferSerde implements ISerde<java.nio.ByteBuffer> {
     @Override
     public int toBuffer(final IByteBuffer buffer, final java.nio.ByteBuffer obj) {
         final int length = obj.capacity();
-        if (buffer == obj) {
+        if (buffer.nioByteBuffer() == obj) {
             return length;
         } else {
             buffer.putBytesTo(0, obj, length);

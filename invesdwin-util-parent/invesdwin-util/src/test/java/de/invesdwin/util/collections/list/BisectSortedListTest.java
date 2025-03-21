@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.lang.comparator.Comparators;
+import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.random.PseudoRandomGenerators;
 import de.invesdwin.util.math.random.RandomAdapter;
@@ -17,6 +18,10 @@ import de.invesdwin.util.time.date.BisectDuplicateKeyHandling;
 
 @NotThreadSafe
 public class BisectSortedListTest {
+
+    static {
+        Reflections.disableJavaModuleSystemRestrictions();
+    }
 
     @Test
     public void testAdd() {

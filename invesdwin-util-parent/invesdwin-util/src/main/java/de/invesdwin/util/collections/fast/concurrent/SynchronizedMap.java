@@ -134,9 +134,28 @@ public class SynchronizedMap<K, V> implements Map<K, V> {
 
     @Override
     public V computeIfAbsent(final K key, final Function<? super K, ? extends V> mappingFunction) {
+        V v;
+        Map<K, V> delegate = getDelegate();
         synchronized (lock) {
-            return getDelegate().computeIfAbsent(key, mappingFunction);
+            v = delegate.get(key);
         }
+        delegate = null;
+        if (v == null) {
+            //bad idea to synchronize in apply, this might cause deadlocks when threads are used inside of it
+            v = mappingFunction.apply(key);
+            if (v != null) {
+                delegate = getDelegate();
+                synchronized (lock) {
+                    final V oldV = delegate.get(key);
+                    if (oldV != null) {
+                        v = oldV;
+                    } else {
+                        delegate.put(key, v);
+                    }
+                }
+            }
+        }
+        return v;
     }
 
     @Override

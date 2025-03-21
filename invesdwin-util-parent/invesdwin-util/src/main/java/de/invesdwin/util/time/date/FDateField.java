@@ -15,7 +15,7 @@ import de.invesdwin.util.error.UnknownArgumentException;
 @Immutable
 public enum FDateField {
 
-    Year {
+    Year(FTimeUnit.YEARS) {
         @Override
         public int calendarValue() {
             return Calendar.YEAR;
@@ -36,7 +36,7 @@ public enum FDateField {
             return FDates.getDefaultTimeZone().getDateTimeFieldYear();
         }
     },
-    Month {
+    Month(FTimeUnit.MONTHS) {
         @Override
         public int calendarValue() {
             return Calendar.MONTH;
@@ -60,7 +60,7 @@ public enum FDateField {
     /**
      * Also known as DAY_OF_MONTH.
      */
-    Day {
+    Day(FTimeUnit.DAYS) {
         @Override
         public int calendarValue() {
             return Calendar.DAY_OF_MONTH;
@@ -81,7 +81,7 @@ public enum FDateField {
             return FDates.getDefaultTimeZone().getDateTimeFieldDay();
         }
     },
-    Weekday {
+    Weekday(FTimeUnit.DAYS) {
         @Override
         public int calendarValue() {
             return Calendar.DAY_OF_WEEK;
@@ -102,7 +102,7 @@ public enum FDateField {
             return FDates.getDefaultTimeZone().getDateTimeFieldWeekday();
         }
     },
-    Hour {
+    Hour(FTimeUnit.HOURS) {
         @Override
         public int calendarValue() {
             return Calendar.HOUR_OF_DAY;
@@ -123,7 +123,7 @@ public enum FDateField {
             return FDates.getDefaultTimeZone().getDateTimeFieldHour();
         }
     },
-    Minute {
+    Minute(FTimeUnit.MINUTES) {
         @Override
         public int calendarValue() {
             return Calendar.MINUTE;
@@ -144,7 +144,7 @@ public enum FDateField {
             return FDates.getDefaultTimeZone().getDateTimeFieldMinute();
         }
     },
-    Second {
+    Second(FTimeUnit.SECONDS) {
         @Override
         public int calendarValue() {
             return Calendar.SECOND;
@@ -165,7 +165,7 @@ public enum FDateField {
             return FDates.getDefaultTimeZone().getDateTimeFieldSecond();
         }
     },
-    Millisecond {
+    Millisecond(FTimeUnit.MILLISECONDS) {
         @Override
         public int calendarValue() {
             return Calendar.MILLISECOND;
@@ -198,6 +198,16 @@ public enum FDateField {
             JAVA_TIME_LOOKUP.put(f.javaTimeValue(), f);
             JODA_TIME_LOOKUP.put(f.jodaTimeValue(), f);
         }
+    }
+
+    private final FTimeUnit timeUnit;
+
+    FDateField(final FTimeUnit timeUnit) {
+        this.timeUnit = timeUnit;
+    }
+
+    public FTimeUnit timeUnitValue() {
+        return timeUnit;
     }
 
     public abstract int calendarValue();

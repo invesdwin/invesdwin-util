@@ -7,12 +7,14 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.Hist
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryInternalMethods;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 
 @NotThreadSafe
 public class GetNextEntryQueryLoop<V> {
 
     private final IHistoricalCacheQueryCore<V> core;
     private final FDate key;
+    private final FDate to;
     private FDate nextKey = null;
     private IHistoricalEntry<V> nextEntry = null;
     private int iterations = 0;
@@ -27,6 +29,7 @@ public class GetNextEntryQueryLoop<V> {
         this.key = key;
         this.nextKey = key;
         this.shiftForwardUnits = shiftForwardUnits;
+        this.to = FDates.min(FDates.MAX_DATE, core.getParent().getHighestAllowedKey());
     }
 
     public boolean iterationFinished() {
@@ -37,10 +40,15 @@ public class GetNextEntryQueryLoop<V> {
                  * 
                  * we decrement by one unit to get the next key
                  */
-
                 final FDate nextNextKey;
                 if (iterations == 0) {
                     nextNextKey = nextKey;
+                } else if (nextKey.isAfterOrEqualToNotNullSafe(to)) {
+                    /*
+                     * limit reached, though this will produce wrong results when duplicate keys are available which
+                     * should be prevented in the data provider by adjusting keys by the lowest increment (1 ms)
+                     */
+                    return true;
                 } else {
                     nextNextKey = core.getParent().calculateNextKey(nextKey);
                 }
@@ -61,7 +69,7 @@ public class GetNextEntryQueryLoop<V> {
                     return true;
                 } else {
                     final FDate actualNextNextKey = nextNextEntry.getKey();
-                    if (iterations > 0 && actualNextNextKey.equals(nextKey)) {
+                    if (iterations > 0 && actualNextNextKey.equalsNotNullSafe(nextKey)) {
                         duplicateEncountered = true;
                     }
                     nextKey = actualNextNextKey;

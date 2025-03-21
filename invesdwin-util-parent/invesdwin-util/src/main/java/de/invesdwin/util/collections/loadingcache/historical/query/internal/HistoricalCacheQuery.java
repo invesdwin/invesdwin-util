@@ -16,6 +16,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 
 @NotThreadSafe
 public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
@@ -354,7 +355,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     /**
      * Returns all values in the given time range.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public ICloseableIterable<IHistoricalEntry<V>> getEntries(final FDate from, final FDate to) {
         final ICloseableIterable<? extends IHistoricalEntry<V>> iterableInterceptor = internalMethods.getQueryCore()
@@ -383,6 +384,8 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
     @Override
     public ICloseableIterable<IHistoricalEntry<V>> getEntriesCached(final FDate from, final FDate to) {
+        final FDate adjFrom = FDates.max(FDates.MIN_DATE, from);
+        final FDate adjTo = FDates.min(FDates.MAX_DATE, to, internalMethods.getHighestAllowedKey());
         return new ICloseableIterable<IHistoricalEntry<V>>() {
             @Override
             public ICloseableIterator<IHistoricalEntry<V>> iterator() {
@@ -392,10 +395,10 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                     private FDate nextEntryKey;
 
                     {
-                        nextEntry = future.getNextEntry(from, 0);
+                        nextEntry = future.getNextEntry(adjFrom, 0);
                         if (nextEntry != null) {
                             nextEntryKey = extractKey(nextEntry);
-                            if (nextEntryKey.isBefore(from)) {
+                            if (nextEntryKey.isBeforeNotNullSafe(adjFrom)) {
                                 //skip initial value if it is not inside requested range
                                 nextEntry = future.getNextEntry(nextEntryKey, 1);
                                 nextEntryKey = extractKey(nextEntry);
@@ -405,7 +408,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
                     @Override
                     public boolean hasNext() {
-                        return nextEntryKey != null && !nextEntryKey.isAfter(to);
+                        return nextEntryKey != null && !nextEntryKey.isAfterNotNullSafe(adjTo);
                     }
 
                     private FDate extractKey(final IHistoricalEntry<V> e) {
@@ -417,12 +420,22 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                         if (hasNext()) {
                             //always returning current and reading ahead once
                             final IHistoricalEntry<V> currentEntry = nextEntry;
-                            final FDate currentEntryKey = extractKey(currentEntry);
-                            nextEntry = future.getNextEntry(currentEntryKey, 1);
-                            nextEntryKey = extractKey(nextEntry);
-                            if (nextEntry != null && !nextEntryKey.isAfter(currentEntryKey)) {
+                            final FDate currentEntryKey = nextEntryKey;
+                            if (currentEntryKey.isAfterOrEqualToNotNullSafe(adjTo)) {
+                                /*
+                                 * limit reached, though this will produce wrong results when duplicate keys are
+                                 * available which should be prevented in the data provider by adjusting keys by the
+                                 * lowest increment (1 ms)
+                                 */
                                 nextEntry = null;
                                 nextEntryKey = null;
+                            } else {
+                                nextEntry = future.getNextEntry(currentEntryKey, 1);
+                                nextEntryKey = extractKey(nextEntry);
+                                if (nextEntry != null && !nextEntryKey.isAfter(currentEntryKey)) {
+                                    nextEntry = null;
+                                    nextEntryKey = null;
+                                }
                             }
                             return currentEntry;
                         } else {

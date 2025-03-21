@@ -203,13 +203,13 @@ public class CircularByteBuffer {
             final int targetOffset, final int length) {
         int curSourceOffset = sourceOffset;
         int curSourceLength = length;
-        int curTargetOffset = targetOffset;
+        //        int curTargetOffset = targetOffset;
         int curTargetLength = length;
         if (size > 0) {
             //drain buffer into target
             final int toBeRead = Integers.min(size, curTargetLength);
             read(targetBuffer, targetOffset, toBeRead);
-            curTargetOffset += toBeRead;
+            //            curTargetOffset += toBeRead;
             curTargetLength -= toBeRead;
         }
 
@@ -218,7 +218,7 @@ public class CircularByteBuffer {
             System.arraycopy(sourceBuffer, curSourceOffset, targetBuffer, curSourceOffset, toBeCopied);
             curSourceOffset += toBeCopied;
             curSourceLength -= toBeCopied;
-            curTargetOffset += toBeCopied;
+            //            curTargetOffset += toBeCopied;
             curTargetLength -= toBeCopied;
         }
 

@@ -18,6 +18,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathObjects;
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
 import de.invesdwin.util.lang.string.Strings;
@@ -129,8 +130,47 @@ public final class Objects extends AObjectsStaticFacade {
         }
     }
 
-    public static int hashCode(final Object object) {
-        return java.util.Objects.hashCode(object);
+    public static int hashCode(final Object value) {
+        if (value == null) {
+            return 0;
+        }
+        if (value.getClass().isArray()) {
+            /*
+             * create serialization safe hashCode of arrays, else MapDB throws exceptions that key hashCode changed
+             * after serialization
+             */
+            if (value instanceof byte[]) {
+                final byte[] cValue = (byte[]) value;
+                return Arrays.hashCode(cValue);
+            } else if (value instanceof boolean[]) {
+                final boolean[] cValue = (boolean[]) value;
+                return Arrays.hashCode(cValue);
+            } else if (value instanceof double[]) {
+                final double[] cValue = (double[]) value;
+                return Arrays.hashCode(cValue);
+            } else if (value instanceof float[]) {
+                final float[] cValue = (float[]) value;
+                return Arrays.hashCode(cValue);
+            } else if (value instanceof long[]) {
+                final long[] cValue = (long[]) value;
+                return Arrays.hashCode(cValue);
+            } else if (value instanceof int[]) {
+                final int[] cValue = (int[]) value;
+                return Arrays.hashCode(cValue);
+            } else if (value instanceof short[]) {
+                final short[] cValue = (short[]) value;
+                return Arrays.hashCode(cValue);
+            } else if (value instanceof char[]) {
+                final char[] cValue = (char[]) value;
+                return Arrays.hashCode(cValue);
+            } else if (value instanceof Object[]) {
+                final Object[] cValue = (Object[]) value;
+                return Arrays.hashCode(cValue);
+            } else {
+                throw UnknownArgumentException.newInstance(Class.class, value.getClass());
+            }
+        }
+        return java.util.Objects.hashCode(value);
     }
 
     public static int hashCode(final Object o1, final Object o2) {
@@ -190,7 +230,15 @@ public final class Objects extends AObjectsStaticFacade {
     }
 
     public static int hashCode(@Nullable final Object... objects) {
-        return com.google.common.base.Objects.hashCode(objects);
+        if (objects == null) {
+            return 0;
+        }
+        final int prime = 31;
+        int result = 1;
+        for (final Object element : objects) {
+            result = prime * result + hashCode(element);
+        }
+        return result;
     }
 
     public static String toString(final Object obj) {

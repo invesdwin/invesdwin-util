@@ -59,6 +59,11 @@ public class BufferBooleanArray implements IBooleanArray {
     }
 
     @Override
+    public boolean isEmpty() {
+        return delegate.isEmpty();
+    }
+
+    @Override
     public IBooleanArray slice(final int fromIndex, final int length) {
         return new SliceDelegateBooleanArray(this, fromIndex, length);
     }
