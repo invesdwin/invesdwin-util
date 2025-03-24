@@ -26,7 +26,6 @@ import de.invesdwin.util.collections.loadingcache.historical.interceptor.Histori
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCacheRangeQueryInterceptorSupport;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCachePreviousKeysQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
-import de.invesdwin.util.collections.loadingcache.historical.internal.IValuesMap;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCachePutProvider;
