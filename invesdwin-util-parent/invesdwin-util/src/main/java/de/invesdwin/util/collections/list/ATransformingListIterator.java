@@ -2,6 +2,9 @@ package de.invesdwin.util.collections.list;
 
 import java.util.ListIterator;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
+@NotThreadSafe
 public abstract class ATransformingListIterator<I, O> implements ListIterator<O> {
     private final ListIterator<I> delegate;
 
