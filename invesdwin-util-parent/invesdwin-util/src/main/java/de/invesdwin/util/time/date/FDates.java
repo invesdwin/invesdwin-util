@@ -36,9 +36,12 @@ public final class FDates {
     public static final long MILLISECONDS_IN_MINUTE = FTimeUnit.MILLISECONDS_IN_MINUTE;
     public static final long MILLISECONDS_IN_SECOND = FTimeUnit.MILLISECONDS_IN_SECOND;
     private static FTimeZone defaultTimeZone;
+    private static FTimeZone systemTimeZone;
 
     static {
-        setDefaultTimeZone(new FTimeZone(TimeZone.getDefault()));
+        final FTimeZone def = new FTimeZone(TimeZone.getDefault());
+        setDefaultTimeZone(def);
+        setSystemTimeZone(def);
     }
 
     private FDates() {}
@@ -49,6 +52,14 @@ public final class FDates {
 
     public static FTimeZone getDefaultTimeZone() {
         return defaultTimeZone;
+    }
+
+    public static void setSystemTimeZone(final FTimeZone systemTimeZone) {
+        FDates.systemTimeZone = systemTimeZone;
+    }
+
+    public static FTimeZone getSystemTimeZone() {
+        return systemTimeZone;
     }
 
     public static ICloseableIterable<FDate> iterable(final FDate start, final FDate end, final Duration increment) {
