@@ -6,9 +6,10 @@ import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.ACriteriaComparator;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.string.Strings;
+import de.invesdwin.util.time.range.week.IWeekTimeData;
 
 @Immutable
-public class FWeekTime extends FDayTime {
+public class FWeekTime extends FDayTime implements IWeekTimeData {
 
     public static final IComparator<FWeekTime> COMPARATOR = new ACriteriaComparator<FWeekTime>() {
         @Override
@@ -176,6 +177,16 @@ public class FWeekTime extends FDayTime {
 
     public static FWeekTime valueOf(final long value, final boolean max) {
         return valueOfNumeric(String.valueOf(value), max);
+    }
+
+    public static FWeekTime valueOf(final IWeekTimeData value) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof FDayTime) {
+            return (FWeekTime) value;
+        } else {
+            return valueOf(value.longValue(), false);
+        }
     }
 
 }
