@@ -99,11 +99,15 @@ public class FDayTime extends Number implements Comparable<Object>, IDayTimeData
     public boolean equals(final Object obj) {
         if (obj instanceof FDayTime) {
             final FDayTime cObj = (FDayTime) obj;
-            return Objects.equals(cObj.hour, hour) && Objects.equals(cObj.minute, minute)
-                    && Objects.equals(cObj.second, second) && Objects.equals(cObj.millisecond, millisecond);
+            return equalsNotNullSafe(cObj);
         } else {
             return false;
         }
+    }
+
+    public boolean equalsNotNullSafe(final FDayTime obj) {
+        return Objects.equals(obj.hour, hour) && Objects.equals(obj.minute, minute)
+                && Objects.equals(obj.second, second) && Objects.equals(obj.millisecond, millisecond);
     }
 
     public boolean isBefore(final FDayTime other) {
