@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.range;
+package de.invesdwin.util.time.range.week;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,11 +16,10 @@ import de.invesdwin.util.time.date.FWeekTime;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.date.timezone.TimeZoneRange;
 import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.range.TimeRange;
 
 @Immutable
-public class WeekRange extends AValueObject {
-
-    public static final String FROM_TO_SEPARATOR = "-";
+public class WeekRange extends AValueObject implements IWeekRangeData {
 
     public static final IComparator<WeekRange> COMPARATOR = new ACriteriaComparator<WeekRange>() {
         @Override
@@ -43,10 +42,12 @@ public class WeekRange extends AValueObject {
         this.to = to;
     }
 
+    @Override
     public FWeekTime getFrom() {
         return from;
     }
 
+    @Override
     public FWeekTime getTo() {
         return to;
     }
@@ -178,6 +179,16 @@ public class WeekRange extends AValueObject {
     @Override
     public int compareTo(final Object o) {
         return COMPARATOR.compare(this, o);
+    }
+
+    public static WeekRange valueOf(final IWeekRangeData value) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof WeekRange) {
+            return (WeekRange) value;
+        } else {
+            return new WeekRange(FWeekTime.valueOf(value.getFrom()), FWeekTime.valueOf(value.getTo()));
+        }
     }
 
     public static WeekRange valueOf(final String value) {

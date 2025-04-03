@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.range;
+package de.invesdwin.util.time.range.week;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
