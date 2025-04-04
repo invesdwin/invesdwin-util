@@ -10,9 +10,9 @@ public class WeekRangeDTO implements IWeekRangeData, ISerializableValueObject {
     private IWeekTimeData from;
     private IWeekTimeData to;
 
-    public WeekRangeDTO(final IWeekRangeData WeekRangeData) {
-        from = new WeekTimeDTO(WeekRangeData.getFrom());
-        to = new WeekTimeDTO(WeekRangeData.getTo());
+    public WeekRangeDTO(final IWeekRangeData weekRangeData) {
+        from = new WeekTimeDTO(weekRangeData.getFrom());
+        to = new WeekTimeDTO(weekRangeData.getTo());
     }
 
     public WeekRangeDTO() {}

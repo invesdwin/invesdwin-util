@@ -181,16 +181,6 @@ public class WeekRange extends AValueObject implements IWeekRangeData {
         return COMPARATOR.compare(this, o);
     }
 
-    public static WeekRange valueOf(final IWeekRangeData value) {
-        if (value == null) {
-            return null;
-        } else if (value instanceof WeekRange) {
-            return (WeekRange) value;
-        } else {
-            return new WeekRange(FWeekTime.valueOf(value.getFrom()), FWeekTime.valueOf(value.getTo()));
-        }
-    }
-
     public static WeekRange valueOf(final String value) {
         if (Strings.isBlankOrNullText(value)) {
             return null;
@@ -225,6 +215,29 @@ public class WeekRange extends AValueObject implements IWeekRangeData {
             }
         } catch (final Throwable t) {
             return null;
+        }
+    }
+
+    public static WeekRange valueOf(final IWeekRangeData value) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof WeekRange) {
+            return (WeekRange) value;
+        } else {
+            return new WeekRange(FWeekTime.valueOf(value.getFrom()), FWeekTime.valueOf(value.getTo()));
+        }
+    }
+
+    public static WeekRange valueOf(final TimeRange value) {
+        if (value == null) {
+            return null;
+        } else if (value.isSame()) {
+            final FWeekTime fromAndTo = FWeekTime.valueOf(value.getFrom());
+            return new WeekRange(fromAndTo, fromAndTo);
+        } else {
+            final FWeekTime from = FWeekTime.valueOf(value.getFrom());
+            final FWeekTime to = FWeekTime.valueOf(value.getTo());
+            return new WeekRange(from, to);
         }
     }
 }
