@@ -189,4 +189,12 @@ public class FWeekTime extends FDayTime implements IWeekTimeData {
         }
     }
 
+    public static FWeekTime valueOf(final FDate value) {
+        if (value == null) {
+            return null;
+        } else {
+            return new FWeekTime(value);
+        }
+    }
+
 }
