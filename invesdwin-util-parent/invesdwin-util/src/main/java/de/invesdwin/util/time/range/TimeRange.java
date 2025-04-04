@@ -57,6 +57,10 @@ public class TimeRange extends AValueObject {
         return getFrom() + " -> " + getTo() + " => " + getDuration();
     }
 
+    public String toStringWithoutDuration() {
+        return getFrom() + " - " + getTo();
+    }
+
     public TimeRange asNonNull(final IFDateProvider fromNullReplacement, final IFDateProvider toNullReplacement) {
         final FDate usedFrom;
         if (from == null) {
