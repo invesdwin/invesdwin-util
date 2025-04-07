@@ -10,6 +10,7 @@ import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.date.FWeekday;
+import de.invesdwin.util.time.date.millis.WeekAdjustment;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.range.day.ADayTime;
 
@@ -225,7 +226,8 @@ public class FWeekTime extends ADayTime<FWeekTime> implements IWeekTimeData {
 
     public static FWeekTime valueOf(final Duration value) {
         final FWeekday weekDay = FWeekday.valueOfDuration(value);
-        return new FWeekTime(FDates.getDefaultTimeZone().getMinDate().setFWeekday(weekDay).add(value));
+        return new FWeekTime(
+                FDates.getDefaultTimeZone().getMinDate().setFWeekday(weekDay, WeekAdjustment.UNADJUSTED).add(value));
     }
 
     public static FWeekTime valueOf(final FDate value) {

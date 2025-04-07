@@ -28,6 +28,7 @@ import de.invesdwin.util.math.LongPair;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.millis.FDateMillis;
+import de.invesdwin.util.time.date.millis.WeekAdjustment;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.date.timezone.TimeZoneRange;
 import de.invesdwin.util.time.duration.Duration;
@@ -247,28 +248,28 @@ public class FDate
         return new FDate(FDateMillis.setDay(millis, day));
     }
 
-    public FDate setWeekday(final int weekday, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.setWeekday(millis, weekday, timeZone));
+    public FDate setWeekday(final int weekday, final WeekAdjustment adjustment, final FTimeZone timeZone) {
+        return new FDate(FDateMillis.setWeekday(millis, weekday, adjustment, timeZone));
     }
 
-    public FDate setWeekday(final int weekday) {
-        return new FDate(FDateMillis.setWeekday(millis, weekday));
+    public FDate setWeekday(final int weekday, final WeekAdjustment adjustment) {
+        return new FDate(FDateMillis.setWeekday(millis, weekday, adjustment));
     }
 
-    public FDate setFWeekday(final FWeekday weekday, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.setFWeekday(millis, weekday, timeZone));
+    public FDate setFWeekday(final FWeekday weekday, final WeekAdjustment adjustment, final FTimeZone timeZone) {
+        return new FDate(FDateMillis.setFWeekday(millis, weekday, adjustment, timeZone));
     }
 
-    public FDate setFWeekday(final FWeekday weekday) {
-        return new FDate(FDateMillis.setFWeekday(millis, weekday));
+    public FDate setFWeekday(final FWeekday weekday, final WeekAdjustment adjustment) {
+        return new FDate(FDateMillis.setFWeekday(millis, weekday, adjustment));
     }
 
-    public FDate setFWeekTime(final FWeekTime weekTime, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.setFWeekTime(millis, weekTime, timeZone));
+    public FDate setFWeekTime(final FWeekTime weekTime, final WeekAdjustment adjustment, final FTimeZone timeZone) {
+        return new FDate(FDateMillis.setFWeekTime(millis, weekTime, adjustment, timeZone));
     }
 
-    public FDate setFWeekTime(final FWeekTime weekTime) {
-        return new FDate(FDateMillis.setFWeekTime(millis, weekTime));
+    public FDate setFWeekTime(final FWeekTime weekTime, final WeekAdjustment adjustment) {
+        return new FDate(FDateMillis.setFWeekTime(millis, weekTime, adjustment));
     }
 
     public FDate setFDayTime(final FDayTime dayTime, final FTimeZone timeZone) {
