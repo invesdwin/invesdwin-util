@@ -1,4 +1,4 @@
-package de.invesdwin.util.time.date;
+package de.invesdwin.util.time.range.day;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -6,13 +6,13 @@ import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.ACriteriaComparator;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.string.Strings;
-import de.invesdwin.util.math.Bytes;
-import de.invesdwin.util.math.Shorts;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.range.day.IDayTimeData;
 
 @Immutable
-public class FDayTime extends Number implements Comparable<Object>, IDayTimeData {
+public class FDayTime extends ADayTime<FDayTime> implements IDayTimeData {
 
     public static final IComparator<FDayTime> COMPARATOR = new ACriteriaComparator<FDayTime>() {
         @Override
@@ -21,19 +21,8 @@ public class FDayTime extends Number implements Comparable<Object>, IDayTimeData
         }
     };
 
-    public static final int MIN = 0;
-    public static final int MAX_HOUR = 23;
-    public static final int MAX_MINUTE = 59;
-    public static final int MAX_SECOND = 59;
-    public static final int MAX_MILLISECOND = 999;
-
     public static final FDayTime MIN_DAY_TIME = new FDayTime(MIN, MIN, MIN, MIN);
     public static final FDayTime MAX_DAY_TIME = new FDayTime(MAX_HOUR, MAX_MINUTE, MAX_SECOND, MAX_MILLISECOND);
-
-    private final byte hour;
-    private final byte minute;
-    private final byte second;
-    private final short millisecond;
 
     private transient Integer cachedIntValue;
 
@@ -42,52 +31,17 @@ public class FDayTime extends Number implements Comparable<Object>, IDayTimeData
     }
 
     public FDayTime(final int hour, final int minute, final int second, final int millisecond) {
-        if (hour < MIN || hour > MAX_HOUR) {
-            throw new IllegalArgumentException("hour should be between [" + MIN + "] and [" + MAX_HOUR + "]: " + hour);
-        }
-        if (minute < MIN || minute > MAX_MINUTE) {
-            throw new IllegalArgumentException(
-                    "minute should be between [" + MIN + "] and [" + MAX_MINUTE + "]: " + minute);
-        }
-        if (second < MIN || second > MAX_SECOND) {
-            throw new IllegalArgumentException(
-                    "second should be between [" + MIN + "] and [" + MAX_SECOND + "]: " + second);
-        }
-        if (millisecond < MIN || millisecond > MAX_MILLISECOND) {
-            throw new IllegalArgumentException(
-                    "millisecond should be between [" + MIN + "] and [" + MAX_MILLISECOND + "]: " + millisecond);
-        }
-        this.hour = Bytes.checkedCast(hour);
-        this.minute = Bytes.checkedCast(minute);
-        this.second = Bytes.checkedCast(second);
-        this.millisecond = Shorts.checkedCast(millisecond);
-    }
-
-    public int getHour() {
-        return hour;
-    }
-
-    public int getMinute() {
-        return minute;
-    }
-
-    public byte getSecond() {
-        return second;
-    }
-
-    public short getMillisecond() {
-        return millisecond;
+        super(hour, minute, second, millisecond);
     }
 
     @Override
     public String toString() {
-        return Strings.leftPad(hour, 2, '0') + ":" + Strings.leftPad(minute, 2, '0') + ":"
-                + Strings.leftPad(second, 2, '0') + "." + Strings.leftPad(millisecond, 3, '0');
+        return innerToString();
     }
 
+    @Override
     public String toNumberString() {
-        return Strings.leftPad(hour, 2, '0') + Strings.leftPad(minute, 2, '0') + Strings.leftPad(second, 2, '0')
-                + Strings.leftPad(millisecond, 3, '0');
+        return innerToNumberString();
     }
 
     @Override
@@ -105,46 +59,54 @@ public class FDayTime extends Number implements Comparable<Object>, IDayTimeData
         }
     }
 
+    @Override
     public boolean equalsNotNullSafe(final FDayTime obj) {
-        return Objects.equals(obj.hour, hour) && Objects.equals(obj.minute, minute)
-                && Objects.equals(obj.second, second) && Objects.equals(obj.millisecond, millisecond);
+        return innerEqualsNotNullSafe(obj);
     }
 
+    @Override
     public boolean isBefore(final FDayTime other) {
         return other != null && intValue() < other.intValue();
     }
 
+    @Override
     public boolean isBeforeOrEqualTo(final FDayTime other) {
         return other != null && intValue() <= other.intValue();
     }
 
+    @Override
     public boolean isAfter(final FDayTime other) {
         return other != null && intValue() > other.intValue();
     }
 
+    @Override
     public boolean isAfterOrEqualTo(final FDayTime other) {
         return other != null && intValue() >= other.intValue();
     }
 
+    @Override
     public boolean isBeforeNotNullSafe(final FDayTime other) {
         return intValue() < other.intValue();
     }
 
+    @Override
     public boolean isBeforeOrEqualToNotNullSafe(final FDayTime other) {
         return intValue() <= other.intValue();
     }
 
+    @Override
     public boolean isAfterNotNullSafe(final FDayTime other) {
         return intValue() > other.intValue();
     }
 
+    @Override
     public boolean isAfterOrEqualToNotNullSafe(final FDayTime other) {
         return intValue() >= other.intValue();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(FDayTime.class, hour, minute, second, millisecond);
+        return Objects.hashCode(FDayTime.class, innerHashCode());
     }
 
     @Override
@@ -286,16 +248,19 @@ public class FDayTime extends Number implements Comparable<Object>, IDayTimeData
         }
     }
 
+    @Override
     public Duration durationValue() {
         return new Duration(hour, FTimeUnit.HOURS).add(minute, FTimeUnit.MINUTES)
                 .add(second, FTimeUnit.SECONDS)
                 .add(millisecond, FTimeUnit.MILLISECONDS);
     }
 
+    @Override
     public FDayTime subtract(final Duration duration) {
         return valueOf(durationValue().subtract(duration));
     }
 
+    @Override
     public FDayTime add(final Duration duration) {
         return valueOf(durationValue().add(duration));
     }

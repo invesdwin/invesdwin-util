@@ -1,10 +1,11 @@
-package de.invesdwin.util.time.date;
+package de.invesdwin.util.time.range.week;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
 public class FWeekTimeTest {

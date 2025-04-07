@@ -16,6 +16,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.time.date.holiday.HolidayManagers;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.date.timezone.TimeZones;
+import de.invesdwin.util.time.range.week.FWeekTime;
 
 @NotThreadSafe
 public class FDateTest {

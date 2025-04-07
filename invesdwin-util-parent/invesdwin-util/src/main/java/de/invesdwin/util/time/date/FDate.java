@@ -32,6 +32,8 @@ import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.date.timezone.TimeZoneRange;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.range.TimeRange;
+import de.invesdwin.util.time.range.day.FDayTime;
+import de.invesdwin.util.time.range.week.FWeekTime;
 import jakarta.persistence.Transient;
 
 /**

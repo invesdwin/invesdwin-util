@@ -21,14 +21,14 @@ import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDateField;
 import de.invesdwin.util.time.date.FDates;
-import de.invesdwin.util.time.date.FDayTime;
 import de.invesdwin.util.time.date.FMonth;
 import de.invesdwin.util.time.date.FTimeUnit;
-import de.invesdwin.util.time.date.FWeekTime;
 import de.invesdwin.util.time.date.FWeekday;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.range.day.FDayTime;
+import de.invesdwin.util.time.range.week.FWeekTime;
 
 /**
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.
