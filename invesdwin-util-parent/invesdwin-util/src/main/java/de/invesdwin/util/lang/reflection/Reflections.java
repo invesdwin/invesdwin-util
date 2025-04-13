@@ -63,7 +63,7 @@ public final class Reflections extends AReflectionsStaticFacade {
     @SuppressWarnings("rawtypes")
     public static final Class[] CLASS_EMPTY_ARRAY = BeanPathReflections.CLASS_EMPTY_ARRAY;
     public static final Field[] FIELD_EMPTY_ARRAY = BeanPathReflections.FIELD_EMPTY_ARRAY;
-    public static final Method[] METGOD_EMPTY_ARRAY = BeanPathReflections.METGOD_EMPTY_ARRAY;
+    public static final Method[] METHOD_EMPTY_ARRAY = BeanPathReflections.METHOD_EMPTY_ARRAY; 
 
     @GuardedBy("this.class")
     private static boolean modulesExported = false;
