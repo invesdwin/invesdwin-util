@@ -10,6 +10,8 @@ import java.util.Locale;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.google.common.primitives.DoublesAccessor;
+
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.error.UnknownArgumentException;
@@ -1680,6 +1682,17 @@ public final class Doubles extends ADoublesStaticFacade {
             return -value;
         } else {
             return value;
+        }
+    }
+
+    public static double tryParseNaN(final String string) {
+        if (!DoublesAccessor.FLOATING_POINT_PATTERN.matcher(string).matches()) {
+            return Double.NaN;
+        }
+        try {
+            return Double.parseDouble(string);
+        } catch (final NumberFormatException e) {
+            return Double.NaN;
         }
     }
 
