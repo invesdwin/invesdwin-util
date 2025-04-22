@@ -32,7 +32,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
      * This is the maximum size we can memory-map per segment on windows on files that are larger than 4 gb. Though this
      * does not work correctly, so files should be limited to around 3gb on disk as defined below.
      */
-    public static final long WINDOWS_MAX_LENGTH_PER_SEGMENT_MAPPED = (long) ByteSizeScale.BYTES.convert(3,
+    public static final long WINDOWS_MAX_LENGTH_PER_SEGMENT_MAPPED = (long) ByteSizeScale.BYTES.convert(4,
             ByteSizeScale.GIGABYTES);
 
     private final List<IMemoryMappedFile> list;
