@@ -1,5 +1,6 @@
 package de.invesdwin.util.streams.buffer.file;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,12 +41,12 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
     private final long length;
     private final boolean closeAllowed;
 
-    public SegmentedMemoryMappedFile(final boolean closeAllowed, final String path, final long offset,
-            final long length, final boolean readOnly, final long segmentLength) throws IOException {
+    public SegmentedMemoryMappedFile(final boolean closeAllowed, final File file, final long offset, final long length,
+            final boolean readOnly, final long segmentLength) throws IOException {
         this.closeAllowed = closeAllowed;
         this.offset = offset;
         this.length = length;
-        this.list = initList(path, readOnly, segmentLength);
+        this.list = initList(file, readOnly, segmentLength);
     }
 
     public SegmentedMemoryMappedFile(final boolean closeAllowed, final IMemoryMappedFile... list) {
@@ -59,6 +60,11 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
         this.list = list;
     }
 
+    @Override
+    public File getFile() {
+        return list.get(0).getFile();
+    }
+
     private long calculateLength(final List<IMemoryMappedFile> list) {
         long length = 0;
         for (int i = 0; i < list.size(); i++) {
@@ -67,7 +73,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
         return length;
     }
 
-    private List<IMemoryMappedFile> initList(final String path, final boolean readOnly, final long segmentLength)
+    private List<IMemoryMappedFile> initList(final File file, final boolean readOnly, final long segmentLength)
             throws IOException {
         final List<IMemoryMappedFile> list = new ArrayList<>();
         final long limit = offset + length;
@@ -80,7 +86,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
             } else {
                 long bufferPosition = offset - position;
                 if (capacity >= bufferPosition + length) {
-                    list.add(new MemoryMappedFile(path, bufferPosition, length, readOnly, closeAllowed));
+                    list.add(new MemoryMappedFile(file, bufferPosition, length, readOnly, closeAllowed));
                     return list;
                 } else {
                     long remaining = length;
@@ -89,7 +95,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                             bufferPosition = 0;
                         }
                         final long toCopy = Longs.min(remaining, segmentLength - bufferPosition);
-                        list.add(new MemoryMappedFile(path, bufferPosition, toCopy, readOnly, closeAllowed));
+                        list.add(new MemoryMappedFile(file, bufferPosition, toCopy, readOnly, closeAllowed));
                         remaining -= toCopy;
                         i += toCopy;
                         bufferPosition += toCopy;
