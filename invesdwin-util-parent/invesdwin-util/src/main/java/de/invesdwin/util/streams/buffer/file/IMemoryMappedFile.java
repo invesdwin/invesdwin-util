@@ -45,7 +45,7 @@ public interface IMemoryMappedFile extends Closeable {
     }
 
     static boolean isSegmentSizeExceeded(final long length) {
-        return OperatingSystem.isWindows() && length > SegmentedMemoryMappedFile.WINDOWS_MAX_LENGTH_PER_SEGMENT_MAPPED;
+        return OperatingSystem.isWindows() && length >= SegmentedMemoryMappedFile.WINDOWS_MAX_LENGTH_PER_SEGMENT_MAPPED;
     }
 
 }
