@@ -11,7 +11,6 @@ import com.github.benmanes.caffeine.cache.AsyncCache;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
@@ -408,7 +407,7 @@ public final class MemoryLimit {
         }
 
         public void evict() {
-            Assertions.checkSame(this, IDENTITY_CLEARABLE.remove(holderIdentity));
+            IDENTITY_CLEARABLE.remove(holderIdentity);
         }
 
         public abstract long internalSize(V cache);
