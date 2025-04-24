@@ -407,7 +407,7 @@ public final class MemoryLimit {
         }
 
         public void evict() {
-            IDENTITY_CLEARABLE.remove(holderIdentity, this);
+            IDENTITY_CLEARABLE.remove(holderIdentity);
         }
 
         public abstract long internalSize(V cache);
