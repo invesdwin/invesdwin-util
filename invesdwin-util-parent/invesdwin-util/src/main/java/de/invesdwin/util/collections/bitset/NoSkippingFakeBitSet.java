@@ -12,6 +12,11 @@ public final class NoSkippingFakeBitSet implements IBitSet {
     private NoSkippingFakeBitSet() {}
 
     @Override
+    public int getId() {
+        return ID_DISABLED;
+    }
+
+    @Override
     public void remove(final int index) {
         throw new UnsupportedOperationException();
     }

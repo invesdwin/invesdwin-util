@@ -25,6 +25,11 @@ public class LockedBitSet implements IBitSet {
     }
 
     @Override
+    public int getId() {
+        return delegate.getId();
+    }
+
+    @Override
     public void add(final int index) {
         lock.lock();
         try {

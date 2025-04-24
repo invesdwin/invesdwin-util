@@ -21,6 +21,11 @@ public class SliceDelegateBooleanArray implements IBooleanArray {
     }
 
     @Override
+    public int getId() {
+        return delegate.getId();
+    }
+
+    @Override
     public void set(final int index, final boolean value) {
         delegate.set(index + from, value);
     }

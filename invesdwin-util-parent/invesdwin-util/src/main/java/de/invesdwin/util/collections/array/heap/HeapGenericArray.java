@@ -29,6 +29,11 @@ public class HeapGenericArray<E> implements IGenericArray<E> {
     }
 
     @Override
+    public int getId() {
+        return System.identityHashCode(values);
+    }
+
+    @Override
     public void set(final int index, final E value) {
         values[index] = value;
     }

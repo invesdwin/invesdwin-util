@@ -21,6 +21,11 @@ public class SliceDelegateLongArray implements ILongArray {
     }
 
     @Override
+    public int getId() {
+        return delegate.getId();
+    }
+
+    @Override
     public void set(final int index, final long value) {
         delegate.set(index + from, value);
     }

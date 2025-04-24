@@ -13,6 +13,11 @@ public final class EmptyLongArray implements ILongArray {
     private EmptyLongArray() {}
 
     @Override
+    public int getId() {
+        return ID_EMPTY;
+    }
+
+    @Override
     public void set(final int index, final long value) {}
 
     @Override

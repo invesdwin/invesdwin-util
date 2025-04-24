@@ -14,6 +14,11 @@ public abstract class ADelegateBitSet implements IBitSet {
     protected abstract IBitSet getDelegate();
 
     @Override
+    public int getId() {
+        return getDelegate().getId();
+    }
+
+    @Override
     public void add(final int index) {
         getDelegate().add(index);
     }

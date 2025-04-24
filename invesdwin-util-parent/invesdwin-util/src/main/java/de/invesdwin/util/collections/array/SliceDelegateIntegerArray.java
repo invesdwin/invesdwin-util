@@ -21,6 +21,11 @@ public class SliceDelegateIntegerArray implements IIntegerArray {
     }
 
     @Override
+    public int getId() {
+        return delegate.getId();
+    }
+
+    @Override
     public void set(final int index, final int value) {
         delegate.set(index + from, value);
     }

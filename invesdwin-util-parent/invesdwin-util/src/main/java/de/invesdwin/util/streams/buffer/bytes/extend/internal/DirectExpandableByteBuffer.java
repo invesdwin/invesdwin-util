@@ -49,6 +49,11 @@ public class DirectExpandableByteBuffer extends ExpandableDirectByteBufferBase i
     }
 
     @Override
+    public int getId() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
     public java.nio.ByteBuffer nioByteBuffer() {
         return byteBuffer();
     }

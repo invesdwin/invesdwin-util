@@ -11,6 +11,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.IoUtil;
 
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
@@ -102,14 +103,48 @@ public class MemoryMappedFile implements IMemoryMappedFile {
 
     @Override
     public IByteBuffer newByteBuffer(final long index, final int length) {
+        final File file = finalizer.file;
         final long address = addressOffset() + index;
-        return new UnsafeByteBuffer(address, length);
+        return new MappedByteBuffer(address, length, file, index);
     }
 
     @Override
     public IMemoryBuffer newMemoryBuffer(final long index, final long length) {
+        final File file = finalizer.file;
         final long address = addressOffset() + index;
-        return new UnsafeMemoryBuffer(address, length);
+        return new MappedMemoryBuffer(address, length, file, index);
+    }
+
+    private static final class MappedMemoryBuffer extends UnsafeMemoryBuffer {
+        private final File file;
+        private final long index;
+
+        private MappedMemoryBuffer(final long address, final long length, final File file, final long index) {
+            super(address, length);
+            this.file = file;
+            this.index = index;
+        }
+
+        @Override
+        public int getId() {
+            return Objects.hashCode(file, index, capacity());
+        }
+    }
+
+    private static final class MappedByteBuffer extends UnsafeByteBuffer {
+        private final File file;
+        private final long index;
+
+        private MappedByteBuffer(final long address, final int length, final File file, final long index) {
+            super(address, length);
+            this.file = file;
+            this.index = index;
+        }
+
+        @Override
+        public int getId() {
+            return Objects.hashCode(file, index, capacity());
+        }
     }
 
     private static final class MemoryMappedFileFinalizer extends AFinalizer {

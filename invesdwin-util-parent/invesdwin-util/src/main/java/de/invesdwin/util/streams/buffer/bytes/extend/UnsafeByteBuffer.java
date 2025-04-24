@@ -19,6 +19,7 @@ import org.agrona.concurrent.UnsafeBuffer;
 
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.InputStreams;
@@ -70,6 +71,11 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements ICloseableByteBuff
 
     public UnsafeByteBuffer(final long address, final int length) {
         super(ByteBuffers.assertBuffer(address), length);
+    }
+
+    @Override
+    public int getId() {
+        return Objects.hashCode(addressOffset(), capacity());
     }
 
     @Override

@@ -10,6 +10,11 @@ public class EmptyBitSet implements IBitSet {
     public static final EmptyBitSet INSTANCE = new EmptyBitSet();
 
     @Override
+    public int getId() {
+        return ID_EMPTY;
+    }
+
+    @Override
     public void add(final int index) {
         throw new UnsupportedOperationException();
     }

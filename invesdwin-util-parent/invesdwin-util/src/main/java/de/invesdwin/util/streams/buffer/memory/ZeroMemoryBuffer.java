@@ -26,6 +26,11 @@ public class ZeroMemoryBuffer implements ICloseableMemoryBuffer {
     public static final ZeroMemoryBuffer INSTANCE = new ZeroMemoryBuffer();
 
     @Override
+    public int getId() {
+        return ID_ZERO;
+    }
+
+    @Override
     public ByteOrder getOrder() {
         return ByteBuffers.DEFAULT_ORDER;
     }

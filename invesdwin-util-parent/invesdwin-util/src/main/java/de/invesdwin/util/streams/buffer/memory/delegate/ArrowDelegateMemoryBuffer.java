@@ -58,6 +58,11 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
 
     public ArrowDelegateMemoryBuffer() {}
 
+    @Override
+    public int getId() {
+        return System.identityHashCode(delegate);
+    }
+
     public ArrowBuf getDelegate() {
         return delegate;
     }

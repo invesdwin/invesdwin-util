@@ -13,6 +13,11 @@ public final class EmptyDoubleArray implements IDoubleArray {
     private EmptyDoubleArray() {}
 
     @Override
+    public int getId() {
+        return ID_EMPTY;
+    }
+
+    @Override
     public void set(final int index, final double value) {}
 
     @Override

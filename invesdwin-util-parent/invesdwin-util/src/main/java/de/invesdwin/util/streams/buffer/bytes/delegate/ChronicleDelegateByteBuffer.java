@@ -56,6 +56,11 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
         setDelegate(delegate);
     }
 
+    @Override
+    public int getId() {
+        return System.identityHashCode(delegate);
+    }
+
     public net.openhft.chronicle.bytes.Bytes<?> getDelegate() {
         return delegate;
     }

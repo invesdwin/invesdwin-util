@@ -235,7 +235,21 @@ public final class Objects extends AObjectsStaticFacade {
         }
         final int prime = 31;
         int result = 1;
-        for (final Object element : objects) {
+        for (int i = 0; i < objects.length; i++) {
+            final Object element = objects[i];
+            result = prime * result + hashCode(element);
+        }
+        return result;
+    }
+
+    public static int hashCodeList(@Nullable final List<Object> objects) {
+        if (objects == null) {
+            return 0;
+        }
+        final int prime = 31;
+        int result = 1;
+        for (int i = 0; i < objects.size(); i++) {
+            final Object element = objects.get(i);
             result = prime * result + hashCode(element);
         }
         return result;

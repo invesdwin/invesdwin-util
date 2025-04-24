@@ -23,6 +23,11 @@ public class HeapLongArray implements ILongArray {
     }
 
     @Override
+    public int getId() {
+        return System.identityHashCode(values);
+    }
+
+    @Override
     public void set(final int index, final long value) {
         values[index] = value;
     }

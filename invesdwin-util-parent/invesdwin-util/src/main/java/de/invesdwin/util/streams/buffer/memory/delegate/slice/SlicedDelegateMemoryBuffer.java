@@ -36,6 +36,11 @@ public class SlicedDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
+    public int getId() {
+        return delegate.getId();
+    }
+
+    @Override
     public boolean isReadOnly() {
         return delegate.isReadOnly();
     }
