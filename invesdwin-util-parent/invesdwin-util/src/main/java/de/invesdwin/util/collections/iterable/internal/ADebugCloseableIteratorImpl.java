@@ -17,7 +17,7 @@ public abstract class ADebugCloseableIteratorImpl<E> implements ICloseableIterat
     private final DebugCloseableIteratorFinalizer finalizer;
 
     public ADebugCloseableIteratorImpl(final TextDescription name, final String className) {
-        this.finalizer = new DebugCloseableIteratorFinalizer(name, className);
+        this.finalizer = new DebugCloseableIteratorFinalizer(name, className, System.identityHashCode(this));
         this.finalizer.register(this);
     }
 
@@ -82,13 +82,16 @@ public abstract class ADebugCloseableIteratorImpl<E> implements ICloseableIterat
 
         private final TextDescription name;
         private final String className;
+        private final int identityHashCode;
         private Exception initStackTrace;
         private Exception nextOrHasNextStackTrace;
         private volatile boolean closed;
 
-        private DebugCloseableIteratorFinalizer(final TextDescription name, final String className) {
+        private DebugCloseableIteratorFinalizer(final TextDescription name, final String className,
+                final int identityHashCode) {
             this.name = name;
             this.className = className;
+            this.identityHashCode = identityHashCode;
             createInitStackTrace();
         }
 
@@ -119,7 +122,7 @@ public abstract class ADebugCloseableIteratorImpl<E> implements ICloseableIterat
         }
 
         private void createUnclosedFinalizeMessageLog() {
-            String warning = "Finalizing unclosed iterator [" + className + "]: " + name;
+            String warning = "Finalizing unclosed iterator [" + className + "@" + identityHashCode + "]: " + name;
             final Exception stackTrace;
             if (initStackTrace != null) {
                 warning += " which was initialized but never used";
