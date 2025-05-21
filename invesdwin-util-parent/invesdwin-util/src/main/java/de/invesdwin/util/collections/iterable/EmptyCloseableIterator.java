@@ -5,7 +5,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
 @Immutable
-public final class EmptyCloseableIterator<E> implements ICloseableIterator<E> {
+public final class EmptyCloseableIterator<E> implements IPeekingCloseableIterator<E> {
 
     @SuppressWarnings("rawtypes")
     private static final EmptyCloseableIterator INSTANCE = new EmptyCloseableIterator();
@@ -18,8 +18,18 @@ public final class EmptyCloseableIterator<E> implements ICloseableIterator<E> {
     }
 
     @Override
+    public E peek() {
+        throw FastNoSuchElementException.getInstance("EmptyCloseableIterator: always empty");
+    }
+
+    @Override
     public E next() {
         throw FastNoSuchElementException.getInstance("EmptyCloseableIterator: always empty");
+    }
+
+    @Override
+    public void remove() {
+        throw new IllegalStateException("EmptyCloseableIterator: always empty");
     }
 
     @Override
