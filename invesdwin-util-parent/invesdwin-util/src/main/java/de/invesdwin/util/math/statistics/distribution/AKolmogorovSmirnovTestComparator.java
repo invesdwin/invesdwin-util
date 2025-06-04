@@ -57,7 +57,7 @@ public abstract class AKolmogorovSmirnovTestComparator<E> extends ADistributionC
      */
     public static double newKolmogorovSmirnovStatistic(final double[] values1, final double[] values2) {
         final double ksStatistic = comparableKolmogorovSmirnovStatistic(values1, values2);
-        return Doubles.nanToZero(ksStatistic);
+        return Doubles.nonFiniteToZero(ksStatistic);
     }
 
     private static double comparableKolmogorovSmirnovStatistic(final double[] x, final double[] y) {

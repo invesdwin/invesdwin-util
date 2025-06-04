@@ -19,4 +19,8 @@ public class DoubleStreamMin implements IDoubleStreamAlgorithm {
         return min;
     }
 
+    public void reset() {
+        min = Double.NaN;
+    }
+
 }
