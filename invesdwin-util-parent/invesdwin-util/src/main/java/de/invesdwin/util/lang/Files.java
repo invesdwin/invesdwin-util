@@ -383,12 +383,12 @@ public final class Files extends AFilesStaticFacade {
 
     public static void checkReference(final boolean createReferenceFile, final File referenceFile,
             final String reference) {
-        checkReference(createReferenceFile, referenceFile, reference, DEFAULT_MAX_REFERENCE_LENGTH);
+        checkReference(createReferenceFile, referenceFile, reference, true);
     }
 
     public static void checkReference(final boolean createReferenceFile, final File referenceFile,
-            final String reference, final int maxReferenceLength) {
-        final List<String> references = Strings.splitByMaxLength(reference, maxReferenceLength);
+            final String reference, final boolean assertReference) {
+        final List<String> references = Strings.splitByMaxLength(reference, DEFAULT_MAX_REFERENCE_LENGTH);
         int i = 0;
         while (i < references.size()) {
             final String ref = references.get(i);
@@ -401,11 +401,13 @@ public final class Files extends AFilesStaticFacade {
             if (createReferenceFile) {
                 Files.writeStringToFileIfDifferent(indexedReferenceFile, ref);
             }
-            try {
-                final String existingRef = Files.readFileToString(indexedReferenceFile, Charset.defaultCharset());
-                Assertions.checkEquals(existingRef, ref);
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
+            if (assertReference) {
+                try {
+                    final String existingRef = Files.readFileToString(indexedReferenceFile, Charset.defaultCharset());
+                    Assertions.checkEquals(existingRef, ref);
+                } catch (final IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
             i++;
         }
