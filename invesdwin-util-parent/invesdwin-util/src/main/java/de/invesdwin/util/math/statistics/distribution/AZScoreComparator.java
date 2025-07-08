@@ -68,7 +68,7 @@ public abstract class AZScoreComparator<E> extends ADistributionComparator<E> {
         final double meanDiff = mean1 - mean2;
         final double divisor = Doubles.sqrt(sigma1 * sigma1 + sigma2 * sigma2);
         final double z = Doubles.divide(meanDiff, divisor);
-        return z;
+        return Doubles.nonFiniteToZero(z);
     }
 
     /**

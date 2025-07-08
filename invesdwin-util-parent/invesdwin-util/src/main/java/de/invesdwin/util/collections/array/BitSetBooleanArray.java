@@ -26,6 +26,11 @@ public class BitSetBooleanArray implements IBooleanArray {
     }
 
     @Override
+    public int getId() {
+        return bitSet.getId();
+    }
+
+    @Override
     public void set(final int index, final boolean value) {
         bitSet.add(index);
     }

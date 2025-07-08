@@ -14,6 +14,11 @@ public final class SkippingFakeBitSet implements IBitSet {
     }
 
     @Override
+    public int getId() {
+        return skippingIndexProvider.hashCode();
+    }
+
+    @Override
     public void remove(final int index) {
         throw new UnsupportedOperationException();
     }

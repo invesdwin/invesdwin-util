@@ -19,4 +19,8 @@ public class DoubleStreamMax implements IDoubleStreamAlgorithm {
         return max;
     }
 
+    public void reset() {
+        max = Double.NaN;
+    }
+
 }

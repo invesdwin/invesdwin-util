@@ -30,6 +30,11 @@ public final class EmptyMemoryBuffer implements ICloseableMemoryBuffer {
     private EmptyMemoryBuffer() {}
 
     @Override
+    public int getId() {
+        return ID_EMPTY;
+    }
+
+    @Override
     public ByteOrder getOrder() {
         return ByteBuffers.DEFAULT_ORDER;
     }

@@ -26,6 +26,11 @@ public class HeapBooleanArray implements IBooleanArray {
     }
 
     @Override
+    public int getId() {
+        return System.identityHashCode(values);
+    }
+
+    @Override
     public void set(final int index, final boolean value) {
         values[index] = value;
     }

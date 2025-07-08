@@ -50,6 +50,11 @@ public class UninitializedDirectExpandableByteBuffer extends UninitializedExpand
     }
 
     @Override
+    public int getId() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
     public java.nio.ByteBuffer nioByteBuffer() {
         return byteBuffer();
     }

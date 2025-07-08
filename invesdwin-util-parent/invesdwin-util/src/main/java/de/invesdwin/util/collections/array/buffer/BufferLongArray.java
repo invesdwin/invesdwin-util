@@ -21,6 +21,11 @@ public class BufferLongArray implements ILongArray {
     }
 
     @Override
+    public int getId() {
+        return buffer.getId();
+    }
+
+    @Override
     public void set(final int index, final long value) {
         buffer.putLong(index * Long.BYTES, value);
     }

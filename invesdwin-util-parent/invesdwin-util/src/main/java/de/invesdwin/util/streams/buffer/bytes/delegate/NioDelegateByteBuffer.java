@@ -49,6 +49,11 @@ public class NioDelegateByteBuffer implements IByteBuffer {
         setDelegate(buffer);
     }
 
+    @Override
+    public int getId() {
+        return System.identityHashCode(delegate);
+    }
+
     public java.nio.ByteBuffer getDelegate() {
         return delegate;
     }

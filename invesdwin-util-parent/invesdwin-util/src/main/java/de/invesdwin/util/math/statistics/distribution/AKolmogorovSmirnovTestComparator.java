@@ -2,6 +2,7 @@ package de.invesdwin.util.math.statistics.distribution;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.apache.commons.math3.exception.MathInternalError;
 import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
 
 import de.invesdwin.util.collections.Arrays;
@@ -57,7 +58,7 @@ public abstract class AKolmogorovSmirnovTestComparator<E> extends ADistributionC
      */
     public static double newKolmogorovSmirnovStatistic(final double[] values1, final double[] values2) {
         final double ksStatistic = comparableKolmogorovSmirnovStatistic(values1, values2);
-        return Doubles.nanToZero(ksStatistic);
+        return Doubles.nonFiniteToZero(ksStatistic);
     }
 
     private static double comparableKolmogorovSmirnovStatistic(final double[] x, final double[] y) {
@@ -112,8 +113,13 @@ public abstract class AKolmogorovSmirnovTestComparator<E> extends ADistributionC
     public static Percent newProbabilityOfDifference(final double[] values1, final double[] values2) {
         //        final double pValue = new KolmogorovSmirnov2Samples(values1, values2, Side.TWO_SIDED).pValue();
         //commons-math also tests two-sided
-        final double pValue = KSTEST.kolmogorovSmirnovTest(values1, values2);
-        return new Percent(1D - pValue, PercentScale.RATE);
+        try {
+            final double pValue = KSTEST.kolmogorovSmirnovTest(values1, values2);
+            return new Percent(1D - pValue, PercentScale.RATE);
+        } catch (final MathInternalError e) {
+            //distribution might not have enough varying samples causing too many ties
+            return Percent.ZERO;
+        }
     }
 
 }

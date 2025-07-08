@@ -400,12 +400,13 @@ public final class Files extends AFilesStaticFacade {
             }
             if (createReferenceFile) {
                 Files.writeStringToFileIfDifferent(indexedReferenceFile, ref);
-            }
-            try {
-                final String existingRef = Files.readFileToString(indexedReferenceFile, Charset.defaultCharset());
-                Assertions.checkEquals(existingRef, ref);
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
+            } else {
+                try {
+                    final String existingRef = Files.readFileToString(indexedReferenceFile, Charset.defaultCharset());
+                    Assertions.checkEquals(existingRef, ref);
+                } catch (final IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
             i++;
         }

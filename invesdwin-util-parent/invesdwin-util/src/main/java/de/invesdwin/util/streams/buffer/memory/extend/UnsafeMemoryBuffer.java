@@ -18,6 +18,7 @@ import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
@@ -77,6 +78,11 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
 
     public UnsafeMemoryBuffer(final long address, final long length) {
         super(ByteBuffers.assertBuffer(address), length);
+    }
+
+    @Override
+    public int getId() {
+        return Objects.hashCode(addressOffset(), capacity());
     }
 
     @Override

@@ -28,6 +28,11 @@ public class LongArrayBitSet implements IBitSet {
     }
 
     @Override
+    public int getId() {
+        return bitSet.getId();
+    }
+
+    @Override
     public void add(final int index) {
         bitSet.set(index);
         trueCount++;

@@ -3,6 +3,8 @@ package de.invesdwin.util.math.statistics.distribution;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.lang.comparator.AComparator;
+import de.invesdwin.util.lang.comparator.ISortAlgorithm;
+import de.invesdwin.util.lang.comparator.SortAlgorithm;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 
 @Immutable
@@ -15,6 +17,12 @@ public abstract class ADistributionComparator<E> extends AComparator<E> {
     public abstract String getStatisticName();
 
     public abstract String getConfidenceName();
+
+    @Override
+    public ISortAlgorithm getSortAlgorithm() {
+        //two distributions might be indistinguishable, we need a fallback for that
+        return SortAlgorithm.DEFAULT_FALLBACK;
+    }
 
     @Override
     public int compareTypedNotNullSafe(final E o1, final E o2) {

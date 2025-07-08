@@ -57,6 +57,11 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
         setDelegate(delegate);
     }
 
+    @Override
+    public int getId() {
+        return System.identityHashCode(delegate);
+    }
+
     public net.openhft.chronicle.bytes.Bytes<?> getDelegate() {
         return delegate;
     }

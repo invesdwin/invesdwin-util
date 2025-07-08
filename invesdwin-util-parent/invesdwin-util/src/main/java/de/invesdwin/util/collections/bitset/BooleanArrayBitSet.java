@@ -15,6 +15,11 @@ public class BooleanArrayBitSet implements IBitSet {
     }
 
     @Override
+    public int getId() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
     public int size() {
         return bitSet.length;
     }

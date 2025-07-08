@@ -21,6 +21,7 @@ import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.array.IPrimitiveArrayId;
 import de.invesdwin.util.collections.delegate.ADelegateList;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.math.Bytes;
@@ -59,6 +60,11 @@ public class ListMemoryBuffer implements IMemoryBuffer {
     };
 
     private IMutableSlicedDelegateMemoryBufferFactory mutableSliceFactory;
+
+    @Override
+    public int getId() {
+        return IPrimitiveArrayId.newId(list);
+    }
 
     protected List<IMemoryBuffer> newList() {
         return new ArrayList<>();

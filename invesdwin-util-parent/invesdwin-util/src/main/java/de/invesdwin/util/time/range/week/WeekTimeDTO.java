@@ -2,7 +2,7 @@ package de.invesdwin.util.time.range.week;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.time.date.FDayTime;
+import de.invesdwin.util.time.range.day.FDayTime;
 
 @NotThreadSafe
 public class WeekTimeDTO implements IWeekTimeData {

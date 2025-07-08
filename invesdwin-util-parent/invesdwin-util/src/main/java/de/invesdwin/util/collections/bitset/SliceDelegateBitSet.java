@@ -24,6 +24,11 @@ public final class SliceDelegateBitSet implements IBitSet {
         this.length = length;
     }
 
+    @Override
+    public int getId() {
+        return delegate.getId();
+    }
+
     private int adjustIndex(final int index) {
         return index + from;
     }

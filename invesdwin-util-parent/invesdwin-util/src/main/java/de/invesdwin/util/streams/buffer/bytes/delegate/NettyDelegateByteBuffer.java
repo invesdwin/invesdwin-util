@@ -56,6 +56,11 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
 
     public NettyDelegateByteBuffer() {}
 
+    @Override
+    public int getId() {
+        return System.identityHashCode(delegate);
+    }
+
     public ByteBuf getDelegate() {
         return delegate;
     }

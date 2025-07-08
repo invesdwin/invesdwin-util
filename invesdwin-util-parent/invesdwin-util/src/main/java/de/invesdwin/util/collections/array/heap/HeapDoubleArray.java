@@ -23,6 +23,11 @@ public class HeapDoubleArray implements IDoubleArray {
     }
 
     @Override
+    public int getId() {
+        return System.identityHashCode(values);
+    }
+
+    @Override
     public void set(final int index, final double value) {
         values[index] = value;
     }

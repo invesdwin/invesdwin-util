@@ -21,6 +21,11 @@ public class BufferIntegerArray implements IIntegerArray {
     }
 
     @Override
+    public int getId() {
+        return buffer.getId();
+    }
+
+    @Override
     public void set(final int index, final int value) {
         buffer.putInt(index * Integer.BYTES, value);
     }

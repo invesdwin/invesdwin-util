@@ -19,10 +19,17 @@ import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 @Immutable
 public class FakeAllocatorBuffer implements IByteBuffer {
 
+    private final int id;
     private final int capacity;
 
-    public FakeAllocatorBuffer(final int capacity) {
+    public FakeAllocatorBuffer(final int id, final int capacity) {
+        this.id = id;
         this.capacity = capacity;
+    }
+
+    @Override
+    public int getId() {
+        return id;
     }
 
     @Override
@@ -316,7 +323,7 @@ public class FakeAllocatorBuffer implements IByteBuffer {
         if (index == 0) {
             return this;
         } else {
-            return new FakeAllocatorBuffer(capacity - index);
+            return new FakeAllocatorBuffer(id, capacity - index);
         }
     }
 
@@ -325,7 +332,7 @@ public class FakeAllocatorBuffer implements IByteBuffer {
         if (index == 0 && length == capacity) {
             return this;
         } else {
-            return new FakeAllocatorBuffer(length);
+            return new FakeAllocatorBuffer(id, length);
         }
     }
 
@@ -412,7 +419,7 @@ public class FakeAllocatorBuffer implements IByteBuffer {
         if (index == 0 && length == capacity) {
             return this;
         } else {
-            return new FakeAllocatorBuffer(length);
+            return new FakeAllocatorBuffer(id, length);
         }
     }
 

@@ -19,6 +19,11 @@ public class BooleanListBitSet implements IBitSet {
     }
 
     @Override
+    public int getId() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
     public void add(final int index) {
         while (bitSet.size() <= index) {
             bitSet.add(false);

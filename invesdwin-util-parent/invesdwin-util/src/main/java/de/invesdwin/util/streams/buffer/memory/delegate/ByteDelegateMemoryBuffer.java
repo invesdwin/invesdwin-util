@@ -33,6 +33,11 @@ public class ByteDelegateMemoryBuffer implements IMemoryBuffer {
         setDelegate(buffer);
     }
 
+    @Override
+    public int getId() {
+        return delegate.getId();
+    }
+
     public IByteBuffer getDelegate() {
         return delegate;
     }

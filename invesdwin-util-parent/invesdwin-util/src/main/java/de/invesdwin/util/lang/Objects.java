@@ -235,7 +235,21 @@ public final class Objects extends AObjectsStaticFacade {
         }
         final int prime = 31;
         int result = 1;
-        for (final Object element : objects) {
+        for (int i = 0; i < objects.length; i++) {
+            final Object element = objects[i];
+            result = prime * result + hashCode(element);
+        }
+        return result;
+    }
+
+    public static int hashCodeList(@Nullable final List<Object> objects) {
+        if (objects == null) {
+            return 0;
+        }
+        final int prime = 31;
+        int result = 1;
+        for (int i = 0; i < objects.size(); i++) {
+            final Object element = objects.get(i);
             result = prime * result + hashCode(element);
         }
         return result;
@@ -289,7 +303,8 @@ public final class Objects extends AObjectsStaticFacade {
         return CompareToBuilder.reflectionCompare(thisObj, obj, REFLECTION_EXCLUDED_FIELDS);
     }
 
-    public static boolean equalsAny(final Object thisObj, final Object... anyObjs) {
+    @SuppressWarnings("unchecked")
+    public static <T> boolean equalsAny(final T thisObj, final T... anyObjs) {
         for (final Object anyObj : anyObjs) {
             if (equals(thisObj, anyObj)) {
                 return true;

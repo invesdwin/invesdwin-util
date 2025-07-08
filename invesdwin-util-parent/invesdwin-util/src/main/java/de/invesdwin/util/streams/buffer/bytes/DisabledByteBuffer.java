@@ -37,6 +37,11 @@ public final class DisabledByteBuffer implements ICloseableByteBuffer {
     private DisabledByteBuffer() {}
 
     @Override
+    public int getId() {
+        return ID_DISABLED;
+    }
+
+    @Override
     public ByteOrder getOrder() {
         return ByteBuffers.DEFAULT_ORDER;
     }

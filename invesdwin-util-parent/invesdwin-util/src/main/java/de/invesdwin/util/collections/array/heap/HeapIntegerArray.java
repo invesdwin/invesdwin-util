@@ -23,6 +23,11 @@ public class HeapIntegerArray implements IIntegerArray {
     }
 
     @Override
+    public int getId() {
+        return System.identityHashCode(values);
+    }
+
+    @Override
     public void set(final int index, final int value) {
         values[index] = value;
     }

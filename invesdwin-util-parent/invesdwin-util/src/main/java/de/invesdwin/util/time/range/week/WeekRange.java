@@ -12,7 +12,7 @@ import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
-import de.invesdwin.util.time.date.FWeekTime;
+import de.invesdwin.util.time.date.millis.WeekAdjustment;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.date.timezone.TimeZoneRange;
 import de.invesdwin.util.time.duration.Duration;
@@ -60,8 +60,8 @@ public class WeekRange extends AValueObject implements IWeekRangeData {
         if (from == null || to == null) {
             return null;
         } else {
-            final FDate weekFrom = day.setFWeekTime(from);
-            final FDate weekTo = day.setFWeekTime(to);
+            final FDate weekFrom = day.setFWeekTime(from, WeekAdjustment.PREVIOUS);
+            final FDate weekTo = day.setFWeekTime(to, WeekAdjustment.PREVIOUS);
             return getDuration(weekFrom, weekTo);
         }
     }
@@ -71,8 +71,8 @@ public class WeekRange extends AValueObject implements IWeekRangeData {
             return null;
         } else {
             final FDate dayZoned = day.applyTimeZoneOffset(offsetTimeZone);
-            final FDate weekFrom = dayZoned.setFWeekTime(from);
-            final FDate weekTo = dayZoned.setFWeekTime(to);
+            final FDate weekFrom = dayZoned.setFWeekTime(from, WeekAdjustment.PREVIOUS);
+            final FDate weekTo = dayZoned.setFWeekTime(to, WeekAdjustment.PREVIOUS);
             return getDuration(weekFrom, weekTo);
         }
     }
@@ -88,8 +88,8 @@ public class WeekRange extends AValueObject implements IWeekRangeData {
             return null;
         } else {
             final TimeRange dayZoned = day.applyTimeZoneOffset(offsetTimeZone);
-            final FDate weekFrom = dayZoned.getFrom().setFWeekTime(from);
-            final FDate weekTo = dayZoned.getTo().setFWeekTime(to);
+            final FDate weekFrom = dayZoned.getFrom().setFWeekTime(from, WeekAdjustment.PREVIOUS);
+            final FDate weekTo = dayZoned.getTo().setFWeekTime(to, WeekAdjustment.PREVIOUS);
             return getDuration(weekFrom, weekTo);
         }
     }
@@ -149,8 +149,8 @@ public class WeekRange extends AValueObject implements IWeekRangeData {
         if (time == null) {
             return false;
         }
-        final FDate weekendFrom = time.setFWeekTime(from);
-        FDate weekendTo = time.setFWeekTime(to);
+        final FDate weekendFrom = time.setFWeekTime(from, WeekAdjustment.PREVIOUS);
+        FDate weekendTo = time.setFWeekTime(to, WeekAdjustment.PREVIOUS);
         if (weekendTo.isBeforeOrEqualTo(weekendFrom)) {
             weekendTo = weekendTo.addWeeks(1);
         }
@@ -168,8 +168,8 @@ public class WeekRange extends AValueObject implements IWeekRangeData {
         if (time == null) {
             return false;
         }
-        final FDate weekendFrom = time.setFWeekTime(from);
-        FDate weekendTo = time.setFWeekTime(to);
+        final FDate weekendFrom = time.setFWeekTime(from, WeekAdjustment.PREVIOUS);
+        FDate weekendTo = time.setFWeekTime(to, WeekAdjustment.PREVIOUS);
         if (weekendTo.isBeforeOrEqualTo(weekendFrom)) {
             weekendTo = weekendTo.addWeeks(1);
         }
@@ -179,16 +179,6 @@ public class WeekRange extends AValueObject implements IWeekRangeData {
     @Override
     public int compareTo(final Object o) {
         return COMPARATOR.compare(this, o);
-    }
-
-    public static WeekRange valueOf(final IWeekRangeData value) {
-        if (value == null) {
-            return null;
-        } else if (value instanceof WeekRange) {
-            return (WeekRange) value;
-        } else {
-            return new WeekRange(FWeekTime.valueOf(value.getFrom()), FWeekTime.valueOf(value.getTo()));
-        }
     }
 
     public static WeekRange valueOf(final String value) {
@@ -225,6 +215,29 @@ public class WeekRange extends AValueObject implements IWeekRangeData {
             }
         } catch (final Throwable t) {
             return null;
+        }
+    }
+
+    public static WeekRange valueOf(final IWeekRangeData value) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof WeekRange) {
+            return (WeekRange) value;
+        } else {
+            return new WeekRange(FWeekTime.valueOf(value.getFrom()), FWeekTime.valueOf(value.getTo()));
+        }
+    }
+
+    public static WeekRange valueOf(final TimeRange value) {
+        if (value == null) {
+            return null;
+        } else if (value.isSame()) {
+            final FWeekTime fromAndTo = FWeekTime.valueOf(value.getFrom());
+            return new WeekRange(fromAndTo, fromAndTo);
+        } else {
+            final FWeekTime from = FWeekTime.valueOf(value.getFrom());
+            final FWeekTime to = FWeekTime.valueOf(value.getTo());
+            return new WeekRange(from, to);
         }
     }
 }

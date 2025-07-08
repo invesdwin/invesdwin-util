@@ -35,6 +35,11 @@ public class MutableSlicedDelegateByteBuffer implements IByteBuffer {
         this.length = length;
     }
 
+    @Override
+    public int getId() {
+        return delegate.getId();
+    }
+
     public void setFrom(final int from) {
         this.from = from;
     }

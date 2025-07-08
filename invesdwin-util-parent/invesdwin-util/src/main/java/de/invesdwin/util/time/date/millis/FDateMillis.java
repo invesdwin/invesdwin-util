@@ -21,14 +21,14 @@ import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDateField;
 import de.invesdwin.util.time.date.FDates;
-import de.invesdwin.util.time.date.FDayTime;
 import de.invesdwin.util.time.date.FMonth;
 import de.invesdwin.util.time.date.FTimeUnit;
-import de.invesdwin.util.time.date.FWeekTime;
 import de.invesdwin.util.time.date.FWeekday;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.range.day.FDayTime;
+import de.invesdwin.util.time.range.week.FWeekTime;
 
 /**
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.
@@ -149,48 +149,41 @@ public final class FDateMillis {
         return newMillis;
     }
 
-    public static long setWeekday(final long millis, final int weekday, final FTimeZone timeZone) {
+    public static long setWeekday(final long millis, final int weekday, final WeekAdjustment adjustment,
+            final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(millis, timeZone);
-        return revertTimeZoneOffset(setWeekday(applyTimeZoneOffset(millis, offset), weekday), offset);
+        return revertTimeZoneOffset(setWeekday(applyTimeZoneOffset(millis, offset), weekday, adjustment), offset);
     }
 
-    public static long setWeekday(final long millis, final int weekday) {
+    public static long setWeekday(final long millis, final int weekday, final WeekAdjustment adjustment) {
         final long newMillis = FDates.getDefaultTimeZone().getDateTimeFieldWeekday().set(millis, weekday);
-        final long modified = newMillis;
-        if (!FDatesMillis.isSameJulianDay(modified, millis) && isAfter(modified, millis)) {
-            return addWeeks(modified, -1);
-        } else {
-            return modified;
-        }
+        return adjustment.adjust(millis, newMillis);
     }
 
-    public static long setFWeekday(final long millis, final FWeekday weekday, final FTimeZone timeZone) {
+    public static long setFWeekday(final long millis, final FWeekday weekday, final WeekAdjustment adjustment,
+            final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(millis, timeZone);
-        return revertTimeZoneOffset(setFWeekday(applyTimeZoneOffset(millis, offset), weekday), offset);
+        return revertTimeZoneOffset(setFWeekday(applyTimeZoneOffset(millis, offset), weekday, adjustment), offset);
     }
 
-    public static long setFWeekday(final long millis, final FWeekday weekday) {
-        return setWeekday(millis, weekday.jodaTimeValue());
+    public static long setFWeekday(final long millis, final FWeekday weekday, final WeekAdjustment adjustment) {
+        return setWeekday(millis, weekday.jodaTimeValue(), adjustment);
     }
 
-    public static long setFWeekTime(final long millis, final FWeekTime weekTime, final FTimeZone timeZone) {
+    public static long setFWeekTime(final long millis, final FWeekTime weekTime, final WeekAdjustment adjustment,
+            final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(millis, timeZone);
-        return revertTimeZoneOffset(setFWeekTime(applyTimeZoneOffset(millis, offset), weekTime), offset);
+        return revertTimeZoneOffset(setFWeekTime(applyTimeZoneOffset(millis, offset), weekTime, adjustment), offset);
     }
 
-    public static long setFWeekTime(final long millis, final FWeekTime weekTime) {
+    public static long setFWeekTime(final long millis, final FWeekTime weekTime, final WeekAdjustment adjustment) {
         long newMillis = millis;
         newMillis = FDates.getDefaultTimeZone().getDateTimeFieldWeekday().set(newMillis, weekTime.getWeekday());
         newMillis = FDates.getDefaultTimeZone().getDateTimeFieldHour().set(newMillis, weekTime.getHour());
         newMillis = FDates.getDefaultTimeZone().getDateTimeFieldMinute().set(newMillis, weekTime.getMinute());
         newMillis = FDates.getDefaultTimeZone().getDateTimeFieldSecond().set(newMillis, weekTime.getSecond());
         newMillis = FDates.getDefaultTimeZone().getDateTimeFieldMillisecond().set(newMillis, weekTime.getMillisecond());
-        final long modified = newMillis;
-        if (!FDatesMillis.isSameJulianDay(modified, millis) && isAfter(modified, millis)) {
-            return addWeeks(modified, -1);
-        } else {
-            return modified;
-        }
+        return adjustment.adjust(millis, newMillis);
     }
 
     public static long setFDayTime(final long millis, final FDayTime dayTime, final FTimeZone timeZone) {
@@ -395,7 +388,7 @@ public final class FDateMillis {
         case MONTHS:
             return truncate(millis, FDateField.Month);
         case WEEKS:
-            return setFWeekday(withoutTime(millis), FWeekday.Monday);
+            return setFWeekday(withoutTime(millis), FWeekday.Monday, WeekAdjustment.PREVIOUS);
         case DAYS:
             return truncate(millis, FDateField.Day);
         case HOURS:
@@ -692,7 +685,7 @@ public final class FDateMillis {
     }
 
     public static long getFirstWeekdayOfMonth(final long millis, final FWeekday weekday) {
-        final long firstWeekDay = setFWeekday(setDay(withoutTime(millis), 1), weekday);
+        final long firstWeekDay = setFWeekday(setDay(withoutTime(millis), 1), weekday, WeekAdjustment.PREVIOUS);
         if (!FDatesMillis.isSameMonth(millis, firstWeekDay)) {
             return addWeeks(firstWeekDay, 1);
         } else {

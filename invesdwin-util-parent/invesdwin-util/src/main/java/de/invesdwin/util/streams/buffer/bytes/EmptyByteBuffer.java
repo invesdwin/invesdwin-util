@@ -37,6 +37,11 @@ public final class EmptyByteBuffer implements ICloseableByteBuffer {
     private EmptyByteBuffer() {}
 
     @Override
+    public int getId() {
+        return ID_EMPTY;
+    }
+
+    @Override
     public ByteOrder getOrder() {
         return ByteBuffers.DEFAULT_ORDER;
     }

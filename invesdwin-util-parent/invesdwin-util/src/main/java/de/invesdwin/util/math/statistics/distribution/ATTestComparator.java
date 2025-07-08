@@ -67,7 +67,7 @@ public abstract class ATTestComparator<E> extends ADistributionComparator<E> {
 
     public static double newTStatistic(final double[] values1, final double[] values2) {
         final double tStatistic = TTEST.pairedT(values1, values2);
-        return Doubles.nanToZero(tStatistic);
+        return Doubles.nonFiniteToZero(tStatistic);
     }
 
     /**

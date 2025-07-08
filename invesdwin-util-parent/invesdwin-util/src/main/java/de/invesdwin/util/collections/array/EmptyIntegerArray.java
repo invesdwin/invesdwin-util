@@ -13,6 +13,11 @@ public final class EmptyIntegerArray implements IIntegerArray {
     private EmptyIntegerArray() {}
 
     @Override
+    public int getId() {
+        return ID_EMPTY;
+    }
+
+    @Override
     public void set(final int index, final int value) {}
 
     @Override

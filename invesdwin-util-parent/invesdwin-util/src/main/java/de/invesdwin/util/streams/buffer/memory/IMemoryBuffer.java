@@ -15,6 +15,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.norva.beanpath.spi.IUnwrap;
+import de.invesdwin.util.collections.array.IPrimitiveArrayId;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -23,7 +24,7 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
  * Default ByteOrder is always BigEndian. Use Reverse-Suffixed methods to write/read in LittleEndian. Alternatively use
  * OrderedDelegateByteBuffer to switch the default byte order (though not recommeded).
  */
-public interface IMemoryBuffer extends IMemoryBufferProvider, IUnwrap {
+public interface IMemoryBuffer extends IMemoryBufferProvider, IPrimitiveArrayId, IUnwrap {
 
     IMemoryBuffer ensureCapacity(long capacity);
 

@@ -178,9 +178,11 @@ public final class FDatesMillis {
 
     public static boolean isSameWeekPart(final long date1, final long date2, final FWeekday statOfWeekPart,
             final FWeekday endOfWeekPart) {
-        final long startOfWeek = FDateMillis.setFWeekday(FDateMillis.withoutTime(date1), statOfWeekPart);
-        long endOfWeek = FDateMillis.addMilliseconds(
-                FDateMillis.addDays(FDateMillis.setFWeekday(FDateMillis.withoutTime(date1), endOfWeekPart), 1), -1);
+        final long startOfWeek = FDateMillis.setFWeekday(FDateMillis.withoutTime(date1), statOfWeekPart,
+                WeekAdjustment.PREVIOUS);
+        long endOfWeek = FDateMillis.addMilliseconds(FDateMillis.addDays(
+                FDateMillis.setFWeekday(FDateMillis.withoutTime(date1), endOfWeekPart, WeekAdjustment.PREVIOUS), 1),
+                -1);
         if (startOfWeek >= endOfWeek) {
             endOfWeek = FDateMillis.addWeeks(endOfWeek, 1);
         }

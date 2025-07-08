@@ -31,12 +31,18 @@ public class BufferBooleanArray implements IBooleanArray {
         final LongArrayBitSetBase bitSet = new LongArrayBitSetBase(new BufferLongArray(buffer.sliceFrom(ARRAY_INDEX)),
                 expectedSize);
         this.delegate = new BitSetBooleanArray(new LongArrayBitSet(bitSet, expectedSize));
+        assert buffer.getId() == delegate.getId();
     }
 
     public BufferBooleanArray(final IByteBuffer buffer, final int expectedSize) {
         this.buffer = buffer;
         final LongArrayBitSetBase bitSet = new LongArrayBitSetBase(new BufferLongArray(buffer), expectedSize);
         this.delegate = new BitSetBooleanArray(new LongArrayBitSet(bitSet, expectedSize));
+    }
+
+    @Override
+    public int getId() {
+        return buffer.getId();
     }
 
     public BitSetBooleanArray getDelegate() {

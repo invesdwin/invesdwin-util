@@ -7,7 +7,7 @@ import com.google.common.collect.PeekingIterator;
 import de.invesdwin.util.collections.Iterators;
 
 @NotThreadSafe
-public class PeekingCloseableIterator<E> implements ICloseableIterator<E>, PeekingIterator<E> {
+public class PeekingCloseableIterator<E> implements IPeekingCloseableIterator<E> {
 
     private final ICloseableIterator<? extends E> delegate;
     private final PeekingIterator<E> peekingDelegate;

@@ -53,6 +53,11 @@ public class ArrowDelegateByteBuffer implements IByteBuffer {
         setDelegate(delegate);
     }
 
+    @Override
+    public int getId() {
+        return System.identityHashCode(delegate);
+    }
+
     public ArrowBuf getDelegate() {
         return delegate;
     }

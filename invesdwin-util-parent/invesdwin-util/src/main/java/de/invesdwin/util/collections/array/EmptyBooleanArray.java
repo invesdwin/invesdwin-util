@@ -13,6 +13,11 @@ public final class EmptyBooleanArray implements IBooleanArray {
     private EmptyBooleanArray() {}
 
     @Override
+    public int getId() {
+        return ID_EMPTY;
+    }
+
+    @Override
     public void set(final int index, final boolean value) {}
 
     @Override

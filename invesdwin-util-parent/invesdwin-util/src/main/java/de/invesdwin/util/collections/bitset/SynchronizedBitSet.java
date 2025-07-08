@@ -21,6 +21,11 @@ public class SynchronizedBitSet implements IBitSet {
     }
 
     @Override
+    public int getId() {
+        return delegate.getId();
+    }
+
+    @Override
     public void add(final int index) {
         synchronized (lock) {
             delegate.add(index);
