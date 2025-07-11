@@ -29,6 +29,10 @@ import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.range.day.FDayTime;
 import de.invesdwin.util.time.range.week.FWeekTime;
+import io.netty.util.concurrent.FastThreadLocal;
+import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 /**
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.
@@ -37,6 +41,28 @@ import de.invesdwin.util.time.range.week.FWeekTime;
 public final class FDateMillis {
 
     public static final long MISSING_VALUE = Long.MIN_VALUE;
+
+    private static final FastThreadLocal<FDateToStringCached> CACHED_TO_STRING_HOLDER = new FastThreadLocal<FDateToStringCached>() {
+        @Override
+        protected FDateToStringCached initialValue() throws Exception {
+            return new FDateToStringCached();
+        };
+    };
+
+    private static final class FDateToStringCached {
+
+        private static final int MAX_SIZE = 10;
+        private final Long2ObjectMap<String> millis_toString = new Long2ObjectOpenHashMap<>(MAX_SIZE);
+
+        public String toString(final long millis) {
+            if (millis_toString.size() >= MAX_SIZE) {
+                millis_toString.clear();
+            }
+            return millis_toString.computeIfAbsent(millis,
+                    (Long2ObjectFunction<String>) key -> FDateMillis.toString(key, FDate.FORMAT_ISO_DATE_TIME_MS));
+        }
+
+    }
 
     private FDateMillis() {}
 
@@ -641,7 +667,8 @@ public final class FDateMillis {
     }
 
     public static String toString(final long millis) {
-        return toString(millis, FDate.FORMAT_ISO_DATE_TIME_MS);
+        final FDateToStringCached cachedToString = CACHED_TO_STRING_HOLDER.get();
+        return cachedToString.toString(millis);
     }
 
     public static String toString(final long millis, final FTimeZone timeZone) {
