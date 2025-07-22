@@ -16,12 +16,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.io.IOUtils;
 
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.lang.uri.Addresses;
+import de.invesdwin.util.lang.uri.SSLContexts;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.lang.uri.connect.IHttpResponse;
 import de.invesdwin.util.lang.uri.connect.IURIsConnect;
@@ -38,6 +43,8 @@ public final class URIsConnectURLConnection implements IURIsConnect {
     private final URL url;
     private Duration networkTimeout = URIs.getDefaultNetworkTimeout();
     private Proxy proxy;
+    private X509TrustManager trustManager;
+    private HostnameVerifier hostnameVerifier;
     private String method = GET;
     private byte[] body;
     private String contentType;
@@ -138,6 +145,28 @@ public final class URIsConnectURLConnection implements IURIsConnect {
     }
 
     @Override
+    public URIsConnectURLConnection setTrustManager(final X509TrustManager trustManager) {
+        this.trustManager = trustManager;
+        return this;
+    }
+
+    @Override
+    public X509TrustManager getTrustManager() {
+        return trustManager;
+    }
+
+    @Override
+    public URIsConnectURLConnection setHostnameVerifier(final HostnameVerifier hostnameVerifier) {
+        this.hostnameVerifier = hostnameVerifier;
+        return this;
+    }
+
+    @Override
+    public HostnameVerifier getHostnameVerifier() {
+        return hostnameVerifier;
+    }
+
+    @Override
     public boolean isServerResponding() {
         try {
             final Socket socket = new Socket();
@@ -229,6 +258,17 @@ public final class URIsConnectURLConnection implements IURIsConnect {
             con = url.openConnection(proxy);
         } else {
             con = url.openConnection();
+        }
+        if (con instanceof HttpsURLConnection) {
+            if (trustManager != null) {
+                final HttpsURLConnection cCon = (HttpsURLConnection) con;
+                final SSLContext sslContext = SSLContexts.newInstance(trustManager);
+                cCon.setSSLSocketFactory(sslContext.getSocketFactory());
+            }
+            if (hostnameVerifier != null) {
+                final HttpsURLConnection cCon = (HttpsURLConnection) con;
+                cCon.setHostnameVerifier(hostnameVerifier);
+            }
         }
         con.setUseCaches(false);
         con.setConnectTimeout(networkTimeout.intValue(FTimeUnit.MILLISECONDS));

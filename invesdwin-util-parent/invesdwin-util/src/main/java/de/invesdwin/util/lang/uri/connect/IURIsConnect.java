@@ -6,6 +6,9 @@ import java.net.Proxy;
 import java.net.URI;
 import java.util.Map;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.X509TrustManager;
+
 import org.apache.commons.io.IOUtils;
 
 import de.invesdwin.util.time.duration.Duration;
@@ -26,6 +29,14 @@ public interface IURIsConnect {
     IURIsConnect setProxy(Proxy proxy);
 
     Proxy getProxy();
+
+    IURIsConnect setTrustManager(X509TrustManager trustManager);
+
+    X509TrustManager getTrustManager();
+
+    IURIsConnect setHostnameVerifier(HostnameVerifier hostnameVerifier);
+
+    HostnameVerifier getHostnameVerifier();
 
     URI getUri();
 
