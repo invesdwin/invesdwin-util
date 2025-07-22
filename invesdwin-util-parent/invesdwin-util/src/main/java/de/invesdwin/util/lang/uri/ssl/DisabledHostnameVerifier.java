@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.uri.connect.ssl;
+package de.invesdwin.util.lang.uri.ssl;
 
 import javax.annotation.concurrent.Immutable;
 import javax.net.ssl.HostnameVerifier;

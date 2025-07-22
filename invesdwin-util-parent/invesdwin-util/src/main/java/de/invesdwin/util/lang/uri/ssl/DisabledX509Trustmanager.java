@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.uri.connect.ssl;
+package de.invesdwin.util.lang.uri.ssl;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -21,7 +21,7 @@ public final class DisabledX509Trustmanager implements X509TrustManager {
 
     @Override
     public X509Certificate[] getAcceptedIssuers() {
-        return null;
+        return X509Certificates.EMPTY_ARRAY;
     }
 
 }

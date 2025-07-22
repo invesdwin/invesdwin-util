@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.uri;
+package de.invesdwin.util.lang.uri.ssl;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
