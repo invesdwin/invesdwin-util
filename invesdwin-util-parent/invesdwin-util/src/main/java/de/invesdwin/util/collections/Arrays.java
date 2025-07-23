@@ -86,7 +86,7 @@ public class Arrays extends AArraysStaticFacade {
         return dest;
     }
 
-    @SuppressWarnings("unchecked")
+    @SafeVarargs
     public static <T> List<T> asList(final T... a) {
         if (a == null) {
             return null;
