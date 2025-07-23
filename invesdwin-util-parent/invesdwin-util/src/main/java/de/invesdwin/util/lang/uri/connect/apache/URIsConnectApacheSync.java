@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.methods.ClassicHttpRequests;
@@ -57,7 +59,7 @@ public final class URIsConnectApacheSync implements IURIsConnect {
 
     private final URI uri;
     private Duration networkTimeout = URIs.getDefaultNetworkTimeout();
-    private Proxy proxy = null;
+    private Proxy proxy;
     private String method = GET;
     private byte[] body;
     private String contentType;
@@ -177,6 +179,27 @@ public final class URIsConnectApacheSync implements IURIsConnect {
     @Override
     public Proxy getProxy() {
         return proxy;
+    }
+
+    @Deprecated
+    @Override
+    public URIsConnectApacheAsync setTrustManager(final X509TrustManager trustManager) {
+        throw new UnsupportedOperationException("not implemented yet, use a different provider for now");
+    }
+
+    @Override
+    public X509TrustManager getTrustManager() {
+        return null;
+    }
+
+    @Override
+    public URIsConnectApacheAsync setHostnameVerifier(final HostnameVerifier hostnameVerifier) {
+        throw new UnsupportedOperationException("not implemented yet, use a different provider for now");
+    }
+
+    @Override
+    public HostnameVerifier getHostnameVerifier() {
+        return null;
     }
 
     @Override
