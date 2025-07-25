@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams;
+package de.invesdwin.util.streams.delegate;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -6,11 +6,14 @@ import java.io.OutputStream;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public abstract class ALazyDelegateOutputStream extends OutputStream {
+public abstract class AFastDelegateOutputStream extends OutputStream {
 
     private OutputStream delegate;
 
-    public ALazyDelegateOutputStream() {
+    public AFastDelegateOutputStream() {}
+
+    protected AFastDelegateOutputStream(final OutputStream delegate) {
+        this.delegate = delegate;
     }
 
     public OutputStream getDelegate() {
@@ -29,18 +32,23 @@ public abstract class ALazyDelegateOutputStream extends OutputStream {
 
     @Override
     public void write(final int b) throws IOException {
+        onWrite();
         getDelegate().write(b);
     }
 
     @Override
     public void write(final byte[] b) throws IOException {
+        onWrite();
         getDelegate().write(b);
     }
 
     @Override
     public void write(final byte[] b, final int off, final int len) throws IOException {
+        onWrite();
         getDelegate().write(b, off, len);
     }
+
+    protected void onWrite() throws IOException {}
 
     @Override
     public void flush() throws IOException {

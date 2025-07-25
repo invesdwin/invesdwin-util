@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams;
+package de.invesdwin.util.streams.delegate;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,21 +6,17 @@ import java.io.InputStream;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public abstract class ALazyDelegateInputStream extends InputStream {
+public class SimpleDelegateInputStream extends InputStream {
 
-    private InputStream delegate;
+    private final InputStream delegate;
 
-    public ALazyDelegateInputStream() {
+    public SimpleDelegateInputStream(final InputStream delegate) {
+        this.delegate = delegate;
     }
 
     public InputStream getDelegate() {
-        if (delegate == null) {
-            this.delegate = newDelegate();
-        }
         return delegate;
     }
-
-    protected abstract InputStream newDelegate();
 
     @Override
     public int available() throws IOException {
@@ -60,6 +56,21 @@ public abstract class ALazyDelegateInputStream extends InputStream {
     @Override
     public int read() throws IOException {
         return getDelegate().read();
+    }
+
+    @Override
+    public byte[] readAllBytes() throws IOException {
+        return getDelegate().readAllBytes();
+    }
+
+    @Override
+    public int readNBytes(final byte[] b, final int off, final int len) throws IOException {
+        return getDelegate().readNBytes(b, off, len);
+    }
+
+    @Override
+    public byte[] readNBytes(final int len) throws IOException {
+        return getDelegate().readNBytes(len);
     }
 
 }

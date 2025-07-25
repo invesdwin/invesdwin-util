@@ -4,7 +4,7 @@ import java.io.OutputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.streams.NonClosingDelegateOutputStream;
+import de.invesdwin.util.streams.delegate.NonClosingDelegateOutputStream;
 
 @NotThreadSafe
 public abstract class APooledOutputStream extends OutputStream {

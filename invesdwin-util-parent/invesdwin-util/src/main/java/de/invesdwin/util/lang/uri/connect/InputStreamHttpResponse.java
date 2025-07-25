@@ -4,7 +4,7 @@ import java.io.InputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.streams.SimpleDelegateInputStream;
+import de.invesdwin.util.streams.delegate.SimpleDelegateInputStream;
 
 @NotThreadSafe
 public class InputStreamHttpResponse extends SimpleDelegateInputStream {

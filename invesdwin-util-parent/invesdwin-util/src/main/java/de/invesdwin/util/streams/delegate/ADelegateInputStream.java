@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams;
+package de.invesdwin.util.streams.delegate;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,7 +48,7 @@ public abstract class ADelegateInputStream extends InputStream {
     }
 
     @Override
-    public synchronized void mark(final int readlimit) {
+    public void mark(final int readlimit) {
         getDelegate().mark(readlimit);
     }
 
@@ -58,7 +58,7 @@ public abstract class ADelegateInputStream extends InputStream {
     }
 
     @Override
-    public synchronized void reset() throws IOException {
+    public void reset() throws IOException {
         getDelegate().reset();
     }
 
@@ -98,7 +98,7 @@ public abstract class ADelegateInputStream extends InputStream {
         return getDelegate().readNBytes(len);
     }
 
-    protected void onRead() {
+    protected void onRead() throws IOException {
         if (finalizer.debugStackTraceEnabled && finalizer.readStackTrace == null) {
             finalizer.initStackTrace = null;
             finalizer.readStackTrace = new Exception();

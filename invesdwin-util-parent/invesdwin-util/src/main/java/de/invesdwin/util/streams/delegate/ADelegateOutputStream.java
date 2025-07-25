@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams;
+package de.invesdwin.util.streams.delegate;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -61,7 +61,7 @@ public abstract class ADelegateOutputStream extends OutputStream {
         getDelegate().write(b, off, len);
     }
 
-    private void onWrite() {
+    protected void onWrite() throws IOException {
         if (finalizer.debugStackTraceEnabled && finalizer.readStackTrace == null) {
             finalizer.initStackTrace = null;
             finalizer.readStackTrace = new Exception();
@@ -102,7 +102,7 @@ public abstract class ADelegateOutputStream extends OutputStream {
                 }
             }
             //forget the reference to original outputstream to potentially free some memory
-            delegate = ClosedOutputStream.CLOSED_OUTPUT_STREAM;
+            delegate = ClosedOutputStream.INSTANCE;
         }
 
         @Override
@@ -129,7 +129,7 @@ public abstract class ADelegateOutputStream extends OutputStream {
 
         @Override
         protected boolean isCleaned() {
-            return delegate == ClosedOutputStream.CLOSED_OUTPUT_STREAM;
+            return delegate == ClosedOutputStream.INSTANCE;
         }
 
         @Override
