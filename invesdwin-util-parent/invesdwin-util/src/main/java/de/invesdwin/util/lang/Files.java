@@ -39,6 +39,7 @@ import de.invesdwin.util.time.duration.Duration;
                 "java.nio.file.Files#mismatch(java.nio.file.Path, java.nio.file.Path)" })
 public final class Files extends AFilesStaticFacade {
 
+    public static final File[] EMPTY_ARRAY = new File[0];
     public static final int DEFAULT_MAX_REFERENCE_LENGTH = (int) ByteSizeScale.BYTES.convert(10,
             ByteSizeScale.MEGABYTES);
 
