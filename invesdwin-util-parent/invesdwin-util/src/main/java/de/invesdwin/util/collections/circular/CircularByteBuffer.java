@@ -146,7 +146,7 @@ public class CircularByteBuffer {
     }
 
     public void write(final byte value) {
-        if (size >= capacity) {
+        if (isFull()) {
             throw new IllegalStateException("No space available");
         }
         buffer.putByte(endOffset, value);
@@ -154,6 +154,10 @@ public class CircularByteBuffer {
         if (++endOffset == capacity) {
             endOffset = 0;
         }
+    }
+
+    public boolean isFull() {
+        return size >= capacity;
     }
 
     public void write(final byte[] sourceBuffer, final int sourceOffset, final int length) {
