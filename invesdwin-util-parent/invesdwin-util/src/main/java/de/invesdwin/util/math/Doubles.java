@@ -192,6 +192,10 @@ public final class Doubles extends ADoublesStaticFacade {
         return max(min(value, maxInclusive), minInclusive);
     }
 
+    public static double between(final Double value, final double minInclusive, final double maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
+    }
+
     public static Double between(final Double value, final Double minInclusive, final Double maxInclusive) {
         return max(min(value, maxInclusive), minInclusive);
     }
