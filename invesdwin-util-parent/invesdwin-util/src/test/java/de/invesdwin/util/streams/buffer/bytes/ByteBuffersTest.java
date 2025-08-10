@@ -180,6 +180,44 @@ public class ByteBuffersTest {
         Assertions.assertThat(b.capacity()).isGreaterThanOrEqualTo(BUFFER_SIZE);
         Assertions.assertThat(b.remaining(b.capacity() - 200)).isEqualTo(200);
         testCopy(b);
+
+        testStartsEndsWith(b);
+    }
+
+    private void testStartsEndsWith(final IByteBuffer b) {
+        final int capacity = b.capacity();
+        final byte[] zero = new byte[capacity];
+        final byte[] random = new byte[capacity];
+        final IRandomGenerator r = PseudoRandomGenerators.getThreadLocalPseudoRandom();
+        r.nextBytes(random);
+        b.putBytes(0, random);
+        Assertions.checkTrue(ByteBuffers.equals(b, random));
+
+        final byte[] start = new byte[10];
+        for (int i = 0; i < start.length; i++) {
+            start[i] = (byte) i;
+        }
+        final byte[] end = new byte[start.length];
+        for (int i = end.length - 1; i >= 0; i--) {
+            end[i] = (byte) (end.length - i - 1);
+        }
+        Assertions.checkFalse(ByteBuffers.equals(b, zero));
+        Assertions.checkFalse(ByteBuffers.equalsReverse(b, zero));
+        b.clear();
+        Assertions.checkTrue(ByteBuffers.equals(b, zero));
+        Assertions.checkTrue(ByteBuffers.equalsReverse(b, zero));
+        b.putBytes(0, start);
+        b.putBytes(b.remaining(end.length), end);
+
+        Assertions.checkTrue(ByteBuffers.startsWith(b, start));
+        Assertions.checkTrue(ByteBuffers.startsWithReverse(b, start));
+        Assertions.checkFalse(ByteBuffers.endsWith(b, start));
+        Assertions.checkFalse(ByteBuffers.endsWithReverse(b, start));
+
+        Assertions.checkFalse(ByteBuffers.startsWith(b, end));
+        Assertions.checkFalse(ByteBuffers.startsWithReverse(b, end));
+        Assertions.checkTrue(ByteBuffers.endsWith(b, end));
+        Assertions.checkTrue(ByteBuffers.endsWithReverse(b, end));
     }
 
     private void testCopy(final IByteBuffer b) throws IOException, FileNotFoundException {
