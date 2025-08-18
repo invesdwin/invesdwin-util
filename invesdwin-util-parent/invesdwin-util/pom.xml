@@ -173,7 +173,8 @@
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-suite-engine</artifactId>
-			<scope>test</scope>
+				<!-- optional dependency for ParallelSuite -->
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
