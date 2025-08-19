@@ -43,7 +43,7 @@ public @interface ParallelSuite {
     /**
      * Run suites in parallel.
      */
-    boolean parallelSuites() default false;
+    boolean parallelSuites() default true;
 
     /**
      * Run classes in parallel.
@@ -53,6 +53,6 @@ public @interface ParallelSuite {
     /**
      * Run methods in parallel.
      */
-    boolean parallelMethods() default false;
+    boolean parallelMethods() default true;
 
 }
