@@ -38,7 +38,12 @@ public @interface ParallelSuite {
     /**
      * When false, inherits settings from parent parallel suite. When true, overrides parents settings.
      */
-    boolean overrideParentParallelSuite() default false;
+    boolean overrideParent() default false;
+
+    /**
+     * When this is false, parallelisation is disabled in general.
+     */
+    boolean parallel() default true;
 
     /**
      * Run suites in parallel.

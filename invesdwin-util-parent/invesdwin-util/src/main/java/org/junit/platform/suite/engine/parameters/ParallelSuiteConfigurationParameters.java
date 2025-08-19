@@ -22,6 +22,7 @@ import de.invesdwin.util.test.ParallelSuite;
 @Immutable
 public class ParallelSuiteConfigurationParameters implements ConfigurationParameters {
 
+    private static final String KEY_PARALLEL = ParallelSuiteConfigurationParameters.class.getSimpleName() + "_PARALLEL";
     private static final String KEY_PARALLEL_SUITES = ParallelSuiteConfigurationParameters.class.getSimpleName()
             + "_PARALLEL_SUITES";
     private static final String KEY_PARALLEL_CLASSES = ParallelSuiteConfigurationParameters.class.getSimpleName()
@@ -32,7 +33,8 @@ public class ParallelSuiteConfigurationParameters implements ConfigurationParame
     private final Class<?> suiteClass;
     private final ConfigurationParameters parentConfigurationParameters;
     private final boolean failIfNoTests;
-    private final boolean overrideParentParallelSuite;
+    private final boolean overrideParent;
+    private final boolean parallel;
     private final boolean parallelSuites;
     private final boolean parallelClasses;
     private final boolean parallelMethods;
@@ -43,10 +45,11 @@ public class ParallelSuiteConfigurationParameters implements ConfigurationParame
         this.suiteClass = suiteClass;
         this.parentConfigurationParameters = parentConfigurationParameters;
         this.failIfNoTests = getFailIfNoTests();
-        this.overrideParentParallelSuite = getOverrideParentParallelSuite();
-        this.parallelSuites = getParallelSuites();
-        this.parallelClasses = getParallelClasses();
-        this.parallelMethods = getParallelMethods();
+        this.overrideParent = getOverrideParent();
+        this.parallel = getParallel();
+        this.parallelSuites = parallel && getParallelSuites();
+        this.parallelClasses = parallel && getParallelClasses();
+        this.parallelMethods = parallel && getParallelMethods();
         this.delegate = newConfigurationParameters();
     }
 
@@ -66,19 +69,33 @@ public class ParallelSuiteConfigurationParameters implements ConfigurationParame
         //CHECKSTYLE:ON
     }
 
-    private boolean getOverrideParentParallelSuite() {
+    private boolean getOverrideParent() {
         if (parentConfigurationParameters == null) {
             return true;
         }
         //CHECKSTYLE:OFF
-        return findAnnotation(suiteClass, ParallelSuite.class).map(ParallelSuite::overrideParentParallelSuite)
+        return findAnnotation(suiteClass, ParallelSuite.class).map(ParallelSuite::overrideParent)
+                .orElseThrow(() -> new JUnitException(
+                        String.format("Suite [%s] was not annotated with @Suite", suiteClass.getName())));
+        //CHECKSTYLE:ON
+    }
+
+    private boolean getParallel() {
+        if (!overrideParent) {
+            final Optional<Boolean> parentParam = parentConfigurationParameters.getBoolean(KEY_PARALLEL);
+            if (parentParam.isPresent()) {
+                return parentParam.get();
+            }
+        }
+        //CHECKSTYLE:OFF
+        return findAnnotation(suiteClass, ParallelSuite.class).map(ParallelSuite::parallel)
                 .orElseThrow(() -> new JUnitException(
                         String.format("Suite [%s] was not annotated with @Suite", suiteClass.getName())));
         //CHECKSTYLE:ON
     }
 
     private boolean getParallelSuites() {
-        if (!overrideParentParallelSuite) {
+        if (!overrideParent) {
             final Optional<Boolean> parentParam = parentConfigurationParameters.getBoolean(KEY_PARALLEL_SUITES);
             if (parentParam.isPresent()) {
                 return parentParam.get();
@@ -92,7 +109,7 @@ public class ParallelSuiteConfigurationParameters implements ConfigurationParame
     }
 
     private boolean getParallelClasses() {
-        if (!overrideParentParallelSuite) {
+        if (!overrideParent) {
             final Optional<Boolean> parentParam = parentConfigurationParameters.getBoolean(KEY_PARALLEL_CLASSES);
             if (parentParam.isPresent()) {
                 return parentParam.get();
@@ -106,7 +123,7 @@ public class ParallelSuiteConfigurationParameters implements ConfigurationParame
     }
 
     private boolean getParallelMethods() {
-        if (!overrideParentParallelSuite) {
+        if (!overrideParent) {
             final Optional<Boolean> parentParam = parentConfigurationParameters.getBoolean(KEY_PARALLEL_METHODS);
             if (parentParam.isPresent()) {
                 return parentParam.get();
@@ -133,7 +150,8 @@ public class ParallelSuiteConfigurationParameters implements ConfigurationParame
 
     private ConfigurationParameters newConfigurationParameters() {
         final Map<String, String> overrideParamters = new LinkedHashMap<>();
-        if (overrideParentParallelSuite) {
+        if (overrideParent) {
+            overrideParamters.put(KEY_PARALLEL, String.valueOf(parallel));
             overrideParamters.put(KEY_PARALLEL_SUITES, String.valueOf(parallelSuites));
             overrideParamters.put(KEY_PARALLEL_CLASSES, String.valueOf(parallelClasses));
             overrideParamters.put(KEY_PARALLEL_METHODS, String.valueOf(parallelMethods));
