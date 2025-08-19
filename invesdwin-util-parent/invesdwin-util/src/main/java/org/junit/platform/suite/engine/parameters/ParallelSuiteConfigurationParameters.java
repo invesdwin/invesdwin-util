@@ -13,8 +13,10 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.platform.commons.JUnitException;
 import org.junit.platform.engine.ConfigurationParameters;
+import org.junit.platform.engine.support.hierarchical.DefaultParallelExecutionConfigurationStrategy;
 import org.junit.platform.launcher.core.LauncherConfigurationParametersAccessor;
 
+import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.test.ParallelSuite;
 
 @Immutable
@@ -136,6 +138,10 @@ public class ParallelSuiteConfigurationParameters implements ConfigurationParame
             overrideParamters.put(KEY_PARALLEL_CLASSES, String.valueOf(parallelClasses));
             overrideParamters.put(KEY_PARALLEL_METHODS, String.valueOf(parallelMethods));
         }
+        overrideParamters.put(DefaultParallelExecutionConfigurationStrategy.CONFIG_STRATEGY_PROPERTY_NAME,
+                String.valueOf(DefaultParallelExecutionConfigurationStrategy.FIXED));
+        overrideParamters.put(DefaultParallelExecutionConfigurationStrategy.CONFIG_FIXED_PARALLELISM_PROPERTY_NAME,
+                String.valueOf(Executors.getCpuThreadPoolCount()));
         overrideParamters.put(JupiterConfiguration.PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME,
                 String.valueOf(parallelClasses || parallelMethods));
         overrideParamters.put(JupiterConfiguration.DEFAULT_CLASSES_EXECUTION_MODE_PROPERTY_NAME,
