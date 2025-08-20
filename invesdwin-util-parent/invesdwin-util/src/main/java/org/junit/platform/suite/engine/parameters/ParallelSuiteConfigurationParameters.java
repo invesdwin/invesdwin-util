@@ -160,6 +160,8 @@ public class ParallelSuiteConfigurationParameters implements ConfigurationParame
                 String.valueOf(DefaultParallelExecutionConfigurationStrategy.FIXED));
         overrideParamters.put(DefaultParallelExecutionConfigurationStrategy.CONFIG_FIXED_PARALLELISM_PROPERTY_NAME,
                 String.valueOf(Executors.getCpuThreadPoolCount()));
+        overrideParamters.put(DefaultParallelExecutionConfigurationStrategy.CONFIG_FIXED_MAX_POOL_SIZE_PROPERTY_NAME,
+                String.valueOf(Executors.getCpuThreadPoolCount()));
         overrideParamters.put(JupiterConfiguration.PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME,
                 String.valueOf(parallelClasses || parallelMethods));
         overrideParamters.put(JupiterConfiguration.DEFAULT_CLASSES_EXECUTION_MODE_PROPERTY_NAME,
