@@ -31,9 +31,11 @@ public abstract class ATimeoutObjectPool<E> implements ICloseableObjectPool<E> {
         this.bufferingIterator = new NodeBufferingIterator<>();
         this.timeoutMillis = timeout.longValue(FTimeUnit.MILLISECONDS);
 
-        ACTIVE_POOLS.incrementAndGet();
-        this.scheduledFuture = getScheduledExecutor().scheduleAtFixedRate(this::checkTimeouts, 0,
-                checkInverval.longValue(), checkInverval.getTimeUnit().timeUnitValue());
+        synchronized (ATimeoutObjectPool.class) {
+            ACTIVE_POOLS.incrementAndGet();
+            this.scheduledFuture = getScheduledExecutor().scheduleAtFixedRate(this::checkTimeouts, 0,
+                    checkInverval.longValue(), checkInverval.getTimeUnit().timeUnitValue());
+        }
     }
 
     protected int getMinimumSize() {
@@ -145,12 +147,14 @@ public abstract class ATimeoutObjectPool<E> implements ICloseableObjectPool<E> {
 
     @Override
     public void close() {
-        Assertions.checkNotNull(scheduledFuture);
-        clear();
-        scheduledFuture.cancel(true);
-        scheduledFuture = null;
-        ACTIVE_POOLS.decrementAndGet();
-        maybeCloseScheduledExecutor();
+        synchronized (ATimeoutObjectPool.class) {
+            Assertions.checkNotNull(scheduledFuture);
+            clear();
+            scheduledFuture.cancel(true);
+            scheduledFuture = null;
+            ACTIVE_POOLS.decrementAndGet();
+            maybeCloseScheduledExecutor();
+        }
     }
 
 }
