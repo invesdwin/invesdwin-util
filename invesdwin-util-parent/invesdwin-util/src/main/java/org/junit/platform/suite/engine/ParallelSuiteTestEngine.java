@@ -77,7 +77,7 @@ public final class ParallelSuiteTestEngine implements TestEngine {
                 }));
             }
         }
-        Futures.waitNoInterrupt(futures);
+        Futures.waitPropagatingNoInterrupt(futures);
         for (final TestDescriptor child : children) {
             final ParallelSuiteTestDescriptor cChild = (ParallelSuiteTestDescriptor) child;
             //then execute sequential suites afterwards
