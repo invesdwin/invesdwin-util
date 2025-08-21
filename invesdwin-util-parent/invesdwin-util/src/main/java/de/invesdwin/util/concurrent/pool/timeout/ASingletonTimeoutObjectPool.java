@@ -21,12 +21,10 @@ public abstract class ASingletonTimeoutObjectPool<E> implements ICloseableObject
     public ASingletonTimeoutObjectPool(final Duration timeout, final Duration checkInverval) {
         this.timeoutMillis = timeout.longValue(FTimeUnit.MILLISECONDS);
 
-        synchronized (ATimeoutObjectPool.class) {
-            ATimeoutObjectPool.ACTIVE_POOLS.incrementAndGet();
-            this.scheduledFuture = ATimeoutObjectPool.getScheduledExecutor()
-                    .scheduleAtFixedRate(this::checkTimeout, 0, checkInverval.longValue(),
-                            checkInverval.getTimeUnit().timeUnitValue());
-        }
+        ATimeoutObjectPool.ACTIVE_POOLS.incrementAndGet();
+        this.scheduledFuture = ATimeoutObjectPool.getScheduledExecutor()
+                .scheduleAtFixedRate(this::checkTimeout, 0, checkInverval.longValue(),
+                        checkInverval.getTimeUnit().timeUnitValue());
     }
 
     protected synchronized void checkTimeout() {
@@ -95,14 +93,12 @@ public abstract class ASingletonTimeoutObjectPool<E> implements ICloseableObject
 
     @Override
     public void close() {
-        synchronized (ATimeoutObjectPool.class) {
-            Assertions.checkNotNull(scheduledFuture);
-            clear();
-            scheduledFuture.cancel(true);
-            scheduledFuture = null;
-            ATimeoutObjectPool.ACTIVE_POOLS.decrementAndGet();
-            ATimeoutObjectPool.maybeCloseScheduledExecutor();
-        }
+        Assertions.checkNotNull(scheduledFuture);
+        clear();
+        scheduledFuture.cancel(true);
+        scheduledFuture = null;
+        ATimeoutObjectPool.ACTIVE_POOLS.decrementAndGet();
+        ATimeoutObjectPool.maybeCloseScheduledExecutor();
     }
 
     @Override
