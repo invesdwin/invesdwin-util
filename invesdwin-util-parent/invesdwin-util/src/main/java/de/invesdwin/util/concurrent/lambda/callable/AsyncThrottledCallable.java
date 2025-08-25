@@ -9,7 +9,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.WrappedExecutorService;
-import de.invesdwin.util.concurrent.loop.LoopInterruptedCheck;
+import de.invesdwin.util.concurrent.loop.SynchronizedLoopInterruptedCheck;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -18,7 +18,7 @@ public final class AsyncThrottledCallable<T> implements Callable<T>, Closeable {
 
     @GuardedBy("this")
     private WrappedExecutorService executor;
-    private final LoopInterruptedCheck throttleCheck;
+    private final SynchronizedLoopInterruptedCheck throttleCheck;
     private final Callable<T> callable;
     private volatile Future<T> pendingValue;
     private volatile Future<T> throttledValue;
@@ -26,7 +26,7 @@ public final class AsyncThrottledCallable<T> implements Callable<T>, Closeable {
     private AsyncThrottledCallable(final WrappedExecutorService executor, final Duration throttleInterval,
             final Callable<T> callable) {
         this.executor = executor;
-        this.throttleCheck = new LoopInterruptedCheck(throttleInterval) {
+        this.throttleCheck = new SynchronizedLoopInterruptedCheck(throttleInterval) {
             @Override
             protected long getInitialNanoTime() {
                 return Long.MIN_VALUE;
@@ -38,7 +38,7 @@ public final class AsyncThrottledCallable<T> implements Callable<T>, Closeable {
     @Override
     public T call() throws Exception {
         checkPendingValue();
-        if (throttleCheck.checkNoInterrupt()) {
+        if (pendingValue == null && throttleCheck.checkClockNoInterrupt()) {
             synchronized (this) {
                 if (pendingValue == null && !isClosed()) {
                     pendingValue = executor.submit(callable);
