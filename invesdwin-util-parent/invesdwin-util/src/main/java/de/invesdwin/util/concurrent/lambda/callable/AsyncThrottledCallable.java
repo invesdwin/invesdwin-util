@@ -41,14 +41,15 @@ public final class AsyncThrottledCallable<T> implements Callable<T>, Closeable {
         if (pendingValue == null && throttleCheck.checkClockNoInterrupt()) {
             synchronized (this) {
                 if (pendingValue == null && !isClosed()) {
-                    pendingValue = executor.submit(callable);
+                    final Future<T> newPendingValue = executor.submit(callable);
                     if (throttledValue == null) {
                         /*
                          * initially we wait always, afterwards we don't wait but instead use checkPendingValue to
                          * replace the throttledValue
                          */
-                        pendingValue = throttledValue;
+                        throttledValue = newPendingValue;
                     }
+                    pendingValue = newPendingValue;
                 }
             }
         }
