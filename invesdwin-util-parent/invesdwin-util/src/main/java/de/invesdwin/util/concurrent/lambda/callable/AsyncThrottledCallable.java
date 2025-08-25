@@ -38,7 +38,7 @@ public final class AsyncThrottledCallable<T> implements Callable<T>, Closeable {
     @Override
     public T call() throws Exception {
         checkPendingValue();
-        if (pendingValue == null && throttleCheck.checkClockNoInterrupt()) {
+        if (pendingValue == null || throttleCheck.checkClockNoInterrupt()) {
             synchronized (this) {
                 if (pendingValue == null && !isClosed()) {
                     final Future<T> newPendingValue = executor.submit(callable);
