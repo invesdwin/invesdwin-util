@@ -88,6 +88,9 @@ public abstract class ALatestValueByGapCache<V> {
     }
 
     private V lookupValue(final FDate date, final int lastResetIndex, final boolean moveForward) {
+        if (firstValueKey != null && date.isBeforeOrEqualToNotNullSafe(firstValueKey)) {
+            return firstValue;
+        }
         final FDate prevPrevKey = getKey(PREV_PREV_INDEX);
         final FDate nextNextKey = getKey(NEXT_NEXT_INDEX);
         if (!date.isBetweenInclusiveNotNullSafe(prevPrevKey, nextNextKey)) {
