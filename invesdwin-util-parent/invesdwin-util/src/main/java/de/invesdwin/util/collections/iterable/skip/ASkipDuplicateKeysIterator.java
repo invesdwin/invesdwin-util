@@ -11,7 +11,7 @@ import de.invesdwin.util.time.date.FDate;
 @NotThreadSafe
 public abstract class ASkipDuplicateKeysIterator<E> implements ICloseableIterator<E> {
 
-    public static final boolean DEFAULT_KEEP_LAST_DUPLICATE = true;
+    public static final boolean DEFAULT_KEEP_LAST_DUPLICATE = false;
     private final IPeekingCloseableIterator<E> delegate;
 
     public ASkipDuplicateKeysIterator(final ICloseableIterator<? extends E> delegate) {
