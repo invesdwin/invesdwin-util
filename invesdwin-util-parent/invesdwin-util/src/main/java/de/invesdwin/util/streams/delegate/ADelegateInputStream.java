@@ -1,5 +1,6 @@
 package de.invesdwin.util.streams.delegate;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -8,7 +9,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.apache.commons.io.input.ClosedInputStream;
 
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
+import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.string.description.TextDescription;
 
@@ -21,6 +24,12 @@ public abstract class ADelegateInputStream extends InputStream {
     public ADelegateInputStream(final TextDescription name) {
         this.finalizer = new DelegateInputStreamFinalizer(name);
         this.finalizer.register(this);
+    }
+
+    protected void registerCloseable(final Closeable closeable) {
+        if (finalizer.closeables == null) {
+            finalizer.closeables = new BufferingIterator<>();
+        }
     }
 
     @Override
@@ -108,6 +117,7 @@ public abstract class ADelegateInputStream extends InputStream {
 
     private static final class DelegateInputStreamFinalizer extends AFinalizer {
 
+        private BufferingIterator<Closeable> closeables;
         private final TextDescription name;
         private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
 
@@ -132,6 +142,13 @@ public abstract class ADelegateInputStream extends InputStream {
                 } catch (final IOException e) {
                     throw new RuntimeException(e);
                 }
+            }
+            if (closeables != null) {
+                while (closeables.hasNext()) {
+                    final Closeable closeable = closeables.next();
+                    Closeables.closeQuietly(closeable);
+                }
+                closeables = null;
             }
             //forget the reference to original inputstream to potentially free some memory
             delegate = ClosedInputStream.CLOSED_INPUT_STREAM;
