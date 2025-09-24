@@ -18,6 +18,8 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class QuarterlyExpirationDayHolidayManager extends AQuarterlyWeekdayOfMonthHolidayManager {
 
+    public static final String HOLIDAY_CALENDAR_ID = "QUARTERLY_EXPIRATION_DAY";
+
     public static final QuarterlyExpirationDayHolidayManager INSTANCE = new QuarterlyExpirationDayHolidayManager();
 
     private QuarterlyExpirationDayHolidayManager() {
@@ -27,7 +29,7 @@ public final class QuarterlyExpirationDayHolidayManager extends AQuarterlyWeekda
 
     @Override
     public String getHolidayCalendarId() {
-        return "QUARTERLY_EXPIRATION_DAY";
+        return HOLIDAY_CALENDAR_ID;
     }
 
 }
