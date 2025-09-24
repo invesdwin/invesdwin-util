@@ -1,10 +1,8 @@
-package de.invesdwin.util.time.date.holiday.provider.custom.specific;
+package de.invesdwin.util.time.date.holiday.provider.custom.specific.expiration;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FWeekday;
-import de.invesdwin.util.time.date.holiday.IHolidayManager;
 
 /**
  * Am kleinen Verfallstag verfallen an den Terminbörsen Optionen auf Aktien und Indizes. Im Gegensatz zum großen
@@ -15,37 +13,17 @@ import de.invesdwin.util.time.date.holiday.IHolidayManager;
  * Source: https://www.boerse.de/boersenlexikon/Kleiner-Verfallstag
  */
 @Immutable
-public final class MonthlyExpirationDayHolidayManager implements IHolidayManager {
+public final class MonthlyExpirationDayHolidayManager extends AWeekdayOfMonthHolidayManager {
 
     public static final MonthlyExpirationDayHolidayManager INSTANCE = new MonthlyExpirationDayHolidayManager();
 
-    private static final int FRIDAY = FWeekday.Friday.indexValue();
-    private static final int THIRD_WEEK_OF_MONTH = 3;
-
     private MonthlyExpirationDayHolidayManager() {
-    }
-
-    @Override
-    public boolean isHoliday(final FDate date) {
-        final int weekday = date.getWeekday();
-        if (weekday != FRIDAY) {
-            return false;
-        }
-        final int weekNumberOfMonth = date.getWeekNumberOfMonth();
-        if (weekNumberOfMonth != THIRD_WEEK_OF_MONTH) {
-            return false;
-        }
-        return true;
+        super(FWeekday.Friday, 3);
     }
 
     @Override
     public String getHolidayCalendarId() {
         return "MONTHLY_EXPIRATION_DAY";
-    }
-
-    @Override
-    public String toString() {
-        return getHolidayCalendarId();
     }
 
 }

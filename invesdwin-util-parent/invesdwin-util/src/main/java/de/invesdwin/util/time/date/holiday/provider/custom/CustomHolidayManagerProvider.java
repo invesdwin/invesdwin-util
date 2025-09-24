@@ -13,12 +13,12 @@ import de.invesdwin.util.time.date.holiday.provider.IHolidayManagerProvider;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.DisabledHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.EurexFuturesHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.EurexFuturesWithRolloversHolidayManager;
-import de.invesdwin.util.time.date.holiday.provider.custom.specific.MonthlyExpirationDayHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.NewYearsEveHolidayManager;
-import de.invesdwin.util.time.date.holiday.provider.custom.specific.QuarterlyExpirationDayHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.WeekendHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.XetraFuturesHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.XetraFuturesWithRolloversHolidayManager;
+import de.invesdwin.util.time.date.holiday.provider.custom.specific.expiration.MonthlyExpirationDayHolidayManager;
+import de.invesdwin.util.time.date.holiday.provider.custom.specific.expiration.QuarterlyExpirationDayHolidayManager;
 
 @NotThreadSafe
 public final class CustomHolidayManagerProvider implements IHolidayManagerProvider {

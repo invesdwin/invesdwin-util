@@ -5,6 +5,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.holiday.HolidayManagers;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
+import de.invesdwin.util.time.date.holiday.provider.custom.specific.expiration.QuarterlyExpirationDayHolidayManager;
 
 /**
  * https://www.xetra.com/xetra-de/newsroom/handelskalender
