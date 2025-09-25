@@ -1,6 +1,8 @@
-package de.invesdwin.util.time.date.holiday.provider.custom.specific.expiration;
+package de.invesdwin.util.time.date.holiday.provider.custom.specific.expiration.thirdfriday;
 
 import javax.annotation.concurrent.Immutable;
+
+import de.invesdwin.util.time.date.holiday.provider.custom.specific.expiration.AQuarterlyWeekdayOfMonthHolidayManager;
 
 /**
  * Als dreifacher Hexensabbat (Tripe-Witching-Day) wird der große Verfallstag an den Terminbörsen bezeichnet, der
@@ -16,15 +18,15 @@ import javax.annotation.concurrent.Immutable;
  * Source: https://www.boerse.de/boersenlexikon/Hexensabbat
  */
 @Immutable
-public final class QuarterlyExpirationDayHolidayManager extends AQuarterlyWeekdayOfMonthHolidayManager {
+public final class QuarterlyExpirationThirdFridayHolidayManager extends AQuarterlyWeekdayOfMonthHolidayManager {
 
-    public static final String HOLIDAY_CALENDAR_ID = "QUARTERLY_EXPIRATION_DAY";
+    public static final String HOLIDAY_CALENDAR_ID = "QUARTERLY_EXPIRATION_DAY_THIRD_FRIDAY";
 
-    public static final QuarterlyExpirationDayHolidayManager INSTANCE = new QuarterlyExpirationDayHolidayManager();
+    public static final QuarterlyExpirationThirdFridayHolidayManager INSTANCE = new QuarterlyExpirationThirdFridayHolidayManager();
 
-    private QuarterlyExpirationDayHolidayManager() {
-        super(MonthlyExpirationDayHolidayManager.INSTANCE.getWeekday(),
-                MonthlyExpirationDayHolidayManager.INSTANCE.getWeekNumberOfMonth());
+    private QuarterlyExpirationThirdFridayHolidayManager() {
+        super(MonthlyExpirationThirdFridayHolidayManager.INSTANCE.getWeekday(),
+                MonthlyExpirationThirdFridayHolidayManager.INSTANCE.getWeekNumberOfMonth());
     }
 
     @Override
