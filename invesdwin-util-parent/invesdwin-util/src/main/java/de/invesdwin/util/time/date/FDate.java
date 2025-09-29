@@ -541,6 +541,8 @@ public class FDate
     /**
      * Go back to the default timezone for a data that was converted into another timezone.
      * 
+     * FromGivenTimeZoneToUTC: Converts from the given TimeZone to default TimeZone (normally UTC).
+     * 
      * WARNING: this can cause issues when apply/revert is used with offsetTimeZone because right at daylight saving
      * time switch the reference changes and can cause 1 hour difference. So better use getTimeZoneOffset as a long and
      * use apply/revert with that long value instead of this dynamic version.
@@ -555,6 +557,8 @@ public class FDate
 
     /**
      * Go back to the default timezone for a data that was converted into another timezone.
+     * 
+     * FromUTCToGivenTimeZone: Converts from default TimeZone (normally UTC) to the given TimeZone.
      */
     public FDate revertTimeZoneOffset(final long timeZoneOffsetMilliseconds) {
         if (timeZoneOffsetMilliseconds == 0) {

@@ -17,6 +17,8 @@ import de.invesdwin.util.time.date.holiday.provider.custom.specific.NewYearsEveH
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.WeekendHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.XetraFuturesHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.XetraFuturesWithRolloversHolidayManager;
+import de.invesdwin.util.time.date.holiday.provider.custom.specific.expiration.secondfriday.MonthlyExpirationSecondFridayHolidayManager;
+import de.invesdwin.util.time.date.holiday.provider.custom.specific.expiration.secondfriday.QuarterlyExpirationSecondFridayHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.expiration.thirdfriday.MonthlyExpirationThirdFridayHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.custom.specific.expiration.thirdfriday.QuarterlyExpirationThirdFridayHolidayManager;
 
@@ -32,6 +34,8 @@ public final class CustomHolidayManagerProvider implements IHolidayManagerProvid
     static {
         registerHolidayManager(QuarterlyExpirationThirdFridayHolidayManager.INSTANCE);
         registerHolidayManager(MonthlyExpirationThirdFridayHolidayManager.INSTANCE);
+        registerHolidayManager(QuarterlyExpirationSecondFridayHolidayManager.INSTANCE);
+        registerHolidayManager(MonthlyExpirationSecondFridayHolidayManager.INSTANCE);
         registerHolidayManager(NewYearsEveHolidayManager.INSTANCE);
         registerHolidayManager(WeekendHolidayManager.INSTANCE);
         registerHolidayManager(XetraFuturesHolidayManager.INSTANCE);

@@ -24,7 +24,7 @@ public final class MonthlyExpirationThirdFridayHolidayManager extends AWeekdayOf
 
     @Override
     public String getHolidayCalendarId() {
-        return "MONTHLY_EXPIRATION_DAY_THIRD_FRIDAY";
+        return "MONTHLY_EXPIRATION_THIRD_FRIDAY";
     }
 
 }

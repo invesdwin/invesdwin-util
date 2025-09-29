@@ -20,7 +20,7 @@ import de.invesdwin.util.time.date.holiday.provider.custom.specific.expiration.A
 @Immutable
 public final class QuarterlyExpirationThirdFridayHolidayManager extends AQuarterlyWeekdayOfMonthHolidayManager {
 
-    public static final String HOLIDAY_CALENDAR_ID = "QUARTERLY_EXPIRATION_DAY_THIRD_FRIDAY";
+    public static final String HOLIDAY_CALENDAR_ID = "QUARTERLY_EXPIRATION_THIRD_FRIDAY";
 
     public static final QuarterlyExpirationThirdFridayHolidayManager INSTANCE = new QuarterlyExpirationThirdFridayHolidayManager();
 
