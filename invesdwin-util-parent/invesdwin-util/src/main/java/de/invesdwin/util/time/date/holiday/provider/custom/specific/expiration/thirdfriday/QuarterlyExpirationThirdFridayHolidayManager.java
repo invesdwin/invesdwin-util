@@ -16,6 +16,9 @@ import de.invesdwin.util.time.date.holiday.provider.custom.specific.expiration.A
  * Pendant zum dreifachen Hexensabbat ist der kleine Verfallstag.
  * 
  * Source: https://www.boerse.de/boersenlexikon/Hexensabbat
+ * 
+ * Expiration happens at the start of the third friday of the last month of the quarter. This the date is exclusive for
+ * the old contract and inclusive for the new contract.
  */
 @Immutable
 public final class QuarterlyExpirationThirdFridayHolidayManager extends AQuarterlyWeekdayOfMonthHolidayManager {
