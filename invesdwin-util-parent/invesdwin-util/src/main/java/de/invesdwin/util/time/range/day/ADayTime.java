@@ -75,6 +75,14 @@ public abstract class ADayTime<E extends ADayTime<E>> extends Number implements 
                 + Strings.leftPad(millisecond, 3, '0');
     }
 
+    /**
+     * hhmmssSSS
+     */
+    protected int innerIntValue() {
+        //hour * 1_mm_ss_SSS + minute * 1_ss_SSS + second * 1_SSS + millisecond
+        return getHour() * 1_00_00_000 + getMinute() * 1_00_000 + getSecond() * 1_000 + getMillisecond();
+    }
+
     @Override
     public abstract int compareTo(Object o);
 

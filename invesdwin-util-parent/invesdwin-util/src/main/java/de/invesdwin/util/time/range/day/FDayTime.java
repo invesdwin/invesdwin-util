@@ -24,8 +24,6 @@ public class FDayTime extends ADayTime<FDayTime> implements IDayTimeData {
     public static final FDayTime MIN_DAY_TIME = new FDayTime(MIN, MIN, MIN, MIN);
     public static final FDayTime MAX_DAY_TIME = new FDayTime(MAX_HOUR, MAX_MINUTE, MAX_SECOND, MAX_MILLISECOND);
 
-    private transient Integer cachedIntValue;
-
     public FDayTime(final FDate date) {
         this(date.getHour(), date.getMinute(), date.getSecond(), date.getMillisecond());
     }
@@ -111,11 +109,7 @@ public class FDayTime extends ADayTime<FDayTime> implements IDayTimeData {
 
     @Override
     public int intValue() {
-        if (cachedIntValue == null) {
-            final String concatNumber = toNumberString();
-            cachedIntValue = Integer.valueOf(concatNumber);
-        }
-        return cachedIntValue;
+        return innerIntValue();
     }
 
     @Override
