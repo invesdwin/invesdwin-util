@@ -293,7 +293,11 @@ public final class Doubles extends ADoublesStaticFacade {
 
     public static double divide(final double dividend, final double divisor) {
         if (divisor == 0D) {
-            return 0D;
+            if (isNaN(dividend)) {
+                return Double.NaN;
+            } else {
+                return 0D;
+            }
         } else {
             return dividend / divisor;
         }
