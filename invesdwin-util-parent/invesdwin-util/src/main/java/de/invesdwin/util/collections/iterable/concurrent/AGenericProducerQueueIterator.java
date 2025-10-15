@@ -144,8 +144,12 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
 
     @Override
     protected synchronized boolean innerHasNext() {
-        final boolean hasNext = producerException != null || !isInnerClosed() || !queue.isEmpty()
-                || nextElement != null;
+        final Throwable rethrow = producerException;
+        if (rethrow != null) {
+            producerException = null;
+            throw new RuntimeException("Rethrowing async producer exception: " + rethrow, rethrow);
+        }
+        final boolean hasNext = !isInnerClosed() || !queue.isEmpty() || nextElement != null;
         if (!hasNext) {
             finalizer.close();
         }
@@ -158,11 +162,6 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
      */
     @Override
     protected synchronized E innerNext() {
-        final Throwable rethrow = producerException;
-        if (rethrow != null) {
-            producerException = null;
-            throw new RuntimeException("Rethrowing async producer exception: " + rethrow, rethrow);
-        }
         if (hasNext()) {
             final E curElement = nextElement;
             nextElement = null;
