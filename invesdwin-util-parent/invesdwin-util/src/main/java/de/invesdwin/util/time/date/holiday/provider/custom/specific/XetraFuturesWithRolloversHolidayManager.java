@@ -5,6 +5,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.holiday.HolidayManagers;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
+import de.invesdwin.util.time.date.holiday.provider.custom.specific.expiration.thirdfriday.QuarterlyExpirationThirdFridayHolidayManager;
 
 /**
  * https://www.xetra.com/xetra-de/newsroom/handelskalender
@@ -19,7 +20,7 @@ public class XetraFuturesWithRolloversHolidayManager implements IHolidayManager 
     private final IHolidayManager weekend = WeekendHolidayManager.INSTANCE;
     private final IHolidayManager holidays = HolidayManagers.XETRA;
     private final IHolidayManager quarterlyExpirationDay = new HolidayAdjustedExpirationDayHolidayManager(holidays,
-            QuarterlyExpirationDayHolidayManager.INSTANCE);
+            QuarterlyExpirationThirdFridayHolidayManager.INSTANCE);
 
     @Override
     public boolean isHoliday(final FDate date) {

@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams;
+package de.invesdwin.util.streams.delegate;
 
 import java.io.DataInput;
 import java.io.IOException;

@@ -113,7 +113,7 @@ public final class Executors {
     /**
      * This executor does not actually run tasks in parallel but instead runs them directly in the callers thread
      */
-    public static WrappedExecutorService newDisabledExecutor(final String name) {
+    public static DisabledWrappedExecutorService newDisabledExecutor(final String name) {
         return new DisabledWrappedExecutorService(MoreExecutors.newDirectExecutorService(), name);
     }
 

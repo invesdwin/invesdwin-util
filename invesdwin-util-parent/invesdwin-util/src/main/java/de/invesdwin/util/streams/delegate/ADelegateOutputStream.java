@@ -1,11 +1,11 @@
-package de.invesdwin.util.streams;
+package de.invesdwin.util.streams.delegate;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.io.input.ClosedInputStream;
+import org.apache.commons.io.output.ClosedOutputStream;
 
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.error.Throwables;
@@ -13,29 +13,25 @@ import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.string.description.TextDescription;
 
 @NotThreadSafe
-public abstract class ADelegateInputStream extends InputStream {
+public abstract class ADelegateOutputStream extends OutputStream {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ACloseableIterator.class);
-    private final DelegateInputStreamFinalizer finalizer;
 
-    public ADelegateInputStream(final TextDescription name) {
-        this.finalizer = new DelegateInputStreamFinalizer(name);
+    private final DelegateOutputStreamFinalizer finalizer;
+
+    public ADelegateOutputStream(final TextDescription name) {
+        this.finalizer = new DelegateOutputStreamFinalizer(name);
         this.finalizer.register(this);
     }
 
-    @Override
-    public int available() throws IOException {
-        return getDelegate().available();
-    }
-
-    protected InputStream getDelegate() {
+    protected OutputStream getDelegate() {
         if (finalizer.delegate == null) {
             finalizer.delegate = newDelegate();
         }
         return finalizer.delegate;
     }
 
-    protected abstract InputStream newDelegate();
+    protected abstract OutputStream newDelegate();
 
     @Override
     public void close() throws IOException {
@@ -48,57 +44,24 @@ public abstract class ADelegateInputStream extends InputStream {
     }
 
     @Override
-    public synchronized void mark(final int readlimit) {
-        getDelegate().mark(readlimit);
+    public void write(final int b) throws IOException {
+        onWrite();
+        getDelegate().write(b);
     }
 
     @Override
-    public boolean markSupported() {
-        return getDelegate().markSupported();
+    public void write(final byte[] b) throws IOException {
+        onWrite();
+        getDelegate().write(b);
     }
 
     @Override
-    public synchronized void reset() throws IOException {
-        getDelegate().reset();
+    public void write(final byte[] b, final int off, final int len) throws IOException {
+        onWrite();
+        getDelegate().write(b, off, len);
     }
 
-    @Override
-    public int read() throws IOException {
-        onRead();
-        return getDelegate().read();
-    }
-
-    @Override
-    public int read(final byte[] b) throws IOException {
-        onRead();
-        return getDelegate().read(b);
-    }
-
-    @Override
-    public int read(final byte[] b, final int off, final int len) throws IOException {
-        onRead();
-        return getDelegate().read(b, off, len);
-    }
-
-    @Override
-    public byte[] readAllBytes() throws IOException {
-        onRead();
-        return getDelegate().readAllBytes();
-    }
-
-    @Override
-    public int readNBytes(final byte[] b, final int off, final int len) throws IOException {
-        onRead();
-        return getDelegate().readNBytes(b, off, len);
-    }
-
-    @Override
-    public byte[] readNBytes(final int len) throws IOException {
-        onRead();
-        return getDelegate().readNBytes(len);
-    }
-
-    protected void onRead() {
+    protected void onWrite() throws IOException {
         if (finalizer.debugStackTraceEnabled && finalizer.readStackTrace == null) {
             finalizer.initStackTrace = null;
             finalizer.readStackTrace = new Exception();
@@ -106,17 +69,22 @@ public abstract class ADelegateInputStream extends InputStream {
         }
     }
 
-    private static final class DelegateInputStreamFinalizer extends AFinalizer {
+    @Override
+    public void flush() throws IOException {
+        getDelegate().flush();
+    }
+
+    private static final class DelegateOutputStreamFinalizer extends AFinalizer {
 
         private final TextDescription name;
         private final boolean debugStackTraceEnabled = Throwables.isDebugStackTraceEnabled();
 
-        private InputStream delegate;
+        private OutputStream delegate;
 
         private Exception initStackTrace;
         private Exception readStackTrace;
 
-        private DelegateInputStreamFinalizer(final TextDescription name) {
+        private DelegateOutputStreamFinalizer(final TextDescription name) {
             this.name = name;
             if (debugStackTraceEnabled) {
                 initStackTrace = new Exception();
@@ -133,15 +101,15 @@ public abstract class ADelegateInputStream extends InputStream {
                     throw new RuntimeException(e);
                 }
             }
-            //forget the reference to original inputstream to potentially free some memory
-            delegate = ClosedInputStream.CLOSED_INPUT_STREAM;
+            //forget the reference to original outputstream to potentially free some memory
+            delegate = ClosedOutputStream.INSTANCE;
         }
 
         @Override
         protected void onFinalize() {
             super.onFinalize();
             if (delegate != null) {
-                String warning = "Finalizing unclosed " + InputStream.class.getSimpleName() + " ["
+                String warning = "Finalizing unclosed " + OutputStream.class.getSimpleName() + " ["
                         + delegate.getClass().getName() + "]: " + name;
                 if (debugStackTraceEnabled) {
                     final Exception stackTrace;
@@ -161,7 +129,7 @@ public abstract class ADelegateInputStream extends InputStream {
 
         @Override
         protected boolean isCleaned() {
-            return delegate == ClosedInputStream.CLOSED_INPUT_STREAM;
+            return delegate == ClosedOutputStream.INSTANCE;
         }
 
         @Override
@@ -170,5 +138,4 @@ public abstract class ADelegateInputStream extends InputStream {
         }
 
     }
-
 }

@@ -26,8 +26,6 @@ public class FWeekTime extends ADayTime<FWeekTime> implements IWeekTimeData {
 
     private final FWeekday weekday;
 
-    private transient Long cachedLongValue;
-
     public FWeekTime(final FDate date) {
         this(date.getFWeekday(), date.getHour(), date.getMinute(), date.getSecond(), date.getMillisecond());
     }
@@ -130,13 +128,13 @@ public class FWeekTime extends ADayTime<FWeekTime> implements IWeekTimeData {
         throw new UnsupportedOperationException("value does not fit into Integer, use longValue() instead");
     }
 
+    /**
+     * WhhmmssSSS
+     */
     @Override
     public long longValue() {
-        if (cachedLongValue == null) {
-            final String concatNumber = toNumberString();
-            cachedLongValue = Long.valueOf(concatNumber);
-        }
-        return cachedLongValue;
+        //weekday * 1_hh_mm_ss_SSS + hour * 1_mm_ss_SSS + minute * 1_ss_SSS + second * 1_SSS + millisecond
+        return weekday.jodaTimeValue() * 1_00_00_00_000 + innerIntValue();
     }
 
     @Override

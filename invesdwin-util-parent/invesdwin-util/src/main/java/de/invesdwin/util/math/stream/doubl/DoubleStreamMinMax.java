@@ -23,4 +23,9 @@ public class DoubleStreamMinMax implements IDoubleStreamAlgorithm {
         return maxDelegate.getMax();
     }
 
+    public void reset() {
+        maxDelegate.reset();
+        minDelegate.reset();
+    }
+
 }

@@ -37,6 +37,9 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
                 AGenericProducerQueueIterator.this.internalProduce(consumer);
             } catch (final NoSuchElementException e) {
                 //end reached
+            } catch (final Throwable e) {
+                //propagate exception to other thread
+                producerException = e;
             } finally {
                 //closing does not prevent queue from getting drained completely
                 finalizer.close();
@@ -87,6 +90,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     private final Lock drainedLock;
     @GuardedBy("drainedLock")
     private final Condition drainedCondition;
+    private volatile Throwable producerException;
 
     private final int queueSize;
 
@@ -140,6 +144,11 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
 
     @Override
     protected synchronized boolean innerHasNext() {
+        final Throwable rethrow = producerException;
+        if (rethrow != null) {
+            producerException = null;
+            throw new RuntimeException("Rethrowing async producer exception: " + rethrow, rethrow);
+        }
         final boolean hasNext = !isInnerClosed() || !queue.isEmpty() || nextElement != null;
         if (!hasNext) {
             finalizer.close();

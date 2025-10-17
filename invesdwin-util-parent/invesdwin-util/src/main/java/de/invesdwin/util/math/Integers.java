@@ -298,6 +298,10 @@ public final class Integers extends AIntegersStaticFacade {
         return max(min(value, maxInclusive), minInclusive);
     }
 
+    public static Integer between(final Integer value, final int minInclusive, final int maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
+    }
+
     public static int between(final int value, final int minInclusive, final int maxInclusive) {
         return max(min(value, maxInclusive), minInclusive);
     }

@@ -17,6 +17,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.async.methods.SimpleHttpRequest;
@@ -188,6 +190,27 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
     @Override
     public Proxy getProxy() {
         return proxy;
+    }
+
+    @Deprecated
+    @Override
+    public URIsConnectApacheAsync setTrustManager(final X509TrustManager trustManager) {
+        throw new UnsupportedOperationException("not implemented yet, use a different provider for now");
+    }
+
+    @Override
+    public X509TrustManager getTrustManager() {
+        return null;
+    }
+
+    @Override
+    public URIsConnectApacheAsync setHostnameVerifier(final HostnameVerifier hostnameVerifier) {
+        throw new UnsupportedOperationException("not implemented yet, use a different provider for now");
+    }
+
+    @Override
+    public HostnameVerifier getHostnameVerifier() {
+        return null;
     }
 
     @Override

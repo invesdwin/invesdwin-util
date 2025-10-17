@@ -712,6 +712,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                     cValue.setNextKey(null);
                 }
                 final FDate nextKey = cValue.getNextKey();
+                if (nextKey == null) {
+                    return cValue;
+                }
                 if (nextKey.equalsNotNullSafe(cValue.getKey())) {
                     return cValue;
                 }
@@ -728,6 +731,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             protected IHistoricalEntry<V> getPreviousValue(final IHistoricalEntry<V> value) {
                 final IndexedHistoricalEntry<V> cValue = (IndexedHistoricalEntry<V>) value;
                 final FDate prevKey = cValue.getPrevKey();
+                if (prevKey == null) {
+                    return cValue;
+                }
                 if (prevKey.equalsNotNullSafe(cValue.getKey())) {
                     return cValue;
                 }

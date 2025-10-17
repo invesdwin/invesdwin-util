@@ -16,6 +16,11 @@ public class TimedDoubleDTO implements ITimedDouble, ISerializableValueObject {
         this.value = copyOf.getValue();
     }
 
+    public TimedDoubleDTO(final FDate time, final double value) {
+        this.time = time;
+        this.value = value;
+    }
+
     public TimedDoubleDTO() {
         value = Double.NaN;
     }

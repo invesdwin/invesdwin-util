@@ -4,6 +4,8 @@ import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.lang.string.description.TextDescription;
+
 /**
  * Often it is faster to use iterators without calling hasNext and instead catching the NoSuchElementException. Throw
  * this exception instead to skip the stack trace generation to make it even faster.
@@ -61,17 +63,41 @@ public final class FastNoSuchElementException extends NoSuchElementException {
         }
     }
 
+    public static FastNoSuchElementException getInstance(final String message, final Object arg) {
+        if (Throwables.isDebugStackTraceEnabled()) {
+            return new FastNoSuchElementException(TextDescription.format(message, arg));
+        } else {
+            return INSTANCE;
+        }
+    }
+
+    public static FastNoSuchElementException getInstance(final String message, final Object arg1, final Object arg2) {
+        if (Throwables.isDebugStackTraceEnabled()) {
+            return new FastNoSuchElementException(TextDescription.format(message, arg1, arg2));
+        } else {
+            return INSTANCE;
+        }
+    }
+
+    public static FastNoSuchElementException getInstance(final String message, final Object... args) {
+        if (Throwables.isDebugStackTraceEnabled()) {
+            return new FastNoSuchElementException(TextDescription.format(message, args));
+        } else {
+            return INSTANCE;
+        }
+    }
+
     public static FastNoSuchElementException getInstance(final Throwable cause) {
         return getInstance(cause.getMessage(), cause);
     }
 
     public static FastNoSuchElementException getInstance(final String message, final Throwable cause) {
         if (Throwables.isDebugStackTraceEnabled()) {
-            final FastNoSuchElementException eof = new FastNoSuchElementException(message);
+            final FastNoSuchElementException timeout = new FastNoSuchElementException(message);
             if (cause != null) {
-                eof.initCause(cause);
+                timeout.initCause(cause);
             }
-            return eof;
+            return timeout;
         } else {
             return INSTANCE;
         }

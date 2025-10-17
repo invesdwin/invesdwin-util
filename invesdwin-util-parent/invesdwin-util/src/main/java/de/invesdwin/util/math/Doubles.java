@@ -192,6 +192,10 @@ public final class Doubles extends ADoublesStaticFacade {
         return max(min(value, maxInclusive), minInclusive);
     }
 
+    public static double between(final Double value, final double minInclusive, final double maxInclusive) {
+        return max(min(value, maxInclusive), minInclusive);
+    }
+
     public static Double between(final Double value, final Double minInclusive, final Double maxInclusive) {
         return max(min(value, maxInclusive), minInclusive);
     }
@@ -289,7 +293,11 @@ public final class Doubles extends ADoublesStaticFacade {
 
     public static double divide(final double dividend, final double divisor) {
         if (divisor == 0D) {
-            return 0D;
+            if (isNaN(dividend)) {
+                return Double.NaN;
+            } else {
+                return 0D;
+            }
         } else {
             return dividend / divisor;
         }

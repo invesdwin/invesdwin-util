@@ -16,6 +16,7 @@ import de.invesdwin.util.collections.loadingcache.map.NoCachingLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.SynchronizedEvictionMapLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.SynchronizedUnlimitedCachingLoadingCache;
 import de.invesdwin.util.collections.loadingcache.map.UnlimitedCachingLoadingCache;
+import de.invesdwin.util.collections.recursive.FastRecursiveLoadRuntimeException;
 import de.invesdwin.util.concurrent.reference.WeakThreadLocalReference;
 
 @ThreadSafe
@@ -145,7 +146,7 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
                 alreadyLoading.remove(key);
             }
         } else {
-            throw new IllegalStateException("Already loading recursively key: " + key);
+            throw FastRecursiveLoadRuntimeException.getInstance("Already loading recursively key: %s", key);
         }
     }
 

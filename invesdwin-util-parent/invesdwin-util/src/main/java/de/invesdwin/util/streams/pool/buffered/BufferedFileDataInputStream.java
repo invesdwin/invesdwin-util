@@ -14,10 +14,10 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.streams.InputStreams;
-import de.invesdwin.util.streams.NonClosingDelegateInputStream;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
+import de.invesdwin.util.streams.delegate.NonClosingDelegateInputStream;
 
 @NotThreadSafe
 public class BufferedFileDataInputStream extends InputStream implements DataInput {

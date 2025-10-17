@@ -914,6 +914,509 @@ public final class ByteBuffers {
         return true;
     }
 
+    public static boolean equalsReverse(final byte[] digesta, final byte[] digestb) {
+        if (digesta == digestb) {
+            return true;
+        }
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenA = digesta.length;
+        final int lenB = digestb.length;
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        if (lenA != lenB) {
+            return false;
+        }
+
+        for (int i = lenA - 1; i >= 0; i--) {
+            if (digesta[i] != digestb[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean equalsReverse(final IByteBuffer digesta, final byte[] digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenA = digesta.capacity();
+        final int lenB = digestb.length;
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        if (lenA != lenB) {
+            return false;
+        }
+
+        for (int i = lenA - 1; i >= 0; i--) {
+            if (digesta.getByte(i) != digestb[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean equalsReverse(final byte[] digesta, final IByteBuffer digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenA = digesta.length;
+        final int lenB = digestb.capacity();
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        if (lenA != lenB) {
+            return false;
+        }
+
+        for (int i = lenA - 1; i >= 0; i--) {
+            if (digesta[i] != digestb.getByte(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean equalsReverse(final IByteBuffer digesta, final IByteBuffer digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenA = digesta.capacity();
+        final int lenB = digestb.capacity();
+
+        if (lenB == 0) {
+            return lenA == 0;
+        }
+
+        if (lenA != lenB) {
+            return false;
+        }
+
+        for (int i = lenA - 1; i >= 0; i--) {
+            if (digesta.getByte(i) != digestb.getByte(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean startsWith(final byte[] buffer, final byte[] start) {
+        if (buffer == start) {
+            return true;
+        }
+        if (buffer == null || start == null) {
+            return false;
+        }
+
+        final int lenBuffer = buffer.length;
+        final int lenStart = start.length;
+
+        if (lenStart == 0) {
+            return true;
+        }
+
+        if (lenBuffer < lenStart) {
+            return false;
+        }
+
+        for (int i = 0; i < lenStart; i++) {
+            if (buffer[i] != start[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean startsWith(final IByteBuffer buffer, final byte[] start) {
+        if (buffer == null || start == null) {
+            return false;
+        }
+
+        final int lenBuffer = buffer.capacity();
+        final int lenStart = start.length;
+
+        if (lenStart == 0) {
+            return true;
+        }
+
+        if (lenBuffer < lenStart) {
+            return false;
+        }
+
+        for (int i = 0; i < lenStart; i++) {
+            if (buffer.getByte(i) != start[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean startsWith(final byte[] buffer, final IByteBuffer start) {
+        if (buffer == null || start == null) {
+            return false;
+        }
+
+        final int lenBuffer = buffer.length;
+        final int lenStart = start.capacity();
+
+        if (lenStart == 0) {
+            return true;
+        }
+
+        if (lenBuffer < lenStart) {
+            return false;
+        }
+
+        for (int i = 0; i < lenStart; i++) {
+            if (buffer[i] != start.getByte(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean startsWith(final IByteBuffer buffer, final IByteBuffer start) {
+        if (buffer == null || start == null) {
+            return false;
+        }
+
+        final int lenBuffer = buffer.capacity();
+        final int lenStart = start.capacity();
+
+        if (lenStart == 0) {
+            return true;
+        }
+
+        if (lenBuffer < lenStart) {
+            return false;
+        }
+
+        for (int i = 0; i < lenStart; i++) {
+            if (buffer.getByte(i) != start.getByte(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean startsWithReverse(final byte[] digesta, final byte[] digestb) {
+        if (digesta == digestb) {
+            return true;
+        }
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenBuffer = digesta.length;
+        final int lenStart = digestb.length;
+
+        if (lenStart == 0) {
+            return true;
+        }
+
+        if (lenBuffer < lenStart) {
+            return false;
+        }
+
+        for (int i = lenStart - 1; i >= 0; i--) {
+            if (digesta[i] != digestb[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean startsWithReverse(final IByteBuffer digesta, final byte[] digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenBuffer = digesta.capacity();
+        final int lenStart = digestb.length;
+
+        if (lenStart == 0) {
+            return true;
+        }
+
+        if (lenBuffer < lenStart) {
+            return false;
+        }
+
+        for (int i = lenStart - 1; i >= 0; i--) {
+            if (digesta.getByte(i) != digestb[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean startsWithReverse(final byte[] digesta, final IByteBuffer digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenBuffer = digesta.length;
+        final int lenStart = digestb.capacity();
+
+        if (lenStart == 0) {
+            return true;
+        }
+
+        if (lenBuffer < lenStart) {
+            return false;
+        }
+
+        for (int i = lenStart - 1; i >= 0; i--) {
+            if (digesta[i] != digestb.getByte(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean startsWithReverse(final IByteBuffer digesta, final IByteBuffer digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenBuffer = digesta.capacity();
+        final int lenStart = digestb.capacity();
+
+        if (lenStart == 0) {
+            return true;
+        }
+
+        if (lenBuffer < lenStart) {
+            return false;
+        }
+
+        for (int i = lenStart - 1; i >= 0; i--) {
+            if (digesta.getByte(i) != digestb.getByte(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean endsWith(final byte[] buffer, final byte[] start) {
+        if (buffer == start) {
+            return true;
+        }
+        if (buffer == null || start == null) {
+            return false;
+        }
+
+        final int lenBuffer = buffer.length;
+        final int lenStart = start.length;
+
+        if (lenStart == 0) {
+            return true;
+        }
+
+        if (lenBuffer < lenStart) {
+            return false;
+        }
+
+        final int offsetBuffer = lenBuffer - lenStart;
+        for (int i = 0; i < lenStart; i++) {
+            if (buffer[offsetBuffer + i] != start[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean endsWith(final IByteBuffer buffer, final byte[] start) {
+        if (buffer == null || start == null) {
+            return false;
+        }
+
+        final int lenBuffer = buffer.capacity();
+        final int lenStart = start.length;
+
+        if (lenStart == 0) {
+            return true;
+        }
+
+        if (lenBuffer < lenStart) {
+            return false;
+        }
+
+        final int offsetBuffer = lenBuffer - lenStart;
+        for (int i = 0; i < lenStart; i++) {
+            if (buffer.getByte(offsetBuffer + i) != start[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean endsWith(final byte[] buffer, final IByteBuffer start) {
+        if (buffer == null || start == null) {
+            return false;
+        }
+
+        final int lenBuffer = buffer.length;
+        final int lenStart = start.capacity();
+
+        if (lenStart == 0) {
+            return true;
+        }
+
+        if (lenBuffer < lenStart) {
+            return false;
+        }
+
+        final int offsetBuffer = lenBuffer - lenStart;
+        for (int i = 0; i < lenStart; i++) {
+            if (buffer[offsetBuffer + i] != start.getByte(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean endsWith(final IByteBuffer buffer, final IByteBuffer start) {
+        if (buffer == null || start == null) {
+            return false;
+        }
+
+        final int lenBuffer = buffer.capacity();
+        final int lenStart = start.capacity();
+
+        if (lenStart == 0) {
+            return true;
+        }
+
+        if (lenBuffer < lenStart) {
+            return false;
+        }
+
+        final int offsetBuffer = lenBuffer - lenStart;
+        for (int i = 0; i < lenStart; i++) {
+            if (buffer.getByte(offsetBuffer + i) != start.getByte(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean endsWithReverse(final byte[] digesta, final byte[] digestb) {
+        if (digesta == digestb) {
+            return true;
+        }
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenBuffer = digesta.length;
+        final int lenStart = digestb.length;
+
+        if (lenStart == 0) {
+            return true;
+        }
+
+        if (lenBuffer < lenStart) {
+            return false;
+        }
+
+        final int offsetBuffer = lenBuffer - lenStart;
+        for (int i = lenStart - 1; i >= 0; i--) {
+            if (digesta[offsetBuffer + i] != digestb[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean endsWithReverse(final IByteBuffer digesta, final byte[] digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenBuffer = digesta.capacity();
+        final int lenStart = digestb.length;
+
+        if (lenStart == 0) {
+            return true;
+        }
+
+        if (lenBuffer < lenStart) {
+            return false;
+        }
+
+        final int offsetBuffer = lenBuffer - lenStart;
+        for (int i = lenStart - 1; i >= 0; i--) {
+            if (digesta.getByte(offsetBuffer + i) != digestb[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean endsWithReverse(final byte[] digesta, final IByteBuffer digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenBuffer = digesta.length;
+        final int lenStart = digestb.capacity();
+
+        if (lenStart == 0) {
+            return true;
+        }
+
+        if (lenBuffer < lenStart) {
+            return false;
+        }
+
+        final int offsetBuffer = lenBuffer - lenStart;
+        for (int i = lenStart - 1; i >= 0; i--) {
+            if (digesta[offsetBuffer + i] != digestb.getByte(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean endsWithReverse(final IByteBuffer digesta, final IByteBuffer digestb) {
+        if (digesta == null || digestb == null) {
+            return false;
+        }
+
+        final int lenBuffer = digesta.capacity();
+        final int lenStart = digestb.capacity();
+
+        if (lenStart == 0) {
+            return true;
+        }
+
+        if (lenBuffer < lenStart) {
+            return false;
+        }
+
+        final int offsetBuffer = lenBuffer - lenStart;
+        for (int i = lenStart - 1; i >= 0; i--) {
+            if (digesta.getByte(offsetBuffer + i) != digestb.getByte(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static java.nio.ByteBuffer asNioByteBuffer(final IByteBuffer buffer) {
         if (buffer != null) {
             return buffer.asNioByteBuffer();
