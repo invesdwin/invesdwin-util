@@ -205,4 +205,9 @@ public class ArrayLeastRecentlyAddedMap<K, V> implements Map<K, V>, IEvictionMap
         return false;
     }
 
+    @Override
+    public String toString() {
+        return map.toString();
+    }
+
 }
