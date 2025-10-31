@@ -683,7 +683,9 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             protected IHistoricalEntry<V> getFirstValue() {
                 final IHistoricalEntry<V> minValueInDB = getMinValueInDB();
                 //eager load value
-                minValueInDB.getValue();
+                if (minValueInDB != null) {
+                    minValueInDB.getValue();
+                }
                 return minValueInDB;
             }
 

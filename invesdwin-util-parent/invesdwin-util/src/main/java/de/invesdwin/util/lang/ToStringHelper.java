@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.string.internal.MultilineToStringStyle;
 
@@ -23,7 +24,7 @@ public final class ToStringHelper {
     }
 
     ToStringHelper(final Class<?> clazz, final boolean multiline) {
-        this(clazz.getSimpleName(), multiline);
+        this(Reflections.getClassSimpleNameNonBlank(clazz), multiline);
     }
 
     ToStringHelper(final String className, final boolean multiline) {
