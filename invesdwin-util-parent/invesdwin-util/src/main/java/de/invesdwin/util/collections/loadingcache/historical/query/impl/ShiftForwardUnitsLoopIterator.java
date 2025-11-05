@@ -55,6 +55,10 @@ public class ShiftForwardUnitsLoopIterator<V> implements ICloseableIterator<V> {
         if (cachedReadNext != null) {
             return cachedReadNext;
         } else {
+            if (shiftForwardRemaining <= 0) {
+                //end reached
+                return null;
+            }
             try {
                 /*
                  * workaround for determining next key with multiple values at the same millisecond (without this

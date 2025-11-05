@@ -86,7 +86,7 @@ public class AGapHistoricalCacheWithUnlimitedCacheTest extends ABaseHistoricalCa
         for (final FDate entity : new HashSet<FDate>(entities)) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(4);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(5);
         Assertions.assertThat(countReadNewestValueTo).isLessThanOrEqualTo(4);
 
         //simulate cache eviction
@@ -98,7 +98,7 @@ public class AGapHistoricalCacheWithUnlimitedCacheTest extends ABaseHistoricalCa
         for (final FDate entity : entities) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(6);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(7);
         Assertions.assertThat(countReadNewestValueTo).isLessThanOrEqualTo(8);
     }
 

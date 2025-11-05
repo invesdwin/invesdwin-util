@@ -22,6 +22,7 @@ import de.invesdwin.util.collections.loadingcache.ADelegateLoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.DelegateLoadingCache;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.RangeHistoricalCacheNextQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCacheNextQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCachePreviousKeysQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCacheRangeQueryInterceptor;
@@ -557,7 +558,12 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     }
 
     protected IHistoricalCacheNextQueryInterceptor<V> newNextQueryInterceptor() {
-        return DisabledHistoricalCacheNextQueryInterceptor.getInstance();
+        final IHistoricalCacheRangeQueryInterceptor<V> rangeQueryInterceptor = getRangeQueryInterceptor();
+        if (rangeQueryInterceptor instanceof DisabledHistoricalCacheRangeQueryInterceptor) {
+            return DisabledHistoricalCacheNextQueryInterceptor.getInstance();
+        } else {
+            return new RangeHistoricalCacheNextQueryInterceptor<V>(rangeQueryInterceptor);
+        }
     }
 
     protected IValuesMap<V> getValuesMap() {

@@ -48,13 +48,17 @@ public class ShiftForwardUnitsLoopIteratorTest {
                 final FDate nextValue = getLast(nextValues);
                 LOG.info("nextValue " + nextValue);
 
-                final int expectedIndex = i + shiftForwardUnits;
-                if (expectedIndex >= DATES.size()) {
-                    Assertions.checkEquals(DATES.get(DATES.size() - 1), nextValue);
+                final int expectedIndex = i + shiftForwardUnits - 1;
+                if (shiftForwardUnits == 0) {
+                    Assertions.checkEmpty(nextValues);
                 } else {
-                    Assertions.checkEquals(DATES.get(expectedIndex), nextValue);
+                    if (expectedIndex >= DATES.size()) {
+                        Assertions.checkEquals(DATES.get(DATES.size() - 1), nextValue);
+                    } else {
+                        Assertions.checkEquals(DATES.get(expectedIndex), nextValue);
+                    }
+                    Assertions.checkEquals(DATES.subList(i, Integers.min(expectedIndex + 1, DATES.size())), nextValues);
                 }
-                Assertions.checkEquals(DATES.subList(i, Integers.min(expectedIndex + 1, DATES.size())), nextValues);
 
                 /////////////// minus
                 final FDate requestMinus = request.addMilliseconds(-1);
@@ -64,19 +68,23 @@ public class ShiftForwardUnitsLoopIteratorTest {
                 final FDate nextValueMinus = getLast(nextValuesMinus);
                 LOG.info("nextValueMinus " + nextValueMinus);
 
-                final int expectedIndexMinus;
-                if (shiftForwardUnits == 0 || i == 0) {
-                    expectedIndexMinus = expectedIndex;
+                if (shiftForwardUnits == 0) {
+                    Assertions.checkEmpty(nextValuesMinus);
                 } else {
-                    expectedIndexMinus = i + shiftForwardUnits;
+                    final int expectedIndexMinus;
+                    if (shiftForwardUnits == 0 || i == 0) {
+                        expectedIndexMinus = expectedIndex;
+                    } else {
+                        expectedIndexMinus = i + shiftForwardUnits - 1;
+                    }
+                    if (expectedIndexMinus >= DATES.size()) {
+                        Assertions.checkEquals(DATES.get(DATES.size() - 1), nextValueMinus);
+                    } else {
+                        Assertions.checkEquals(DATES.get(expectedIndexMinus), nextValueMinus);
+                    }
+                    Assertions.checkEquals(DATES.subList(i, Integers.min(expectedIndexMinus + 1, DATES.size())),
+                            nextValuesMinus);
                 }
-                if (expectedIndexMinus >= DATES.size()) {
-                    Assertions.checkEquals(DATES.get(DATES.size() - 1), nextValueMinus);
-                } else {
-                    Assertions.checkEquals(DATES.get(expectedIndexMinus), nextValueMinus);
-                }
-                Assertions.checkEquals(DATES.subList(i, Integers.min(expectedIndexMinus + 1, DATES.size())),
-                        nextValuesMinus);
 
                 ///////// plus
                 final FDate requestPlus = request.addMilliseconds(1);
@@ -86,18 +94,22 @@ public class ShiftForwardUnitsLoopIteratorTest {
                 final FDate nextValuePlus = getLast(nextValuesPlus);
                 LOG.info("nextValuePlus " + nextValuePlus);
 
-                final int expectedIndexPlus = i + Integers.max(shiftForwardUnits + 1, 1);
-                if (expectedIndexPlus >= DATES.size()) {
-                    if (shiftForwardUnits == 0 || i >= DATES.size() - 1) {
-                        Assertions.checkNull(nextValuePlus);
-                    } else {
-                        Assertions.checkEquals(DATES.get(DATES.size() - 1), nextValuePlus);
-                    }
+                if (shiftForwardUnits == 0) {
+                    Assertions.checkEmpty(nextValuesPlus);
                 } else {
-                    Assertions.checkEquals(DATES.get(expectedIndexPlus), nextValuePlus);
+                    final int expectedIndexPlus = i + Integers.max(shiftForwardUnits + 1, 1) - 1;
+                    if (expectedIndexPlus >= DATES.size()) {
+                        if (shiftForwardUnits == 0 || i >= DATES.size() - 1) {
+                            Assertions.checkNull(nextValuePlus);
+                        } else {
+                            Assertions.checkEquals(DATES.get(DATES.size() - 1), nextValuePlus);
+                        }
+                    } else {
+                        Assertions.checkEquals(DATES.get(expectedIndexPlus), nextValuePlus);
+                    }
+                    Assertions.checkEquals(DATES.subList(i + 1, Integers.min(expectedIndexPlus + 1, DATES.size())),
+                            nextValuesPlus);
                 }
-                Assertions.checkEquals(DATES.subList(i + 1, Integers.min(expectedIndexPlus + 1, DATES.size())),
-                        nextValuesPlus);
             }
         }
     }

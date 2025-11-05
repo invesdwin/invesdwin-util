@@ -134,7 +134,7 @@ public class FWeekTime extends ADayTime<FWeekTime> implements IWeekTimeData {
     @Override
     public long longValue() {
         //weekday * 1_hh_mm_ss_SSS + hour * 1_mm_ss_SSS + minute * 1_ss_SSS + second * 1_SSS + millisecond
-        return weekday.jodaTimeValue() * 1_00_00_00_000 + innerIntValue();
+        return weekday.jodaTimeValue() * 1_00_00_00_000L + innerIntValue();
     }
 
     @Override
