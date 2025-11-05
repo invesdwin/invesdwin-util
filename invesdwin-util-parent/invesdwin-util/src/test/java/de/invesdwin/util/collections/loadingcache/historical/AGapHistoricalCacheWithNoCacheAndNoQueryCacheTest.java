@@ -74,7 +74,7 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
         for (final FDate entity : entities) {
             Assertions.assertThat(cache.query().setFutureEnabled().getValue(entity.addYears(-5))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(4);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(3);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
 
         //again in the same limit
@@ -130,7 +130,7 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
         for (final FDate entity : entities) {
             Assertions.assertThat(cache.query().setFutureEnabled().getValue(entity.addYears(-5))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(9);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(7);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
 
         //again in the same limit
@@ -239,7 +239,7 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
         previousKey = cache.query().setFutureEnabled().getNextKey(FDates.MIN_DATE, 1);
         Assertions.assertThat(previousKey).isEqualTo(entities.get(1));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(3);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
     }
 
     @Test
@@ -267,7 +267,7 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
         previousValue = cache.query().setFutureEnabled().getNextValue(FDates.MIN_DATE, 1);
         Assertions.assertThat(previousValue).isSameAs(entities.get(1));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(3);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
     }
 
     @Test
@@ -297,7 +297,7 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
         nextValue = cache.query().setFutureEnabled().getNextValue(entities.get(0), 1);
         Assertions.assertThat(nextValue).isSameAs(entities.get(1));
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(3);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
     }
 
     @Test
@@ -606,8 +606,8 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
 
         nextKey = cache.query().setFutureEnabled().getNextKey(FDates.MIN_DATE, 1);
         Assertions.assertThat(nextKey).isEqualTo(entities.get(1));
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(6);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(5);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
     }
 
     @Test
@@ -664,7 +664,7 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
         Assertions.assertThat(asList(cache.query().setFutureEnabled().getNextKeys(FDates.MIN_DATE, 100)).size())
                 .isEqualTo(entities.size());
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(3);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
     }
 
     @Test
@@ -687,7 +687,7 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
         Assertions.assertThat(asList(cache.query().setFutureEnabled().getNextValues(FDates.MIN_DATE, 100)).size())
                 .isEqualTo(entities.size());
         Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(3);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
     }
 
     @Test
