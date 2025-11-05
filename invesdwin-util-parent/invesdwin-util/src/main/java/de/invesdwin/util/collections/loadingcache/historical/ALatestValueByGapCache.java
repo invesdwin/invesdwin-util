@@ -88,7 +88,11 @@ public abstract class ALatestValueByGapCache<V> {
     }
 
     private V lookupValue(final FDate date, final int lastResetIndex, final boolean moveForward) {
-        if (firstValueKey != null && date.isBeforeOrEqualToNotNullSafe(firstValueKey)) {
+        if (firstValueKey != null && date.isBeforeNotNullSafe(firstValueKey)) {
+            /*
+             * Still init if key equals firstValueKey, so that subsequent calls also go against this cache. Thus only
+             * shortcutting here for requests before firstValueKey
+             */
             return firstValue;
         }
         final FDate prevPrevKey = getKey(PREV_PREV_INDEX);

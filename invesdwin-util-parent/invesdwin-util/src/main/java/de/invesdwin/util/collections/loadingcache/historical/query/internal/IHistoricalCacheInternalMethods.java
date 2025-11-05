@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.loadingcache.historical.query.internal;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheNextQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCachePreviousKeysQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
@@ -17,6 +18,8 @@ public interface IHistoricalCacheInternalMethods<V> {
     IHistoricalCacheRangeQueryInterceptor<V> getRangeQueryInterceptor();
 
     IHistoricalCachePreviousKeysQueryInterceptor getPreviousKeysQueryInterceptor();
+
+    IHistoricalCacheNextQueryInterceptor<V> getNextQueryInterceptor();
 
     FDate calculatePreviousKey(FDate key);
 

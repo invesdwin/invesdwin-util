@@ -22,8 +22,10 @@ import de.invesdwin.util.collections.loadingcache.ADelegateLoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.DelegateLoadingCache;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
-import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCachePreviousKeysQueryInterceptorSupport;
-import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCacheRangeQueryInterceptorSupport;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCacheNextQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCachePreviousKeysQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCacheRangeQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheNextQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCachePreviousKeysQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
@@ -99,6 +101,12 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     @GuardedBy("this only during initialization")
     private IValuesMap<V> valuesMap = new LazyValuesMap();
     private boolean alignKeys = DEFAULT_ALIGN_KEYS;
+    @GuardedBy("none for performance")
+    private IHistoricalCacheRangeQueryInterceptor<V> rangeQueryInterceptor;
+    @GuardedBy("none for performance")
+    private IHistoricalCachePreviousKeysQueryInterceptor previousKeysQueryInterceptor;
+    @GuardedBy("none for performance")
+    private IHistoricalCacheNextQueryInterceptor<V> nextQueryInterceptor;
 
     public AHistoricalCache() {}
 
@@ -519,12 +527,37 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         return increaseMaximumSizeListeners.remove(l);
     }
 
-    protected IHistoricalCacheRangeQueryInterceptor<V> getRangeQueryInterceptor() {
-        return new HistoricalCacheRangeQueryInterceptorSupport<V>();
+    protected final IHistoricalCacheRangeQueryInterceptor<V> getRangeQueryInterceptor() {
+        if (rangeQueryInterceptor == null) {
+            rangeQueryInterceptor = newRangeQueryInterceptor();
+        }
+        return rangeQueryInterceptor;
     }
 
-    protected IHistoricalCachePreviousKeysQueryInterceptor getPreviousKeysQueryInterceptor() {
-        return new HistoricalCachePreviousKeysQueryInterceptorSupport();
+    protected IHistoricalCacheRangeQueryInterceptor<V> newRangeQueryInterceptor() {
+        return DisabledHistoricalCacheRangeQueryInterceptor.getInstance();
+    }
+
+    protected final IHistoricalCachePreviousKeysQueryInterceptor getPreviousKeysQueryInterceptor() {
+        if (previousKeysQueryInterceptor == null) {
+            previousKeysQueryInterceptor = newPreviousKeysQueryInterceptor();
+        }
+        return previousKeysQueryInterceptor;
+    }
+
+    protected IHistoricalCachePreviousKeysQueryInterceptor newPreviousKeysQueryInterceptor() {
+        return DisabledHistoricalCachePreviousKeysQueryInterceptor.getInstance();
+    }
+
+    protected final IHistoricalCacheNextQueryInterceptor<V> getNextQueryInterceptor() {
+        if (nextQueryInterceptor == null) {
+            nextQueryInterceptor = newNextQueryInterceptor();
+        }
+        return nextQueryInterceptor;
+    }
+
+    protected IHistoricalCacheNextQueryInterceptor<V> newNextQueryInterceptor() {
+        return DisabledHistoricalCacheNextQueryInterceptor.getInstance();
     }
 
     protected IValuesMap<V> getValuesMap() {
@@ -638,6 +671,11 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         @Override
         public IHistoricalCachePreviousKeysQueryInterceptor getPreviousKeysQueryInterceptor() {
             return AHistoricalCache.this.getPreviousKeysQueryInterceptor();
+        }
+
+        @Override
+        public IHistoricalCacheNextQueryInterceptor<V> getNextQueryInterceptor() {
+            return AHistoricalCache.this.getNextQueryInterceptor();
         }
 
         @Override
