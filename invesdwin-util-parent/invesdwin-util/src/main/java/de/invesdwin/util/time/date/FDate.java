@@ -88,10 +88,10 @@ public class FDate
 
     public static final String FORMAT_UNDERSCORE_DATE = "yyyy_MM_dd";
     public static final String FORMAT_UNDERSCORE_TIME_MINUTE = "HH_mm";
-    public static final String FORMAT_UNDERSCORE_TIME = FORMAT_UNDERSCORE_TIME_MINUTE + "_ss";
-    public static final String FORMAT_UNDERSCORE_DATE_TIME_MINUTE = FORMAT_UNDERSCORE_DATE
+    public static final String FORMAT_UNDERSCORE_DATE_TIME_MINUTE = FORMAT_UNDERSCORE_DATE + "_"
             + FORMAT_UNDERSCORE_TIME_MINUTE;
-    public static final String FORMAT_UNDERSCORE_DATE_TIME = FORMAT_UNDERSCORE_DATE + FORMAT_UNDERSCORE_TIME;
+    public static final String FORMAT_UNDERSCORE_TIME = FORMAT_UNDERSCORE_TIME_MINUTE + "_ss";
+    public static final String FORMAT_UNDERSCORE_DATE_TIME = FORMAT_UNDERSCORE_DATE + "_" + FORMAT_UNDERSCORE_TIME;
     public static final String FORMAT_UNDERSCORE_DATE_TIME_MS = FORMAT_UNDERSCORE_DATE_TIME + "_SSS";
 
     public static final String FORMAT_GERMAN_DATE = "dd.MM.yyyy";
