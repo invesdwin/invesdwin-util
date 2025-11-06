@@ -26,6 +26,15 @@ public interface IHistoricalEntry<V> extends Entry<FDate, V> {
         return getValue();
     }
 
+    @SuppressWarnings("unchecked")
+    static <T> IHistoricalEntry<T> valueOf(final IHistoricalValue<?> value) {
+        if (value == null) {
+            return null;
+        } else {
+            return (IHistoricalEntry<T>) value.asHistoricalEntry();
+        }
+    }
+
     static <V> V unwrapEntryValue(final IHistoricalEntry<V> entry) {
         if (entry == null) {
             return null;
