@@ -22,8 +22,7 @@ public final class TextDescriptionFormatter {
     private static final String DELIM_STR = DELIM_START + "s";
     private static final char ESCAPE_CHAR = '\\';
 
-    private TextDescriptionFormatter() {
-    }
+    private TextDescriptionFormatter() {}
 
     public static String format(final String messagePattern, final Object arg) {
         return format(messagePattern, new Object[] { arg });
@@ -33,7 +32,7 @@ public final class TextDescriptionFormatter {
         return format(messagePattern, new Object[] { arg1, arg2 });
     }
 
-    public static String format(final String messagePattern, final Object[] argArray) {
+    public static String format(final String messagePattern, final Object... argArray) {
 
         if (Strings.isBlank(messagePattern)) {
             return Arrays.toString(argArray);
