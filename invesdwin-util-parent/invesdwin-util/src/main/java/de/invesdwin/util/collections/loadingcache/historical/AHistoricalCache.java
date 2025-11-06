@@ -28,6 +28,7 @@ import de.invesdwin.util.collections.loadingcache.historical.interceptor.Disable
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheNextQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCachePreviousKeysQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.RangeHistoricalCacheNextQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCachePutProvider;
@@ -550,19 +551,20 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     }
 
     protected final IHistoricalCacheNextQueryInterceptor<V> getNextQueryInterceptor() {
-        if (nextQueryInterceptor == null) {
-            nextQueryInterceptor = newNextQueryInterceptor();
-        }
-        return nextQueryInterceptor;
+        return DisabledHistoricalCacheNextQueryInterceptor.getInstance();
+        //        if (nextQueryInterceptor == null) {
+        //            nextQueryInterceptor = newNextQueryInterceptor();
+        //        }
+        //        return nextQueryInterceptor;
     }
 
     protected IHistoricalCacheNextQueryInterceptor<V> newNextQueryInterceptor() {
-        //        final IHistoricalCacheRangeQueryInterceptor<V> rangeQueryInterceptor = getRangeQueryInterceptor();
-        //        if (rangeQueryInterceptor instanceof DisabledHistoricalCacheRangeQueryInterceptor) {
-        return DisabledHistoricalCacheNextQueryInterceptor.getInstance();
-        //        } else {
-        //            return new RangeHistoricalCacheNextQueryInterceptor<V>(rangeQueryInterceptor);
-        //        }
+        final IHistoricalCacheRangeQueryInterceptor<V> rangeQueryInterceptor = getRangeQueryInterceptor();
+        if (rangeQueryInterceptor instanceof DisabledHistoricalCacheRangeQueryInterceptor) {
+            return DisabledHistoricalCacheNextQueryInterceptor.getInstance();
+        } else {
+            return new RangeHistoricalCacheNextQueryInterceptor<V>(rangeQueryInterceptor);
+        }
     }
 
     protected IValuesMap<V> getValuesMap() {
