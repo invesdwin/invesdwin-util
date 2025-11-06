@@ -395,12 +395,12 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                     private FDate nextEntryKey;
 
                     {
-                        nextEntry = future.getNextEntry(adjFrom, 0);
+                        nextEntry = future.getNextEntryCached(adjFrom, 0);
                         if (nextEntry != null) {
                             nextEntryKey = extractKey(nextEntry);
                             if (nextEntryKey.isBeforeNotNullSafe(adjFrom)) {
                                 //skip initial value if it is not inside requested range
-                                nextEntry = future.getNextEntry(nextEntryKey, 1);
+                                nextEntry = future.getNextEntryCached(nextEntryKey, 1);
                                 nextEntryKey = extractKey(nextEntry);
                             }
                         }
@@ -430,7 +430,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                                 nextEntry = null;
                                 nextEntryKey = null;
                             } else {
-                                nextEntry = future.getNextEntry(currentEntryKey, 1);
+                                nextEntry = future.getNextEntryCached(currentEntryKey, 1);
                                 nextEntryKey = extractKey(nextEntry);
                                 if (nextEntry != null && !nextEntryKey.isAfter(currentEntryKey)) {
                                     nextEntry = null;
