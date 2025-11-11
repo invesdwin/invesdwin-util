@@ -93,16 +93,34 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
     ICloseableIterable<V> getValues(FDate from, FDate to);
 
     /**
+     * WARNING: getXyz range queries without "Cached" should be preferred as that is normally faster for large numbers
+     * of results or if they are far away from the current last tick time. That uncached variant of the query directly
+     * goes against the database (if possible) without any caching, this is faster for large numbers of results since
+     * they don't have to be inserted into the cache. Though for other cases where recent fewer values are requested in
+     * a higher frequency, the cached variant of the range query is normally faster.
+     * 
      * from and to are inclusive
      */
     ICloseableIterable<FDate> getKeysCached(FDate from, FDate to);
 
     /**
+     * WARNING: getXyz range queries without "Cached" should be preferred as that is normally faster for large numbers
+     * of results or if they are far away from the current last tick time. That uncached variant of the query directly
+     * goes against the database (if possible) without any caching, this is faster for large numbers of results since
+     * they don't have to be inserted into the cache. Though for other cases where recent fewer values are requested in
+     * a higher frequency, the cached variant of the range query is normally faster.
+     * 
      * from and to are inclusive
      */
     ICloseableIterable<IHistoricalEntry<V>> getEntriesCached(FDate from, FDate to);
 
     /**
+     * WARNING: getXyz range queries without "Cached" should be preferred as that is normally faster for large numbers
+     * of results or if they are far away from the current last tick time. That uncached variant of the query directly
+     * goes against the database (if possible) without any caching, this is faster for large numbers of results since
+     * they don't have to be inserted into the cache. Though for other cases where recent fewer values are requested in
+     * a higher frequency, the cached variant of the range query is normally faster.
+     * 
      * from and to are inclusive. Null values are skipped.
      */
     ICloseableIterable<V> getValuesCached(FDate from, FDate to);
