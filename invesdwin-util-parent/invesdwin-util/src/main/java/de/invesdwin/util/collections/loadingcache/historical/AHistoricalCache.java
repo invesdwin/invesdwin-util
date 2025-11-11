@@ -551,11 +551,10 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     }
 
     protected final IHistoricalCacheNextQueryInterceptor<V> getNextQueryInterceptor() {
-        return DisabledHistoricalCacheNextQueryInterceptor.getInstance();
-        //        if (nextQueryInterceptor == null) {
-        //            nextQueryInterceptor = newNextQueryInterceptor();
-        //        }
-        //        return nextQueryInterceptor;
+        if (nextQueryInterceptor == null) {
+            nextQueryInterceptor = newNextQueryInterceptor();
+        }
+        return nextQueryInterceptor;
     }
 
     protected IHistoricalCacheNextQueryInterceptor<V> newNextQueryInterceptor() {
