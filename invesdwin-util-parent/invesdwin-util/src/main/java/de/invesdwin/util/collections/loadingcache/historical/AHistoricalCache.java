@@ -1069,10 +1069,14 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
             if (previousKey != null) {
                 shiftKeyValueEntry = putPrevious(previousKey, value, valueKey, notifyPutListeners);
             }
+            boolean updated = shiftKeyValueEntry != null;
             if (nextKey != null) {
-                putNext(nextKey, value, valueKey, shiftKeyValueEntry);
+                final boolean success = putNext(nextKey, value, valueKey, shiftKeyValueEntry);
+                if (success) {
+                    updated = true;
+                }
             }
-            if (previousKey == null && nextKey == null) {
+            if (!updated) {
                 //set value only if not already done by putPrevious or putNext
                 shiftKeyProvider.put(valueKey, value);
             }
@@ -1086,10 +1090,10 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
                 throw new IllegalArgumentException(TextDescription
                         .format("%s: previousKey [%s] <= value [%s] not matched", this, previousKey, valueKey));
             }
-            IHistoricalEntry<V> newShiftKeyValueEntry = null;
             if (compare != 0) {
                 //from value to previous backward
-                newShiftKeyValueEntry = shiftKeyProvider.put(previousKey, valueKey, value, null, null);
+                final IHistoricalEntry<V> newShiftKeyValueEntry = shiftKeyProvider.put(previousKey, valueKey, value,
+                        null, null);
                 //from previous to value forward
                 shiftKeyProvider.put(null, previousKey, null, null, valueKey);
                 if (notifyPutListeners) {
@@ -1107,11 +1111,13 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
                         }
                     }
                 }
+                return newShiftKeyValueEntry;
+            } else {
+                return null;
             }
-            return newShiftKeyValueEntry;
         }
 
-        private void putNext(final FDate nextKey, final V value, final FDate valueKey,
+        private boolean putNext(final FDate nextKey, final V value, final FDate valueKey,
                 final IHistoricalEntry<V> shiftKeyValueEntry) {
             final int compare = nextKey.compareTo(valueKey);
             if (!(compare >= 0)) {
@@ -1123,6 +1129,9 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
                 shiftKeyProvider.put(null, valueKey, value, shiftKeyValueEntry, nextKey);
                 //from next to value backward
                 shiftKeyProvider.put(valueKey, nextKey, null, null, null);
+                return true;
+            } else {
+                return false;
             }
         }
 
