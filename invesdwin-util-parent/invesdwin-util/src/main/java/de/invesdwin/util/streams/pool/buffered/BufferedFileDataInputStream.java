@@ -220,12 +220,12 @@ public class BufferedFileDataInputStream extends InputStream implements DataInpu
 
     @Override
     public void readFully(final byte[] b, final int off, final int len) throws IOException {
-        InputStreams.readFully(this, b, off, len);
+        InputStreams.readFullyNoTimeout(this, b, off, len);
     }
 
     @Override
     public void readFully(final byte[] b) throws IOException {
-        InputStreams.readFully(this, b);
+        InputStreams.readFullyNoTimeout(this, b);
     }
 
     @Override

@@ -7,11 +7,15 @@ import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.io.UTFDataFormatException;
 import java.nio.channels.ReadableByteChannel;
+import java.util.concurrent.TimeoutException;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.concurrent.future.throwing.IThrowingIORunnable;
+import de.invesdwin.util.concurrent.future.throwing.IThrowingTimeoutRunnable;
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
+import de.invesdwin.util.error.FastTimeoutException;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
@@ -192,7 +196,7 @@ public final class InputStreams {
 
     public static long readLong(final InputStream in) throws IOException {
         final byte[] readBuffer = LONG_BUFFER_HOLDER.get();
-        readFully(in, readBuffer, 0, 8);
+        readFullyNoTimeout(in, readBuffer, 0, 8);
         //CHECKSTYLE:OFF
         return (((long) readBuffer[0] << 56) + ((long) (readBuffer[1] & 255) << 48)
                 + ((long) (readBuffer[2] & 255) << 40) + ((long) (readBuffer[3] & 255) << 32)
@@ -209,13 +213,99 @@ public final class InputStreams {
         return Double.longBitsToDouble(readLong(in));
     }
 
-    public static void readFully(final InputStream in, final byte[] b) throws IOException {
+    public static void readFullyNoTimeout(final InputStream in, final byte[] b) throws IOException {
+        try {
+            readFully(in, b);
+        } catch (final TimeoutException e) {
+            throw newTimeoutEOF(e);
+        }
+    }
+
+    public static void readFully(final InputStream in, final byte[] b) throws IOException, TimeoutException {
         readFully(in, b, 0, b.length);
     }
 
-    public static void readFully(final InputStream src, final byte[] array, final int index, final int length)
+    public static void readFullyNoTimeout(final InputStream src, final byte[] array, final int index, final int length)
             throws IOException {
         final Duration timeout = URIs.getDefaultNetworkTimeout();
+        try {
+            readFully(src, array, index, length, timeout);
+        } catch (final TimeoutException e) {
+            throw newTimeoutEOF(e);
+        }
+    }
+
+    public static void readFully(final InputStream src, final byte[] array, final int index, final int length)
+            throws IOException, TimeoutException {
+        final Duration timeout = URIs.getDefaultNetworkTimeout();
+        readFully(src, array, index, length, timeout);
+    }
+
+    public static void readFully(final InputStream src, final byte[] array, final int index, final int length,
+            final Duration timeout) throws IOException, TimeoutException {
+        readFully(src, array, index, length, timeout, ASpinWait::onSpinWaitStatic, InputStreams::throwOnEOF,
+                InputStreams::throwOnTimeout);
+    }
+
+    public static void readFully(final InputStream src, final byte[] array, final int index, final int length,
+            final Duration timeout, final Runnable onSpinWaitF, final IThrowingIORunnable onEofF,
+            final IThrowingTimeoutRunnable onTimeoutF) throws IOException, TimeoutException {
+        final int read = readFullyIfPossible(src, array, index, length, timeout, onSpinWaitF, onEofF, onTimeoutF);
+        if (read < length) {
+            throw newEOF();
+        }
+    }
+
+    public static void readFullyNoTimeout(final ReadableByteChannel src, final java.nio.ByteBuffer byteBuffer)
+            throws IOException {
+        try {
+            readFully(src, byteBuffer);
+        } catch (final TimeoutException e) {
+            throw newTimeoutEOF(e);
+        }
+    }
+
+    public static void readFully(final ReadableByteChannel src, final java.nio.ByteBuffer byteBuffer)
+            throws IOException, TimeoutException {
+        final Duration timeout = URIs.getDefaultNetworkTimeout();
+        readFully(src, byteBuffer, timeout);
+    }
+
+    public static void readFully(final ReadableByteChannel src, final java.nio.ByteBuffer byteBuffer,
+            final Duration timeout) throws IOException, TimeoutException {
+        readFully(src, byteBuffer, timeout, ASpinWait::onSpinWaitStatic, InputStreams::throwOnEOF,
+                InputStreams::throwOnTimeout);
+    }
+
+    public static void readFully(final ReadableByteChannel src, final java.nio.ByteBuffer byteBuffer,
+            final Duration timeout, final Runnable onSpinWaitF, final IThrowingIORunnable onEofF,
+            final IThrowingTimeoutRunnable onTimeoutF) throws IOException, TimeoutException {
+        final int length = byteBuffer.remaining();
+        final int read = readFullyIfPossible(src, byteBuffer, timeout, onSpinWaitF, onEofF, onTimeoutF);
+        if (read < length) {
+            throw newEOF();
+        }
+    }
+
+    public static int readFullyIfPossible(final InputStream in, final byte[] b) throws IOException, TimeoutException {
+        return readFullyIfPossible(in, b, 0, b.length);
+    }
+
+    public static int readFullyIfPossible(final InputStream src, final byte[] array, final int index, final int length)
+            throws IOException, TimeoutException {
+        final Duration timeout = URIs.getDefaultNetworkTimeout();
+        return readFullyIfPossible(src, array, index, length, timeout);
+    }
+
+    public static int readFullyIfPossible(final InputStream src, final byte[] array, final int index, final int length,
+            final Duration timeout) throws IOException, TimeoutException {
+        return readFullyIfPossible(src, array, index, length, timeout, ASpinWait::onSpinWaitStatic,
+                InputStreams::throwOnEOF, InputStreams::throwOnTimeout);
+    }
+
+    public static int readFullyIfPossible(final InputStream src, final byte[] array, final int index, final int length,
+            final Duration timeout, final Runnable onSpinWaitF, final IThrowingIORunnable onEofF,
+            final IThrowingTimeoutRunnable onTimeoutF) throws IOException, TimeoutException {
         long zeroCountNanos = -1L;
 
         final int end = index + length;
@@ -224,53 +314,72 @@ public final class InputStreams {
             final int location = end - remaining;
             final int count = src.read(array, location, remaining);
             if (count < 0) { // EOF
+                onEofF.run();
                 break;
             }
-            if (count == 0 && timeout != null) {
-                if (zeroCountNanos == -1) {
-                    zeroCountNanos = System.nanoTime();
-                } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
-                    throw FastEOFException.getInstance("read timeout exceeded");
+            if (count == 0) {
+                if (timeout != null) {
+                    if (zeroCountNanos == -1) {
+                        zeroCountNanos = System.nanoTime();
+                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        //timeout exceeded
+                        onTimeoutF.run();
+                        return length - remaining;
+                    }
                 }
-                ASpinWait.onSpinWaitStatic();
+                onSpinWaitF.run();
             } else {
                 zeroCountNanos = -1L;
                 remaining -= count;
             }
         }
-        if (remaining > 0) {
-            throw ByteBuffers.newEOF();
-        }
+        return length - remaining;
     }
 
-    public static void readFully(final ReadableByteChannel src, final java.nio.ByteBuffer byteBuffer)
-            throws IOException {
+    public static int readFullyIfPossible(final ReadableByteChannel src, final java.nio.ByteBuffer byteBuffer)
+            throws IOException, TimeoutException {
         final Duration timeout = URIs.getDefaultNetworkTimeout();
+        return readFullyIfPossible(src, byteBuffer, timeout);
+    }
+
+    public static int readFullyIfPossible(final ReadableByteChannel src, final java.nio.ByteBuffer byteBuffer,
+            final Duration timeout) throws IOException, TimeoutException {
+        return readFullyIfPossible(src, byteBuffer, timeout, ASpinWait::onSpinWaitStatic, InputStreams::throwOnEOF,
+                InputStreams::throwOnTimeout);
+    }
+
+    public static int readFullyIfPossible(final ReadableByteChannel src, final java.nio.ByteBuffer byteBuffer,
+            final Duration timeout, final Runnable onSpinWaitF, final IThrowingIORunnable onEofF,
+            final IThrowingTimeoutRunnable onTimeoutF) throws IOException, TimeoutException {
         long zeroCountNanos = -1L;
 
         int remaining = byteBuffer.remaining();
+        final int length = remaining;
         final int positionBefore = byteBuffer.position();
         while (remaining > 0) {
             final int count = src.read(byteBuffer);
             if (count < 0) { // EOF
+                onEofF.run();
                 break;
             }
-            if (count == 0 && timeout != null) {
-                if (zeroCountNanos == -1) {
-                    zeroCountNanos = System.nanoTime();
-                } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
-                    throw FastEOFException.getInstance("read timeout exceeded");
+            if (count == 0) {
+                if (timeout != null) {
+                    if (zeroCountNanos == -1) {
+                        zeroCountNanos = System.nanoTime();
+                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        //timeout exceeded
+                        onTimeoutF.run();
+                        return length - remaining;
+                    }
                 }
-                ASpinWait.onSpinWaitStatic();
+                onSpinWaitF.run();
             } else {
                 zeroCountNanos = -1L;
                 remaining -= count;
             }
         }
         ByteBuffers.position(byteBuffer, positionBefore);
-        if (remaining > 0) {
-            throw ByteBuffers.newEOF();
-        }
+        return length - remaining;
     }
 
     /**
@@ -370,6 +479,26 @@ public final class InputStreams {
             throw new IndexOutOfBoundsException("fromIndex=" + fromIndex + " size=" + size + " length=" + length);
         }
         return fromIndex;
+    }
+
+    public static void throwOnEOF() throws IOException {
+        throw newEOF();
+    }
+
+    public static FastEOFException newEOF() {
+        return FastEOFException.getInstance("readFully src.read() returned negative count");
+    }
+
+    public static FastEOFException newTimeoutEOF(final TimeoutException cause) {
+        return FastEOFException.getInstance("readFully timeout exceeded", cause);
+    }
+
+    public static void throwOnTimeout() throws TimeoutException {
+        throw newTimeout();
+    }
+
+    public static FastTimeoutException newTimeout() {
+        return FastTimeoutException.getInstance("readFully timeout exceeded");
     }
 
 }
