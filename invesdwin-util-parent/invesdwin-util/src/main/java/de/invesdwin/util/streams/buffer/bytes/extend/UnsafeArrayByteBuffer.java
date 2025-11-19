@@ -89,7 +89,7 @@ public class UnsafeArrayByteBuffer extends UnsafeByteBuffer {
             putBytesTo(index, (DataInput) src, length);
         } else {
             final byte[] array = byteArray();
-            InputStreams.readFully(src, array, index + wrapAdjustment(), length);
+            InputStreams.readFullyNoTimeout(src, array, index + wrapAdjustment(), length);
         }
     }
 

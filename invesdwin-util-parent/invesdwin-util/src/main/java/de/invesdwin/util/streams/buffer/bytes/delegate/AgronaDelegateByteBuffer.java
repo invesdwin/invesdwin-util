@@ -553,7 +553,7 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
-        OutputStreams.writeFully(dst, asNioByteBuffer(index, length));
+        OutputStreams.writeFullyNoTimeout(dst, asNioByteBuffer(index, length));
     }
 
     @Override
