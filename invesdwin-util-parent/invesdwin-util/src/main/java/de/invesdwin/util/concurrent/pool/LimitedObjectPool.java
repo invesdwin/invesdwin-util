@@ -29,6 +29,10 @@ public class LimitedObjectPool<E> implements IObjectPool<E> {
         this.timeout = timeout;
     }
 
+    public IObjectPool<E> getDelegate() {
+        return delegate;
+    }
+
     public int getMaximumSize() {
         return maximumSize;
     }
