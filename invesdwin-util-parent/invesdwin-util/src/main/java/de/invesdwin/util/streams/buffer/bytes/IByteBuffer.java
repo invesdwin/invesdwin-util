@@ -14,15 +14,17 @@ import java.nio.channels.WritableByteChannel;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
+import de.invesdwin.norva.beanpath.spi.IUnwrap;
 import de.invesdwin.util.collections.array.IPrimitiveArray;
 import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.math.random.IRandomGenerator;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
 /**
  * Default ByteOrder is always BigEndian. Use Reverse-Suffixed methods to write/read in LittleEndian. Alternatively use
  * OrderedDelegateByteBuffer to switch the default byte order (though not recommeded).
  */
-public interface IByteBuffer extends IByteBufferProvider, Cloneable, IPrimitiveArray {
+public interface IByteBuffer extends IByteBufferProvider, Cloneable, IPrimitiveArray, IUnwrap {
 
     IByteBuffer ensureCapacity(int capacity);
 
@@ -493,8 +495,6 @@ public interface IByteBuffer extends IByteBufferProvider, Cloneable, IPrimitiveA
 
     void putBytesTo(int index, ReadableByteChannel src, int length) throws IOException;
 
-    <T> T unwrap(Class<T> type);
-
     @Override
     default int getBuffer(final IByteBuffer dst) {
         final int length = capacity();
@@ -523,6 +523,18 @@ public interface IByteBuffer extends IByteBufferProvider, Cloneable, IPrimitiveA
         clear(Bytes.ZERO);
     }
 
+    default void clearFrom(final int index) {
+        clear(Bytes.ZERO, index, remaining(index));
+    }
+
+    default void clearTo(final int length) {
+        clear(Bytes.ZERO, 0, length);
+    }
+
+    default void clear(final int index, final int length) {
+        clear(Bytes.ZERO, index, length);
+    }
+
     default void clear(final byte value) {
         clear(value, 0, capacity());
     }
@@ -537,9 +549,39 @@ public interface IByteBuffer extends IByteBufferProvider, Cloneable, IPrimitiveA
 
     void clear(byte value, int index, int length);
 
+    default void clear(final IRandomGenerator random) {
+        clear(random, 0, capacity());
+    }
+
+    default void clearFrom(final IRandomGenerator random, final int index) {
+        clear(random, index, remaining(index));
+    }
+
+    default void clearTo(final IRandomGenerator random, final int length) {
+        clear(random, 0, length);
+    }
+
+    /**
+     * Adapted from it.unimi.dsi.util.XoShiRo256PlusRandomGenerator.nextBytes(byte[])
+     */
+    default void clear(final IRandomGenerator random, final int index, final int length) {
+        int i = length, n = 0;
+        while (i != 0) {
+            n = Math.min(i, Long.BYTES);
+            for (long bits = random.nextLong(); n-- != 0; bits >>= Long.BYTES) {
+                putByte(--i + index, (byte) bits);
+            }
+        }
+    }
+
     @Override
     default int size() {
         return capacity();
+    }
+
+    @Override
+    default boolean isEmpty() {
+        return capacity() == 0;
     }
 
     IByteBuffer asImmutableSlice();

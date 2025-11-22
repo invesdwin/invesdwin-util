@@ -1,5 +1,6 @@
 package de.invesdwin.util.streams.buffer.file;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
@@ -10,6 +11,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.IoUtil;
 
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
@@ -41,11 +43,16 @@ public class MemoryMappedFile implements IMemoryMappedFile {
      * @throws Exception
      *             in case there was an error creating the memory mapped file
      */
-    public MemoryMappedFile(final String path, final long offset, final long length, final boolean readOnly,
+    public MemoryMappedFile(final File file, final long offset, final long length, final boolean readOnly,
             final boolean closeAllowed) throws IOException {
         this.closeAllowed = closeAllowed;
-        this.finalizer = new MemoryMappedFileFinalizer(path, offset, length, readOnly);
+        this.finalizer = new MemoryMappedFileFinalizer(file, offset, length, readOnly);
         this.finalizer.register(this);
+    }
+
+    @Override
+    public File getFile() {
+        return finalizer.file;
     }
 
     @Override
@@ -96,18 +103,52 @@ public class MemoryMappedFile implements IMemoryMappedFile {
 
     @Override
     public IByteBuffer newByteBuffer(final long index, final int length) {
+        final File file = finalizer.file;
         final long address = addressOffset() + index;
-        return new UnsafeByteBuffer(address, length);
+        return new MappedByteBuffer(address, length, file, index);
     }
 
     @Override
     public IMemoryBuffer newMemoryBuffer(final long index, final long length) {
+        final File file = finalizer.file;
         final long address = addressOffset() + index;
-        return new UnsafeMemoryBuffer(address, length);
+        return new MappedMemoryBuffer(address, length, file, index);
+    }
+
+    private static final class MappedMemoryBuffer extends UnsafeMemoryBuffer {
+        private final File file;
+        private final long index;
+
+        private MappedMemoryBuffer(final long address, final long length, final File file, final long index) {
+            super(address, length);
+            this.file = file;
+            this.index = index;
+        }
+
+        @Override
+        public int getId() {
+            return Objects.hashCode(file, index, capacity());
+        }
+    }
+
+    private static final class MappedByteBuffer extends UnsafeByteBuffer {
+        private final File file;
+        private final long index;
+
+        private MappedByteBuffer(final long address, final int length, final File file, final long index) {
+            super(address, length);
+            this.file = file;
+            this.index = index;
+        }
+
+        @Override
+        public int getId() {
+            return Objects.hashCode(file, index, capacity());
+        }
     }
 
     private static final class MemoryMappedFileFinalizer extends AFinalizer {
-        private final String path;
+        private final File file;
         private final long offset;
         private final long length;
         private final RandomAccessFile raf;
@@ -115,18 +156,18 @@ public class MemoryMappedFile implements IMemoryMappedFile {
         private final long address;
         private volatile boolean cleaned;
 
-        private MemoryMappedFileFinalizer(final String path, final long offset, final long length,
-                final boolean readOnly) throws IOException {
-            this.path = path;
+        private MemoryMappedFileFinalizer(final File file, final long offset, final long length, final boolean readOnly)
+                throws IOException {
+            this.file = file;
             this.offset = offset;
             if (readOnly) {
                 this.length = length;
-                this.raf = new RandomAccessFile(this.path, "r");
+                this.raf = new RandomAccessFile(this.file, "r");
                 this.channel = raf.getChannel();
                 this.address = IoUtil.map(channel, MapMode.READ_ONLY, this.offset, this.length);
             } else {
                 this.length = roundTo4096(length);
-                this.raf = new RandomAccessFile(this.path, "rw");
+                this.raf = new RandomAccessFile(this.file, "rw");
                 raf.setLength(this.length);
                 this.channel = raf.getChannel();
                 this.address = IoUtil.map(channel, MapMode.READ_WRITE, this.offset, this.length);

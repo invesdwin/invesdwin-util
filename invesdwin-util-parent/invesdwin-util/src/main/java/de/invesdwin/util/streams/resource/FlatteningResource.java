@@ -109,4 +109,28 @@ public class FlatteningResource implements Resource {
         return resources[0].getDescription();
     }
 
+    @Override
+    public boolean isReadable() {
+        if (resources.length == 0) {
+            return false;
+        }
+        return resources[0].isReadable();
+    }
+
+    @Override
+    public boolean isOpen() {
+        if (resources.length == 0) {
+            return false;
+        }
+        return resources[0].isOpen();
+    }
+
+    @Override
+    public boolean isFile() {
+        if (resources.length == 0) {
+            return false;
+        }
+        return resources[0].isFile();
+    }
+
 }

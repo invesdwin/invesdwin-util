@@ -55,6 +55,8 @@ public class Duration extends Number implements Comparable<Object> {
     public static final Duration ONE_WEEK = new Duration(1, FTimeUnit.WEEKS);
     public static final Duration TWO_WEEKS = new Duration(2, FTimeUnit.WEEKS);
     public static final Duration ONE_MONTH = new Duration(1, FTimeUnit.MONTHS);
+    public static final Duration TWO_MONTHS = new Duration(2, FTimeUnit.MONTHS);
+    public static final Duration THREE_MONTHS = new Duration(3, FTimeUnit.MONTHS);
     public static final Duration ONE_YEAR = new Duration(1, FTimeUnit.YEARS);
 
     private static final long serialVersionUID = 1L;
@@ -436,8 +438,18 @@ public class Duration extends Number implements Comparable<Object> {
         return new Duration(divided, FTimeUnit.NANOSECONDS);
     }
 
+    public Duration divide(final Duration dividend) {
+        final long divided = nanosValue() / dividend.nanosValue();
+        return new Duration(divided, FTimeUnit.NANOSECONDS);
+    }
+
     public Duration multiply(final Number multiplicant) {
         final long multiplied = (long) (nanosValue() * multiplicant.doubleValue());
+        return new Duration(multiplied, FTimeUnit.NANOSECONDS);
+    }
+
+    public Duration multiply(final Duration multiplicant) {
+        final long multiplied = nanosValue() * multiplicant.nanosValue();
         return new Duration(multiplied, FTimeUnit.NANOSECONDS);
     }
 
@@ -748,6 +760,70 @@ public class Duration extends Number implements Comparable<Object> {
             sleep();
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static Duration multiply(final Duration value1, final double value2) {
+        if (value1 == null) {
+            return null;
+        } else {
+            return value1.multiply(value2);
+        }
+    }
+
+    public static Duration multiply(final Duration value1, final Double value2) {
+        if (value1 == null) {
+            return null;
+        } else {
+            return value1.multiply(value2);
+        }
+    }
+
+    public static Duration multiply(final Duration value1, final Number value2) {
+        if (value1 == null) {
+            return null;
+        } else {
+            return value1.multiply(value2);
+        }
+    }
+
+    public static Duration multiply(final Duration value1, final Duration value2) {
+        if (value1 == null) {
+            return null;
+        } else {
+            return value1.multiply(value2);
+        }
+    }
+
+    public static Duration divide(final Duration value1, final double value2) {
+        if (value1 == null) {
+            return null;
+        } else {
+            return value1.divide(value2);
+        }
+    }
+
+    public static Duration divide(final Duration value1, final Double value2) {
+        if (value1 == null) {
+            return null;
+        } else {
+            return value1.divide(value2);
+        }
+    }
+
+    public static Duration divide(final Duration value1, final Number value2) {
+        if (value1 == null) {
+            return null;
+        } else {
+            return value1.divide(value2);
+        }
+    }
+
+    public static Duration divide(final Duration value1, final Duration value2) {
+        if (value1 == null) {
+            return null;
+        } else {
+            return value1.divide(value2);
         }
     }
 

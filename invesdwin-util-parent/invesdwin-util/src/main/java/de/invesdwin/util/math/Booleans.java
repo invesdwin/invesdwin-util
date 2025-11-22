@@ -28,8 +28,10 @@ public final class Booleans extends ABooleansStaticFacade {
     public static final Boolean[] OBJ_EMPTY_ARRAY = new Boolean[0];
     public static final boolean[] EMPTY_ARRAY = new boolean[0];
 
-    private Booleans() {
-    }
+    public static final String TRUE_STR = "true";
+    public static final String FALSE_STR = "false";
+
+    private Booleans() {}
 
     public static boolean[] toArray(final Collection<Boolean> vector) {
         if (vector == null) {

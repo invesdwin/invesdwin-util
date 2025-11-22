@@ -3,7 +3,7 @@ package de.invesdwin.util.collections.iterable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public class PeekingCloseableIterable<E> implements ICloseableIterable<E> {
+public class PeekingCloseableIterable<E> implements IPeekingCloseableIterable<E> {
 
     private final ICloseableIterable<? extends E> delegate;
 

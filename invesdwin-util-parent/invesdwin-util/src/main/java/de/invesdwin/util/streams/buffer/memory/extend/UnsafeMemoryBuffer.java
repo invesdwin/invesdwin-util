@@ -18,6 +18,7 @@ import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
@@ -77,6 +78,11 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
 
     public UnsafeMemoryBuffer(final long address, final long length) {
         super(ByteBuffers.assertBuffer(address), length);
+    }
+
+    @Override
+    public int getId() {
+        return Objects.hashCode(addressOffset(), capacity());
     }
 
     @Override
@@ -334,10 +340,10 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
             while (remaining > 0L) {
                 final long chunk = Longs.min(remaining, ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH);
                 remaining -= chunk;
-                OutputStreams.writeFully(dst, asNioByteBuffer(index, (int) chunk));
+                OutputStreams.writeFullyNoTimeout(dst, asNioByteBuffer(index, (int) chunk));
             }
         } else {
-            OutputStreams.writeFully(dst, asNioByteBuffer(index, (int) length));
+            OutputStreams.writeFullyNoTimeout(dst, asNioByteBuffer(index, (int) length));
         }
     }
 
@@ -348,10 +354,10 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
             while (remaining > 0L) {
                 final long chunk = Longs.min(remaining, ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH);
                 remaining -= chunk;
-                InputStreams.readFully(src, asNioByteBuffer(index, (int) chunk));
+                InputStreams.readFullyNoTimeout(src, asNioByteBuffer(index, (int) chunk));
             }
         } else {
-            InputStreams.readFully(src, asNioByteBuffer(index, (int) length));
+            InputStreams.readFullyNoTimeout(src, asNioByteBuffer(index, (int) length));
         }
     }
 

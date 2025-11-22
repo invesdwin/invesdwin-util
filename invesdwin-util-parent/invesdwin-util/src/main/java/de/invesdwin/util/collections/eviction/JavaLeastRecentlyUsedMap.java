@@ -33,4 +33,9 @@ public class JavaLeastRecentlyUsedMap<K, V> extends LinkedHashMap<K, V> implemen
         return size() > maximumSize;
     }
 
+    @Override
+    public boolean isThreadSafe() {
+        return false;
+    }
+
 }

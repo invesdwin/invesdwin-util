@@ -1,11 +1,11 @@
 package de.invesdwin.util.collections.iterable.skip;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 
-@NotThreadSafe
+@Immutable
 public abstract class ASkippingIterable<E> implements ICloseableIterable<E> {
 
     protected final ICloseableIterable<? extends E> delegate;

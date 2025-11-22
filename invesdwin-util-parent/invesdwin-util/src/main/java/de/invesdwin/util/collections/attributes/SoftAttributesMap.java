@@ -11,7 +11,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import de.invesdwin.util.collections.delegate.ADelegateMap;
 
 @ThreadSafe
-public class SoftAttributesMap extends ADelegateMap<String, Object> implements IAttributesMap {
+public class SoftAttributesMap extends ADelegateMap<String, Object> implements IAttributesMapContract {
 
     @Override
     protected Map<String, Object> newDelegate() {
@@ -46,6 +46,7 @@ public class SoftAttributesMap extends ADelegateMap<String, Object> implements I
         return v;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T getOrCreate(final String key, final Supplier<T> createSupplier) {
         T v;

@@ -14,6 +14,11 @@ public final class EmptyGenericArray<E> implements IGenericArray<E> {
     private EmptyGenericArray() {}
 
     @Override
+    public int getId() {
+        return ID_EMPTY;
+    }
+
+    @Override
     public void set(final int index, final E value) {}
 
     @Override
@@ -24,6 +29,11 @@ public final class EmptyGenericArray<E> implements IGenericArray<E> {
     @Override
     public int size() {
         return 0;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return true;
     }
 
     @Override

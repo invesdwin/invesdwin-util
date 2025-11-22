@@ -59,6 +59,12 @@ public final class Reflections extends AReflectionsStaticFacade {
     private static final String[] INSTANCE_FIELD_NAMES = new String[] { "INSTANCE", "GET" };
     private static final String[] INSTANCE_METHOD_NAMES = new String[] { "getInstance", "newInstance", "get" };
 
+    public static final Annotation[] ANNOTATION_EMPTY_ARRAY = BeanPathReflections.ANNOTATION_EMPTY_ARRAY;
+    @SuppressWarnings("rawtypes")
+    public static final Class[] CLASS_EMPTY_ARRAY = BeanPathReflections.CLASS_EMPTY_ARRAY;
+    public static final Field[] FIELD_EMPTY_ARRAY = BeanPathReflections.FIELD_EMPTY_ARRAY;
+    public static final Method[] METHOD_EMPTY_ARRAY = BeanPathReflections.METHOD_EMPTY_ARRAY; 
+
     @GuardedBy("this.class")
     private static boolean modulesExported = false;
 

@@ -2,6 +2,7 @@ package de.invesdwin.util.concurrent.nested;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.concurrent.DisabledWrappedExecutorService;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 
@@ -11,7 +12,7 @@ public final class DisabledNestedExecutor implements INestedExecutor {
     public static final DisabledNestedExecutor INSTANCE = new DisabledNestedExecutor(
             DisabledNestedExecutor.class.getSimpleName() + "_INSTANCE");
 
-    private final WrappedExecutorService executor;
+    private final DisabledWrappedExecutorService executor;
 
     public DisabledNestedExecutor(final String name) {
         this.executor = Executors.newDisabledExecutor(name);
@@ -35,6 +36,15 @@ public final class DisabledNestedExecutor implements INestedExecutor {
     @Override
     public void close() {
         executor.shutdownNow();
+    }
+
+    public DisabledNestedExecutor setFailFast(final boolean failFast) {
+        executor.setFailFast(failFast);
+        return this;
+    }
+
+    public boolean isFailFast() {
+        return executor.isFailFast();
     }
 
 }

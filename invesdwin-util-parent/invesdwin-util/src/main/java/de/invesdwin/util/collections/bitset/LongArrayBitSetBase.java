@@ -10,13 +10,14 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.array.ILongArray;
+import de.invesdwin.util.collections.array.IPrimitiveArrayId;
 import de.invesdwin.util.math.Integers;
 
 /**
  * Adapted from java.util.BitSet to use a custom ILongArray storage for off-heap and memory memory storage.
  */
 @NotThreadSafe
-public class LongArrayBitSetBase {
+public class LongArrayBitSetBase implements IPrimitiveArrayId {
     private static final int MAX_INITIAL_CAPACITY = Integer.MAX_VALUE - 8;
     private static final int ADDRESS_BITS_PER_WORD = 6;
     private static final int BITS_PER_WORD = 1 << ADDRESS_BITS_PER_WORD;
@@ -40,6 +41,11 @@ public class LongArrayBitSetBase {
     public LongArrayBitSetBase(final ILongArray words, final int size) {
         this.words = words;
         this.size = size;
+    }
+
+    @Override
+    public int getId() {
+        return words.getId();
     }
 
     public ILongArray getWords() {

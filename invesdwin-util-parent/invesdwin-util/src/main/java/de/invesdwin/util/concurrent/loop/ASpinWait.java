@@ -127,6 +127,10 @@ public abstract class ASpinWait {
         if (isConditionFulfilled()) {
             return true;
         }
+        long nanosRemaining = maxWait.nanosValue();
+        if (nanosRemaining == 0L) {
+            return false;
+        }
         final boolean spinAllowedNow = spinAllowed && isSpinAllowed(waitingSinceNanos);
         if (spinAllowedNow) {
             for (int untimedSpins = 0; untimedSpins < maxUntimedSpins; untimedSpins++) {
@@ -136,7 +140,6 @@ public abstract class ASpinWait {
                 onSpinWait();
             }
         }
-        long nanosRemaining = maxWait.nanosValue();
         final long waitDeadline = System.nanoTime() + nanosRemaining;
         final Thread thread = Thread.currentThread();
         int timedSpins = 0;

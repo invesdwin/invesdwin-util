@@ -24,6 +24,16 @@ public final class UnsupportedIntReference implements IMutableIntReference {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public int incrementAndGet() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int decrementAndGet() {
+        throw new UnsupportedOperationException();
+    }
+
     public static UnsupportedIntReference getInstance() {
         return INSTANCE;
     }

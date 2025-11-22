@@ -34,6 +34,11 @@ public class MutableSlicedFromDelegateMemoryBuffer implements IMemoryBuffer {
         this.from = from;
     }
 
+    @Override
+    public int getId() {
+        return delegate.getId();
+    }
+
     public void setFrom(final long from) {
         this.from = from;
     }

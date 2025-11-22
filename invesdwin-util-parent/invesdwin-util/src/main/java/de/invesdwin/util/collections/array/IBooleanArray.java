@@ -1,14 +1,13 @@
 package de.invesdwin.util.collections.array;
 
+import de.invesdwin.util.collections.array.accessor.IBooleanArrayAccessor;
 import de.invesdwin.util.collections.array.heap.HeapBooleanArray;
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 
-public interface IBooleanArray extends IPrimitiveArray {
+public interface IBooleanArray extends IPrimitiveArray, IBooleanArrayAccessor {
 
     void set(int index, boolean value);
-
-    boolean get(int index);
 
     IBooleanArray slice(int fromIndex, int length);
 

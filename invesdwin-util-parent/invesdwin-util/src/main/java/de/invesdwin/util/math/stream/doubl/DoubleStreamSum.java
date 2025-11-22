@@ -5,7 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public class DoubleStreamSum implements IDoubleStreamAlgorithm {
 
-    private double sum = 0;
+    private double sum = 0D;
 
     @Override
     public double process(final double value) {
@@ -15,6 +15,10 @@ public class DoubleStreamSum implements IDoubleStreamAlgorithm {
 
     public double getSum() {
         return sum;
+    }
+
+    public void reset() {
+        sum = 0D;
     }
 
 }

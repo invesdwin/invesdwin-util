@@ -15,6 +15,7 @@ public final class TimeZones {
 
     public static final TimeZone UTC;
     public static final TimeZone EET;
+    public static final TimeZone EST;
     public static final TimeZone CET;
     public static final TimeZone EUROPE_BERLIN;
     public static final TimeZone AMERICA_NEWYORK;
@@ -31,6 +32,7 @@ public final class TimeZones {
         UTC = TimeZone.getTimeZone("UTC");
         //CHECKSTYLE:ON
         EET = getTimeZone("EET");
+        EST = getTimeZone("EST");
         CET = getTimeZone("CET");
         EUROPE_BERLIN = getTimeZone("Europe/Berlin");
         AMERICA_NEWYORK = getTimeZone("America/New_York");

@@ -71,10 +71,12 @@ public class AttributesMap extends ADelegateMap<String, Object> implements IAttr
         return v;
     }
 
+    @Override
     public SoftAttributesMap getSoft() {
         return getOrCreate(SoftAttributesMap.class.getSimpleName() + "_INSTANCE", () -> new SoftAttributesMap());
     }
 
+    @Override
     public WeakAttributesMap getWeak() {
         return getOrCreate(WeakAttributesMap.class.getSimpleName() + "_INSTANCE", () -> new WeakAttributesMap());
     }

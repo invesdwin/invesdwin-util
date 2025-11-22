@@ -21,6 +21,11 @@ public class BufferIntegerArray implements IIntegerArray {
     }
 
     @Override
+    public int getId() {
+        return buffer.getId();
+    }
+
+    @Override
     public void set(final int index, final int value) {
         buffer.putInt(index * Integer.BYTES, value);
     }
@@ -33,6 +38,11 @@ public class BufferIntegerArray implements IIntegerArray {
     @Override
     public int size() {
         return buffer.capacity() / Integer.BYTES;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return buffer.isEmpty();
     }
 
     @Override

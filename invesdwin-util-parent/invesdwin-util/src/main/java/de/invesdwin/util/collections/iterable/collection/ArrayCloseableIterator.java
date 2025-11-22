@@ -44,7 +44,8 @@ public class ArrayCloseableIterator<E> implements ICloseableIterator<E>, IFastTo
             throw FastNoSuchElementException.getInstance("ArrayCloseableIterator: hasNext returned false");
         }
         try {
-            return array[offset++];
+            final E value = array[offset++];
+            return value;
         } catch (final IndexOutOfBoundsException e) {
             throw FastNoSuchElementException
                     .getInstance("ArrayCloseableIterator: next threw IndexOutOfBoundsException");

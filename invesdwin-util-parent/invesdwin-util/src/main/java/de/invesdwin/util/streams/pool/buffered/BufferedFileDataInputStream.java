@@ -14,10 +14,10 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.streams.InputStreams;
-import de.invesdwin.util.streams.NonClosingDelegateInputStream;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
+import de.invesdwin.util.streams.delegate.NonClosingDelegateInputStream;
 
 @NotThreadSafe
 public class BufferedFileDataInputStream extends InputStream implements DataInput {
@@ -220,12 +220,12 @@ public class BufferedFileDataInputStream extends InputStream implements DataInpu
 
     @Override
     public void readFully(final byte[] b, final int off, final int len) throws IOException {
-        InputStreams.readFully(this, b, off, len);
+        InputStreams.readFullyNoTimeout(this, b, off, len);
     }
 
     @Override
     public void readFully(final byte[] b) throws IOException {
-        InputStreams.readFully(this, b);
+        InputStreams.readFullyNoTimeout(this, b);
     }
 
     @Override

@@ -7,7 +7,7 @@ import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
-public class LoopInterruptedCheck {
+public class LoopInterruptedCheck implements ILoopInterruptedCheck {
 
     protected final Thread currentThread;
     private final Duration checkInterval;
@@ -27,6 +27,7 @@ public class LoopInterruptedCheck {
         this.nextIntervalNanos = getInitialNanoTime() + checkIntervalNanos;
     }
 
+    @Override
     public void resetInterval() {
         this.nextIntervalNanos = Long.MIN_VALUE;
         this.checksPerInterval = 0;
@@ -41,14 +42,7 @@ public class LoopInterruptedCheck {
         return System.nanoTime();
     }
 
-    public final boolean checkNoInterrupt() {
-        try {
-            return check();
-        } catch (final InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+    @Override
     public final boolean check() throws InterruptedException {
         checksInInterval++;
         if (checksInInterval > checksPerInterval) {
@@ -58,14 +52,7 @@ public class LoopInterruptedCheck {
         }
     }
 
-    public final boolean checkClockNoInterrupt() {
-        try {
-            return checkClock();
-        } catch (final InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+    @Override
     public final boolean checkClock() throws InterruptedException {
         final long newIntervalNanos = System.nanoTime();
         if (newIntervalNanos > nextIntervalNanos) {

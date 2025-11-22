@@ -14,7 +14,7 @@ public abstract class ADelegateList<E> extends ADelegateCollection<E> implements
         super();
     }
 
-    ADelegateList(final List<E> delegate) {
+    protected ADelegateList(final List<E> delegate) {
         super(delegate);
     }
 

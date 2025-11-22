@@ -11,6 +11,7 @@ import de.invesdwin.util.assertions.type.DecimalAssert;
 import de.invesdwin.util.assertions.type.FDateAssert;
 import de.invesdwin.util.assertions.type.RoundingDoubleAssert;
 import de.invesdwin.util.assertions.type.StringAssert;
+import de.invesdwin.util.assertions.type.internal.CustomStandardRepresentation;
 import de.invesdwin.util.assertions.type.internal.junit.JUnitAssertions;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.reflection.Reflections;
@@ -36,6 +37,7 @@ public final class Assertions extends AAssertionsStaticFacade {
     static {
         JUNIT_AVAILABLE = Reflections.classExists("org.junit.jupiter.api.Assertions");
         Assertions.setMaxStackTraceElementsDisplayed(COMPARISON_FAILURE_MESSAGE_LIMIT);
+        Assertions.useRepresentation(new CustomStandardRepresentation());
     }
 
     private Assertions() {}

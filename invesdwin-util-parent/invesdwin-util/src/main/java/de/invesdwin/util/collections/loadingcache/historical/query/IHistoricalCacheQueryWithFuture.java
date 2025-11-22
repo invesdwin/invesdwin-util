@@ -20,6 +20,9 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
     IHistoricalCacheQueryWithFuture<V> setFutureEnabled();
 
     /**
+     * WARNING: getNextXyzCached should be preferred as that is normally faster. This variant of the query directly goes
+     * against the database (if possible) without any caching, thus being slower on average for next queries.
+     * 
      * Jumps the specified shiftForwardUnits to the future instead of only one unit.
      * 
      * key is inclusive
@@ -29,6 +32,9 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
     FDate getNextKey(FDate key, int shiftForwardUnits);
 
     /**
+     * WARNING: getNextXyzCached should be preferred as that is normally faster. This variant of the query directly goes
+     * against the database (if possible) without any caching, thus being slower on average for next queries.
+     * 
      * Skips null values for keys.
      * 
      * Fills the list with keys from the future.
@@ -38,6 +44,9 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
     ICloseableIterable<FDate> getNextKeys(FDate key, int shiftForwardUnits);
 
     /**
+     * WARNING: getNextXyzCached should be preferred as that is normally faster. This variant of the query directly goes
+     * against the database (if possible) without any caching, thus being slower on average for next queries.
+     * 
      * Jumps the specified shiftForwardUnits to the future instead of only one unit.
      * 
      * key is inclusive
@@ -47,6 +56,9 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
     IHistoricalEntry<V> getNextEntry(FDate key, int shiftForwardUnits);
 
     /**
+     * WARNING: getNextXyzCached should be preferred as that is normally faster. This variant of the query directly goes
+     * against the database (if possible) without any caching, thus being slower on average for next queries.
+     * 
      * Jumps the specified shiftForwardUnits to the future instead of only one unit. Null values are skipped.
      * 
      * key is inclusive
@@ -54,6 +66,9 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
     ICloseableIterable<V> getNextValues(FDate key, int shiftForwardUnits);
 
     /**
+     * WARNING: getNextXyzCached should be preferred as that is normally faster. This variant of the query directly goes
+     * against the database (if possible) without any caching, thus being slower on average for next queries.
+     * 
      * Skips null values for keys.
      * 
      * Fills the list with values from the future.
@@ -63,6 +78,9 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
     ICloseableIterable<IHistoricalEntry<V>> getNextEntries(FDate key, int shiftForwardUnits);
 
     /**
+     * WARNING: getNextXyzCached should be preferred as that is normally faster. This variant of the query directly goes
+     * against the database (if possible) without any caching, thus being slower on average for next queries.
+     * 
      * Jumps the specified shiftForwardUnits to the future instead of only one unit.
      * 
      * key is inclusive
@@ -70,5 +88,57 @@ public interface IHistoricalCacheQueryWithFuture<V> extends IHistoricalCacheQuer
      * index 0 is the current value (above or equal to key), index 1 the next value and so on
      */
     V getNextValue(FDate key, int shiftForwardUnits);
+
+    /**
+     * Jumps the specified shiftForwardUnits to the future instead of only one unit.
+     * 
+     * key is inclusive
+     * 
+     * index 0 is the current value (above or equal to key), index 1 the next value and so on
+     */
+    FDate getNextKeyCached(FDate key, int shiftForwardUnits);
+
+    /**
+     * Skips null values for keys.
+     * 
+     * Fills the list with keys from the future.
+     * 
+     * key is inclusive
+     */
+    ICloseableIterable<FDate> getNextKeysCached(FDate key, int shiftForwardUnits);
+
+    /**
+     * Jumps the specified shiftForwardUnits to the future instead of only one unit.
+     * 
+     * key is inclusive
+     * 
+     * index 0 is the current value (above or equal to key), index 1 the next value and so on
+     */
+    IHistoricalEntry<V> getNextEntryCached(FDate key, int shiftForwardUnits);
+
+    /**
+     * Jumps the specified shiftForwardUnits to the future instead of only one unit. Null values are skipped.
+     * 
+     * key is inclusive
+     */
+    ICloseableIterable<V> getNextValuesCached(FDate key, int shiftForwardUnits);
+
+    /**
+     * Skips null values for keys.
+     * 
+     * Fills the list with values from the future.
+     * 
+     * key is inclusive
+     */
+    ICloseableIterable<IHistoricalEntry<V>> getNextEntriesCached(FDate key, int shiftForwardUnits);
+
+    /**
+     * Jumps the specified shiftForwardUnits to the future instead of only one unit.
+     * 
+     * key is inclusive
+     * 
+     * index 0 is the current value (above or equal to key), index 1 the next value and so on
+     */
+    V getNextValueCached(FDate key, int shiftForwardUnits);
 
 }

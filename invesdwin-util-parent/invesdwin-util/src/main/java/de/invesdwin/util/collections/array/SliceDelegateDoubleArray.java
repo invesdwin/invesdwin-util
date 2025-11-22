@@ -21,6 +21,11 @@ public class SliceDelegateDoubleArray implements IDoubleArray {
     }
 
     @Override
+    public int getId() {
+        return delegate.getId();
+    }
+
+    @Override
     public void set(final int index, final double value) {
         delegate.set(index + from, value);
     }
@@ -33,6 +38,11 @@ public class SliceDelegateDoubleArray implements IDoubleArray {
     @Override
     public int size() {
         return length;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return size() == 0;
     }
 
     @Override

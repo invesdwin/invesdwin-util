@@ -26,6 +26,15 @@ public interface IHistoricalEntry<V> extends Entry<FDate, V> {
         return getValue();
     }
 
+    @SuppressWarnings("unchecked")
+    static <T> IHistoricalEntry<T> valueOf(final IHistoricalValue<?> value) {
+        if (value == null) {
+            return null;
+        } else {
+            return (IHistoricalEntry<T>) value.asHistoricalEntry();
+        }
+    }
+
     static <V> V unwrapEntryValue(final IHistoricalEntry<V> entry) {
         if (entry == null) {
             return null;
@@ -102,7 +111,8 @@ public interface IHistoricalEntry<V> extends Entry<FDate, V> {
             return new ASkippingIterator<IHistoricalEntry<V>>(entries) {
                 @Override
                 protected boolean skip(final IHistoricalEntry<V> element) {
-                    return !element.isValuePresent() || element.getValueIfPresent() == null;
+                    //explicitly load value
+                    return element.getValue() == null;
                 }
             };
         }
@@ -116,7 +126,8 @@ public interface IHistoricalEntry<V> extends Entry<FDate, V> {
             return new ASkippingIterable<IHistoricalEntry<V>>(entries) {
                 @Override
                 protected boolean skip(final IHistoricalEntry<V> element) {
-                    return !element.isValuePresent() || element.getValueIfPresent() == null;
+                    //explicitly load value
+                    return element.getValue() == null;
                 }
             };
         }

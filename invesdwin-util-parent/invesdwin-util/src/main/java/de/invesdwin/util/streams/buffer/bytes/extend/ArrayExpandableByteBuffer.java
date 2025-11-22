@@ -52,6 +52,11 @@ public class ArrayExpandableByteBuffer extends UninitializedExpandableArrayBuffe
     }
 
     @Override
+    public int getId() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
     public java.nio.ByteBuffer nioByteBuffer() {
         return byteBuffer();
     }
@@ -555,18 +560,18 @@ public class ArrayExpandableByteBuffer extends UninitializedExpandableArrayBuffe
         } else {
             ensureCapacity(index + length);
             final byte[] array = byteArray();
-            InputStreams.readFully(src, array, index, length);
+            InputStreams.readFullyNoTimeout(src, array, index, length);
         }
     }
 
     @Override
     public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
-        OutputStreams.writeFully(dst, asNioByteBuffer(index, length));
+        OutputStreams.writeFullyNoTimeout(dst, asNioByteBuffer(index, length));
     }
 
     @Override
     public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
-        InputStreams.readFully(src, asNioByteBuffer(index, length));
+        InputStreams.readFullyNoTimeout(src, asNioByteBuffer(index, length));
     }
 
     @Override

@@ -126,6 +126,88 @@ public class AdjustingHistoricalCacheQueryWithFuture<V> extends AdjustingHistori
     }
 
     @Override
+    public FDate getNextKeyCached(final FDate key, final int shiftForwardUnits) {
+        final FDate nextKey = delegate.getNextKeyCached(adjustKey(key), shiftForwardUnits);
+        if (isFutureKey(nextKey)) {
+            return null;
+        } else {
+            return nextKey;
+        }
+    }
+
+    @Override
+    public ICloseableIterable<FDate> getNextKeysCached(final FDate key, final int shiftForwardUnits) {
+        final ICloseableIterable<FDate> result = delegate.getNextKeysCached(adjustKey(key), shiftForwardUnits);
+        return new ASkippingIterable<FDate>(result) {
+            @Override
+            protected boolean skip(final FDate element) {
+                if (isFutureKey(element)) {
+                    throw FastNoSuchElementException.getInstance("future data reached");
+                }
+                return false;
+            }
+        };
+    }
+
+    @Override
+    public IHistoricalEntry<V> getNextEntryCached(final FDate key, final int shiftForwardUnits) {
+        final IHistoricalEntry<V> nextEntry = delegate.getNextEntryCached(adjustKey(key), shiftForwardUnits);
+        if (isFutureEntry(nextEntry)) {
+            return null;
+        } else {
+            return nextEntry;
+        }
+    }
+
+    @Override
+    public ICloseableIterable<V> getNextValuesCached(final FDate key, final int shiftForwardUnits) {
+        return new ICloseableIterable<V>() {
+            @Override
+            public ICloseableIterator<V> iterator() {
+                return new ICloseableIterator<V>() {
+                    private final ICloseableIterator<IHistoricalEntry<V>> nextEntries = getNextEntriesCached(key,
+                            shiftForwardUnits).iterator();
+
+                    @Override
+                    public boolean hasNext() {
+                        return nextEntries.hasNext();
+                    }
+
+                    @Override
+                    public V next() {
+                        return nextEntries.next().getValue();
+                    }
+
+                    @Override
+                    public void close() {
+                        nextEntries.close();
+                    }
+                };
+            }
+        };
+    }
+
+    @Override
+    public ICloseableIterable<IHistoricalEntry<V>> getNextEntriesCached(final FDate key, final int shiftForwardUnits) {
+        final ICloseableIterable<IHistoricalEntry<V>> result = delegate.getNextEntriesCached(adjustKey(key),
+                shiftForwardUnits);
+        return new ASkippingIterable<IHistoricalEntry<V>>(result) {
+            @Override
+            protected boolean skip(final IHistoricalEntry<V> element) {
+                if (isFutureEntry(element)) {
+                    throw FastNoSuchElementException.getInstance("future data reached");
+                }
+                return false;
+            }
+        };
+    }
+
+    @Override
+    public V getNextValueCached(final FDate key, final int shiftForwardUnits) {
+        return IHistoricalEntry.unwrapEntryValue(getNextEntryCached(key, shiftForwardUnits));
+    }
+
+    @Override
     protected AdjustingHistoricalCacheQueryWithFuture<V> newFutureQuery() {
         return this;
     }

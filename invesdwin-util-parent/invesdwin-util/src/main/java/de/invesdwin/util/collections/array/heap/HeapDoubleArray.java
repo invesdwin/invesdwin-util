@@ -23,6 +23,11 @@ public class HeapDoubleArray implements IDoubleArray {
     }
 
     @Override
+    public int getId() {
+        return System.identityHashCode(values);
+    }
+
+    @Override
     public void set(final int index, final double value) {
         values[index] = value;
     }
@@ -35,6 +40,11 @@ public class HeapDoubleArray implements IDoubleArray {
     @Override
     public int size() {
         return values.length;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return size() == 0;
     }
 
     @Override

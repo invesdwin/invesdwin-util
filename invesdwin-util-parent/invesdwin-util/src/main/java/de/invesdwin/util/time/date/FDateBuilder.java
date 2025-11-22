@@ -3,6 +3,7 @@ package de.invesdwin.util.time.date;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.time.date.timezone.FTimeZone;
+import de.invesdwin.util.time.range.week.FWeekTime;
 
 @NotThreadSafe
 public class FDateBuilder {

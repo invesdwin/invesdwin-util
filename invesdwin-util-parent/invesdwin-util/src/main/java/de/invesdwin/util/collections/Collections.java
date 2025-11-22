@@ -1,6 +1,8 @@
 package de.invesdwin.util.collections;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.concurrent.Immutable;
@@ -49,6 +51,30 @@ public class Collections extends ACollectionsStaticFacade {
 
     public static boolean elementsEqual(final Collection<?> c, final Object obj) {
         return Iterables.elementsEqual(c, obj);
+    }
+
+    public static <K, V> String toString(final Map<K, V> map) {
+        final Iterator<Entry<K, V>> i = map.entrySet().iterator();
+        if (!i.hasNext()) {
+            //CHECKSTYLE:OFF
+            return "{}";
+            //CHECKSTYLE:ON
+        }
+
+        final StringBuilder sb = new StringBuilder();
+        sb.append('{');
+        while (true) {
+            final Entry<K, V> e = i.next();
+            final K key = e.getKey();
+            final V value = e.getValue();
+            sb.append(key == map ? "(this Map)" : key);
+            sb.append('=');
+            sb.append(value == map ? "(this Map)" : value);
+            if (!i.hasNext()) {
+                return sb.append('}').toString();
+            }
+            sb.append(',').append(' ');
+        }
     }
 
 }

@@ -21,6 +21,11 @@ public final class ShiftedIndexDelegateBitSet implements IBitSet {
         this.subtractFromIndex = subtractFromIndex;
     }
 
+    @Override
+    public int getId() {
+        return delegate.getId();
+    }
+
     private int adjustIndex(final int index) {
         return index - subtractFromIndex;
     }

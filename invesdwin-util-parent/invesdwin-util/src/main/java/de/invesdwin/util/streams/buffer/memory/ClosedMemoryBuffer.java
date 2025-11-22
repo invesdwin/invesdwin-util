@@ -31,6 +31,11 @@ public class ClosedMemoryBuffer implements ICloseableMemoryBuffer {
     }
 
     @Override
+    public int getId() {
+        return ID_CLOSED;
+    }
+
+    @Override
     public boolean isReadOnly() {
         return true;
     }

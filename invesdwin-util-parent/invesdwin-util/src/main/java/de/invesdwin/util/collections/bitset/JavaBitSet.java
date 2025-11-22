@@ -35,6 +35,11 @@ public class JavaBitSet implements IBitSet {
     }
 
     @Override
+    public int getId() {
+        return System.identityHashCode(bitSet);
+    }
+
+    @Override
     public void add(final int index) {
         bitSet.set(index);
         trueCount++;

@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.google.common.net.InetAddresses;
+
 import de.invesdwin.util.collections.Arrays;
 
 @Immutable
@@ -19,7 +21,7 @@ public final class Addresses {
     private static List<Integer> allPorts;
 
     private static final Pattern BYTE_PATTERN = Pattern.compile("(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)");
-    private static final Pattern IP_PATTERN = Pattern
+    private static final Pattern IPV4_PATTERN = Pattern
             .compile(BYTE_PATTERN + "\\." + BYTE_PATTERN + "\\." + BYTE_PATTERN + "\\." + BYTE_PATTERN);
 
     private Addresses() {}
@@ -40,18 +42,35 @@ public final class Addresses {
         if (address == null) {
             return false;
         }
-        return IP_PATTERN.matcher(address).matches();
+        return InetAddresses.isInetAddress(address);
+    }
+
+    public static boolean isIpV6(final String address) {
+        if (!isIp(address)) {
+            return false;
+        }
+        if (isIpV4(address)) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean isIpV4(final String address) {
+        if (address == null) {
+            return false;
+        }
+        return IPV4_PATTERN.matcher(address).matches();
     }
 
     /**
      * E.g.: 127.0.0.1:8080
      */
-    public static boolean isIpWithPort(final String ipMitPort) {
+    public static boolean isIpV4WithPort(final String ipMitPort) {
         final String[] parts = ipMitPort.split(":");
         if (parts.length != 2) {
             return false;
         } else {
-            return isIp(parts[0]) && isPort(parts[1]);
+            return isIpV4(parts[0]) && isPort(parts[1]);
         }
     }
 

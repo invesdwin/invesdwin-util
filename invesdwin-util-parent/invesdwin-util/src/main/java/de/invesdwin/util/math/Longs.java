@@ -189,6 +189,14 @@ public final class Longs extends ALongsStaticFacade {
         }
     }
 
+    public static long orElse(final Long value, final long defaultValue) {
+        if (value == null) {
+            return defaultValue;
+        } else {
+            return value;
+        }
+    }
+
     public static long max(final long value1, final long value2) {
         if (value1 > value2) {
             return value1;

@@ -27,6 +27,11 @@ public abstract class ADelegateByteBuffer implements IByteBuffer {
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
     @Override
+    public int getId() {
+        return getDelegate().getId();
+    }
+
+    @Override
     public boolean isReadOnly() {
         return getDelegate().isReadOnly();
     }

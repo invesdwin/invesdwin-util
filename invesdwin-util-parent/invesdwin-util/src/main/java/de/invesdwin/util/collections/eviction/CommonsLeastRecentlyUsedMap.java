@@ -50,4 +50,9 @@ public class CommonsLeastRecentlyUsedMap<K, V> extends org.apache.commons.collec
         }
     }
 
+    @Override
+    public boolean isThreadSafe() {
+        return false;
+    }
+
 }

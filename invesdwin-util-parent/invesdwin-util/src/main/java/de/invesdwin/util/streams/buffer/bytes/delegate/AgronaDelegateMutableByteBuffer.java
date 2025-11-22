@@ -18,6 +18,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
+import de.invesdwin.util.collections.array.IPrimitiveArrayId;
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.error.Throwables;
@@ -47,6 +48,16 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
 
     public AgronaDelegateMutableByteBuffer(final MutableDirectBuffer delegate) {
         setDelegate(delegate);
+    }
+
+    @Override
+    public int getId() {
+        if (delegate instanceof IPrimitiveArrayId) {
+            final IPrimitiveArrayId cDelegate = (IPrimitiveArrayId) delegate;
+            return cDelegate.getId();
+        } else {
+            return System.identityHashCode(delegate);
+        }
     }
 
     public MutableDirectBuffer getDelegate() {
@@ -673,12 +684,12 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
 
     @Override
     public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
-        OutputStreams.writeFully(dst, asNioByteBuffer(index, length));
+        OutputStreams.writeFullyNoTimeout(dst, asNioByteBuffer(index, length));
     }
 
     @Override
     public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
-        InputStreams.readFully(src, asNioByteBuffer(index, length));
+        InputStreams.readFullyNoTimeout(src, asNioByteBuffer(index, length));
     }
 
     @SuppressWarnings("unchecked")

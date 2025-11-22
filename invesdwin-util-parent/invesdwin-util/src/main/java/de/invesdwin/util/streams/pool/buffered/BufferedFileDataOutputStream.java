@@ -15,11 +15,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
-import de.invesdwin.util.streams.NonClosingDelegateOutputStream;
 import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
+import de.invesdwin.util.streams.delegate.NonClosingDelegateOutputStream;
 
 @NotThreadSafe
 public class BufferedFileDataOutputStream extends OutputStream implements DataOutput {

@@ -33,6 +33,11 @@ public class SlicedFromDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public int getId() {
+        return delegate.getId();
+    }
+
+    @Override
     public boolean isReadOnly() {
         return delegate.isReadOnly();
     }

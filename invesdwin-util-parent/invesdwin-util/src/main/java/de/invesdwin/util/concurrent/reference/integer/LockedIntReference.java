@@ -45,6 +45,26 @@ public class LockedIntReference implements IMutableIntReference, ISerializableVa
     }
 
     @Override
+    public int incrementAndGet() {
+        lock.lock();
+        try {
+            return ++value;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public int decrementAndGet() {
+        lock.lock();
+        try {
+            return --value;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
     public void set(final int value) {
         lock.lock();
         try {

@@ -5,12 +5,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.loop.LoopInterruptedCheck;
+import de.invesdwin.util.error.InterruptedRuntimeException;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -33,6 +35,9 @@ public final class ShutdownHookManager {
             return true;
         }
     };
+    private static final AtomicInteger SHUTDOWN_HOOK_THREAD_COUNT = new AtomicInteger();
+    private static final AtomicInteger SYSTEM_EXIT_ASYNC_COUNT = new AtomicInteger();
+    private static volatile int asyncExitCode = -1;
 
     static {
         /**
@@ -140,6 +145,8 @@ public final class ShutdownHookManager {
         private final int identityHashCode;
 
         ShutdownHookThread(final int identityHashCode, final IShutdownHook shutdownable) {
+            super(ShutdownHookManager.class.getSimpleName() + "." + ShutdownHookThread.class.getSimpleName() + "."
+                    + SHUTDOWN_HOOK_THREAD_COUNT.incrementAndGet());
             this.identityHashCode = identityHashCode;
             this.shutdownable = new WeakReference<IShutdownHook>(shutdownable);
         }
@@ -175,6 +182,35 @@ public final class ShutdownHookManager {
                 return false;
             }
         }
+    }
+
+    /**
+     * This method can be called to prevent deadlocks by allowing the outer thread to unwind the call stack due to an
+     * InterruptedException that will not be retried, thus unlocking locks. Blocking on System.exit will happen in an
+     * asynchronous thread which prevents deadlocks in asynchronous shutdown hooks that might try to lock the same locks
+     * that the caller thread had.
+     */
+    public static InterruptedRuntimeException systemExitAsync(final int exitCode) {
+        final int callCount = SYSTEM_EXIT_ASYNC_COUNT.incrementAndGet();
+        if (callCount == 1) {
+            asyncExitCode = exitCode;
+            final String threadName = newSystemExitAsyncThreadName(exitCode);
+            new Thread(threadName) {
+                @Override
+                public void run() {
+                    System.exit(asyncExitCode);
+                }
+            }.start();
+            return new InterruptedRuntimeException("Initially calling System.exit(" + exitCode
+                    + ") asynchronously in thread: " + newSystemExitAsyncThreadName(exitCode));
+        } else {
+            return new InterruptedRuntimeException("Already calling System.exit(" + exitCode
+                    + ") asynchronously in thread: " + newSystemExitAsyncThreadName(asyncExitCode));
+        }
+    }
+
+    private static String newSystemExitAsyncThreadName(final int exitCode) {
+        return ShutdownHookManager.class.getSimpleName() + ".systemExitAsync(" + exitCode + ")";
     }
 
 }

@@ -21,6 +21,11 @@ public class BufferDoubleArray implements IDoubleArray {
     }
 
     @Override
+    public int getId() {
+        return buffer.getId();
+    }
+
+    @Override
     public void set(final int index, final double value) {
         buffer.putDouble(index * Double.BYTES, value);
     }
@@ -33,6 +38,11 @@ public class BufferDoubleArray implements IDoubleArray {
     @Override
     public int size() {
         return buffer.capacity() / Double.BYTES;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return buffer.isEmpty();
     }
 
     @Override

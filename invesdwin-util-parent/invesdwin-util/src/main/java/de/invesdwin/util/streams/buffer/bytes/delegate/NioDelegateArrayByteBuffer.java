@@ -85,7 +85,7 @@ public class NioDelegateArrayByteBuffer extends NioDelegateByteBuffer {
             putBytesTo(index, (DataInput) src, length);
         } else {
             final byte[] array = byteArray();
-            InputStreams.readFully(src, array, index, length);
+            InputStreams.readFullyNoTimeout(src, array, index, length);
         }
     }
 

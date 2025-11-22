@@ -30,6 +30,11 @@ public final class DisabledMemoryBuffer implements ICloseableMemoryBuffer {
     private DisabledMemoryBuffer() {}
 
     @Override
+    public int getId() {
+        return ID_DISABLED;
+    }
+
+    @Override
     public ByteOrder getOrder() {
         return ByteBuffers.DEFAULT_ORDER;
     }

@@ -16,6 +16,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
+import de.invesdwin.util.collections.array.IPrimitiveArrayId;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
@@ -39,6 +40,16 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     public AgronaDelegateByteBuffer(final DirectBuffer delegate) {
         setDelegate(delegate);
+    }
+
+    @Override
+    public int getId() {
+        if (delegate instanceof IPrimitiveArrayId) {
+            final IPrimitiveArrayId cDelegate = (IPrimitiveArrayId) delegate;
+            return cDelegate.getId();
+        } else {
+            return System.identityHashCode(delegate);
+        }
     }
 
     public void setDelegate(final DirectBuffer delegate) {
@@ -542,7 +553,7 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
-        OutputStreams.writeFully(dst, asNioByteBuffer(index, length));
+        OutputStreams.writeFullyNoTimeout(dst, asNioByteBuffer(index, length));
     }
 
     @Override

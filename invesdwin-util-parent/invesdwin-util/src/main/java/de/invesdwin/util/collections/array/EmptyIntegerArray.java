@@ -13,6 +13,11 @@ public final class EmptyIntegerArray implements IIntegerArray {
     private EmptyIntegerArray() {}
 
     @Override
+    public int getId() {
+        return ID_EMPTY;
+    }
+
+    @Override
     public void set(final int index, final int value) {}
 
     @Override
@@ -23,6 +28,11 @@ public final class EmptyIntegerArray implements IIntegerArray {
     @Override
     public int size() {
         return 0;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return true;
     }
 
     @Override

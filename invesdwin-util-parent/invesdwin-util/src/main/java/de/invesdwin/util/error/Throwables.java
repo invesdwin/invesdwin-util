@@ -13,6 +13,8 @@ import de.invesdwin.util.concurrent.handler.IExecutorExceptionHandler;
 import de.invesdwin.util.concurrent.handler.UncaughtExecutorExceptionHandler;
 import de.invesdwin.util.error.internal.AThrowablesStaticFacade;
 import de.invesdwin.util.lang.string.Strings;
+import de.invesdwin.util.math.Integers;
+import it.unimi.dsi.fastutil.objects.Object2BooleanFunction;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.error.internal.AThrowablesStaticFacade", targets = {
@@ -56,16 +58,16 @@ public final class Throwables extends AThrowablesStaticFacade {
         return UncaughtExecutorExceptionHandler.INSTANCE;
     }
 
-    public static <T extends Throwable> boolean isCausedByType(final Throwable e, final Class<T> type) {
+    public static <T> boolean isCausedByType(final Throwable e, final Class<T> type) {
         return getCauseByType(e, type) != null;
     }
 
     @SafeVarargs
-    public static boolean isCausedByAnyType(final Throwable e, final Class<? extends Throwable>... types) {
+    public static boolean isCausedByAnyType(final Throwable e, final Class<?>... types) {
         Throwable cause = e;
         while (cause != null) {
             for (int i = 0; i < types.length; i++) {
-                final Class<? extends Throwable> type = types[i];
+                final Class<?> type = types[i];
                 if (type.isInstance(cause)) {
                     return true;
                 }
@@ -76,7 +78,7 @@ public final class Throwables extends AThrowablesStaticFacade {
     }
 
     @SuppressWarnings("unchecked" /* is safe since typecheck is done */)
-    public static <T extends Throwable> T getCauseByType(final Throwable e, final Class<T> type) {
+    public static <T> T getCauseByType(final Throwable e, final Class<T> type) {
         Throwable cause = e;
         while (cause != null) {
             if (type.isInstance(cause)) {
@@ -162,6 +164,47 @@ public final class Throwables extends AThrowablesStaticFacade {
     }
 
     /**
+     * Prints the first X stack trace elements with the exception info up to the stop condition
+     */
+    public static String getShortStackTrace(final Throwable e, final int maxStacksAround,
+            final Object2BooleanFunction<StackTraceElement> stopCondition) {
+        final StringBuilder sb = new StringBuilder(e.toString());
+        final StackTraceElement[] stackTrace = e.getStackTrace();
+        int ignoredStacks = 0;
+        for (int i = 0; i < stackTrace.length; i++) {
+            final StackTraceElement stackTraceElement = stackTrace[i];
+            if (i < maxStacksAround) {
+                sb.append(" -> ");
+                sb.append(stackTraceElement);
+                if (stopCondition.getBoolean(stackTraceElement)) {
+                    break;
+                }
+            } else if (stopCondition.getBoolean(stackTraceElement)) {
+                if (ignoredStacks > 0) {
+                    final int countSuffix = Integers.min(ignoredStacks, maxStacksAround);
+                    ignoredStacks -= countSuffix;
+                    if (ignoredStacks > 0) {
+                        sb.append(" -> ... ");
+                        sb.append(ignoredStacks);
+                        sb.append(" more ... ");
+                    }
+                    for (int s = countSuffix; s > 0; s--) {
+                        final StackTraceElement suffixStackTraceElement = stackTrace[i - s];
+                        sb.append(" -> ");
+                        sb.append(suffixStackTraceElement);
+                    }
+                }
+                sb.append(" -> ");
+                sb.append(stackTraceElement);
+                break;
+            } else {
+                ignoredStacks++;
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
      * Prints the first X stack trace elements with the exception info filtered by base packages
      */
     public static String getShortStackTrace(final Throwable e, final int maxBasePackageStacks,
@@ -201,8 +244,8 @@ public final class Throwables extends AThrowablesStaticFacade {
     }
 
     public static boolean isCausedByInterrupt(final Throwable t) {
-        return Threads.isInterrupted()
-                || Throwables.isCausedByAnyType(t, InterruptedException.class, ClosedByInterruptException.class);
+        return Threads.isInterrupted() || Throwables.isCausedByAnyType(t, InterruptedException.class,
+                ClosedByInterruptException.class, InterruptedRuntimeException.class);
     }
 
     /**

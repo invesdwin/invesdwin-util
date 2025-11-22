@@ -49,6 +49,11 @@ public class NioDelegateByteBuffer implements IByteBuffer {
         setDelegate(buffer);
     }
 
+    @Override
+    public int getId() {
+        return System.identityHashCode(delegate);
+    }
+
     public java.nio.ByteBuffer getDelegate() {
         return delegate;
     }
@@ -549,12 +554,12 @@ public class NioDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
-        OutputStreams.writeFully(dst, asNioByteBuffer(index, length));
+        OutputStreams.writeFullyNoTimeout(dst, asNioByteBuffer(index, length));
     }
 
     @Override
     public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
-        InputStreams.readFully(src, asNioByteBuffer(index, length));
+        InputStreams.readFullyNoTimeout(src, asNioByteBuffer(index, length));
     }
 
     @SuppressWarnings("unchecked")

@@ -15,6 +15,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.io.IOUtils;
 
@@ -27,6 +30,7 @@ import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponse;
 import de.invesdwin.util.lang.uri.connect.InputStreamHttpResponseConsumer;
 import de.invesdwin.util.lang.uri.header.BasicAuth;
 import de.invesdwin.util.lang.uri.header.Headers;
+import de.invesdwin.util.lang.uri.ssl.SSLContexts;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 import okhttp3.Call;
@@ -45,6 +49,8 @@ public final class URIsConnectOkHttp implements IURIsConnect {
     private final URL url;
     private Duration networkTimeout = URIs.getDefaultNetworkTimeout();
     private Proxy proxy;
+    private X509TrustManager trustManager;
+    private HostnameVerifier hostnameVerifier;
     private String method = GET;
     private byte[] body;
     private String contentType;
@@ -124,6 +130,25 @@ public final class URIsConnectOkHttp implements IURIsConnect {
         }
     }
 
+    private static OkHttpClient.Builder applyTrustManager(final OkHttpClient.Builder builder,
+            final X509TrustManager trustManager) {
+        if (trustManager != null) {
+            final SSLContext sslContext = SSLContexts.newInstance(trustManager);
+            return builder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
+        } else {
+            return builder;
+        }
+    }
+
+    private static OkHttpClient.Builder applyHostnameVerifier(final OkHttpClient.Builder builder,
+            final HostnameVerifier hostnameVerifier) {
+        if (hostnameVerifier != null) {
+            return builder.hostnameVerifier(hostnameVerifier);
+        } else {
+            return builder;
+        }
+    }
+
     @Override
     public URIsConnectOkHttp setNetworkTimeout(final Duration networkTimeout) {
         this.networkTimeout = networkTimeout;
@@ -144,6 +169,28 @@ public final class URIsConnectOkHttp implements IURIsConnect {
     @Override
     public Proxy getProxy() {
         return proxy;
+    }
+
+    @Override
+    public URIsConnectOkHttp setTrustManager(final X509TrustManager trustManager) {
+        this.trustManager = trustManager;
+        return this;
+    }
+
+    @Override
+    public X509TrustManager getTrustManager() {
+        return trustManager;
+    }
+
+    @Override
+    public URIsConnectOkHttp setHostnameVerifier(final HostnameVerifier hostnameVerifier) {
+        this.hostnameVerifier = hostnameVerifier;
+        return this;
+    }
+
+    @Override
+    public HostnameVerifier getHostnameVerifier() {
+        return hostnameVerifier;
     }
 
     @Override
@@ -282,13 +329,20 @@ public final class URIsConnectOkHttp implements IURIsConnect {
 
     public Call openConnection(final String method) {
         final OkHttpClient client;
-        if (networkTimeout != URIs.getDefaultNetworkTimeout() || proxy != null) {
+        if (networkTimeout != URIs.getDefaultNetworkTimeout() || proxy != null || trustManager != null
+                || hostnameVerifier != null) {
             OkHttpClient.Builder builder = getHttpClient().newBuilder();
             if (networkTimeout != URIs.getDefaultNetworkTimeout()) {
                 builder = applyNetworkTimeout(builder, networkTimeout);
             }
             if (proxy != null) {
                 builder = applyProxy(builder, proxy);
+            }
+            if (trustManager != null) {
+                builder = applyTrustManager(builder, trustManager);
+            }
+            if (hostnameVerifier != null) {
+                builder = applyHostnameVerifier(builder, hostnameVerifier);
             }
             client = builder.build();
         } else {

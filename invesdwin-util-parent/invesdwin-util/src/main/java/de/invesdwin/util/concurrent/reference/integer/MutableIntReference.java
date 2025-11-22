@@ -34,6 +34,16 @@ public class MutableIntReference implements IMutableIntReference, ISerializableV
     }
 
     @Override
+    public int incrementAndGet() {
+        return ++value;
+    }
+
+    @Override
+    public int decrementAndGet() {
+        return --value;
+    }
+
+    @Override
     public String toString() {
         return Objects.toStringHelper(this).addValue(value).toString();
     }

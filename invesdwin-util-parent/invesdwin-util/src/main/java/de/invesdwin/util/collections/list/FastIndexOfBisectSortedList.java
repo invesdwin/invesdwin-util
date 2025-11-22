@@ -205,12 +205,23 @@ public class FastIndexOfBisectSortedList<E> implements List<E> {
 
     @Override
     public ListIterator<E> listIterator() {
-        throw new UnsupportedOperationException();
+        final ListIterator<IndexedValue<E>> delegate = list.listIterator();
+        return unwrap(delegate);
     }
 
     @Override
     public ListIterator<E> listIterator(final int index) {
-        throw new UnsupportedOperationException();
+        final ListIterator<IndexedValue<E>> delegate = list.listIterator(index);
+        return unwrap(delegate);
+    }
+
+    private ListIterator<E> unwrap(final ListIterator<IndexedValue<E>> delegate) {
+        return new ATransformingListIterator<IndexedValue<E>, E>(delegate) {
+            @Override
+            protected E transform(final IndexedValue<E> element) {
+                return unwrap(element);
+            }
+        };
     }
 
     @Override

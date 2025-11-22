@@ -15,11 +15,11 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.concurrent.lock.ILock;
-import de.invesdwin.util.streams.PreLockedDelegateInputStream;
-import de.invesdwin.util.streams.PreLockedDelegateOutputStream;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
+import de.invesdwin.util.streams.delegate.PreLockedDelegateInputStream;
+import de.invesdwin.util.streams.delegate.PreLockedDelegateOutputStream;
 
 @ThreadSafe
 public abstract class ALockedDelegateByteBuffer extends ADelegateByteBuffer {

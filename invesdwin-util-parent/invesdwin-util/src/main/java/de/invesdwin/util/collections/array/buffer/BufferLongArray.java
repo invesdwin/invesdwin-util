@@ -21,6 +21,11 @@ public class BufferLongArray implements ILongArray {
     }
 
     @Override
+    public int getId() {
+        return buffer.getId();
+    }
+
+    @Override
     public void set(final int index, final long value) {
         buffer.putLong(index * Long.BYTES, value);
     }
@@ -33,6 +38,11 @@ public class BufferLongArray implements ILongArray {
     @Override
     public int size() {
         return buffer.capacity() / Long.BYTES;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return buffer.isEmpty();
     }
 
     @Override

@@ -26,6 +26,7 @@ public class FTimeZone implements IFTimeZoneProvider {
     public static final FTimeZone UTC = new FTimeZone(TimeZones.UTC);
     public static final FTimeZone EUROPE_BERLIN = new FTimeZone(TimeZones.EUROPE_BERLIN);
     public static final FTimeZone EET = new FTimeZone(TimeZones.EET);
+    public static final FTimeZone EST = new FTimeZone(TimeZones.EST);
     public static final FTimeZone CET = new FTimeZone(TimeZones.CET);
     public static final FTimeZone AMERICA_NEWYORK = new FTimeZone(TimeZones.AMERICA_NEWYORK);
     public static final FTimeZone US_EASTERN = new FTimeZone(TimeZones.US_EASTERN);

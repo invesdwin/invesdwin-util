@@ -27,8 +27,6 @@ import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.random.IRandomGenerator;
 import de.invesdwin.util.math.random.PseudoRandomGenerators;
-import de.invesdwin.util.streams.DelegateDataInput;
-import de.invesdwin.util.streams.DelegateDataOutput;
 import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
@@ -38,6 +36,8 @@ import de.invesdwin.util.streams.buffer.memory.delegate.ChronicleDelegateMemoryB
 import de.invesdwin.util.streams.buffer.memory.delegate.ListMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.OrderedDelegateMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.extend.UnsafeMemoryBuffer;
+import de.invesdwin.util.streams.delegate.DelegateDataInput;
+import de.invesdwin.util.streams.delegate.DelegateDataOutput;
 import de.invesdwin.util.time.Instant;
 import net.openhft.chronicle.bytes.BytesStore;
 

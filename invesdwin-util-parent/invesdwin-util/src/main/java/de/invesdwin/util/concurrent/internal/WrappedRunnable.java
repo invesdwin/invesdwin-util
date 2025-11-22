@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.concurrent.RetryThreads;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.priority.IPriorityProvider;
 import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
@@ -34,7 +35,7 @@ public final class WrappedRunnable implements IPriorityRunnable {
         if (parent != null) {
             parent.incrementPendingCount(skipWaitOnFullPendingCount);
         }
-        this.threadRetryDisabled = Threads.isThreadRetryDisabled();
+        this.threadRetryDisabled = RetryThreads.isThreadRetryDisabled();
     }
 
     @Override
@@ -49,11 +50,11 @@ public final class WrappedRunnable implements IPriorityRunnable {
         }
         try {
             if (threadRetryDisabled) {
-                final boolean registerThreadRetryDisabled = Threads.registerThreadRetryDisabled();
+                final Boolean registerThreadRetryDisabled = RetryThreads.registerThreadRetryDisabled();
                 try {
                     delegate.run();
                 } finally {
-                    Threads.unregisterThreadRetryDisabled(registerThreadRetryDisabled);
+                    RetryThreads.unregisterThreadRetryDisabled(registerThreadRetryDisabled);
                 }
             } else {
                 delegate.run();

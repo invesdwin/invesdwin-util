@@ -22,11 +22,13 @@ import de.invesdwin.util.collections.loadingcache.ADelegateLoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.DelegateLoadingCache;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
-import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCachePreviousKeysQueryInterceptorSupport;
-import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCacheRangeQueryInterceptorSupport;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCacheNextQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCachePreviousKeysQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCacheRangeQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheNextQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCachePreviousKeysQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
-import de.invesdwin.util.collections.loadingcache.historical.internal.IValuesMap;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.RangeHistoricalCacheNextQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCachePutProvider;
@@ -100,6 +102,12 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     @GuardedBy("this only during initialization")
     private IValuesMap<V> valuesMap = new LazyValuesMap();
     private boolean alignKeys = DEFAULT_ALIGN_KEYS;
+    @GuardedBy("none for performance")
+    private IHistoricalCacheRangeQueryInterceptor<V> rangeQueryInterceptor;
+    @GuardedBy("none for performance")
+    private IHistoricalCachePreviousKeysQueryInterceptor previousKeysQueryInterceptor;
+    @GuardedBy("none for performance")
+    private IHistoricalCacheNextQueryInterceptor<V> nextQueryInterceptor;
 
     public AHistoricalCache() {}
 
@@ -208,19 +216,48 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     }
 
     protected void setShiftKeyDelegate(final IHistoricalCache<?> shiftKeyDelegate, final boolean alsoExtractKey) {
-        Assertions.assertThat(shiftKeyDelegate).as("Use null instead of this").isNotSameAs(this);
-        Assertions.assertThat(this.shiftKeyProvider)
-                .as("%s can only be set once", IHistoricalCacheShiftKeyProvider.class.getSimpleName())
-                .isInstanceOf(InnerHistoricalCacheShiftKeyProvider.class);
-        this.shiftKeyProvider = DelegateHistoricalCacheShiftKeyProvider.maybeWrap(internalMethods, shiftKeyDelegate);
-        if (alsoExtractKey) {
-            this.extractKeyProvider = DelegateHistoricalCacheExtractKeyProvider.maybeWrap(shiftKeyDelegate);
+        if (isSetShiftKeyDelegateNeeded(shiftKeyDelegate)) {
+            Assertions.assertThat(shiftKeyDelegate).as("Use null instead of this").isNotSameAs(this);
+            Assertions.assertThat(this.shiftKeyProvider)
+                    .as("%s can only be set once", IHistoricalCacheShiftKeyProvider.class.getSimpleName())
+                    .isInstanceOf(InnerHistoricalCacheShiftKeyProvider.class);
+            this.shiftKeyProvider = DelegateHistoricalCacheShiftKeyProvider.maybeWrap(internalMethods,
+                    shiftKeyDelegate);
+            //propagate the maximum size setting downwards without risking an endless recursion
+            registerIncreaseMaximumSizeListener(shiftKeyDelegate);
+            //and upwards
+            shiftKeyDelegate.registerIncreaseMaximumSizeListener(this);
+            isPutDisabled = false;
+            if (alsoExtractKey && isSetExtractKeyDelegateNeeded(shiftKeyDelegate)) {
+                this.extractKeyProvider = DelegateHistoricalCacheExtractKeyProvider.maybeWrap(shiftKeyDelegate);
+            }
+        } else {
+            final boolean alsoExtractKeyBefore = !isSetExtractKeyDelegateNeeded(shiftKeyDelegate);
+            Assertions.assertThat(alsoExtractKey)
+                    .as("Same shiftKeyDelegate was already set with alsoExtractKeyBefore=%s and now it is requested again with alsoExtractKey=%s",
+                            alsoExtractKeyBefore, alsoExtractKey)
+                    .isEqualTo(alsoExtractKeyBefore);
         }
-        //propagate the maximum size setting downwards without risking an endless recursion
-        registerIncreaseMaximumSizeListener(shiftKeyDelegate);
-        //and upwards
-        shiftKeyDelegate.registerIncreaseMaximumSizeListener(this);
-        isPutDisabled = false;
+    }
+
+    private boolean isSetExtractKeyDelegateNeeded(final IHistoricalCache<?> shiftKeyDelegate) {
+        if (this.extractKeyProvider instanceof DelegateHistoricalCacheExtractKeyProvider) {
+            final DelegateHistoricalCacheExtractKeyProvider<V> cShiftKeyProvider = (DelegateHistoricalCacheExtractKeyProvider<V>) this.extractKeyProvider;
+            if (cShiftKeyProvider.getDelegate() == shiftKeyDelegate) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isSetShiftKeyDelegateNeeded(final IHistoricalCache<?> shiftKeyDelegate) {
+        if (this.shiftKeyProvider instanceof DelegateHistoricalCacheShiftKeyProvider) {
+            final DelegateHistoricalCacheShiftKeyProvider<V> cShiftKeyProvider = (DelegateHistoricalCacheShiftKeyProvider<V>) this.shiftKeyProvider;
+            if (cShiftKeyProvider.getParent() == shiftKeyDelegate) {
+                return false;
+            }
+        }
+        return true;
     }
 
     protected void setPutDelegate(final AHistoricalCache<? extends V> putDelegate) {
@@ -280,7 +317,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         return lastRefreshMillis;
     }
 
-    private void invokeRefreshIfRequested() {
+    protected void invokeRefreshIfRequested() {
         final long lastRefreshMillisFromManager = HistoricalCacheRefreshManager.getLastRefreshMillis();
         if (lastRefreshMillis < lastRefreshMillisFromManager) {
             clear();
@@ -491,12 +528,42 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         return increaseMaximumSizeListeners.remove(l);
     }
 
-    protected IHistoricalCacheRangeQueryInterceptor<V> getRangeQueryInterceptor() {
-        return new HistoricalCacheRangeQueryInterceptorSupport<V>();
+    protected final IHistoricalCacheRangeQueryInterceptor<V> getRangeQueryInterceptor() {
+        if (rangeQueryInterceptor == null) {
+            rangeQueryInterceptor = newRangeQueryInterceptor();
+        }
+        return rangeQueryInterceptor;
     }
 
-    protected IHistoricalCachePreviousKeysQueryInterceptor getPreviousKeysQueryInterceptor() {
-        return new HistoricalCachePreviousKeysQueryInterceptorSupport();
+    protected IHistoricalCacheRangeQueryInterceptor<V> newRangeQueryInterceptor() {
+        return DisabledHistoricalCacheRangeQueryInterceptor.getInstance();
+    }
+
+    protected final IHistoricalCachePreviousKeysQueryInterceptor getPreviousKeysQueryInterceptor() {
+        if (previousKeysQueryInterceptor == null) {
+            previousKeysQueryInterceptor = newPreviousKeysQueryInterceptor();
+        }
+        return previousKeysQueryInterceptor;
+    }
+
+    protected IHistoricalCachePreviousKeysQueryInterceptor newPreviousKeysQueryInterceptor() {
+        return DisabledHistoricalCachePreviousKeysQueryInterceptor.getInstance();
+    }
+
+    protected final IHistoricalCacheNextQueryInterceptor<V> getNextQueryInterceptor() {
+        if (nextQueryInterceptor == null) {
+            nextQueryInterceptor = newNextQueryInterceptor();
+        }
+        return nextQueryInterceptor;
+    }
+
+    protected IHistoricalCacheNextQueryInterceptor<V> newNextQueryInterceptor() {
+        final IHistoricalCacheRangeQueryInterceptor<V> rangeQueryInterceptor = getRangeQueryInterceptor();
+        if (rangeQueryInterceptor instanceof DisabledHistoricalCacheRangeQueryInterceptor) {
+            return DisabledHistoricalCacheNextQueryInterceptor.getInstance();
+        } else {
+            return new RangeHistoricalCacheNextQueryInterceptor<V>(rangeQueryInterceptor);
+        }
     }
 
     protected IValuesMap<V> getValuesMap() {
@@ -527,7 +594,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
             if (valuesMap == this) {
                 synchronized (AHistoricalCache.this) {
                     if (valuesMap == this) {
-                        valuesMap = new ValuesMap();
+                        valuesMap = newValuesMap();
                         if (maximumSize != null && maximumSize != initialMaximumSize) {
                             innerIncreaseMaximumSize(maximumSize, "innerLoadCache lazy init");
                         }
@@ -559,11 +626,15 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         }
     }
 
-    private final class ValuesMap extends ADelegateLoadingCache<FDate, IHistoricalEntry<V>> implements IValuesMap<V> {
+    public class ValuesMap extends ADelegateLoadingCache<FDate, IHistoricalEntry<V>> implements IValuesMap<V> {
 
         @Override
         public IHistoricalEntry<V> get(final FDate key) {
             invokeRefreshIfRequested();
+            return super.get(key);
+        }
+
+        protected IHistoricalEntry<V> superGet(final FDate key) {
             return super.get(key);
         }
 
@@ -606,6 +677,11 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         @Override
         public IHistoricalCachePreviousKeysQueryInterceptor getPreviousKeysQueryInterceptor() {
             return AHistoricalCache.this.getPreviousKeysQueryInterceptor();
+        }
+
+        @Override
+        public IHistoricalCacheNextQueryInterceptor<V> getNextQueryInterceptor() {
+            return AHistoricalCache.this.getNextQueryInterceptor();
         }
 
         @Override
@@ -847,7 +923,9 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         public IHistoricalEntry<V> put(final FDate key, final V value) {
             final IndexedHistoricalEntry<V> entry = (IndexedHistoricalEntry<V>) getValuesMap().computeIfAbsent(key,
                     computeEmpty);
-            entry.setValue(key, value);
+            if (value != null) {
+                entry.setValue(key, value);
+            }
             return entry;
         }
 
@@ -991,10 +1069,14 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
             if (previousKey != null) {
                 shiftKeyValueEntry = putPrevious(previousKey, value, valueKey, notifyPutListeners);
             }
+            boolean updated = shiftKeyValueEntry != null;
             if (nextKey != null) {
-                putNext(nextKey, value, valueKey, shiftKeyValueEntry);
+                final boolean success = putNext(nextKey, value, valueKey, shiftKeyValueEntry);
+                if (success) {
+                    updated = true;
+                }
             }
-            if (previousKey == null && nextKey == null) {
+            if (!updated) {
                 //set value only if not already done by putPrevious or putNext
                 shiftKeyProvider.put(valueKey, value);
             }
@@ -1008,10 +1090,10 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
                 throw new IllegalArgumentException(TextDescription
                         .format("%s: previousKey [%s] <= value [%s] not matched", this, previousKey, valueKey));
             }
-            IHistoricalEntry<V> newShiftKeyValueEntry = null;
             if (compare != 0) {
                 //from value to previous backward
-                newShiftKeyValueEntry = shiftKeyProvider.put(previousKey, valueKey, value, null, null);
+                final IHistoricalEntry<V> newShiftKeyValueEntry = shiftKeyProvider.put(previousKey, valueKey, value,
+                        null, null);
                 //from previous to value forward
                 shiftKeyProvider.put(null, previousKey, null, null, valueKey);
                 if (notifyPutListeners) {
@@ -1029,11 +1111,13 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
                         }
                     }
                 }
+                return newShiftKeyValueEntry;
+            } else {
+                return null;
             }
-            return newShiftKeyValueEntry;
         }
 
-        private void putNext(final FDate nextKey, final V value, final FDate valueKey,
+        private boolean putNext(final FDate nextKey, final V value, final FDate valueKey,
                 final IHistoricalEntry<V> shiftKeyValueEntry) {
             final int compare = nextKey.compareTo(valueKey);
             if (!(compare >= 0)) {
@@ -1045,6 +1129,9 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
                 shiftKeyProvider.put(null, valueKey, value, shiftKeyValueEntry, nextKey);
                 //from next to value backward
                 shiftKeyProvider.put(valueKey, nextKey, null, null, null);
+                return true;
+            } else {
+                return false;
             }
         }
 
@@ -1088,6 +1175,10 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     @Override
     public void putPreviousKey(final FDate previousKey, final FDate valueKey) {
         queryCore.putPreviousKey(previousKey, valueKey);
+    }
+
+    protected IValuesMap<V> newValuesMap() {
+        return new ValuesMap();
     }
 
     @Override

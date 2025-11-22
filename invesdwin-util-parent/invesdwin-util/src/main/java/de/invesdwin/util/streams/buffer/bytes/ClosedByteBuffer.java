@@ -36,6 +36,11 @@ public class ClosedByteBuffer implements ICloseableByteBuffer {
     public static final ClosedByteBuffer INSTANCE = new ClosedByteBuffer();
 
     @Override
+    public int getId() {
+        return ID_CLOSED;
+    }
+
+    @Override
     public ByteOrder getOrder() {
         return ByteBuffers.DEFAULT_ORDER;
     }

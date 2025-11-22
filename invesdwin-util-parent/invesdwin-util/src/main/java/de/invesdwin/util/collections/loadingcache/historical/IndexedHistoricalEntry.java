@@ -12,10 +12,10 @@ import de.invesdwin.util.time.date.FDate;
 public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
 
     private final IHistoricalCacheInternalMethods<V> parent;
-    private FDate key;
-    private Optional<V> value;
-    private FDate prevKey;
-    private FDate nextKey;
+    private volatile FDate key;
+    private volatile Optional<V> value;
+    private volatile FDate prevKey;
+    private volatile FDate nextKey;
 
     public IndexedHistoricalEntry(final IHistoricalCacheInternalMethods<V> parent, final FDate key) {
         this.parent = parent;
@@ -90,7 +90,17 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
                 if (prevKey == null) {
                     parent.invokeRefreshIfRequested();
                     final FDate unadj = parent.innerCalculatePreviousKey(key);
-                    prevKey = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(unadj);
+                    if (unadj == null) {
+                        return null;
+                    }
+                    if (unadj.isAfterNotNullSafe(key)) {
+                        return null;
+                    }
+                    final FDate adj = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(unadj);
+                    if (adj.isAfterNotNullSafe(key)) {
+                        return null;
+                    }
+                    prevKey = adj;
                 }
             }
         }
@@ -98,7 +108,20 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
     }
 
     public void setPrevKey(final FDate prev) {
-        this.prevKey = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(prev);
+        if (prev == null) {
+            this.prevKey = null;
+            return;
+        }
+        if (prev.isAfterNotNullSafe(key)) {
+            this.prevKey = null;
+            return;
+        }
+        final FDate adj = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(prev);
+        if (adj.isAfterNotNullSafe(key)) {
+            this.prevKey = null;
+            return;
+        }
+        this.prevKey = adj;
     }
 
     public FDate getNextKey() {
@@ -107,7 +130,17 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
                 if (nextKey == null) {
                     parent.invokeRefreshIfRequested();
                     final FDate unadj = parent.innerCalculateNextKey(key);
-                    nextKey = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(unadj);
+                    if (unadj == null) {
+                        return null;
+                    }
+                    if (unadj.isBeforeOrEqualToNotNullSafe(key)) {
+                        return null;
+                    }
+                    final FDate adj = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(unadj);
+                    if (adj.isBeforeOrEqualToNotNullSafe(key)) {
+                        return null;
+                    }
+                    nextKey = adj;
                 }
             }
         }
@@ -115,7 +148,20 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
     }
 
     public void setNextKey(final FDate next) {
-        this.nextKey = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(next);
+        if (next == null) {
+            this.nextKey = null;
+            return;
+        }
+        if (next.isBeforeOrEqualToNotNullSafe(key)) {
+            this.nextKey = null;
+            return;
+        }
+        final FDate adj = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(next);
+        if (adj.isBeforeOrEqualToNotNullSafe(key)) {
+            this.nextKey = null;
+            return;
+        }
+        this.nextKey = adj;
     }
 
     @Override
@@ -173,7 +219,7 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
 
     @Override
     public String toString() {
-        return getKey() + " -> " + getValue();
+        return getKey() + " -> " + getValueIfPresent();
     }
 
 }

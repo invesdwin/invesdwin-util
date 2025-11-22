@@ -1,8 +1,6 @@
 package de.invesdwin.util.concurrent;
 
-import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
@@ -12,11 +10,9 @@ import javax.annotation.concurrent.Immutable;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
-import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.concurrent.internal.WrappedThreadFactory;
 import de.invesdwin.util.concurrent.priority.PriorityThreadPoolExecutor;
 import de.invesdwin.util.math.Integers;
-import de.invesdwin.util.shutdown.IShutdownHook;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 /**
@@ -117,36 +113,8 @@ public final class Executors {
     /**
      * This executor does not actually run tasks in parallel but instead runs them directly in the callers thread
      */
-    public static WrappedExecutorService newDisabledExecutor(final String name) {
-        return new WrappedExecutorService(MoreExecutors.newDirectExecutorService(), name) {
-
-            {
-                super.setDynamicThreadName(false);
-                super.setFinalizerEnabled(false);
-            }
-
-            @Override
-            protected IShutdownHook newShutdownHook(final ExecutorService delegate) {
-                //shutdown hook disabled
-                return null;
-            }
-
-            @Override
-            public void shutdown() {
-                //noop
-            }
-
-            @Override
-            public List<Runnable> shutdownNow() {
-                return Collections.emptyList();
-            }
-
-            @Override
-            public WrappedExecutorService setDynamicThreadName(final boolean dynamicThreadName) {
-                //disabled
-                return this;
-            }
-        };
+    public static DisabledWrappedExecutorService newDisabledExecutor(final String name) {
+        return new DisabledWrappedExecutorService(MoreExecutors.newDirectExecutorService(), name);
     }
 
     public static boolean isDisabled(final Executor executor) {

@@ -16,7 +16,7 @@ import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.math.decimal.scaled.ByteSize;
 import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
-import de.invesdwin.util.streams.ADelegateInputStream;
+import de.invesdwin.util.streams.delegate.ADelegateInputStream;
 import de.invesdwin.util.streams.pool.PooledFastByteArrayOutputStream;
 import de.invesdwin.util.streams.pool.buffered.DeletingBufferedFileDataInputStream;
 

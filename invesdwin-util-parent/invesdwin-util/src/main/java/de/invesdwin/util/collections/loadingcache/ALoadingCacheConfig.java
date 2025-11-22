@@ -11,12 +11,14 @@ public abstract class ALoadingCacheConfig<K, V> {
     public static final boolean DEFAULT_HIGH_CONCURRENCY = false;
     public static final boolean DEFAULT_THREAD_SAFE = true;
     public static final EvictionMode DEFAULT_EVICTION_MODE = EvictionMode.LeastRecentlyUsed;
+    public static final boolean DEFAULT_PREVENT_RECURSIVE_LOAD = false;
 
-    private boolean initialMaximumSizeOverrideEnabled = false;
-    private Integer initialMaximumSizeOverride;
-    private Boolean highConcurrencyOverride;
-    private Boolean threadSafeOverride;
-    private EvictionMode evictionModeOverride;
+    protected boolean initialMaximumSizeOverrideEnabled = false;
+    protected Integer initialMaximumSizeOverride;
+    protected Boolean highConcurrencyOverride;
+    protected Boolean threadSafeOverride;
+    protected EvictionMode evictionModeOverride;
+    protected Boolean preventRecursiveLoadOverride;
 
     /**
      * default unlimited size
@@ -65,33 +67,21 @@ public abstract class ALoadingCacheConfig<K, V> {
         this.evictionModeOverride = evictionModeOverride;
     }
 
+    /**
+     * default is false, since this comes at a cost
+     */
+    protected boolean isPreventRecursiveLoad() {
+        return DEFAULT_PREVENT_RECURSIVE_LOAD;
+    }
+
     protected abstract V loadValue(K key);
 
     public ALoadingCache<K, V> newInstance() {
-        final Integer initialMaximumSize;
-        if (initialMaximumSizeOverrideEnabled) {
-            initialMaximumSize = initialMaximumSizeOverride;
-        } else {
-            initialMaximumSize = getInitialMaximumSize();
-        }
-        final boolean highConcurrency;
-        if (highConcurrencyOverride != null) {
-            highConcurrency = highConcurrencyOverride;
-        } else {
-            highConcurrency = isHighConcurrency();
-        }
-        final boolean threadSafe;
-        if (threadSafeOverride != null) {
-            threadSafe = threadSafeOverride;
-        } else {
-            threadSafe = isThreadSafe();
-        }
-        final EvictionMode evictionMode;
-        if (evictionModeOverride != null) {
-            evictionMode = evictionModeOverride;
-        } else {
-            evictionMode = getEvictionMode();
-        }
+        final Integer initialMaximumSize = determineInitialMaximumSize();
+        final boolean highConcurrency = determineHighConcurrency();
+        final boolean threadSafe = determineThreadSafe();
+        final EvictionMode evictionMode = determineEvictionMode();
+        final boolean preventRecursiveLoad = determinePreventRecursiveLoad();
         return new ALoadingCache<K, V>() {
 
             @Override
@@ -115,11 +105,66 @@ public abstract class ALoadingCacheConfig<K, V> {
             }
 
             @Override
+            protected boolean isPreventRecursiveLoad() {
+                return preventRecursiveLoad;
+            }
+
+            @Override
             protected V loadValue(final K key) {
                 return ALoadingCacheConfig.this.loadValue(key);
             }
 
         };
+    }
+
+    protected boolean determinePreventRecursiveLoad() {
+        final boolean preventRecursiveLoad;
+        if (preventRecursiveLoadOverride != null) {
+            preventRecursiveLoad = preventRecursiveLoadOverride;
+        } else {
+            preventRecursiveLoad = isPreventRecursiveLoad();
+        }
+        return preventRecursiveLoad;
+    }
+
+    protected EvictionMode determineEvictionMode() {
+        final EvictionMode evictionMode;
+        if (evictionModeOverride != null) {
+            evictionMode = evictionModeOverride;
+        } else {
+            evictionMode = getEvictionMode();
+        }
+        return evictionMode;
+    }
+
+    protected boolean determineThreadSafe() {
+        final boolean threadSafe;
+        if (threadSafeOverride != null) {
+            threadSafe = threadSafeOverride;
+        } else {
+            threadSafe = isThreadSafe();
+        }
+        return threadSafe;
+    }
+
+    protected boolean determineHighConcurrency() {
+        final boolean highConcurrency;
+        if (highConcurrencyOverride != null) {
+            highConcurrency = highConcurrencyOverride;
+        } else {
+            highConcurrency = isHighConcurrency();
+        }
+        return highConcurrency;
+    }
+
+    protected Integer determineInitialMaximumSize() {
+        final Integer initialMaximumSize;
+        if (initialMaximumSizeOverrideEnabled) {
+            initialMaximumSize = initialMaximumSizeOverride;
+        } else {
+            initialMaximumSize = getInitialMaximumSize();
+        }
+        return initialMaximumSize;
     }
 
 }

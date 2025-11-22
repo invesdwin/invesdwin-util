@@ -10,6 +10,7 @@ import javax.annotation.concurrent.Immutable;
 import org.joda.time.DateTimeConstants;
 
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.time.duration.Duration;
 
 @Immutable
 public enum FWeekday {
@@ -178,7 +179,7 @@ public enum FWeekday {
         }
     }
 
-    private String[] aliases;
+    private final String[] aliases;
 
     FWeekday(final String... aliases) {
         this.aliases = aliases;
@@ -231,6 +232,10 @@ public enum FWeekday {
 
     public int indexValue() {
         return jodaTimeValue();
+    }
+
+    public Duration durationValue() {
+        return new Duration(indexValue(), FTimeUnit.DAYS);
     }
 
     public String toString3Letters() {
@@ -295,6 +300,18 @@ public enum FWeekday {
     public static FWeekday valueOfAliasNullable(final String alias) {
         final FWeekday value = ALIAS_LOOKUP.get(alias.toLowerCase());
         return value;
+    }
+
+    public static FWeekday valueOfDuration(final Duration value) {
+        if (value.isLessThan(Duration.ONE_DAY)) {
+            return FWeekday.Monday;
+        }
+        final int weekDay = (int) value.getNumMultipleOfPeriod(Duration.ONE_DAY) % FTimeUnit.DAYS_IN_WEEK;
+        if (weekDay == 0) {
+            return FWeekday.Sunday;
+        } else {
+            return valueOfIndex(weekDay);
+        }
     }
 
 }

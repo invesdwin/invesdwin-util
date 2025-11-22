@@ -7,8 +7,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.concurrent.pool.AgronaObjectPool;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
-import de.invesdwin.util.streams.NonClosingDelegateOutputStream;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.delegate.NonClosingDelegateOutputStream;
 
 @NotThreadSafe
 public final class PooledFastBufferedOutputStream extends ReusableFastBufferedOutputStream {

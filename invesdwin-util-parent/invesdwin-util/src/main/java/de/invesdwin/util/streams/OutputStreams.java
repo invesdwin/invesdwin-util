@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UTFDataFormatException;
 import java.nio.channels.WritableByteChannel;
+import java.util.concurrent.TimeoutException;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.concurrent.future.throwing.IThrowingIORunnable;
+import de.invesdwin.util.concurrent.future.throwing.IThrowingTimeoutRunnable;
 import de.invesdwin.util.concurrent.loop.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
+import de.invesdwin.util.error.FastTimeoutException;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
@@ -94,34 +98,80 @@ public final class OutputStreams {
         }
     }
 
-    public static void writeFully(final WritableByteChannel dst, final java.nio.ByteBuffer byteBuffer)
+    public static void writeFullyNoTimeout(final WritableByteChannel dst, final java.nio.ByteBuffer byteBuffer)
             throws IOException {
+        try {
+            writeFully(dst, byteBuffer);
+        } catch (final TimeoutException e) {
+            throw newTimeoutEOF(e);
+        }
+    }
+
+    public static void writeFully(final WritableByteChannel dst, final java.nio.ByteBuffer byteBuffer)
+            throws IOException, TimeoutException {
         final Duration timeout = URIs.getDefaultNetworkTimeout();
+        writeFully(dst, byteBuffer, timeout);
+    }
+
+    public static void writeFully(final WritableByteChannel dst, final java.nio.ByteBuffer byteBuffer,
+            final Duration timeout) throws IOException, TimeoutException {
+        writeFully(dst, byteBuffer, timeout, ASpinWait::onSpinWaitStatic, InputStreams::throwOnEOF,
+                InputStreams::throwOnTimeout);
+    }
+
+    public static void writeFully(final WritableByteChannel dst, final java.nio.ByteBuffer byteBuffer,
+            final Duration timeout, final Runnable onSpinWaitF, final IThrowingIORunnable onEofF,
+            final IThrowingTimeoutRunnable onTimeoutF) throws IOException, FastEOFException, TimeoutException {
+        final int length = byteBuffer.remaining();
+        final int written = writeFullyIfPossible(dst, byteBuffer, timeout, onSpinWaitF, onEofF, onTimeoutF);
+        if (written < length) {
+            throw newEOF();
+        }
+    }
+
+    public static int writeFullyIfPossible(final WritableByteChannel dst, final java.nio.ByteBuffer byteBuffer)
+            throws IOException, TimeoutException {
+        final Duration timeout = URIs.getDefaultNetworkTimeout();
+        return writeFullyIfPossible(dst, byteBuffer, timeout);
+    }
+
+    public static int writeFullyIfPossible(final WritableByteChannel dst, final java.nio.ByteBuffer byteBuffer,
+            final Duration timeout) throws IOException, TimeoutException {
+        return writeFullyIfPossible(dst, byteBuffer, timeout, ASpinWait::onSpinWaitStatic, InputStreams::throwOnEOF,
+                InputStreams::throwOnTimeout);
+    }
+
+    public static int writeFullyIfPossible(final WritableByteChannel dst, final java.nio.ByteBuffer byteBuffer,
+            final Duration timeout, final Runnable onSpinWaitF, final IThrowingIORunnable onEofF,
+            final IThrowingTimeoutRunnable onTimeoutF) throws IOException, FastEOFException, TimeoutException {
         long zeroCountNanos = -1L;
 
         int remaining = byteBuffer.remaining();
+        final int length = remaining;
         final int positionBefore = byteBuffer.position();
         while (remaining > 0) {
             final int count = dst.write(byteBuffer);
             if (count < 0) { // EOF
+                onEofF.run();
                 break;
             }
-            if (count == 0 && timeout != null) {
-                if (zeroCountNanos == -1) {
-                    zeroCountNanos = System.nanoTime();
-                } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
-                    throw FastEOFException.getInstance("write timeout exceeded");
+            if (count == 0) {
+                if (timeout != null) {
+                    if (zeroCountNanos == -1) {
+                        zeroCountNanos = System.nanoTime();
+                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        onTimeoutF.run();
+                        return length - remaining;
+                    }
                 }
-                ASpinWait.onSpinWaitStatic();
+                onSpinWaitF.run();
             } else {
                 zeroCountNanos = -1L;
                 remaining -= count;
             }
         }
         ByteBuffers.position(byteBuffer, positionBefore);
-        if (remaining > 0) {
-            throw ByteBuffers.newEOF();
-        }
+        return length - remaining;
     }
 
     public static int writeUTF(final OutputStream out, final String str) throws IOException {
@@ -181,6 +231,26 @@ public final class OutputStreams {
         // handle int overflow with max 3x expansion
         final long actualLength = slen + Integer.toUnsignedLong(bits32 - slen);
         return "encoded string (" + head + "..." + tail + ") too long: " + actualLength + " bytes";
+    }
+
+    public static void throwOnEOF() throws IOException {
+        throw newEOF();
+    }
+
+    public static FastEOFException newEOF() {
+        return FastEOFException.getInstance("writeFully dst.write() returned negative count");
+    }
+
+    public static FastEOFException newTimeoutEOF(final TimeoutException cause) {
+        return FastEOFException.getInstance("writeFully timeout exceeded", cause);
+    }
+
+    public static void throwOnTimeout() throws TimeoutException {
+        throw newTimeout();
+    }
+
+    public static FastTimeoutException newTimeout() {
+        return FastTimeoutException.getInstance("writeFully timeout exceeded");
     }
 
 }

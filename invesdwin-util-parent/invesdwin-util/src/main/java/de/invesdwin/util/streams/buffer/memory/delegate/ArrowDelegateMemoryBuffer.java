@@ -58,6 +58,11 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
 
     public ArrowDelegateMemoryBuffer() {}
 
+    @Override
+    public int getId() {
+        return System.identityHashCode(delegate);
+    }
+
     public ArrowBuf getDelegate() {
         return delegate;
     }
@@ -663,10 +668,10 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             while (remaining > 0L) {
                 final long chunk = Longs.min(remaining, ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH);
                 remaining -= chunk;
-                OutputStreams.writeFully(dst, asNioByteBuffer(index, (int) chunk));
+                OutputStreams.writeFullyNoTimeout(dst, asNioByteBuffer(index, (int) chunk));
             }
         } else {
-            OutputStreams.writeFully(dst, asNioByteBuffer(index, (int) length));
+            OutputStreams.writeFullyNoTimeout(dst, asNioByteBuffer(index, (int) length));
         }
     }
 
@@ -677,10 +682,10 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             while (remaining > 0L) {
                 final long chunk = Longs.min(remaining, ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH);
                 remaining -= chunk;
-                InputStreams.readFully(src, asNioByteBuffer(index, (int) chunk));
+                InputStreams.readFullyNoTimeout(src, asNioByteBuffer(index, (int) chunk));
             }
         } else {
-            InputStreams.readFully(src, asNioByteBuffer(index, (int) length));
+            InputStreams.readFullyNoTimeout(src, asNioByteBuffer(index, (int) length));
         }
     }
 

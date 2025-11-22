@@ -36,6 +36,11 @@ public class ZeroByteBuffer implements ICloseableByteBuffer {
     public static final ZeroByteBuffer INSTANCE = new ZeroByteBuffer();
 
     @Override
+    public int getId() {
+        return ID_ZERO;
+    }
+
+    @Override
     public ByteOrder getOrder() {
         return ByteBuffers.DEFAULT_ORDER;
     }

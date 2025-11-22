@@ -28,10 +28,13 @@ import de.invesdwin.util.math.LongPair;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.millis.FDateMillis;
+import de.invesdwin.util.time.date.millis.WeekAdjustment;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.date.timezone.TimeZoneRange;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.range.TimeRange;
+import de.invesdwin.util.time.range.day.FDayTime;
+import de.invesdwin.util.time.range.week.FWeekTime;
 import jakarta.persistence.Transient;
 
 /**
@@ -83,7 +86,13 @@ public class FDate
     public static final String FORMAT_NUMBER_DATE_TIME = FORMAT_NUMBER_DATE + FORMAT_NUMBER_TIME;
     public static final String FORMAT_NUMBER_DATE_TIME_MS = FORMAT_NUMBER_DATE + FORMAT_NUMBER_TIME_MS;
 
-    public static final String FORMAT_UNDERSCORE_DATE_TIME_MS = "yyyy_MM_dd_HH_mm_ss_SSS";
+    public static final String FORMAT_UNDERSCORE_DATE = "yyyy_MM_dd";
+    public static final String FORMAT_UNDERSCORE_TIME_MINUTE = "HH_mm";
+    public static final String FORMAT_UNDERSCORE_DATE_TIME_MINUTE = FORMAT_UNDERSCORE_DATE + "_"
+            + FORMAT_UNDERSCORE_TIME_MINUTE;
+    public static final String FORMAT_UNDERSCORE_TIME = FORMAT_UNDERSCORE_TIME_MINUTE + "_ss";
+    public static final String FORMAT_UNDERSCORE_DATE_TIME = FORMAT_UNDERSCORE_DATE + "_" + FORMAT_UNDERSCORE_TIME;
+    public static final String FORMAT_UNDERSCORE_DATE_TIME_MS = FORMAT_UNDERSCORE_DATE_TIME + "_SSS";
 
     public static final String FORMAT_GERMAN_DATE = "dd.MM.yyyy";
     public static final String FORMAT_GERMAN_DATE_TIME = FORMAT_GERMAN_DATE + " " + FORMAT_ISO_TIME;
@@ -239,28 +248,28 @@ public class FDate
         return new FDate(FDateMillis.setDay(millis, day));
     }
 
-    public FDate setWeekday(final int weekday, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.setWeekday(millis, weekday, timeZone));
+    public FDate setWeekday(final int weekday, final WeekAdjustment adjustment, final FTimeZone timeZone) {
+        return new FDate(FDateMillis.setWeekday(millis, weekday, adjustment, timeZone));
     }
 
-    public FDate setWeekday(final int weekday) {
-        return new FDate(FDateMillis.setWeekday(millis, weekday));
+    public FDate setWeekday(final int weekday, final WeekAdjustment adjustment) {
+        return new FDate(FDateMillis.setWeekday(millis, weekday, adjustment));
     }
 
-    public FDate setFWeekday(final FWeekday weekday, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.setFWeekday(millis, weekday, timeZone));
+    public FDate setFWeekday(final FWeekday weekday, final WeekAdjustment adjustment, final FTimeZone timeZone) {
+        return new FDate(FDateMillis.setFWeekday(millis, weekday, adjustment, timeZone));
     }
 
-    public FDate setFWeekday(final FWeekday weekday) {
-        return new FDate(FDateMillis.setFWeekday(millis, weekday));
+    public FDate setFWeekday(final FWeekday weekday, final WeekAdjustment adjustment) {
+        return new FDate(FDateMillis.setFWeekday(millis, weekday, adjustment));
     }
 
-    public FDate setFWeekTime(final FWeekTime weekTime, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.setFWeekTime(millis, weekTime, timeZone));
+    public FDate setFWeekTime(final FWeekTime weekTime, final WeekAdjustment adjustment, final FTimeZone timeZone) {
+        return new FDate(FDateMillis.setFWeekTime(millis, weekTime, adjustment, timeZone));
     }
 
-    public FDate setFWeekTime(final FWeekTime weekTime) {
-        return new FDate(FDateMillis.setFWeekTime(millis, weekTime));
+    public FDate setFWeekTime(final FWeekTime weekTime, final WeekAdjustment adjustment) {
+        return new FDate(FDateMillis.setFWeekTime(millis, weekTime, adjustment));
     }
 
     public FDate setFDayTime(final FDayTime dayTime, final FTimeZone timeZone) {
@@ -532,6 +541,8 @@ public class FDate
     /**
      * Go back to the default timezone for a data that was converted into another timezone.
      * 
+     * FromGivenTimeZoneToUTC: Converts from the given TimeZone to default TimeZone (normally UTC).
+     * 
      * WARNING: this can cause issues when apply/revert is used with offsetTimeZone because right at daylight saving
      * time switch the reference changes and can cause 1 hour difference. So better use getTimeZoneOffset as a long and
      * use apply/revert with that long value instead of this dynamic version.
@@ -546,6 +557,8 @@ public class FDate
 
     /**
      * Go back to the default timezone for a data that was converted into another timezone.
+     * 
+     * FromUTCToGivenTimeZone: Converts from default TimeZone (normally UTC) to the given TimeZone.
      */
     public FDate revertTimeZoneOffset(final long timeZoneOffsetMilliseconds) {
         if (timeZoneOffsetMilliseconds == 0) {

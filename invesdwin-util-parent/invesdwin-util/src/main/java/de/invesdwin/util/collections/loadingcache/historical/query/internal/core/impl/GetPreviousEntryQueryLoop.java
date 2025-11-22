@@ -41,7 +41,6 @@ public class GetPreviousEntryQueryLoop<V> {
                  * 
                  * we decrement by one unit to get the previous key
                  */
-
                 final FDate previousPreviousKey;
                 if (iterations == 0) {
                     previousPreviousKey = previousKey;
@@ -56,13 +55,13 @@ public class GetPreviousEntryQueryLoop<V> {
                         HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE);
                 final IHistoricalEntry<V> previousPreviousEntry;
                 if (potentialPreviousPreviousEntry != null) {
-                    previousPreviousEntry = query.getAssertValue().assertValue(core.getParent(), key,
-                            potentialPreviousPreviousEntry);
+                    previousPreviousEntry = query.getAssertValue()
+                            .assertValue(core.getParent(), key, potentialPreviousPreviousEntry);
                 } else {
                     previousPreviousEntry = null;
                 }
                 if (previousPreviousEntry == null) {
-                    if (previousKey.equals(key)) {
+                    if (previousKey.equalsNotNullSafe(key)) {
                         previousEntry = null;
                         return true;
                     } else {
@@ -70,7 +69,7 @@ public class GetPreviousEntryQueryLoop<V> {
                     }
                 } else {
                     final FDate actualPreviousPreviousKey = previousPreviousEntry.getKey();
-                    if (iterations > 0 && actualPreviousPreviousKey.equals(previousKey)) {
+                    if (iterations > 0 && actualPreviousPreviousKey.equalsNotNullSafe(previousKey)) {
                         duplicateEncountered = true;
                     }
 
