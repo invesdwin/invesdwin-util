@@ -61,8 +61,8 @@ public abstract class APullingHistoricalCacheAdjustKeyProvider implements IHisto
     }
 
     @Override
-    public FDate getHighestAllowedKey() {
-        return delegate.getHighestAllowedKey();
+    public FDate getHighestAllowedKey(final boolean update) {
+        return delegate.getHighestAllowedKey(update);
     }
 
     @Override

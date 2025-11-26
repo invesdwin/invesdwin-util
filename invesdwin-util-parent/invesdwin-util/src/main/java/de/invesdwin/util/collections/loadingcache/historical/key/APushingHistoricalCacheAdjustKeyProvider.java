@@ -73,7 +73,7 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
         if (key.isBeforeOrEqualTo(curHighestAllowedKey)) {
             return key;
         }
-        final FDate highestAllowedKey = getHighestAllowedKey();
+        final FDate highestAllowedKey = getHighestAllowedKey(false);
         if (highestAllowedKey != null && key.millisValue() > highestAllowedKey.millisValue()) {
             return highestAllowedKey;
         } else {
@@ -92,9 +92,9 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
     }
 
     @Override
-    public FDate getHighestAllowedKey() {
+    public FDate getHighestAllowedKey(final boolean update) {
         if (curHighestAllowedKey == null) {
-            curHighestAllowedKey = pullingAdjustKeyProvider.getHighestAllowedKey();
+            curHighestAllowedKey = pullingAdjustKeyProvider.getHighestAllowedKey(update);
         }
         return curHighestAllowedKey;
     }

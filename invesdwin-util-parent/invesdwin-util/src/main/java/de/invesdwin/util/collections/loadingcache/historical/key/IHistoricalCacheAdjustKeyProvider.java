@@ -16,7 +16,7 @@ public interface IHistoricalCacheAdjustKeyProvider {
 
     void clear();
 
-    FDate getHighestAllowedKey();
+    FDate getHighestAllowedKey(boolean update);
 
     FDate getPreviousHighestAllowedKey();
 

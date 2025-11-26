@@ -29,7 +29,7 @@ public interface IHistoricalCacheInternalMethods<V> {
 
     FDate adjustKey(FDate key);
 
-    FDate getHighestAllowedKey();
+    FDate getHighestAllowedKey(boolean update);
 
     boolean isAdjustedKey(FDate key);
 
