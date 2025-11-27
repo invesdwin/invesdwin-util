@@ -29,7 +29,7 @@ public class GetNextEntryQueryLoop<V> {
         this.key = key;
         this.nextKey = key;
         this.shiftForwardUnits = shiftForwardUnits;
-        this.to = FDates.min(FDates.MAX_DATE, core.getParent().getHighestAllowedKey(false));
+        this.to = FDates.min(FDates.MAX_DATE, core.getParent().getHighestAllowedKey(true));
     }
 
     public boolean iterationFinished() {
