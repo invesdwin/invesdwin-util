@@ -291,8 +291,8 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         return adjustKeyProvider.maybeAdjustKey(key);
     }
 
-    protected FDate getHighestAllowedKey() {
-        return adjustKeyProvider.getHighestAllowedKey();
+    protected FDate getHighestAllowedKey(final boolean update) {
+        return adjustKeyProvider.getHighestAllowedKey(update);
     }
 
     protected boolean isAdjustedKey(final FDate key) {
@@ -705,8 +705,8 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         }
 
         @Override
-        public FDate getHighestAllowedKey() {
-            return AHistoricalCache.this.getHighestAllowedKey();
+        public FDate getHighestAllowedKey(final boolean update) {
+            return AHistoricalCache.this.getHighestAllowedKey(update);
         }
 
         @Override
@@ -957,7 +957,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         public void clear() {}
 
         @Override
-        public FDate getHighestAllowedKey() {
+        public FDate getHighestAllowedKey(final boolean forceUpdate) {
             return null;
         }
 

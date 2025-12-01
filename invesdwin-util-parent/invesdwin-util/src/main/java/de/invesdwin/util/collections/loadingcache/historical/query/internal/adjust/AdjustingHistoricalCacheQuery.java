@@ -62,7 +62,8 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
         if (key == null) {
             return false;
         }
-        if (key.isAfter(internalMethods.getHighestAllowedKey())) {
+        //not updating highest allowed key, since this already happened during key adjustment
+        if (key.isAfter(internalMethods.getHighestAllowedKey(false))) {
             return true;
         }
         return false;
@@ -106,7 +107,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
             if (adjustKeyProvider.isAlreadyAdjustingKey()) {
                 return getKeyF.evaluateGeneric(pKey);
             }
-            final FDate highestAllowedKey = adjustKeyProvider.getHighestAllowedKey();
+            final FDate highestAllowedKey = adjustKeyProvider.getHighestAllowedKey(true);
             if (highestAllowedKey == null) {
                 return getKeyF.evaluateGeneric(() -> adjustKey(pKey.asFDate()));
             }
@@ -187,7 +188,7 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
         if (adjustKeyProvider.isAlreadyAdjustingKey()) {
             return delegate.getKey(key);
         }
-        final FDate highestAllowedKey = adjustKeyProvider.getHighestAllowedKey();
+        final FDate highestAllowedKey = adjustKeyProvider.getHighestAllowedKey(true);
         if (highestAllowedKey == null) {
             return delegate.getKey(adjustKey(key));
         } else if (key.isAfterOrEqualToNotNullSafe(highestAllowedKey)) {

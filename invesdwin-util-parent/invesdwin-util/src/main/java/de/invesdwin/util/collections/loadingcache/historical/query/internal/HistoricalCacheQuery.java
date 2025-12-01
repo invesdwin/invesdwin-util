@@ -385,7 +385,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     @Override
     public ICloseableIterable<IHistoricalEntry<V>> getEntriesCached(final FDate from, final FDate to) {
         final FDate adjFrom = FDates.max(FDates.MIN_DATE, from);
-        final FDate adjTo = FDates.min(FDates.MAX_DATE, to, internalMethods.getHighestAllowedKey());
+        final FDate adjTo = FDates.min(FDates.MAX_DATE, to, internalMethods.getHighestAllowedKey(true));
         return new ICloseableIterable<IHistoricalEntry<V>>() {
             @Override
             public ICloseableIterator<IHistoricalEntry<V>> iterator() {

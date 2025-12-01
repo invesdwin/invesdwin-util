@@ -80,8 +80,8 @@ public abstract class ANonRecursivePullingHistoricalCacheAdjustKeyProvider
     }
 
     @Override
-    public FDate getHighestAllowedKey() {
-        if (curHighestAllowedKey == null) {
+    public FDate getHighestAllowedKey(final boolean update) {
+        if (curHighestAllowedKey == null || update) {
             getHighestAllowedKeyUpdateCached();
         }
         return curHighestAllowedKey;

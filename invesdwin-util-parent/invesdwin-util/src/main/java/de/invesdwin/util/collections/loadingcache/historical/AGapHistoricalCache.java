@@ -224,7 +224,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         final boolean alreadyAdjustingKey = adjustKeyProvider.isAlreadyAdjustingKey();
         if (!alreadyAdjustingKey) {
             //not updating highest allowed key, since this already happened during key adjustment
-            final FDate newMaxKeyInDB = adjustKeyProvider.getHighestAllowedKey();
+            final FDate newMaxKeyInDB = adjustKeyProvider.getHighestAllowedKey(false);
             if (newMaxKeyInDB != null) {
                 if (maxKeyInDB == null || newMaxKeyInDB.isAfterNotNullSafe(maxKeyInDB)) {
                     maxKeyInDB = newMaxKeyInDB;
@@ -650,7 +650,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
             @Override
             protected FDate getHighestAllowedKey(final int lastResetIndex) {
-                final FDate highestAllowedKey = getAdjustKeyProvider().getHighestAllowedKey();
+                final FDate highestAllowedKey = getAdjustKeyProvider().getHighestAllowedKey(true);
                 if (highestAllowedKey != null) {
                     return highestAllowedKey;
                 }
