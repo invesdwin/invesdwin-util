@@ -35,10 +35,12 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
             };
         } else {
             this.pullingAdjustKeyProvider = new ANonRecursivePullingHistoricalCacheAdjustKeyProvider(parent) {
+
                 @Override
                 protected FDate innerGetHighestAllowedKey() {
                     return getInitialHighestAllowedKey();
                 }
+
             };
         }
     }
@@ -70,11 +72,8 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
         if (key == null) {
             return null;
         }
-        if (key.isBeforeOrEqualTo(curHighestAllowedKey)) {
-            return key;
-        }
-        final FDate highestAllowedKey = getHighestAllowedKey();
-        if (highestAllowedKey != null && key.millisValue() > highestAllowedKey.millisValue()) {
+        final FDate highestAllowedKey = getHighestAllowedKey(true);
+        if (key.isAfter(highestAllowedKey)) {
             return highestAllowedKey;
         } else {
             return key;
@@ -84,24 +83,34 @@ public abstract class APushingHistoricalCacheAdjustKeyProvider implements IHisto
     protected abstract FDate getInitialHighestAllowedKey();
 
     public void pushHighestAllowedKey(final FDate highestAllowedKey) {
-        if (curHighestAllowedKey == null && highestAllowedKey != null) {
+        final FDate curHighestAllowedKeyCopy = curHighestAllowedKey;
+        if (curHighestAllowedKeyCopy == null && highestAllowedKey != null) {
             clear();
         }
-        this.prevHighestAllowedKey = this.curHighestAllowedKey;
+        this.prevHighestAllowedKey = curHighestAllowedKeyCopy;
         this.curHighestAllowedKey = highestAllowedKey;
     }
 
     @Override
-    public FDate getHighestAllowedKey() {
-        if (curHighestAllowedKey == null) {
-            curHighestAllowedKey = pullingAdjustKeyProvider.getHighestAllowedKey();
+    public FDate getHighestAllowedKey(final boolean update) {
+        final FDate curHighestAllowedKeyCopy = curHighestAllowedKey;
+        if (curHighestAllowedKeyCopy != null) {
+            //already pushed, so keep that
+            return curHighestAllowedKeyCopy;
         }
-        return curHighestAllowedKey;
+        //keep pulling until first push
+        return pullingAdjustKeyProvider.getHighestAllowedKey(update);
     }
 
     @Override
     public FDate getPreviousHighestAllowedKey() {
-        return prevHighestAllowedKey;
+        final FDate prevHighestAllowedKeyCopy = prevHighestAllowedKey;
+        if (prevHighestAllowedKeyCopy != null) {
+            //already pushed, so keep that
+            return prevHighestAllowedKeyCopy;
+        }
+        //keep pulling until first push
+        return pullingAdjustKeyProvider.getPreviousHighestAllowedKey();
     }
 
     @Override

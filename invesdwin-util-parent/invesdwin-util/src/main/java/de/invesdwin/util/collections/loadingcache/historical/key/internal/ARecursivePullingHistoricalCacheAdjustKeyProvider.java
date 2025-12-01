@@ -106,8 +106,8 @@ public abstract class ARecursivePullingHistoricalCacheAdjustKeyProvider implemen
     }
 
     @Override
-    public FDate getHighestAllowedKey() {
-        if (curHighestAllowedKey == null) {
+    public FDate getHighestAllowedKey(final boolean update) {
+        if (curHighestAllowedKey == null || update) {
             if (BooleanUtils.isNotTrue(alreadyAdjustingKey.get())) {
                 final Boolean prevGlobalAlreadyAdjustingKey = GLOBAL_ALREADY_ADJUSTING_KEY.get();
                 GLOBAL_ALREADY_ADJUSTING_KEY.set(true);
