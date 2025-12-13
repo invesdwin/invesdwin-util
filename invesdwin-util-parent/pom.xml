@@ -34,7 +34,7 @@
 		<version.fest-reflect>1.4.1</version.fest-reflect>
 		<version.fest-util>1.2.5</version.fest-util>
 		<version.concurrent-locks>1.0.0</version.concurrent-locks>
-		<version.classgraph>4.8.138</version.classgraph>
+		<version.classgraph>4.8.184</version.classgraph>
 		<version.okhttp>5.1.0</version.okhttp>
 		<version.okio>3.15.0</version.okio>
 		<version.roaringbitmap>1.0.0</version.roaringbitmap>

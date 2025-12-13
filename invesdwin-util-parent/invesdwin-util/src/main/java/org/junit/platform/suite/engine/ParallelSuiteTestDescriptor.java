@@ -9,21 +9,35 @@
 
 package org.junit.platform.suite.engine;
 
-import static org.junit.platform.commons.util.AnnotationUtils.findAnnotation;
+import static java.util.function.Predicate.isEqual;
+import static java.util.stream.Collectors.joining;
+import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
+import static org.junit.platform.commons.util.FunctionUtils.where;
 import static org.junit.platform.suite.commons.SuiteLauncherDiscoveryRequestBuilder.request;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
+import org.junit.platform.commons.support.ReflectionSupport;
 import org.junit.platform.engine.ConfigurationParameters;
+import org.junit.platform.engine.DiscoveryIssue;
+import org.junit.platform.engine.EngineDiscoveryListener;
 import org.junit.platform.engine.EngineExecutionListener;
+import org.junit.platform.engine.OutputDirectoryCreator;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.UniqueId;
+import org.junit.platform.engine.UniqueId.Segment;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor;
 import org.junit.platform.engine.support.descriptor.ClassSource;
+import org.junit.platform.engine.support.discovery.DiscoveryIssueReporter;
 import org.junit.platform.engine.support.hierarchical.OpenTest4JAwareThrowableCollector;
 import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
+import org.junit.platform.engine.support.store.Namespace;
+import org.junit.platform.engine.support.store.NamespacedHierarchicalStore;
+import org.junit.platform.launcher.LauncherDiscoveryListener;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
 import org.junit.platform.launcher.core.LauncherDiscoveryResult;
 import org.junit.platform.launcher.listeners.TestExecutionSummary;
@@ -39,17 +53,23 @@ final class ParallelSuiteTestDescriptor extends AbstractTestDescriptor
     static final String SEGMENT_TYPE = "parallelSuite";
 
     private final SuiteLauncherDiscoveryRequestBuilder discoveryRequestBuilder = request();
-
     private final ParallelSuiteConfigurationParameters configurationParameters;
+    private final OutputDirectoryCreator outputDirectoryCreator;
+    private final LifecycleMethods lifecycleMethods;
 
     private LauncherDiscoveryResult launcherDiscoveryResult;
     private ParallelSuiteLauncher launcher;
 
     ParallelSuiteTestDescriptor(final UniqueId id, final Class<?> suiteClass,
-            final ConfigurationParameters parentConfigurationParameters) {
-        super(id, getSuiteDisplayName(suiteClass), ClassSource.from(suiteClass));
+            final ConfigurationParameters parentConfigurationParameters,
+            final OutputDirectoryCreator outputDirectoryCreator, final EngineDiscoveryListener discoveryListener,
+            final DiscoveryIssueReporter issueReporter) {
+        super(id, getSuiteDisplayName(suiteClass, issueReporter), ClassSource.from(suiteClass));
         this.configurationParameters = new ParallelSuiteConfigurationParameters(suiteClass,
                 parentConfigurationParameters);
+        this.outputDirectoryCreator = outputDirectoryCreator;
+        this.lifecycleMethods = new LifecycleMethods(suiteClass, issueReporter);
+        this.discoveryRequestBuilder.listener(DiscoveryIssueForwardingListener.create(id, discoveryListener));
     }
 
     @Override
@@ -80,17 +100,23 @@ final class ParallelSuiteTestDescriptor extends AbstractTestDescriptor
             return;
         }
 
-        final LauncherDiscoveryRequest request = discoveryRequestBuilder.filterStandardClassNamePatterns(true)
+        // @formatter:off
+        final LauncherDiscoveryRequest request = discoveryRequestBuilder
+                .filterStandardClassNamePatterns(true)
                 .enableImplicitConfigurationParameters(false)
                 .parentConfigurationParameters(configurationParameters)
                 .applyConfigurationParametersFromSuite(configurationParameters.getSuiteClass())
+                .outputDirectoryCreator(outputDirectoryCreator)
                 .build();
+        // @formatter:on
         this.launcher = ParallelSuiteLauncher.create();
         this.launcherDiscoveryResult = launcher.discover(request, getUniqueId());
+        // @formatter:off
         launcherDiscoveryResult.getTestEngines()
                 .stream()
                 .map(testEngine -> launcherDiscoveryResult.getEngineTestDescriptor(testEngine))
                 .forEach(this::addChild);
+        // @formatter:on
     }
 
     @Override
@@ -98,39 +124,47 @@ final class ParallelSuiteTestDescriptor extends AbstractTestDescriptor
         return Type.CONTAINER;
     }
 
-    private static String getSuiteDisplayName(final Class<?> testClass) {
-        return findAnnotation(testClass, SuiteDisplayName.class).map(SuiteDisplayName::value)
-                .filter(org.junit.platform.commons.util.StringUtils::isNotBlank)
-                .orElse(testClass.getSimpleName());
+    private static String getSuiteDisplayName(final Class<?> suiteClass, final DiscoveryIssueReporter issueReporter) {
+        // @formatter:off
+        final Predicate<String> nonBlank = issueReporter.createReportingCondition(org.junit.platform.commons.util.StringUtils::isNotBlank, __ -> {
+            //CHECKSTYLE:OFF
+            final String message = String.format("@SuiteDisplayName on %s must be declared with a non-blank value.",
+                    suiteClass.getName());
+            //CHECKSTYLE:ON
+            return DiscoveryIssue.builder(DiscoveryIssue.Severity.WARNING, message)
+                    .source(ClassSource.from(suiteClass))
+                    .build();
+        }).toPredicate();
+
+        return findAnnotation(suiteClass, SuiteDisplayName.class)
+                .map(SuiteDisplayName::value)
+                .filter(nonBlank)
+                .orElse(suiteClass.getSimpleName());
+        // @formatter:on
     }
 
-    void execute(final EngineExecutionListener parentEngineExecutionListener) {
+    void execute(final EngineExecutionListener parentEngineExecutionListener,
+            final NamespacedHierarchicalStore<Namespace> requestLevelStore) {
         parentEngineExecutionListener.executionStarted(this);
         final ThrowableCollector throwableCollector = new OpenTest4JAwareThrowableCollector();
 
-        final List<Method> beforeSuiteMethods = LifecycleMethodUtils
-                .findBeforeSuiteMethods(configurationParameters.getSuiteClass(), throwableCollector);
-        final List<Method> afterSuiteMethods = LifecycleMethodUtils
-                .findAfterSuiteMethods(configurationParameters.getSuiteClass(), throwableCollector);
+        executeBeforeSuiteMethods(throwableCollector);
 
-        executeBeforeSuiteMethods(beforeSuiteMethods, throwableCollector);
+        final TestExecutionSummary summary = executeTests(parentEngineExecutionListener, requestLevelStore,
+                throwableCollector);
 
-        final TestExecutionSummary summary = executeTests(parentEngineExecutionListener, throwableCollector);
-
-        executeAfterSuiteMethods(afterSuiteMethods, throwableCollector);
+        executeAfterSuiteMethods(throwableCollector);
 
         final TestExecutionResult testExecutionResult = computeTestExecutionResult(summary, throwableCollector);
         parentEngineExecutionListener.executionFinished(this, testExecutionResult);
     }
 
-    private void executeBeforeSuiteMethods(final List<Method> beforeSuiteMethods,
-            final ThrowableCollector throwableCollector) {
+    private void executeBeforeSuiteMethods(final ThrowableCollector throwableCollector) {
         if (throwableCollector.isNotEmpty()) {
             return;
         }
-        for (final Method beforeSuiteMethod : beforeSuiteMethods) {
-            throwableCollector.execute(
-                    () -> org.junit.platform.commons.util.ReflectionUtils.invokeMethod(beforeSuiteMethod, null));
+        for (final Method beforeSuiteMethod : lifecycleMethods.beforeSuite) {
+            throwableCollector.execute(() -> ReflectionSupport.invokeMethod(beforeSuiteMethod, null));
             if (throwableCollector.isNotEmpty()) {
                 return;
             }
@@ -138,6 +172,7 @@ final class ParallelSuiteTestDescriptor extends AbstractTestDescriptor
     }
 
     private TestExecutionSummary executeTests(final EngineExecutionListener parentEngineExecutionListener,
+            final NamespacedHierarchicalStore<Namespace> requestLevelStore,
             final ThrowableCollector throwableCollector) {
         if (throwableCollector.isNotEmpty()) {
             return null;
@@ -148,14 +183,12 @@ final class ParallelSuiteTestDescriptor extends AbstractTestDescriptor
         // be pruned accordingly.
         final LauncherDiscoveryResult discoveryResult = this.launcherDiscoveryResult
                 .withRetainedEngines(getChildren()::contains);
-        return launcher.execute(discoveryResult, parentEngineExecutionListener);
+        return launcher.execute(discoveryResult, parentEngineExecutionListener, requestLevelStore);
     }
 
-    private void executeAfterSuiteMethods(final List<Method> afterSuiteMethods,
-            final ThrowableCollector throwableCollector) {
-        for (final Method afterSuiteMethod : afterSuiteMethods) {
-            throwableCollector.execute(
-                    () -> org.junit.platform.commons.util.ReflectionUtils.invokeMethod(afterSuiteMethod, null));
+    private void executeAfterSuiteMethods(final ThrowableCollector throwableCollector) {
+        for (final Method afterSuiteMethod : lifecycleMethods.afterSuite) {
+            throwableCollector.execute(() -> ReflectionSupport.invokeMethod(afterSuiteMethod, null));
         }
     }
 
@@ -176,6 +209,63 @@ final class ParallelSuiteTestDescriptor extends AbstractTestDescriptor
         // it does. This allows the suite to fail if no tests were discovered.
         // Otherwise, the empty suite would be pruned.
         return true;
+    }
+
+    private static class LifecycleMethods {
+
+        private final List<Method> beforeSuite;
+        private final List<Method> afterSuite;
+
+        LifecycleMethods(final Class<?> suiteClass, final DiscoveryIssueReporter issueReporter) {
+            beforeSuite = LifecycleMethodUtils.findBeforeSuiteMethods(suiteClass, issueReporter);
+            afterSuite = LifecycleMethodUtils.findAfterSuiteMethods(suiteClass, issueReporter);
+        }
+    }
+
+    private static final class DiscoveryIssueForwardingListener implements LauncherDiscoveryListener {
+
+        private static final Predicate<Segment> SUITE_SEGMENTS = where(Segment::getType, isEqual(SEGMENT_TYPE));
+
+        private final EngineDiscoveryListener discoveryListener;
+        private final BiFunction<UniqueId, DiscoveryIssue, DiscoveryIssue> issueTransformer;
+
+        private DiscoveryIssueForwardingListener(final EngineDiscoveryListener discoveryListener,
+                final BiFunction<UniqueId, DiscoveryIssue, DiscoveryIssue> issueTransformer) {
+            this.discoveryListener = discoveryListener;
+            this.issueTransformer = issueTransformer;
+        }
+
+        static DiscoveryIssueForwardingListener create(final UniqueId id,
+                final EngineDiscoveryListener discoveryListener) {
+            final boolean isNestedSuite = id.getSegments().stream().filter(SUITE_SEGMENTS).count() > 1;
+            if (isNestedSuite) {
+                return new DiscoveryIssueForwardingListener(discoveryListener, (__, issue) -> issue);
+            }
+            return new DiscoveryIssueForwardingListener(discoveryListener,
+                    (engineUniqueId, issue) -> issue.withMessage(message -> {
+                        final String engineId = engineUniqueId.getLastSegment().getValue();
+                        if (SuiteEngineDescriptor.ENGINE_ID.equals(engineId)) {
+                            return message;
+                        }
+                        final String suitePath = engineUniqueId.getSegments()
+                                .stream() //
+                                .filter(SUITE_SEGMENTS) //
+                                .map(Segment::getValue) //
+                                .collect(joining(" > "));
+                        //CHECKSTYLE:OFF
+                        if (message.endsWith(".")) {
+                            message = message.substring(0, message.length() - 1);
+                        }
+                        return String.format("[%s] %s (via @Suite %s).", engineId, message, suitePath);
+                        //CHECKSTYLE:ON
+                    }));
+        }
+
+        @Override
+        public void issueEncountered(final UniqueId engineUniqueId, final DiscoveryIssue issue) {
+            final DiscoveryIssue transformedIssue = this.issueTransformer.apply(engineUniqueId, issue);
+            this.discoveryListener.issueEncountered(engineUniqueId, transformedIssue);
+        }
     }
 
 }
