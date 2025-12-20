@@ -13,7 +13,7 @@ import de.invesdwin.util.collections.internal.ACollectionsStaticFacade;
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.internal.ACollectionsStaticFacade", targets = {
         java.util.Collections.class, org.apache.commons.collections4.CollectionUtils.class,
-        com.google.common.collect.Collections2.class }, filterSeeMethodSignatures = {
+        com.google.common.collect.Collections2.class, org.fest.util.Collections.class }, filterSeeMethodSignatures = {
                 "java.util.Collections#min(java.util.Collection)", "java.util.Collections#max(java.util.Collection)",
                 "org.apache.commons.collections4.CollectionUtils#addAll(java.util.Collection, C...)",
                 "org.apache.commons.collections4.CollectionUtils#synchronizedCollection(java.util.Collection)",
