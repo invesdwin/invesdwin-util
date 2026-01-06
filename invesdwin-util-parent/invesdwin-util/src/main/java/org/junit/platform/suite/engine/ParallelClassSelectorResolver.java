@@ -97,7 +97,7 @@ final class ParallelClassSelectorResolver implements SelectorResolver {
 
     private Optional<ParallelSuiteTestDescriptor> newSuiteDescriptor(final Class<?> suiteClass,
             final TestDescriptor parent) {
-        final UniqueId id = parent.getUniqueId().append(SuiteTestDescriptor.SEGMENT_TYPE, suiteClass.getName());
+        final UniqueId id = parent.getUniqueId().append(ParallelSuiteTestDescriptor.SEGMENT_TYPE, suiteClass.getName());
         if (containsCycle(id)) {
             issueReporter
                     .reportIssue(DiscoveryIssue.builder(Severity.INFO, createConfigContainsCycleMessage(suiteClass, id)) //
