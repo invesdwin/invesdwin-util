@@ -1,30 +1,37 @@
 package de.invesdwin.util.concurrent.pool.timeout;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import com.google.common.util.concurrent.ListenableScheduledFuture;
 
-import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.concurrent.WrappedScheduledExecutorService;
 import de.invesdwin.util.concurrent.pool.ICloseableObjectPool;
+import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
 public abstract class ASingletonTimeoutObjectPool<E> implements ICloseableObjectPool<E> {
 
-    protected E singleton;
+    private static final IObjectPool<WrappedScheduledExecutorService> SCHEDULED_EXECUTOR_POOL = ATimeoutObjectPool.SCHEDULED_EXECUTOR_POOL;
+
+    @GuardedBy("this")
+    protected volatile E singleton;
+    @GuardedBy("this")
     protected long referenceCount;
+    @GuardedBy("this")
     protected long timeoutStartNanos;
     private final long timeoutMillis;
+    private WrappedScheduledExecutorService scheduledExecutor;
     private ListenableScheduledFuture<?> scheduledFuture;
 
     public ASingletonTimeoutObjectPool(final Duration timeout, final Duration checkInverval) {
         this.timeoutMillis = timeout.longValue(FTimeUnit.MILLISECONDS);
 
-        ATimeoutObjectPool.ACTIVE_POOLS.incrementAndGet();
-        this.scheduledFuture = ATimeoutObjectPool.getScheduledExecutor()
-                .scheduleAtFixedRate(this::checkTimeout, 0, checkInverval.longValue(),
-                        checkInverval.getTimeUnit().timeUnitValue());
+        this.scheduledExecutor = SCHEDULED_EXECUTOR_POOL.borrowObject();
+        this.scheduledFuture = scheduledExecutor.scheduleAtFixedRate(this::checkTimeout, 0, checkInverval.longValue(),
+                checkInverval.getTimeUnit().timeUnitValue());
     }
 
     protected synchronized void checkTimeout() {
@@ -92,13 +99,18 @@ public abstract class ASingletonTimeoutObjectPool<E> implements ICloseableObject
     }
 
     @Override
-    public void close() {
-        Assertions.checkNotNull(scheduledFuture);
-        clear();
-        scheduledFuture.cancel(true);
-        scheduledFuture = null;
-        ATimeoutObjectPool.ACTIVE_POOLS.decrementAndGet();
-        ATimeoutObjectPool.maybeCloseScheduledExecutor();
+    public synchronized void close() {
+        final ListenableScheduledFuture<?> scheduledFutureCopy = scheduledFuture;
+        if (scheduledFutureCopy != null) {
+            clear();
+            scheduledFutureCopy.cancel(true);
+            scheduledFuture = null;
+        }
+        final WrappedScheduledExecutorService scheduledExecutorCopy = scheduledExecutor;
+        if (scheduledExecutorCopy != null) {
+            SCHEDULED_EXECUTOR_POOL.returnObject(scheduledExecutorCopy);
+            scheduledExecutor = null;
+        }
     }
 
     @Override
