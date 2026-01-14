@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.concurrent.lambda.callable.ImmutableCallable;
+import de.invesdwin.util.concurrent.lambda.callable.DisabledCallable;
 import de.invesdwin.util.concurrent.priority.IPriorityCallable;
 import de.invesdwin.util.concurrent.priority.IPriorityProvider;
 import de.invesdwin.util.concurrent.taskinfo.TaskInfoManager;
@@ -29,7 +29,7 @@ public final class TaskInfoCallable<V> implements IPriorityCallable<V>, ITaskInf
         this.name = name;
         this.delegate = delegate;
         if (progress == null) {
-            this.progress = new ImmutableCallable<Percent>(null);
+            this.progress = DisabledCallable.getInstance();
         } else {
             this.progress = progress;
         }

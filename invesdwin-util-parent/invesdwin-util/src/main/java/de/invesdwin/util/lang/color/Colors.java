@@ -18,6 +18,7 @@ public final class Colors {
     public static final int MAX_ALPHA = 255;
 
     public static final String GREEN_HEX = "#00b050";
+    public static final String ORANGE_HEX = "#FF5F15";
     public static final String RED_HEX = "#b80000";
     public static final String PURPLE_HEX = "#990099";
     public static final Color GREEN = Color.decode(GREEN_HEX);

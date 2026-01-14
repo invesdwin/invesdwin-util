@@ -15,9 +15,10 @@ import java.util.Set;
 import org.junit.platform.engine.EngineExecutionListener;
 import org.junit.platform.engine.TestEngine;
 import org.junit.platform.engine.UniqueId;
+import org.junit.platform.engine.support.store.Namespace;
+import org.junit.platform.engine.support.store.NamespacedHierarchicalStore;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
 import org.junit.platform.launcher.core.EngineDiscoveryOrchestrator;
-import org.junit.platform.launcher.core.EngineDiscoveryOrchestrator.Phase;
 import org.junit.platform.launcher.core.EngineExecutionOrchestrator;
 import org.junit.platform.launcher.core.LauncherDiscoveryResult;
 import org.junit.platform.launcher.core.ServiceLoaderTestEngineRegistry;
@@ -32,7 +33,7 @@ final class ParallelSuiteLauncher {
 
     private ParallelSuiteLauncher(final Set<TestEngine> testEngines) {
         org.junit.platform.commons.util.Preconditions.condition(hasTestEngineOtherThanSuiteEngine(testEngines),
-                () -> "Cannot create ParallelSuiteLauncher without at least one other TestEngine; "
+                () -> "Cannot create SuiteLauncher without at least one other TestEngine; "
                         + "consider adding an engine implementation JAR to the classpath");
         this.discoveryOrchestrator = new EngineDiscoveryOrchestrator(testEngines, java.util.Collections.emptyList());
     }
@@ -49,13 +50,14 @@ final class ParallelSuiteLauncher {
     }
 
     LauncherDiscoveryResult discover(final LauncherDiscoveryRequest discoveryRequest, final UniqueId parentId) {
-        return discoveryOrchestrator.discover(discoveryRequest, Phase.DISCOVERY, parentId);
+        return discoveryOrchestrator.discover(discoveryRequest, parentId);
     }
 
     TestExecutionSummary execute(final LauncherDiscoveryResult discoveryResult,
-            final EngineExecutionListener parentEngineExecutionListener) {
+            final EngineExecutionListener parentEngineExecutionListener,
+            final NamespacedHierarchicalStore<Namespace> requestLevelStore) {
         final SummaryGeneratingListener listener = new SummaryGeneratingListener();
-        executionOrchestrator.execute(discoveryResult, parentEngineExecutionListener, listener);
+        executionOrchestrator.execute(discoveryResult, parentEngineExecutionListener, listener, requestLevelStore);
         return listener.getSummary();
     }
 

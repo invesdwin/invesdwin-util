@@ -385,4 +385,16 @@ public final class Components {
         Reflections.getUnsafe().putBoolean(component, COMPONENT_MINSIZESET_FIELD_OFFSET, minimumSize != null);
     }
 
+    public static void setSelectionStart(final JTextComponent component, final int selectionStart) {
+        if (component.getSelectionStart() != selectionStart) {
+            component.setSelectionStart(selectionStart);
+        }
+    }
+
+    public static void setSelectionEnd(final JTextComponent component, final int selectionEnd) {
+        if (component.getSelectionEnd() != selectionEnd) {
+            component.setSelectionEnd(selectionEnd);
+        }
+    }
+
 }
