@@ -1,5 +1,6 @@
 package de.invesdwin.util.collections.factory;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -199,5 +200,37 @@ public interface ILockCollectionFactory {
     }
 
     boolean isThreadSafe();
+
+    <K, V> Map<K, V> synchronizedMap(Map<K, V> map);
+
+    <T> Set<T> synchronizedSet(Set<T> set);
+
+    <T> List<T> synchronizedList(List<T> list);
+
+    <T> Collection<T> synchronizedCollection(Collection<T> collection);
+
+    <K, V> Map<K, V> synchronizedMap(Map<K, V> map, Object lock);
+
+    <T> Set<T> synchronizedSet(Set<T> set, Object lock);
+
+    <T> List<T> synchronizedList(List<T> list, Object lock);
+
+    <T> Collection<T> synchronizedCollection(Collection<T> collection, Object lock);
+
+    <K, V> Map<K, V> lockedMap(Map<K, V> map);
+
+    <T> Set<T> lockedSet(Set<T> set);
+
+    <T> List<T> lockedList(List<T> list);
+
+    <T> Collection<T> lockedCollection(Collection<T> collection);
+
+    <K, V> Map<K, V> lockedMap(Map<K, V> map, ILock lock);
+
+    <T> Set<T> lockedSet(Set<T> set, ILock lock);
+
+    <T> List<T> lockedList(List<T> list, ILock lock);
+
+    <T> Collection<T> lockedCollection(Collection<T> collection, ILock lock);
 
 }

@@ -1,6 +1,7 @@
 package de.invesdwin.util.collections.factory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -217,6 +218,86 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     @Override
     public boolean isThreadSafe() {
         return false;
+    }
+
+    @Override
+    public <K, V> Map<K, V> synchronizedMap(final Map<K, V> map) {
+        return map;
+    }
+
+    @Override
+    public <T> Set<T> synchronizedSet(final Set<T> set) {
+        return set;
+    }
+
+    @Override
+    public <T> List<T> synchronizedList(final List<T> list) {
+        return list;
+    }
+
+    @Override
+    public <T> Collection<T> synchronizedCollection(final Collection<T> collection) {
+        return collection;
+    }
+
+    @Override
+    public <K, V> Map<K, V> synchronizedMap(final Map<K, V> map, final Object lock) {
+        return map;
+    }
+
+    @Override
+    public <T> Set<T> synchronizedSet(final Set<T> set, final Object lock) {
+        return set;
+    }
+
+    @Override
+    public <T> List<T> synchronizedList(final List<T> list, final Object lock) {
+        return list;
+    }
+
+    @Override
+    public <T> Collection<T> synchronizedCollection(final Collection<T> collection, final Object lock) {
+        return collection;
+    }
+
+    @Override
+    public <K, V> Map<K, V> lockedMap(final Map<K, V> map) {
+        return map;
+    }
+
+    @Override
+    public <T> Set<T> lockedSet(final Set<T> set) {
+        return set;
+    }
+
+    @Override
+    public <T> List<T> lockedList(final List<T> list) {
+        return list;
+    }
+
+    @Override
+    public <T> Collection<T> lockedCollection(final Collection<T> collection) {
+        return collection;
+    }
+
+    @Override
+    public <K, V> Map<K, V> lockedMap(final Map<K, V> map, final ILock lock) {
+        return map;
+    }
+
+    @Override
+    public <T> Set<T> lockedSet(final Set<T> set, final ILock lock) {
+        return set;
+    }
+
+    @Override
+    public <T> List<T> lockedList(final List<T> list, final ILock lock) {
+        return list;
+    }
+
+    @Override
+    public <T> Collection<T> lockedCollection(final Collection<T> collection, final ILock lock) {
+        return collection;
     }
 
 }

@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.factory;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -20,9 +21,17 @@ import de.invesdwin.util.collections.bitset.SynchronizedBitSet;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
+import de.invesdwin.util.collections.fast.concurrent.SynchronizedCollection;
 import de.invesdwin.util.collections.fast.concurrent.SynchronizedFastIterableDelegateList;
 import de.invesdwin.util.collections.fast.concurrent.SynchronizedFastIterableDelegateMap;
 import de.invesdwin.util.collections.fast.concurrent.SynchronizedFastIterableDelegateSet;
+import de.invesdwin.util.collections.fast.concurrent.SynchronizedList;
+import de.invesdwin.util.collections.fast.concurrent.SynchronizedMap;
+import de.invesdwin.util.collections.fast.concurrent.SynchronizedSet;
+import de.invesdwin.util.collections.fast.concurrent.locked.LockedCollection;
+import de.invesdwin.util.collections.fast.concurrent.locked.LockedList;
+import de.invesdwin.util.collections.fast.concurrent.locked.LockedMap;
+import de.invesdwin.util.collections.fast.concurrent.locked.LockedSet;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
 import de.invesdwin.util.concurrent.Executors;
@@ -255,6 +264,86 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
         protected WrappedExecutorService newNestedExecutor(final String nestedName) {
             return Executors.newFixedThreadPool(nestedName, Executors.getCpuThreadPoolCount());
         }
+    }
+
+    @Override
+    public <K, V> Map<K, V> synchronizedMap(final Map<K, V> map) {
+        return new SynchronizedMap<>(map);
+    }
+
+    @Override
+    public <T> Set<T> synchronizedSet(final Set<T> set) {
+        return new SynchronizedSet<>(set);
+    }
+
+    @Override
+    public <T> List<T> synchronizedList(final List<T> list) {
+        return new SynchronizedList<>(list);
+    }
+
+    @Override
+    public <T> Collection<T> synchronizedCollection(final Collection<T> collection) {
+        return new SynchronizedCollection<>(collection);
+    }
+
+    @Override
+    public <K, V> Map<K, V> synchronizedMap(final Map<K, V> map, final Object lock) {
+        return new SynchronizedMap<>(map, lock);
+    }
+
+    @Override
+    public <T> Set<T> synchronizedSet(final Set<T> set, final Object lock) {
+        return new SynchronizedSet<>(set, lock);
+    }
+
+    @Override
+    public <T> List<T> synchronizedList(final List<T> list, final Object lock) {
+        return new SynchronizedList<>(list, lock);
+    }
+
+    @Override
+    public <T> Collection<T> synchronizedCollection(final Collection<T> collection, final Object lock) {
+        return new SynchronizedCollection<>(collection, lock);
+    }
+
+    @Override
+    public <K, V> Map<K, V> lockedMap(final Map<K, V> map) {
+        return new LockedMap<>(map);
+    }
+
+    @Override
+    public <T> Set<T> lockedSet(final Set<T> set) {
+        return new LockedSet<>(set);
+    }
+
+    @Override
+    public <T> List<T> lockedList(final List<T> list) {
+        return new LockedList<>(list);
+    }
+
+    @Override
+    public <T> Collection<T> lockedCollection(final Collection<T> collection) {
+        return new LockedCollection<>(collection);
+    }
+
+    @Override
+    public <K, V> Map<K, V> lockedMap(final Map<K, V> map, final ILock lock) {
+        return new LockedMap<>(map, lock);
+    }
+
+    @Override
+    public <T> Set<T> lockedSet(final Set<T> set, final ILock lock) {
+        return new LockedSet<>(set, lock);
+    }
+
+    @Override
+    public <T> List<T> lockedList(final List<T> list, final ILock lock) {
+        return new LockedList<>(list, lock);
+    }
+
+    @Override
+    public <T> Collection<T> lockedCollection(final Collection<T> collection, final ILock lock) {
+        return new LockedCollection<>(collection, lock);
     }
 
 }
