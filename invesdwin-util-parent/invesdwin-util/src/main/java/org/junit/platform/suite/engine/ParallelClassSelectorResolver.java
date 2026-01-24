@@ -7,42 +7,56 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.junit.platform.engine.ConfigurationParameters;
+import org.junit.platform.engine.DiscoveryIssue;
+import org.junit.platform.engine.DiscoveryIssue.Severity;
+import org.junit.platform.engine.EngineDiscoveryListener;
+import org.junit.platform.engine.OutputDirectoryCreator;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.UniqueId.Segment;
 import org.junit.platform.engine.discovery.ClassSelector;
 import org.junit.platform.engine.discovery.UniqueIdSelector;
+import org.junit.platform.engine.support.descriptor.ClassSource;
+import org.junit.platform.engine.support.discovery.DiscoveryIssueReporter;
 import org.junit.platform.engine.support.discovery.SelectorResolver;
 import org.junit.platform.suite.engine.parameters.IParallelSuiteConfigurationParametersProvider;
 
 // @Immutable
 final class ParallelClassSelectorResolver implements SelectorResolver {
 
-    static final IsParallelSuiteClass IS_PARALLEL_SUITE = new IsParallelSuiteClass();
-    private static final org.junit.platform.commons.logging.Logger LOG = org.junit.platform.commons.logging.LoggerFactory
-            .getLogger(ParallelClassSelectorResolver.class);
-
+    private final IsParallelSuiteClass isParallelSuiteClass;
     private final Predicate<String> classNameFilter;
     private final ParallelSuiteEngineDescriptor suiteEngineDescriptor;
     private final ConfigurationParameters configurationParameters;
+    private final OutputDirectoryCreator outputDirectoryCreator;
+    private final EngineDiscoveryListener discoveryListener;
+    private final DiscoveryIssueReporter issueReporter;
 
     ParallelClassSelectorResolver(final Predicate<String> classNameFilter,
             final ParallelSuiteEngineDescriptor suiteEngineDescriptor,
-            final ConfigurationParameters configurationParameters) {
+            final ConfigurationParameters configurationParameters, final OutputDirectoryCreator outputDirectoryCreator,
+            final EngineDiscoveryListener discoveryListener, final DiscoveryIssueReporter issueReporter) {
+
+        this.isParallelSuiteClass = new IsParallelSuiteClass(issueReporter);
         this.classNameFilter = classNameFilter;
         this.suiteEngineDescriptor = suiteEngineDescriptor;
         this.configurationParameters = configurationParameters;
+        this.outputDirectoryCreator = outputDirectoryCreator;
+        this.discoveryListener = discoveryListener;
+        this.issueReporter = issueReporter;
     }
 
     @Override
     public Resolution resolve(final ClassSelector selector, final Context context) {
         final Class<?> testClass = selector.getJavaClass();
-        if (IS_PARALLEL_SUITE.test(testClass)) {
+        if (isParallelSuiteClass.test(testClass)) {
             if (classNameFilter.test(testClass.getName())) {
+                // @formatter:off
                 final Optional<ParallelSuiteTestDescriptor> suiteWithDiscoveryRequest = context
                         .addToParent(parent -> newSuiteDescriptor(testClass, parent))
                         .map(suite -> suite.addDiscoveryRequestFrom(testClass));
                 return toResolution(suiteWithDiscoveryRequest);
+                // @formatter:on
             }
         }
         return unresolved();
@@ -53,14 +67,16 @@ final class ParallelClassSelectorResolver implements SelectorResolver {
         final UniqueId uniqueId = selector.getUniqueId();
         final UniqueId engineId = suiteEngineDescriptor.getUniqueId();
         final List<Segment> resolvedSegments = engineId.getSegments();
+        // @formatter:off
         return uniqueId.getSegments()
                 .stream()
                 .skip(resolvedSegments.size())
                 .findFirst()
                 .filter(suiteSegment -> ParallelSuiteTestDescriptor.SEGMENT_TYPE.equals(suiteSegment.getType()))
                 .flatMap(ParallelClassSelectorResolver::tryLoadSuiteClass)
-                .filter(IS_PARALLEL_SUITE)
-                .map(suiteClass -> context.addToParent(parent -> newSuiteDescriptor(suiteClass, parent))
+                .filter(isParallelSuiteClass)
+                .map(suiteClass -> context
+                        .addToParent(parent -> newSuiteDescriptor(suiteClass, parent))
                         .map(suite -> uniqueId.equals(suite.getUniqueId())
                                 // The uniqueId selector either targeted a class annotated with @Suite;
                                 ? suite.addDiscoveryRequestFrom(suiteClass)
@@ -68,13 +84,14 @@ final class ParallelClassSelectorResolver implements SelectorResolver {
                                 : suite.addDiscoveryRequestFrom(uniqueId)))
                 .map(ParallelClassSelectorResolver::toResolution)
                 .orElseGet(Resolution::unresolved);
+        // @formatter:on
     }
 
     static Optional<Class<?>> tryLoadSuiteClass(final UniqueId.Segment segment) {
         return org.junit.platform.commons.util.ReflectionUtils.tryToLoadClass(segment.getValue()).toOptional();
     }
 
-    static Resolution toResolution(final Optional<ParallelSuiteTestDescriptor> suite) {
+    private static Resolution toResolution(final Optional<ParallelSuiteTestDescriptor> suite) {
         return suite.map(Match::exact).map(Resolution::match).orElseGet(Resolution::unresolved);
     }
 
@@ -82,7 +99,9 @@ final class ParallelClassSelectorResolver implements SelectorResolver {
             final TestDescriptor parent) {
         final UniqueId id = parent.getUniqueId().append(ParallelSuiteTestDescriptor.SEGMENT_TYPE, suiteClass.getName());
         if (containsCycle(id)) {
-            LOG.config(() -> createConfigContainsCycleMessage(suiteClass, id));
+            issueReporter
+                    .reportIssue(DiscoveryIssue.builder(Severity.INFO, createConfigContainsCycleMessage(suiteClass, id)) //
+                            .source(ClassSource.from(suiteClass)));
             return Optional.empty();
         }
         final IParallelSuiteConfigurationParametersProvider parentParallelSuite = findParentParallelSuite(parent);
@@ -92,7 +111,8 @@ final class ParallelClassSelectorResolver implements SelectorResolver {
         } else {
             parentConfigurationParameters = configurationParameters;
         }
-        return Optional.of(new ParallelSuiteTestDescriptor(id, suiteClass, parentConfigurationParameters));
+        return Optional.of(new ParallelSuiteTestDescriptor(id, suiteClass, parentConfigurationParameters,
+                outputDirectoryCreator, discoveryListener, issueReporter));
     }
 
     private IParallelSuiteConfigurationParametersProvider findParentParallelSuite(final TestDescriptor parent) {

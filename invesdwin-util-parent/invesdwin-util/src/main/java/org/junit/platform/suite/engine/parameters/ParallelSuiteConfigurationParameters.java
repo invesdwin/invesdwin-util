@@ -81,6 +81,9 @@ public class ParallelSuiteConfigurationParameters implements ConfigurationParame
     }
 
     private boolean getParallel() {
+        if (!ParallelSuiteProperties.isParallelSuiteEnabled()) {
+            return false;
+        }
         if (!overrideParent) {
             final Optional<Boolean> parentParam = parentConfigurationParameters.getBoolean(KEY_PARALLEL);
             if (parentParam.isPresent()) {

@@ -307,4 +307,19 @@ public final class Floats extends AFloatsStaticFacade {
             return null;
         }
     }
+
+    public static boolean isNaN(final float value) {
+        return Float.isNaN(value);
+    }
+
+    public static boolean isNaN(final Number number) {
+        if (number == null) {
+            return false;
+        }
+        return Float.isNaN(number.floatValue());
+    }
+
+    public static boolean isNullOrNaN(final Float value) {
+        return value == null || isNaN(value);
+    }
 }

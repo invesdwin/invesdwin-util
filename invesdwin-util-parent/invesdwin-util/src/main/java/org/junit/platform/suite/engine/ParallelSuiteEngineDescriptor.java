@@ -3,6 +3,7 @@ package org.junit.platform.suite.engine;
 import org.junit.platform.engine.ConfigurationParameters;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.support.descriptor.EngineDescriptor;
+import org.junit.platform.engine.support.discovery.DiscoveryIssueReporter;
 import org.junit.platform.suite.engine.parameters.IParallelSuiteConfigurationParametersProvider;
 import org.junit.platform.suite.engine.parameters.ParallelSuiteConfigurationParameters;
 
@@ -14,7 +15,7 @@ final class ParallelSuiteEngineDescriptor extends EngineDescriptor
 
     private final ConfigurationParameters configurationParameters;
 
-    ParallelSuiteEngineDescriptor(final UniqueId uniqueId,
+    ParallelSuiteEngineDescriptor(final UniqueId uniqueId, final DiscoveryIssueReporter issueReporter,
             final ConfigurationParameters parentConfigurationParameters) {
         super(uniqueId, "Invesdwin Parallel Suite");
         final Class<?> suiteClass = uniqueId.getSegments()
@@ -22,7 +23,7 @@ final class ParallelSuiteEngineDescriptor extends EngineDescriptor
                 .filter(suiteSegment -> ParallelSuiteTestDescriptor.SEGMENT_TYPE.equals(suiteSegment.getType()))
                 .findFirst()
                 .flatMap(ParallelClassSelectorResolver::tryLoadSuiteClass)
-                .filter(ParallelClassSelectorResolver.IS_PARALLEL_SUITE)
+                .filter(new IsParallelSuiteClass(issueReporter))
                 .orElse(null);
         if (suiteClass == null) {
             this.configurationParameters = parentConfigurationParameters;

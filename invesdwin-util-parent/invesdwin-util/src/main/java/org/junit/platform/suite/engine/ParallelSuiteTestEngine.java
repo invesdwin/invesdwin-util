@@ -13,6 +13,9 @@ import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.TestEngine;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.UniqueId;
+import org.junit.platform.engine.support.discovery.DiscoveryIssueReporter;
+import org.junit.platform.engine.support.store.Namespace;
+import org.junit.platform.engine.support.store.NamespacedHierarchicalStore;
 
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
@@ -53,7 +56,10 @@ public final class ParallelSuiteTestEngine implements TestEngine {
 
     @Override
     public TestDescriptor discover(final EngineDiscoveryRequest discoveryRequest, final UniqueId uniqueId) {
-        final ParallelSuiteEngineDescriptor engineDescriptor = new ParallelSuiteEngineDescriptor(uniqueId, null);
+        final DiscoveryIssueReporter issueReporter = DiscoveryIssueReporter
+                .deduplicating(DiscoveryIssueReporter.forwarding(discoveryRequest.getDiscoveryListener(), uniqueId));
+        final ParallelSuiteEngineDescriptor engineDescriptor = new ParallelSuiteEngineDescriptor(uniqueId,
+                issueReporter, null);
         new ParallelDiscoverySelectorResolver().resolveSelectors(discoveryRequest, engineDescriptor);
         return engineDescriptor;
     }
@@ -63,6 +69,7 @@ public final class ParallelSuiteTestEngine implements TestEngine {
         final ParallelSuiteEngineDescriptor suiteEngineDescriptor = (ParallelSuiteEngineDescriptor) request
                 .getRootTestDescriptor();
         final EngineExecutionListener engineExecutionListener = request.getEngineExecutionListener();
+        final NamespacedHierarchicalStore<Namespace> requestLevelStore = request.getStore();
 
         engineExecutionListener.executionStarted(suiteEngineDescriptor);
 
@@ -73,7 +80,7 @@ public final class ParallelSuiteTestEngine implements TestEngine {
             //first run parallel suites in parallel
             if (cChild.isParallelSuites()) {
                 futures.add(EXECUTOR.getNestedExecutor().submit(() -> {
-                    cChild.execute(engineExecutionListener);
+                    cChild.execute(engineExecutionListener, requestLevelStore);
                 }));
             }
         }
@@ -82,7 +89,7 @@ public final class ParallelSuiteTestEngine implements TestEngine {
             final ParallelSuiteTestDescriptor cChild = (ParallelSuiteTestDescriptor) child;
             //then execute sequential suites afterwards
             if (!cChild.isParallelSuites()) {
-                cChild.execute(engineExecutionListener);
+                cChild.execute(engineExecutionListener, requestLevelStore);
             }
         }
         engineExecutionListener.executionFinished(suiteEngineDescriptor, TestExecutionResult.successful());

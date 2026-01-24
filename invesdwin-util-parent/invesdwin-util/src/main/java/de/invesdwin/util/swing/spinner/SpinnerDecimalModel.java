@@ -4,6 +4,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.SpinnerNumberModel;
 
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.Decimal;
 
 @NotThreadSafe
@@ -213,8 +214,12 @@ public class SpinnerDecimalModel extends SpinnerNumberModel {
     }
 
     protected void autoAdjustStepSize(final Decimal prevValue, final Decimal newValue) {
+        if (newValue == null || Doubles.isNaN(newValue)) {
+            return;
+        }
+
         //only adjust when this was not an increment/decrement step
-        if (stepRatio != null && newValue.compareTo(prevValue.subtract(stepSize)) != 0
+        if (stepRatio != null && prevValue != null && newValue.compareTo(prevValue.subtract(stepSize)) != 0
                 && newValue.compareTo(prevValue.add(stepSize)) != 0) {
             Decimal stepSize = stepRatio.scaleByPowerOfTen(-Decimal.valueOf(newValue).getDecimalDigits()).round();
             if (stepSize.isZero()) {
