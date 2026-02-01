@@ -303,7 +303,7 @@ public final class URIs {
         }
         final StringBuilder sb = new StringBuilder();
         for (final Entry<String, String> entry : queryPairs.entrySet()) {
-            if (!sb.isEmpty()) {
+            if (!Strings.isEmpty(sb)) {
                 sb.append("&");
             }
             sb.append(URLEncoder.encode(entry.getKey(), Charsets.UTF_8));
