@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Future;
 
+import org.junit.platform.engine.CancellationToken;
 import org.junit.platform.engine.EngineDiscoveryRequest;
 import org.junit.platform.engine.EngineExecutionListener;
 import org.junit.platform.engine.ExecutionRequest;
@@ -70,6 +71,7 @@ public final class ParallelSuiteTestEngine implements TestEngine {
                 .getRootTestDescriptor();
         final EngineExecutionListener engineExecutionListener = request.getEngineExecutionListener();
         final NamespacedHierarchicalStore<Namespace> requestLevelStore = request.getStore();
+        final CancellationToken cancellationToken = request.getCancellationToken();
 
         engineExecutionListener.executionStarted(suiteEngineDescriptor);
 
@@ -80,7 +82,7 @@ public final class ParallelSuiteTestEngine implements TestEngine {
             //first run parallel suites in parallel
             if (cChild.isParallelSuites()) {
                 futures.add(EXECUTOR.getNestedExecutor().submit(() -> {
-                    cChild.execute(engineExecutionListener, requestLevelStore);
+                    cChild.execute(engineExecutionListener, requestLevelStore, cancellationToken);
                 }));
             }
         }
@@ -89,7 +91,7 @@ public final class ParallelSuiteTestEngine implements TestEngine {
             final ParallelSuiteTestDescriptor cChild = (ParallelSuiteTestDescriptor) child;
             //then execute sequential suites afterwards
             if (!cChild.isParallelSuites()) {
-                cChild.execute(engineExecutionListener, requestLevelStore);
+                cChild.execute(engineExecutionListener, requestLevelStore, cancellationToken);
             }
         }
         engineExecutionListener.executionFinished(suiteEngineDescriptor, TestExecutionResult.successful());

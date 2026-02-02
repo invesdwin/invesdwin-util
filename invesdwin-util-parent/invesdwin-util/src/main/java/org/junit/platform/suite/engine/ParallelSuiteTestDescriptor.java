@@ -1,26 +1,19 @@
-/*
- * Copyright 2015-2024 the original author or authors.
- *
- * All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse
- * Public License v2.0 which accompanies this distribution and is available at
- *
- * https://www.eclipse.org/legal/epl-v20.html
- */
-
 package org.junit.platform.suite.engine;
 
 import static java.util.function.Predicate.isEqual;
 import static java.util.stream.Collectors.joining;
 import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
 import static org.junit.platform.commons.util.FunctionUtils.where;
-import static org.junit.platform.suite.commons.SuiteLauncherDiscoveryRequestBuilder.request;
+import static org.junit.platform.suite.engine.SuiteLauncherDiscoveryRequestBuilder.request;
 
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.platform.commons.support.ReflectionSupport;
+import org.junit.platform.engine.CancellationToken;
 import org.junit.platform.engine.ConfigurationParameters;
 import org.junit.platform.engine.DiscoveryIssue;
 import org.junit.platform.engine.EngineDiscoveryListener;
@@ -42,7 +35,6 @@ import org.junit.platform.launcher.LauncherDiscoveryRequest;
 import org.junit.platform.launcher.core.LauncherDiscoveryResult;
 import org.junit.platform.launcher.listeners.TestExecutionSummary;
 import org.junit.platform.suite.api.SuiteDisplayName;
-import org.junit.platform.suite.commons.SuiteLauncherDiscoveryRequestBuilder;
 import org.junit.platform.suite.engine.parameters.IParallelSuiteConfigurationParametersProvider;
 import org.junit.platform.suite.engine.parameters.ParallelSuiteConfigurationParameters;
 
@@ -57,8 +49,8 @@ final class ParallelSuiteTestDescriptor extends AbstractTestDescriptor
     private final OutputDirectoryCreator outputDirectoryCreator;
     private final LifecycleMethods lifecycleMethods;
 
-    private LauncherDiscoveryResult launcherDiscoveryResult;
-    private ParallelSuiteLauncher launcher;
+    private @Nullable LauncherDiscoveryResult launcherDiscoveryResult;
+    private @Nullable ParallelSuiteLauncher launcher;
 
     ParallelSuiteTestDescriptor(final UniqueId id, final Class<?> suiteClass,
             final ConfigurationParameters parentConfigurationParameters,
@@ -102,8 +94,8 @@ final class ParallelSuiteTestDescriptor extends AbstractTestDescriptor
 
         // @formatter:off
         final LauncherDiscoveryRequest request = discoveryRequestBuilder
-                .filterStandardClassNamePatterns(true)
-                .enableImplicitConfigurationParameters(false)
+                .filterStandardClassNamePatterns()
+                .disableImplicitConfigurationParameters()
                 .parentConfigurationParameters(configurationParameters)
                 .applyConfigurationParametersFromSuite(configurationParameters.getSuiteClass())
                 .outputDirectoryCreator(outputDirectoryCreator)
@@ -143,20 +135,25 @@ final class ParallelSuiteTestDescriptor extends AbstractTestDescriptor
         // @formatter:on
     }
 
-    void execute(final EngineExecutionListener parentEngineExecutionListener,
-            final NamespacedHierarchicalStore<Namespace> requestLevelStore) {
-        parentEngineExecutionListener.executionStarted(this);
+    void execute(final EngineExecutionListener executionListener,
+            final NamespacedHierarchicalStore<Namespace> requestLevelStore, final CancellationToken cancellationToken) {
+        if (cancellationToken.isCancellationRequested()) {
+            executionListener.executionSkipped(this, "Execution cancelled");
+            return;
+        }
+
+        executionListener.executionStarted(this);
         final ThrowableCollector throwableCollector = new OpenTest4JAwareThrowableCollector();
 
         executeBeforeSuiteMethods(throwableCollector);
 
-        final TestExecutionSummary summary = executeTests(parentEngineExecutionListener, requestLevelStore,
+        final TestExecutionSummary summary = executeTests(executionListener, requestLevelStore, cancellationToken,
                 throwableCollector);
 
         executeAfterSuiteMethods(throwableCollector);
 
         final TestExecutionResult testExecutionResult = computeTestExecutionResult(summary, throwableCollector);
-        parentEngineExecutionListener.executionFinished(this, testExecutionResult);
+        executionListener.executionFinished(this, testExecutionResult);
     }
 
     private void executeBeforeSuiteMethods(final ThrowableCollector throwableCollector) {
@@ -171,8 +168,8 @@ final class ParallelSuiteTestDescriptor extends AbstractTestDescriptor
         }
     }
 
-    private TestExecutionSummary executeTests(final EngineExecutionListener parentEngineExecutionListener,
-            final NamespacedHierarchicalStore<Namespace> requestLevelStore,
+    private @Nullable TestExecutionSummary executeTests(final EngineExecutionListener executionListener,
+            final NamespacedHierarchicalStore<Namespace> requestLevelStore, final CancellationToken cancellationToken,
             final ThrowableCollector throwableCollector) {
         if (throwableCollector.isNotEmpty()) {
             return null;
@@ -181,9 +178,11 @@ final class ParallelSuiteTestDescriptor extends AbstractTestDescriptor
         // #2838: The discovery result from a suite may have been filtered by
         // post discovery filters from the launcher. The discovery result should
         // be pruned accordingly.
-        final LauncherDiscoveryResult discoveryResult = this.launcherDiscoveryResult
+        final LauncherDiscoveryResult discoveryResult = java.util.Objects.requireNonNull(this.launcherDiscoveryResult)
                 .withRetainedEngines(getChildren()::contains);
-        return launcher.execute(discoveryResult, parentEngineExecutionListener, requestLevelStore);
+        return java.util.Objects.requireNonNull(launcher)
+                .execute(discoveryResult, executionListener, requestLevelStore,
+                        cancellationToken);
     }
 
     private void executeAfterSuiteMethods(final ThrowableCollector throwableCollector) {
@@ -194,10 +193,12 @@ final class ParallelSuiteTestDescriptor extends AbstractTestDescriptor
 
     private TestExecutionResult computeTestExecutionResult(final TestExecutionSummary summary,
             final ThrowableCollector throwableCollector) {
-        if (throwableCollector.isNotEmpty()) {
-            return TestExecutionResult.failed(throwableCollector.getThrowable());
+        final Throwable throwable = throwableCollector.getThrowable();
+        if (throwable != null) {
+            return TestExecutionResult.failed(throwable);
         }
-        if (configurationParameters.isFailIfNoTests() && summary.getTestsFoundCount() == 0) {
+        if (configurationParameters.isFailIfNoTests()
+                && java.util.Objects.requireNonNull(summary).getTestsFoundCount() == 0) {
             return TestExecutionResult.failed(new NoTestsDiscoveredException(configurationParameters.getSuiteClass()));
         }
         return TestExecutionResult.successful();

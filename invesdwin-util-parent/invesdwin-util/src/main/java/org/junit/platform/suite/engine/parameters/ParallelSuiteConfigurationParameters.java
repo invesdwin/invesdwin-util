@@ -193,12 +193,6 @@ public class ParallelSuiteConfigurationParameters implements ConfigurationParame
         return delegate.getBoolean(key);
     }
 
-    @Deprecated
-    @Override
-    public int size() {
-        return delegate.size();
-    }
-
     @Override
     public Set<String> keySet() {
         return delegate.keySet();

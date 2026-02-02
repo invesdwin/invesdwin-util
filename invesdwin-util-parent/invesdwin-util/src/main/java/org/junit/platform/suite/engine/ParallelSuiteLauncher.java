@@ -1,17 +1,9 @@
-/*
- * Copyright 2015-2024 the original author or authors.
- *
- * All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse
- * Public License v2.0 which accompanies this distribution and is available at
- *
- * https://www.eclipse.org/legal/epl-v20.html
- */
-
 package org.junit.platform.suite.engine;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.junit.platform.engine.CancellationToken;
 import org.junit.platform.engine.EngineExecutionListener;
 import org.junit.platform.engine.TestEngine;
 import org.junit.platform.engine.UniqueId;
@@ -55,9 +47,10 @@ final class ParallelSuiteLauncher {
 
     TestExecutionSummary execute(final LauncherDiscoveryResult discoveryResult,
             final EngineExecutionListener parentEngineExecutionListener,
-            final NamespacedHierarchicalStore<Namespace> requestLevelStore) {
+            final NamespacedHierarchicalStore<Namespace> requestLevelStore, final CancellationToken cancellationToken) {
         final SummaryGeneratingListener listener = new SummaryGeneratingListener();
-        executionOrchestrator.execute(discoveryResult, parentEngineExecutionListener, listener, requestLevelStore);
+        executionOrchestrator.execute(discoveryResult, parentEngineExecutionListener, listener, requestLevelStore,
+                cancellationToken);
         return listener.getSummary();
     }
 
