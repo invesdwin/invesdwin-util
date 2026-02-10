@@ -22,6 +22,10 @@ import it.unimi.dsi.fastutil.Hash;
 
 public interface ILockCollectionFactory {
 
+    /**
+     * See java.util.concurrent.ConcurrentHashMap.DEFAULT_CONCURRENCY_LEVEL
+     */
+    int DEFAULT_CONCURRENCY_LEVEL = 16;
     int DEFAULT_INITIAL_SIZE = Hash.DEFAULT_INITIAL_SIZE;
     int DEFAULT_INITIAL_SIZE_IDENTITY = 32;
     /*

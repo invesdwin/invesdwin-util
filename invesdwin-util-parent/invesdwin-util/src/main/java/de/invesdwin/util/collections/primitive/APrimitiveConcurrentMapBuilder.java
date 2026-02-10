@@ -2,12 +2,14 @@ package de.invesdwin.util.collections.primitive;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+
 @NotThreadSafe
 public abstract class APrimitiveConcurrentMapBuilder<T extends IPrimitiveConcurrentKeyMap, V> {
     protected PrimitiveConcurrentMapMode mapMode = PrimitiveConcurrentMapMode.DEFAULT;
-    protected int buckets = 8;
-    protected int initialCapacity = 100_000;
-    protected float loadFactor = 0.8f;
+    protected int buckets = ILockCollectionFactory.DEFAULT_CONCURRENCY_LEVEL;
+    protected int initialCapacity = ILockCollectionFactory.DEFAULT_INITIAL_SIZE;
+    protected float loadFactor = ILockCollectionFactory.DEFAULT_LOAD_FACTOR;
     protected V defaultValue;
 
     protected APrimitiveConcurrentMapBuilder() {}
@@ -38,8 +40,6 @@ public abstract class APrimitiveConcurrentMapBuilder<T extends IPrimitiveConcurr
     }
 
     public abstract T build();
-
-    
 
     @Override
     public String toString() {
