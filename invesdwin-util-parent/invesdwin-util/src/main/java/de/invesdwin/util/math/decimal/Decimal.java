@@ -6,14 +6,14 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Map;
 import java.util.function.Function;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.bean.tuple.Pair;
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.lang.string.Strings;
@@ -55,7 +55,9 @@ public class Decimal extends ADecimal<Decimal> {
     /*
      * Don't use Caffeine (java 11 only) here so that we stay compatible with Java 8 on this class for JDK upgrades.
      */
-    private static final ConcurrentMap<Pair<String, DecimalFormatSymbols>, FastThreadLocal<DecimalFormat>> DECIMAL_FORMAT = new ConcurrentHashMap<Pair<String, DecimalFormatSymbols>, FastThreadLocal<DecimalFormat>>();
+    private static final Map<Pair<String, DecimalFormatSymbols>, FastThreadLocal<DecimalFormat>> DECIMAL_FORMAT = ILockCollectionFactory
+            .getInstance(true)
+            .newConcurrentMap();
     public static final int BYTES = Double.BYTES;
 
     static {

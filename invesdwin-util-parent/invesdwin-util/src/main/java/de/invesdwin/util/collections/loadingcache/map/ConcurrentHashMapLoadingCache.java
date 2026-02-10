@@ -1,15 +1,16 @@
 package de.invesdwin.util.collections.loadingcache.map;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
+
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 
 @ThreadSafe
 public class ConcurrentHashMapLoadingCache<K, V> extends AMapLoadingCache<K, V> {
 
     public ConcurrentHashMapLoadingCache(final Function<K, V> loadValue) {
-        super(loadValue, new ConcurrentHashMap<>());
+        super(loadValue, ILockCollectionFactory.getInstance(true).newConcurrentMap());
     }
 
     @Override

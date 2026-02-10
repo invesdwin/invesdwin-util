@@ -191,8 +191,7 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     public <T> Set<T> newConcurrentSet(final int initialSize, final float loadFactor) {
         if (KEYSETVIEW_CONSTRUCTOR != null) {
             try {
-                return (Set<T>) KEYSETVIEW_CONSTRUCTOR
-                        .invoke(new ConcurrentHashMap<T, Boolean>(initialSize, loadFactor), Boolean.TRUE);
+                return (Set<T>) KEYSETVIEW_CONSTRUCTOR.invoke(newConcurrentMap(initialSize, loadFactor), Boolean.TRUE);
             } catch (final Throwable e) {
                 throw new RuntimeException(e);
             }

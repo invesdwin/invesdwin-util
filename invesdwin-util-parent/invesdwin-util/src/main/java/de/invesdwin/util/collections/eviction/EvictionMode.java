@@ -1,10 +1,8 @@
 package de.invesdwin.util.collections.eviction;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.concurrent.ConcurrentHashMap;
-
 import javax.annotation.concurrent.Immutable;
+
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 
 @Immutable
 public enum EvictionMode {
@@ -35,19 +33,22 @@ public enum EvictionMode {
     Clear {
         @Override
         public <K, V> IEvictionMap<K, V> newMap(final int maximumSize) {
-            return new ClearingDelegateMap<K, V>(false, maximumSize, new HashMap<>());
+            return new ClearingDelegateMap<K, V>(false, maximumSize,
+                    ILockCollectionFactory.getInstance(false).newMap());
         }
     },
     ClearLinked {
         @Override
         public <K, V> IEvictionMap<K, V> newMap(final int maximumSize) {
-            return new ClearingDelegateMap<K, V>(false, maximumSize, new LinkedHashMap<>());
+            return new ClearingDelegateMap<K, V>(false, maximumSize,
+                    ILockCollectionFactory.getInstance(false).newLinkedMap());
         }
     },
     ClearConcurrent {
         @Override
         public <K, V> IEvictionMap<K, V> newMap(final int maximumSize) {
-            return new ClearingDelegateMap<K, V>(true, maximumSize, new ConcurrentHashMap<>());
+            return new ClearingDelegateMap<K, V>(true, maximumSize,
+                    ILockCollectionFactory.getInstance(true).newConcurrentMap());
         }
     };
 
