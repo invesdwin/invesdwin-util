@@ -92,7 +92,7 @@ public class ConcurrentLong2FloatMap extends APrimitiveConcurrentMap<Long, Float
                 final float def = super.defaultValue != null ? super.defaultValue : 0;
                 switch (mapMode) {
                 case BUSY_WAITING:
-                    return new ConcurrentBusyWaitingLong2FloatMap(buckets, initialCapacity, loadFactor, def);
+                    return new BusyWaitingConcurrentLong2FloatMap(buckets, initialCapacity, loadFactor, def);
                 case BLOCKING:
                     return new ConcurrentLong2FloatMap(buckets, initialCapacity, loadFactor, def);
                 default:

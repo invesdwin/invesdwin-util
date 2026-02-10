@@ -92,7 +92,7 @@ public class ConcurrentObject2LongMap<K> extends APrimitiveConcurrentMap<K, Long
             public ConcurrentObject2LongMap<K> build() {
                 switch (mapMode) {
                 case BUSY_WAITING:
-                    return new ConcurrentBusyWaitingObject2LongMap<>(buckets, initialCapacity, loadFactor,
+                    return new BusyWaitingConcurrentObject2LongMap<>(buckets, initialCapacity, loadFactor,
                             super.defaultValue);
                 case BLOCKING:
                     return new ConcurrentObject2LongMap<>(buckets, initialCapacity, loadFactor, super.defaultValue);

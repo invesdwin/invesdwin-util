@@ -1,22 +1,23 @@
-package de.invesdwin.util.collections.primitive.intkey;
+package de.invesdwin.util.collections.primitive.objkey;
 
 import java.util.concurrent.locks.Lock;
 import java.util.function.BiFunction;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectFunction;
+import it.unimi.dsi.fastutil.objects.Object2LongFunction;
 
 @ThreadSafe
-public class ConcurrentBusyWaitingInt2ObjectMap<V> extends ConcurrentInt2ObjectMap<V> {
-    public ConcurrentBusyWaitingInt2ObjectMap(final int numBuckets, final int initialCapacity, final float loadFactor,
-            final V defaultValue) {
+public class BusyWaitingConcurrentObject2LongMap<K> extends ConcurrentObject2LongMap<K> {
+    public BusyWaitingConcurrentObject2LongMap(final int numBuckets, final int initialCapacity, final float loadFactor,
+            final long defaultValue) {
         super(numBuckets, initialCapacity, loadFactor, defaultValue);
     }
 
     @Override
-    public boolean containsKey(final int key) {
+    public boolean containsKey(final K key) {
         final int bucket = getBucket(key);
+
         final Lock readLock = readLock(bucket);
 
         while (true) {
@@ -32,14 +33,15 @@ public class ConcurrentBusyWaitingInt2ObjectMap<V> extends ConcurrentInt2ObjectM
     }
 
     @Override
-    public V get(final int intKey) {
-        final int bucket = getBucket(intKey);
+    public long get(final K key) {
+        final int bucket = getBucket(key);
+
         final Lock readLock = readLock(bucket);
 
         while (true) {
             if (readLock.tryLock()) {
                 try {
-                    return maps[bucket].getOrDefault(intKey, defaultValue);
+                    return maps[bucket].getOrDefault(key, defaultValue);
                 } finally {
                     readLock.unlock();
                 }
@@ -49,8 +51,9 @@ public class ConcurrentBusyWaitingInt2ObjectMap<V> extends ConcurrentInt2ObjectM
     }
 
     @Override
-    public V put(final int key, final V value) {
+    public long put(final K key, final long value) {
         final int bucket = getBucket(key);
+
         final Lock writeLock = writeLock(bucket);
 
         while (true) {
@@ -66,14 +69,15 @@ public class ConcurrentBusyWaitingInt2ObjectMap<V> extends ConcurrentInt2ObjectM
     }
 
     @Override
-    public V remove(final int key) {
+    public long remove(final K key) {
         final int bucket = getBucket(key);
+
         final Lock writeLock = writeLock(bucket);
 
         while (true) {
             if (writeLock.tryLock()) {
                 try {
-                    return maps[bucket].remove(key);
+                    return maps[bucket].removeLong(key);
                 } finally {
                     writeLock.unlock();
                 }
@@ -83,8 +87,9 @@ public class ConcurrentBusyWaitingInt2ObjectMap<V> extends ConcurrentInt2ObjectM
     }
 
     @Override
-    public boolean remove(final int key, final V value) {
+    public boolean remove(final K key, final long value) {
         final int bucket = getBucket(key);
+
         final Lock writeLock = writeLock(bucket);
 
         while (true) {
@@ -100,8 +105,9 @@ public class ConcurrentBusyWaitingInt2ObjectMap<V> extends ConcurrentInt2ObjectM
     }
 
     @Override
-    public V computeIfAbsent(final int key, final Int2ObjectFunction<V> mappingFunction) {
+    public long computeIfAbsent(final K key, final Object2LongFunction<K> mappingFunction) {
         final int bucket = getBucket(key);
+
         final Lock writeLock = writeLock(bucket);
 
         while (true) {
@@ -117,8 +123,9 @@ public class ConcurrentBusyWaitingInt2ObjectMap<V> extends ConcurrentInt2ObjectM
     }
 
     @Override
-    public V computeIfPresent(final int key, final BiFunction<Integer, V, V> mappingFunction) {
+    public long computeIfPresent(final K key, final BiFunction<K, Long, Long> mappingFunction) {
         final int bucket = getBucket(key);
+
         final Lock writeLock = writeLock(bucket);
 
         while (true) {

@@ -92,7 +92,7 @@ public class ConcurrentInt2FloatMap extends APrimitiveConcurrentMap<Integer, Flo
                 final float def = super.defaultValue != null ? super.defaultValue : 0;
                 switch (mapMode) {
                 case BUSY_WAITING:
-                    return new ConcurrentBusyWaitingInt2FloatMap(buckets, initialCapacity, loadFactor, def);
+                    return new BusyWaitingConcurrentInt2FloatMap(buckets, initialCapacity, loadFactor, def);
                 case BLOCKING:
                     return new ConcurrentInt2FloatMap(buckets, initialCapacity, loadFactor, def);
                 default:

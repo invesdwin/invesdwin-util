@@ -92,7 +92,7 @@ public class ConcurrentLong2LongMap extends APrimitiveConcurrentMap<Long, Long> 
                 final long def = super.defaultValue != null ? super.defaultValue : 0;
                 switch (mapMode) {
                 case BUSY_WAITING:
-                    return new ConcurrentBusyWaitingLong2LongMap(buckets, initialCapacity, loadFactor, def);
+                    return new BusyWaitingConcurrentLong2LongMap(buckets, initialCapacity, loadFactor, def);
                 case BLOCKING:
                     return new ConcurrentLong2LongMap(buckets, initialCapacity, loadFactor, def);
                 default:
