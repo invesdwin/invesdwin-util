@@ -22,8 +22,10 @@ public class ConcurrentInt2IntMap extends APrimitiveConcurrentMap<Integer, Integ
         super(numBuckets);
         this.maps = new Int2IntOpenHashMap[numBuckets];
         this.defaultValue = defaultValue;
+        final int individualCapacity = APrimitiveConcurrentMapBuilder.newIndividualCapacity(initialCapacity,
+                numBuckets);
         for (int i = 0; i < numBuckets; i++) {
-            maps[i] = new Int2IntOpenHashMap(initialCapacity, loadFactor);
+            maps[i] = new Int2IntOpenHashMap(individualCapacity, loadFactor);
         }
     }
 

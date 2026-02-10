@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.primitive;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.math.Integers;
 
 @NotThreadSafe
 public abstract class APrimitiveConcurrentMapBuilder<T extends IPrimitiveConcurrentKeyMap, V> {
@@ -45,5 +46,9 @@ public abstract class APrimitiveConcurrentMapBuilder<T extends IPrimitiveConcurr
     public String toString() {
         return "PrimitiveMapBuilder{mapMode=%s, buckets=%d, initialCapacity=%d, loadFactor=%s, def=%s}"
                 .formatted(mapMode, buckets, initialCapacity, loadFactor, defaultValue);
+    }
+
+    public static int newIndividualCapacity(final int initialCapacity, final int numBuckets) {
+        return Integers.max(initialCapacity / numBuckets, ILockCollectionFactory.DEFAULT_INITIAL_SIZE);
     }
 }

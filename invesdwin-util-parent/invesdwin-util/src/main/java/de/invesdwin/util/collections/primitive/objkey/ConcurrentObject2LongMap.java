@@ -23,8 +23,10 @@ public class ConcurrentObject2LongMap<K> extends APrimitiveConcurrentMap<K, Long
         super(numBuckets);
         this.maps = new Object2LongOpenHashMap[numBuckets];
         this.defaultValue = defaultValue;
+        final int individualCapacity = APrimitiveConcurrentMapBuilder.newIndividualCapacity(initialCapacity,
+                numBuckets);
         for (int i = 0; i < numBuckets; i++) {
-            maps[i] = new Object2LongOpenHashMap<>(initialCapacity, loadFactor);
+            maps[i] = new Object2LongOpenHashMap<>(individualCapacity, loadFactor);
         }
     }
 
