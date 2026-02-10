@@ -7,9 +7,9 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 
 @ThreadSafe
-public class ConcurrentHashMapLoadingCache<K, V> extends AMapLoadingCache<K, V> {
+public class ConcurrentMapLoadingCache<K, V> extends AMapLoadingCache<K, V> {
 
-    public ConcurrentHashMapLoadingCache(final Function<K, V> loadValue) {
+    public ConcurrentMapLoadingCache(final Function<K, V> loadValue) {
         super(loadValue, ILockCollectionFactory.getInstance(true).newConcurrentMap());
     }
 
