@@ -33,4 +33,11 @@ public class SynchronizedIterator<E> implements Iterator<E> {
         }
     }
 
+    @Override
+    public void remove() {
+        synchronized (lock) {
+            delegate.remove();
+        }
+    }
+
 }

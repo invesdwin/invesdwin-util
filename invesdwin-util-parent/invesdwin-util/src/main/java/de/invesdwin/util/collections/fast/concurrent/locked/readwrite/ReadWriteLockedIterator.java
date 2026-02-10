@@ -1,49 +1,49 @@
-package de.invesdwin.util.collections.fast.concurrent.locked;
+package de.invesdwin.util.collections.fast.concurrent.locked.readwrite;
 
 import java.util.Iterator;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 
 @ThreadSafe
-public class LockedIterator<E> implements Iterator<E> {
+public class ReadWriteLockedIterator<E> implements Iterator<E> {
 
     private final Iterator<E> delegate;
-    private final ILock lock;
+    private final IReadWriteLock lock;
 
-    public LockedIterator(final Iterator<E> delegate, final ILock lock) {
+    public ReadWriteLockedIterator(final Iterator<E> delegate, final IReadWriteLock lock) {
         this.delegate = delegate;
         this.lock = lock;
     }
 
     @Override
     public boolean hasNext() {
-        lock.lock();
+        lock.readLock().lock();
         try {
             return delegate.hasNext();
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 
     @Override
     public E next() {
-        lock.lock();
+        lock.readLock().lock();
         try {
             return delegate.next();
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 
     @Override
     public void remove() {
-        lock.lock();
+        lock.writeLock().lock();
         try {
             delegate.remove();
         } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
         }
     }
 

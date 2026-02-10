@@ -1,58 +1,58 @@
-package de.invesdwin.util.collections.iterable.concurrent;
+package de.invesdwin.util.collections.iterable.concurrent.readwrite;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 
 @ThreadSafe
-public class LockedCloseableIterator<E> implements ICloseableIterator<E> {
+public class ReadWriteLockedCloseableIterator<E> implements ICloseableIterator<E> {
 
     private final ICloseableIterator<E> delegate;
-    private final ILock lock;
+    private final IReadWriteLock lock;
 
-    public LockedCloseableIterator(final ICloseableIterator<E> delegate, final ILock lock) {
+    public ReadWriteLockedCloseableIterator(final ICloseableIterator<E> delegate, final IReadWriteLock lock) {
         this.delegate = delegate;
         this.lock = lock;
     }
 
     @Override
     public boolean hasNext() {
-        lock.lock();
+        lock.readLock().lock();
         try {
             return delegate.hasNext();
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 
     @Override
     public E next() {
-        lock.lock();
+        lock.readLock().lock();
         try {
             return delegate.next();
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 
     @Override
     public void remove() {
-        lock.lock();
+        lock.writeLock().lock();
         try {
             delegate.remove();
         } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
         }
     }
 
     @Override
     public void close() {
-        lock.lock();
+        lock.readLock().lock();
         try {
             delegate.close();
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 

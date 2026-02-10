@@ -1,12 +1,11 @@
 package de.invesdwin.util.concurrent.lock;
 
-import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 import de.invesdwin.util.time.duration.Duration;
 
-public interface ILock extends Lock, Closeable {
+public interface ILock extends Lock, ICloseableLock {
 
     ILock[] EMPTY_ARRAY = new ILock[0];
 

@@ -8,7 +8,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.springframework.core.io.Resource;
 
-import de.invesdwin.util.lang.Closeables;
+import de.invesdwin.util.streams.closeable.Closeables;
 import de.invesdwin.util.streams.resource.Resources;
 
 @NotThreadSafe

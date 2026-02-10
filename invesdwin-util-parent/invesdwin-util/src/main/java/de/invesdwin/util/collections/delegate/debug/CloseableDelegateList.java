@@ -8,9 +8,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.delegate.ADelegateList;
-import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.lang.finalizer.AWarningFinalizer;
 import de.invesdwin.util.lang.string.description.TextDescription;
+import de.invesdwin.util.streams.closeable.Closeables;
 
 @NotThreadSafe
 public class CloseableDelegateList<E> extends ADelegateList<E> implements Closeable {
