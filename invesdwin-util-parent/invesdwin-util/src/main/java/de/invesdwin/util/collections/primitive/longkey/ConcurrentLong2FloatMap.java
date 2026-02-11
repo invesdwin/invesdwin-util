@@ -17,15 +17,14 @@ public class ConcurrentLong2FloatMap extends APrimitiveConcurrentMap<Long, Float
     protected final Long2FloatOpenHashMap[] maps;
     protected final float defaultValue;
 
-    public ConcurrentLong2FloatMap(final int numBuckets, final int initialCapacity, final float loadFactor,
+    public ConcurrentLong2FloatMap(final int initialCapacity, final float loadFactor, final int concurrencyLevel,
             final float defaultValue) {
-        super(numBuckets);
-        this.maps = new Long2FloatOpenHashMap[numBuckets];
+        super(concurrencyLevel);
+        this.maps = new Long2FloatOpenHashMap[concurrencyLevel];
         this.defaultValue = defaultValue;
-        final int individualCapacity = APrimitiveConcurrentMapBuilder.newIndividualCapacity(initialCapacity,
-                numBuckets);
-        for (int i = 0; i < numBuckets; i++) {
-            maps[i] = new Long2FloatOpenHashMap(individualCapacity, loadFactor);
+        final int bucketCapacity = APrimitiveConcurrentMapBuilder.newBucketCapacity(initialCapacity, concurrencyLevel);
+        for (int i = 0; i < concurrencyLevel; i++) {
+            maps[i] = new Long2FloatOpenHashMap(bucketCapacity, loadFactor);
         }
     }
 
@@ -92,13 +91,13 @@ public class ConcurrentLong2FloatMap extends APrimitiveConcurrentMap<Long, Float
             @Override
             public ConcurrentLong2FloatMap build() {
                 final float def = super.defaultValue != null ? super.defaultValue : 0;
-                switch (mapMode) {
+                switch (mode) {
                 case BUSY_WAITING:
-                    return new BusyWaitingConcurrentLong2FloatMap(buckets, initialCapacity, loadFactor, def);
+                    return new BusyWaitingConcurrentLong2FloatMap(initialCapacity, loadFactor, concurrencyLevel, def);
                 case BLOCKING:
-                    return new ConcurrentLong2FloatMap(buckets, initialCapacity, loadFactor, def);
+                    return new ConcurrentLong2FloatMap(initialCapacity, loadFactor, concurrencyLevel, def);
                 default:
-                    throw UnknownArgumentException.newInstance(PrimitiveConcurrentMapMode.class, mapMode);
+                    throw UnknownArgumentException.newInstance(PrimitiveConcurrentMapMode.class, mode);
                 }
             }
         };

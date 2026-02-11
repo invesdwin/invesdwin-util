@@ -17,15 +17,14 @@ public class ConcurrentInt2FloatMap extends APrimitiveConcurrentMap<Integer, Flo
     protected final Int2FloatOpenHashMap[] maps;
     protected final float defaultValue;
 
-    public ConcurrentInt2FloatMap(final int numBuckets, final int initialCapacity, final float loadFactor,
+    public ConcurrentInt2FloatMap(final int initialCapacity, final float loadFactor, final int concurrencyLevel,
             final float defaultValue) {
-        super(numBuckets);
-        this.maps = new Int2FloatOpenHashMap[numBuckets];
+        super(concurrencyLevel);
+        this.maps = new Int2FloatOpenHashMap[concurrencyLevel];
         this.defaultValue = defaultValue;
-        final int individualCapacity = APrimitiveConcurrentMapBuilder.newIndividualCapacity(initialCapacity,
-                numBuckets);
-        for (int i = 0; i < numBuckets; i++) {
-            maps[i] = new Int2FloatOpenHashMap(individualCapacity, loadFactor);
+        final int bucketCapacity = APrimitiveConcurrentMapBuilder.newBucketCapacity(initialCapacity, concurrencyLevel);
+        for (int i = 0; i < concurrencyLevel; i++) {
+            maps[i] = new Int2FloatOpenHashMap(bucketCapacity, loadFactor);
         }
     }
 
@@ -92,13 +91,13 @@ public class ConcurrentInt2FloatMap extends APrimitiveConcurrentMap<Integer, Flo
             @Override
             public ConcurrentInt2FloatMap build() {
                 final float def = super.defaultValue != null ? super.defaultValue : 0;
-                switch (mapMode) {
+                switch (mode) {
                 case BUSY_WAITING:
-                    return new BusyWaitingConcurrentInt2FloatMap(buckets, initialCapacity, loadFactor, def);
+                    return new BusyWaitingConcurrentInt2FloatMap(initialCapacity, loadFactor, concurrencyLevel, def);
                 case BLOCKING:
-                    return new ConcurrentInt2FloatMap(buckets, initialCapacity, loadFactor, def);
+                    return new ConcurrentInt2FloatMap(initialCapacity, loadFactor, concurrencyLevel, def);
                 default:
-                    throw UnknownArgumentException.newInstance(PrimitiveConcurrentMapMode.class, mapMode);
+                    throw UnknownArgumentException.newInstance(PrimitiveConcurrentMapMode.class, mode);
                 }
             }
         };

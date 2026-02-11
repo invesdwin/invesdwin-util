@@ -17,16 +17,14 @@ public class ConcurrentInt2LongMap extends APrimitiveConcurrentMap<Integer, Long
     protected final Int2LongOpenHashMap[] maps;
     protected final long defaultValue;
 
-    public ConcurrentInt2LongMap(final int numBuckets, final int initialCapacity, final float loadFactor,
+    public ConcurrentInt2LongMap(final int initialCapacity, final float loadFactor, final int concurrencyLevel,
             final long defaultValue) {
-        super(numBuckets);
-
-        this.maps = new Int2LongOpenHashMap[numBuckets];
+        super(concurrencyLevel);
+        this.maps = new Int2LongOpenHashMap[concurrencyLevel];
         this.defaultValue = defaultValue;
-        final int individualCapacity = APrimitiveConcurrentMapBuilder.newIndividualCapacity(initialCapacity,
-                numBuckets);
-        for (int i = 0; i < numBuckets; i++) {
-            maps[i] = new Int2LongOpenHashMap(individualCapacity, loadFactor);
+        final int bucketCapacity = APrimitiveConcurrentMapBuilder.newBucketCapacity(initialCapacity, concurrencyLevel);
+        for (int i = 0; i < concurrencyLevel; i++) {
+            maps[i] = new Int2LongOpenHashMap(bucketCapacity, loadFactor);
         }
     }
 
@@ -93,13 +91,13 @@ public class ConcurrentInt2LongMap extends APrimitiveConcurrentMap<Integer, Long
             @Override
             public ConcurrentInt2LongMap build() {
                 final long def = super.defaultValue != null ? super.defaultValue : 0;
-                switch (mapMode) {
+                switch (mode) {
                 case BUSY_WAITING:
-                    return new BusyWaitingConcurrentInt2LongMap(buckets, initialCapacity, loadFactor, def);
+                    return new BusyWaitingConcurrentInt2LongMap(initialCapacity, loadFactor, concurrencyLevel, def);
                 case BLOCKING:
-                    return new ConcurrentInt2LongMap(buckets, initialCapacity, loadFactor, def);
+                    return new ConcurrentInt2LongMap(initialCapacity, loadFactor, concurrencyLevel, def);
                 default:
-                    throw UnknownArgumentException.newInstance(PrimitiveConcurrentMapMode.class, mapMode);
+                    throw UnknownArgumentException.newInstance(PrimitiveConcurrentMapMode.class, mode);
                 }
             }
         };

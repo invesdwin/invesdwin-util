@@ -48,12 +48,12 @@ public class StripedNonBlockingHashMapLong<E>
     private final PaddedCloseableReentrantLock[] s;
 
     @SuppressWarnings("resource")
-    public StripedNonBlockingHashMapLong(final int initialSize, final boolean optForSpace, final int stripes) {
-        assert stripes > 0 : "Stripes must be positive, but " + stripes;
-        assert stripes < 100_000_000 : "Too much Stripes: " + stripes;
-        m = new NonBlockingHashMapLong<>(Math.max(initialSize, stripes), optForSpace);
-        s = new PaddedCloseableReentrantLock[stripes];
-        for (int i = 0; i < stripes; i++) {
+    public StripedNonBlockingHashMapLong(final int initialSize, final boolean optForSpace, final int concurrencyLevel) {
+        assert concurrencyLevel > 0 : "Stripes must be positive, but " + concurrencyLevel;
+        assert concurrencyLevel < 100_000_000 : "Too much Stripes: " + concurrencyLevel;
+        m = new NonBlockingHashMapLong<>(Math.max(initialSize, concurrencyLevel), optForSpace);
+        s = new PaddedCloseableReentrantLock[concurrencyLevel];
+        for (int i = 0; i < concurrencyLevel; i++) {
             s[i] = new PaddedCloseableReentrantLock();
         }
     }//new

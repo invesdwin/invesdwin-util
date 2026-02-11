@@ -22,12 +22,13 @@ import jakarta.validation.constraints.Positive;
 public abstract class APrimitiveConcurrentMap<K, V> implements IPrimitiveConcurrentKeyMap {
     private final PaddedCloseableReentrantReadWriteLock[] locks;
 
-    protected APrimitiveConcurrentMap(@Positive final int numBuckets) {
-        if (numBuckets < 1 || numBuckets > 100_000_000) {
-            throw new IllegalArgumentException("numBuckets must be between 1 and 100_000_000, but: " + numBuckets);
+    protected APrimitiveConcurrentMap(@Positive final int concurrencyLevel) {
+        if (concurrencyLevel < 1 || concurrencyLevel > 100_000_000) {
+            throw new IllegalArgumentException(
+                    "concurrencyLevel must be between 1 and 100_000_000, but: " + concurrencyLevel);
         }
-        this.locks = new PaddedCloseableReentrantReadWriteLock[numBuckets];
-        for (int i = 0; i < numBuckets; i++) {
+        this.locks = new PaddedCloseableReentrantReadWriteLock[concurrencyLevel];
+        for (int i = 0; i < concurrencyLevel; i++) {
             locks[i] = new PaddedCloseableReentrantReadWriteLock();
         }
     }//new

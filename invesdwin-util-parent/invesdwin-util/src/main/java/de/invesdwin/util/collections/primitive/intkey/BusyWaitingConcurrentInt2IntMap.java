@@ -9,8 +9,9 @@ import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 
 @ThreadSafe
 public class BusyWaitingConcurrentInt2IntMap extends ConcurrentInt2IntMap {
-    public BusyWaitingConcurrentInt2IntMap(final int numBuckets, final int initialCapacity, final float loadFactor, final int defaultValue) {
-        super(numBuckets, initialCapacity, loadFactor, defaultValue);
+    public BusyWaitingConcurrentInt2IntMap(final int initialCapacity, final float loadFactor,
+            final int concurrencyLevel, final int defaultValue) {
+        super(initialCapacity, loadFactor, concurrencyLevel, defaultValue);
     }
 
     @Override

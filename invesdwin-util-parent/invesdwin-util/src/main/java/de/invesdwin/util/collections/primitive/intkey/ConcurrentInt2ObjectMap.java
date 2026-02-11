@@ -18,16 +18,14 @@ public class ConcurrentInt2ObjectMap<V> extends APrimitiveConcurrentMap<Integer,
     protected final V defaultValue;
 
     @SuppressWarnings("unchecked")
-    public ConcurrentInt2ObjectMap(final int numBuckets, final int initialCapacity, final float loadFactor,
+    public ConcurrentInt2ObjectMap(final int initialCapacity, final float loadFactor, final int concurrencyLevel,
             final V defaultValue) {
-        super(numBuckets);
-
-        this.maps = new Int2ObjectOpenHashMap[numBuckets];
+        super(concurrencyLevel);
+        this.maps = new Int2ObjectOpenHashMap[concurrencyLevel];
         this.defaultValue = defaultValue;
-        final int individualCapacity = APrimitiveConcurrentMapBuilder.newIndividualCapacity(initialCapacity,
-                numBuckets);
-        for (int i = 0; i < numBuckets; i++) {
-            maps[i] = new Int2ObjectOpenHashMap<V>(individualCapacity, loadFactor);
+        final int bucketCapacity = APrimitiveConcurrentMapBuilder.newBucketCapacity(initialCapacity, concurrencyLevel);
+        for (int i = 0; i < concurrencyLevel; i++) {
+            maps[i] = new Int2ObjectOpenHashMap<V>(bucketCapacity, loadFactor);
         }
     }
 
@@ -94,13 +92,14 @@ public class ConcurrentInt2ObjectMap<V> extends APrimitiveConcurrentMap<Integer,
             @Override
             public ConcurrentInt2ObjectMap<V> build() {
                 final V def = super.defaultValue;
-                switch (mapMode) {
+                switch (mode) {
                 case BUSY_WAITING:
-                    return new BusyWaitingConcurrentInt2ObjectMap<V>(buckets, initialCapacity, loadFactor, def);
+                    return new BusyWaitingConcurrentInt2ObjectMap<V>(initialCapacity, loadFactor, concurrencyLevel,
+                            def);
                 case BLOCKING:
-                    return new ConcurrentInt2ObjectMap<V>(buckets, initialCapacity, loadFactor, def);
+                    return new ConcurrentInt2ObjectMap<V>(initialCapacity, loadFactor, concurrencyLevel, def);
                 default:
-                    throw UnknownArgumentException.newInstance(PrimitiveConcurrentMapMode.class, mapMode);
+                    throw UnknownArgumentException.newInstance(PrimitiveConcurrentMapMode.class, mode);
                 }
             }
         };

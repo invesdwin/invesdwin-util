@@ -35,15 +35,15 @@ import it.unimi.dsi.fastutil.objects.ObjectSortedSet;
  * @see it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap
  */
 @ThreadSafe
-public class ReadWriteLockedInt2ObjLinkedHashMap<V> implements Int2ObjectSortedMap<V> {
+public class ReadWriteLockedInt2ObjectLinkedHashMap<V> implements Int2ObjectSortedMap<V> {
     protected final Int2ObjectLinkedOpenHashMap<V> m;
     protected final CloseableReentrantReadWriteLock lock = new CloseableReentrantReadWriteLock();
 
-    public ReadWriteLockedInt2ObjLinkedHashMap(final int expected, final float f) {
+    public ReadWriteLockedInt2ObjectLinkedHashMap(final int expected, final float f) {
         m = new Int2ObjectLinkedOpenHashMap<>(expected, f);
     }//new
 
-    public ReadWriteLockedInt2ObjLinkedHashMap() {
+    public ReadWriteLockedInt2ObjectLinkedHashMap() {
         m = new Int2ObjectLinkedOpenHashMap<>();
     }//new
 

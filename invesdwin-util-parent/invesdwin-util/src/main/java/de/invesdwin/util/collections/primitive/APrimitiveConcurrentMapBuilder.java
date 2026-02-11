@@ -7,17 +7,21 @@ import de.invesdwin.util.math.Integers;
 
 @NotThreadSafe
 public abstract class APrimitiveConcurrentMapBuilder<T extends IPrimitiveConcurrentKeyMap, V> {
-    protected PrimitiveConcurrentMapMode mapMode = PrimitiveConcurrentMapMode.DEFAULT;
-    protected int buckets = ILockCollectionFactory.DEFAULT_CONCURRENCY_LEVEL;
+    protected PrimitiveConcurrentMapMode mode = PrimitiveConcurrentMapMode.DEFAULT;
+    protected int concurrencyLevel = ILockCollectionFactory.DEFAULT_CONCURRENCY_LEVEL;
     protected int initialCapacity = ILockCollectionFactory.DEFAULT_INITIAL_SIZE;
     protected float loadFactor = ILockCollectionFactory.DEFAULT_LOAD_FACTOR;
     protected V defaultValue;
 
     protected APrimitiveConcurrentMapBuilder() {}
 
-    public final APrimitiveConcurrentMapBuilder<T, V> setBuckets(final int buckets) {
-        this.buckets = buckets;
+    public final APrimitiveConcurrentMapBuilder<T, V> setConcurrencyLevel(final int concurrencyLevel) {
+        this.concurrencyLevel = concurrencyLevel;
         return this;
+    }
+
+    public int getConcurrencyLevel() {
+        return concurrencyLevel;
     }
 
     public final APrimitiveConcurrentMapBuilder<T, V> setInitialCapacity(final int initialCapacity) {
@@ -25,14 +29,26 @@ public abstract class APrimitiveConcurrentMapBuilder<T extends IPrimitiveConcurr
         return this;
     }
 
+    public int getInitialCapacity() {
+        return initialCapacity;
+    }
+
     public final APrimitiveConcurrentMapBuilder<T, V> setLoadFactor(final float loadFactor) {
         this.loadFactor = loadFactor;
         return this;
     }
 
-    public final APrimitiveConcurrentMapBuilder<T, V> setMode(final PrimitiveConcurrentMapMode mapMode) {
-        this.mapMode = mapMode;
+    public float getLoadFactor() {
+        return loadFactor;
+    }
+
+    public final APrimitiveConcurrentMapBuilder<T, V> setMode(final PrimitiveConcurrentMapMode mode) {
+        this.mode = mode;
         return this;
+    }
+
+    public PrimitiveConcurrentMapMode getMode() {
+        return mode;
     }
 
     public final APrimitiveConcurrentMapBuilder<T, V> setDefaultValue(final V defaultValue) {
@@ -40,15 +56,19 @@ public abstract class APrimitiveConcurrentMapBuilder<T extends IPrimitiveConcurr
         return this;
     }
 
+    public V getDefaultValue() {
+        return defaultValue;
+    }
+
     public abstract T build();
 
     @Override
     public String toString() {
-        return "PrimitiveMapBuilder{mapMode=%s, buckets=%d, initialCapacity=%d, loadFactor=%s, def=%s}"
-                .formatted(mapMode, buckets, initialCapacity, loadFactor, defaultValue);
+        return "PrimitiveMapBuilder{mode=%s, concurrencyLevel=%d, initialCapacity=%d, loadFactor=%s, def=%s}"
+                .formatted(mode, concurrencyLevel, initialCapacity, loadFactor, defaultValue);
     }
 
-    public static int newIndividualCapacity(final int initialCapacity, final int numBuckets) {
-        return Integers.max(initialCapacity / numBuckets, ILockCollectionFactory.DEFAULT_INITIAL_SIZE);
+    public static int newBucketCapacity(final int initialCapacity, final int concurrencyLevel) {
+        return Integers.max(initialCapacity / concurrencyLevel, ILockCollectionFactory.DEFAULT_INITIAL_SIZE);
     }
 }

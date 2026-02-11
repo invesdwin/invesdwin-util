@@ -9,9 +9,9 @@ import it.unimi.dsi.fastutil.longs.Long2FloatFunction;
 
 @ThreadSafe
 public class BusyWaitingConcurrentLong2FloatMap extends ConcurrentLong2FloatMap {
-    public BusyWaitingConcurrentLong2FloatMap(final int numBuckets, final int initialCapacity, final float loadFactor,
-            final float defaultValue) {
-        super(numBuckets, initialCapacity, loadFactor, defaultValue);
+    public BusyWaitingConcurrentLong2FloatMap(final int initialCapacity, final float loadFactor,
+            final int concurrencyLevel, final float defaultValue) {
+        super(initialCapacity, loadFactor, concurrencyLevel, defaultValue);
     }
 
     @Override

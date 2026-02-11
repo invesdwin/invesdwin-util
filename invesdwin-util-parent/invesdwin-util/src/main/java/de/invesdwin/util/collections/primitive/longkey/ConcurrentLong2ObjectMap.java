@@ -18,15 +18,14 @@ public class ConcurrentLong2ObjectMap<V> extends APrimitiveConcurrentMap<Long, V
     protected final V defaultValue;
 
     @SuppressWarnings("unchecked")
-    public ConcurrentLong2ObjectMap(final int numBuckets, final int initialCapacity, final float loadFactor,
+    public ConcurrentLong2ObjectMap(final int initialCapacity, final float loadFactor, final int concurrencyLevel,
             final V defaultValue) {
-        super(numBuckets);
-        this.maps = new Long2ObjectOpenHashMap[numBuckets];
+        super(concurrencyLevel);
+        this.maps = new Long2ObjectOpenHashMap[concurrencyLevel];
         this.defaultValue = defaultValue;
-        final int individualCapacity = APrimitiveConcurrentMapBuilder.newIndividualCapacity(initialCapacity,
-                numBuckets);
-        for (int i = 0; i < numBuckets; i++) {
-            maps[i] = new Long2ObjectOpenHashMap<>(individualCapacity, loadFactor);
+        final int bucketCapacity = APrimitiveConcurrentMapBuilder.newBucketCapacity(initialCapacity, concurrencyLevel);
+        for (int i = 0; i < concurrencyLevel; i++) {
+            maps[i] = new Long2ObjectOpenHashMap<>(bucketCapacity, loadFactor);
         }
     }
 
@@ -92,14 +91,15 @@ public class ConcurrentLong2ObjectMap<V> extends APrimitiveConcurrentMap<Long, V
         return new APrimitiveConcurrentMapBuilder<ConcurrentLong2ObjectMap<V>, V>() {
             @Override
             public ConcurrentLong2ObjectMap<V> build() {
-                switch (mapMode) {
+                switch (mode) {
                 case BUSY_WAITING:
-                    return new BusyWaitingConcurrentLong2ObjectMap<>(buckets, initialCapacity, loadFactor,
+                    return new BusyWaitingConcurrentLong2ObjectMap<>(initialCapacity, loadFactor, concurrencyLevel,
                             super.defaultValue);
                 case BLOCKING:
-                    return new ConcurrentLong2ObjectMap<>(buckets, initialCapacity, loadFactor, super.defaultValue);
+                    return new ConcurrentLong2ObjectMap<>(initialCapacity, loadFactor, concurrencyLevel,
+                            super.defaultValue);
                 default:
-                    throw UnknownArgumentException.newInstance(PrimitiveConcurrentMapMode.class, mapMode);
+                    throw UnknownArgumentException.newInstance(PrimitiveConcurrentMapMode.class, mode);
                 }
             }
         };
