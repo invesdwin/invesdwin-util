@@ -6,17 +6,17 @@ import de.invesdwin.util.collections.factory.pool.set.ICloseableSet;
 import de.invesdwin.util.concurrent.pool.AAgronaObjectPool;
 
 @ThreadSafe
-final class SetLinkedPool<E> extends AAgronaObjectPool<ICloseableSet<E>> {
+final class LinkedSetPool<E> extends AAgronaObjectPool<ICloseableSet<E>> {
 
     @SuppressWarnings("rawtypes")
-    private static final SetLinkedPool INSTANCE = new SetLinkedPool();
+    private static final LinkedSetPool INSTANCE = new LinkedSetPool();
 
-    private SetLinkedPool() {
+    private LinkedSetPool() {
         super(DEFAULT_MAX_POOL_SIZE * 10);
     }
 
     @SuppressWarnings("unchecked")
-    public static <E> SetLinkedPool<E> getInstance() {
+    public static <E> LinkedSetPool<E> getInstance() {
         return INSTANCE;
     }
 

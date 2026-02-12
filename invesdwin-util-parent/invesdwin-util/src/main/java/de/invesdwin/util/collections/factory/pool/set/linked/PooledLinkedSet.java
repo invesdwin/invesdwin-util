@@ -8,9 +8,9 @@ import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 @NotThreadSafe
 public class PooledLinkedSet<E> extends ObjectLinkedOpenHashSet<E> implements ICloseableSet<E> {
 
-    private final SetLinkedPool<E> pool;
+    private final LinkedSetPool<E> pool;
 
-    PooledLinkedSet(final SetLinkedPool<E> pool) {
+    PooledLinkedSet(final LinkedSetPool<E> pool) {
         this.pool = pool;
     }
 
@@ -20,7 +20,7 @@ public class PooledLinkedSet<E> extends ObjectLinkedOpenHashSet<E> implements IC
     }
 
     public static <E> ICloseableSet<E> getInstance() {
-        return SetLinkedPool.<E> getInstance().borrowObject();
+        return LinkedSetPool.<E> getInstance().borrowObject();
     }
 
 }
