@@ -1,6 +1,7 @@
 package de.invesdwin.util.collections.factory;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -39,6 +40,8 @@ public interface ILockCollectionFactory {
     IReadWriteLock newReadWriteLock(String name);
 
     IBitSet newBitSet(int initialSize);
+
+    <T> List<T> newArrayList(Collection<? extends T> copyOf);
 
     default <T> List<T> newArrayList() {
         return newArrayList(DEFAULT_INITIAL_SIZE);
@@ -273,5 +276,23 @@ public interface ILockCollectionFactory {
     <T> List<T> lockedList(List<T> list, ILock lock);
 
     <T> Collection<T> lockedCollection(Collection<T> collection, ILock lock);
+
+    <T> Set<T> newImmutableSet(Collection<? extends T> copyOf);
+
+    <T> Set<T> newImmutableSet(Iterable<? extends T> copyOf);
+
+    <T> Set<T> newImmutableSet(Iterator<? extends T> copyOf);
+
+    @SuppressWarnings("unchecked")
+    <T> Set<T> newImmutableSet(T... copyOf);
+
+    <T> List<T> newImmutableList(Collection<? extends T> copyOf);
+
+    <T> List<T> newImmutableList(Iterable<? extends T> copyOf);
+
+    <T> List<T> newImmutableList(Iterator<? extends T> copyOf);
+
+    @SuppressWarnings("unchecked")
+    <T> List<T> newImmutableList(T... copyOf);
 
 }

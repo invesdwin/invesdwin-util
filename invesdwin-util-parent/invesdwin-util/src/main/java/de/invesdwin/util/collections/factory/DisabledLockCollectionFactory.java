@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.factory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -14,6 +15,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.bitset.JavaBitSet;
@@ -24,6 +26,7 @@ import de.invesdwin.util.collections.fast.FastIterableDelegateSet;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
+import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
 import de.invesdwin.util.concurrent.lock.ILock;
@@ -126,6 +129,11 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     public <K, V> Map<K, V> newConcurrentMap(final int initialSize, final float loadFactor,
             final int concurrencyLevel) {
         return newMap(initialSize, loadFactor);
+    }
+
+    @Override
+    public <T> List<T> newArrayList(final Collection<? extends T> copyOf) {
+        return new ArrayList<>(copyOf);
     }
 
     @Override
@@ -321,6 +329,52 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     @Override
     public <T> Collection<T> lockedCollection(final Collection<T> collection, final ILock lock) {
         return collection;
+    }
+
+    @Override
+    public <T> Set<T> newImmutableSet(final Collection<? extends T> copyOf) {
+        return Collections.unmodifiableSet(newSet(copyOf));
+    }
+
+    @Override
+    public <T> Set<T> newImmutableSet(final Iterable<? extends T> copyOf) {
+        final Set<T> set = newSet();
+        Collections.addAll(set, copyOf);
+        return Collections.unmodifiableSet(set);
+    }
+
+    @Override
+    public <T> Set<T> newImmutableSet(final Iterator<? extends T> copyOf) {
+        final Set<T> set = newSet();
+        Collections.addAll(set, copyOf);
+        return Collections.unmodifiableSet(set);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> Set<T> newImmutableSet(final T... copyOf) {
+        return Collections.unmodifiableSet(newSet(Arrays.asList(copyOf)));
+    }
+
+    @Override
+    public <T> List<T> newImmutableList(final Collection<? extends T> copyOf) {
+        return Collections.unmodifiableList(newArrayList(copyOf));
+    }
+
+    @Override
+    public <T> List<T> newImmutableList(final Iterable<? extends T> copyOf) {
+        return Collections.unmodifiableList(Lists.toListWithoutHasNext(copyOf, newArrayList()));
+    }
+
+    @Override
+    public <T> List<T> newImmutableList(final Iterator<? extends T> copyOf) {
+        return Collections.unmodifiableList(Lists.toListWithoutHasNext(copyOf, newArrayList()));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> List<T> newImmutableList(final T... copyOf) {
+        return Collections.unmodifiableList(Arrays.asList(copyOf));
     }
 
 }

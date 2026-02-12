@@ -4,6 +4,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -196,6 +197,11 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
+    public <T> List<T> newArrayList(final Collection<? extends T> copyOf) {
+        return Collections.synchronizedList(DisabledLockCollectionFactory.INSTANCE.newArrayList(copyOf));
+    }
+
+    @Override
     public <T> List<T> newArrayList(final int initialSize) {
         return Collections.synchronizedList(DisabledLockCollectionFactory.INSTANCE.newArrayList(initialSize));
     }
@@ -348,6 +354,48 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     @Override
     public <T> Collection<T> lockedCollection(final Collection<T> collection, final ILock lock) {
         return new LockedCollection<>(collection, lock);
+    }
+
+    @Override
+    public <T> Set<T> newImmutableSet(final Collection<? extends T> copyOf) {
+        return DisabledLockCollectionFactory.INSTANCE.newImmutableSet(copyOf);
+    }
+
+    @Override
+    public <T> Set<T> newImmutableSet(final Iterable<? extends T> copyOf) {
+        return DisabledLockCollectionFactory.INSTANCE.newImmutableSet(copyOf);
+    }
+
+    @Override
+    public <T> Set<T> newImmutableSet(final Iterator<? extends T> copyOf) {
+        return DisabledLockCollectionFactory.INSTANCE.newImmutableSet(copyOf);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> Set<T> newImmutableSet(final T... copyOf) {
+        return DisabledLockCollectionFactory.INSTANCE.newImmutableSet(copyOf);
+    }
+
+    @Override
+    public <T> List<T> newImmutableList(final Collection<? extends T> copyOf) {
+        return DisabledLockCollectionFactory.INSTANCE.newImmutableList(copyOf);
+    }
+
+    @Override
+    public <T> List<T> newImmutableList(final Iterable<? extends T> copyOf) {
+        return DisabledLockCollectionFactory.INSTANCE.newImmutableList(copyOf);
+    }
+
+    @Override
+    public <T> List<T> newImmutableList(final Iterator<? extends T> copyOf) {
+        return DisabledLockCollectionFactory.INSTANCE.newImmutableList(copyOf);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> List<T> newImmutableList(final T... copyOf) {
+        return DisabledLockCollectionFactory.INSTANCE.newImmutableList(copyOf);
     }
 
 }
