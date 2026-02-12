@@ -131,6 +131,12 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
         return newMap(initialSize, loadFactor);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> List<T> newArrayList(final T... copyOf) {
+        return new ArrayList<>(Arrays.asList(copyOf));
+    }
+
     @Override
     public <T> List<T> newArrayList(final Collection<? extends T> copyOf) {
         return new ArrayList<>(copyOf);

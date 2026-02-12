@@ -9,6 +9,7 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
@@ -41,6 +42,9 @@ public interface ILockCollectionFactory {
 
     IBitSet newBitSet(int initialSize);
 
+    @SuppressWarnings("unchecked")
+    <T> List<T> newArrayList(T... copyOf);
+
     <T> List<T> newArrayList(Collection<? extends T> copyOf);
 
     default <T> List<T> newArrayList() {
@@ -54,6 +58,11 @@ public interface ILockCollectionFactory {
     }
 
     <T> IFastIterableList<T> newFastIterableArrayList(int initialSize);
+
+    @SuppressWarnings("unchecked")
+    default <T> Set<T> newSet(final T... copyOf) {
+        return newSet(Arrays.asList(copyOf));
+    }
 
     default <T> Set<T> newSet(final Collection<? extends T> copyOf) {
         final Set<T> set = newSet(copyOf.size());
@@ -84,6 +93,11 @@ public interface ILockCollectionFactory {
     }
 
     <T> IFastIterableSet<T> newFastIterableSet(int initialSize, float loadFactor);
+
+    @SuppressWarnings("unchecked")
+    default <T> Set<T> newLinkedSet(final T... copyOf) {
+        return newLinkedSet(Arrays.asList(copyOf));
+    }
 
     default <T> Set<T> newLinkedSet(final Collection<? extends T> copyOf) {
         final Set<T> set = newLinkedSet(copyOf.size());

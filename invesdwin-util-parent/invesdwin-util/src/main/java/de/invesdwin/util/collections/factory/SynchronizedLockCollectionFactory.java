@@ -196,6 +196,12 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
         }
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> List<T> newArrayList(final T... copyOf) {
+        return Collections.synchronizedList(DisabledLockCollectionFactory.INSTANCE.newArrayList(copyOf));
+    }
+
     @Override
     public <T> List<T> newArrayList(final Collection<? extends T> copyOf) {
         return Collections.synchronizedList(DisabledLockCollectionFactory.INSTANCE.newArrayList(copyOf));
