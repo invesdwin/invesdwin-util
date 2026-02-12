@@ -383,4 +383,34 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
         return Collections.unmodifiableList(Arrays.asList(copyOf));
     }
 
+    @Override
+    public <T> Set<T> newImmutableLinkedSet(final Collection<? extends T> copyOf) {
+        return Collections.unmodifiableSet(newLinkedSet(copyOf));
+    }
+
+    @Override
+    public <T> Set<T> newImmutableLinkedSet(final Iterable<? extends T> copyOf) {
+        final Set<T> set = newLinkedSet();
+        Collections.addAll(set, copyOf);
+        return Collections.unmodifiableSet(set);
+    }
+
+    @Override
+    public <T> Set<T> newImmutableLinkedSet(final Iterator<? extends T> copyOf) {
+        final Set<T> set = newLinkedSet();
+        Collections.addAll(set, copyOf);
+        return Collections.unmodifiableSet(set);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> Set<T> newImmutableLinkedSet(final T... copyOf) {
+        return newImmutableLinkedSet(Arrays.asList(copyOf));
+    }
+
+    @Override
+    public <K, V> Map<K, V> newImmutableLinkedMap(final Map<? extends K, ? extends V> copyOf) {
+        return Collections.unmodifiableMap(newLinkedMap(copyOf));
+    }
+
 }

@@ -300,6 +300,17 @@ public interface ILockCollectionFactory {
     @SuppressWarnings("unchecked")
     <T> Set<T> newImmutableSet(T... copyOf);
 
+    <T> Set<T> newImmutableLinkedSet(Collection<? extends T> copyOf);
+
+    <T> Set<T> newImmutableLinkedSet(Iterable<? extends T> copyOf);
+
+    <T> Set<T> newImmutableLinkedSet(Iterator<? extends T> copyOf);
+
+    @SuppressWarnings("unchecked")
+    <T> Set<T> newImmutableLinkedSet(T... copyOf);
+
+    <K, V> Map<K, V> newImmutableLinkedMap(Map<? extends K, ? extends V> copyOf);
+
     <T> List<T> newImmutableList(Collection<? extends T> copyOf);
 
     <T> List<T> newImmutableList(Iterable<? extends T> copyOf);

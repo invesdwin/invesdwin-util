@@ -404,4 +404,30 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
         return DisabledLockCollectionFactory.INSTANCE.newImmutableList(copyOf);
     }
 
+    @Override
+    public <T> Set<T> newImmutableLinkedSet(final Collection<? extends T> copyOf) {
+        return DisabledLockCollectionFactory.INSTANCE.newImmutableLinkedSet(copyOf);
+    }
+
+    @Override
+    public <T> Set<T> newImmutableLinkedSet(final Iterable<? extends T> copyOf) {
+        return DisabledLockCollectionFactory.INSTANCE.newImmutableLinkedSet(copyOf);
+    }
+
+    @Override
+    public <T> Set<T> newImmutableLinkedSet(final Iterator<? extends T> copyOf) {
+        return DisabledLockCollectionFactory.INSTANCE.newImmutableLinkedSet(copyOf);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> Set<T> newImmutableLinkedSet(final T... copyOf) {
+        return DisabledLockCollectionFactory.INSTANCE.newImmutableLinkedSet(copyOf);
+    }
+
+    @Override
+    public <K, V> Map<K, V> newImmutableLinkedMap(final Map<? extends K, ? extends V> copyOf) {
+        return DisabledLockCollectionFactory.INSTANCE.newImmutableLinkedMap(copyOf);
+    }
+
 }
