@@ -1,12 +1,9 @@
 package de.invesdwin.util.lang.string;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -16,6 +13,9 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathStrings;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.collections.factory.pool.set.ICloseableSet;
+import de.invesdwin.util.collections.factory.pool.set.PooledSet;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.string.internal.AStringsStaticFacade;
@@ -42,7 +42,7 @@ public final class Strings extends AStringsStaticFacade {
     public static final String NULL_TEXT = "null";
     public static final String DEFAULT_MISSING_VALUE = null;
 
-    private static final Map<String, String> SYMBOL_ESCAPEDHTML = new HashMap<String, String>();
+    private static final Map<String, String> SYMBOL_ESCAPEDHTML = ILockCollectionFactory.getInstance(false).newMap();
 
     private static final String[] AS_STRING_SPACES_SEARCH = new String[] { //
             "|", //
@@ -354,19 +354,20 @@ public final class Strings extends AStringsStaticFacade {
     }
 
     public static String removeDuplicateLines(final String s) {
-        final Set<String> set = new HashSet<>();
-        final String[] lines = Strings.splitPreserveAllTokens(s, "\n");
-        final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < lines.length; i++) {
-            final String line = lines[i];
-            if (set.add(line)) {
-                if (sb.length() > 0) {
-                    sb.append("\n");
+        try (ICloseableSet<String> duplicateFilter = PooledSet.getInstance()) {
+            final String[] lines = Strings.splitPreserveAllTokens(s, "\n");
+            final StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < lines.length; i++) {
+                final String line = lines[i];
+                if (duplicateFilter.add(line)) {
+                    if (sb.length() > 0) {
+                        sb.append("\n");
+                    }
+                    sb.append(line);
                 }
-                sb.append(line);
             }
+            return sb.toString();
         }
-        return sb.toString();
     }
 
     public static String replaceRange(final String s, final int startInclusive, final int endExclusive,

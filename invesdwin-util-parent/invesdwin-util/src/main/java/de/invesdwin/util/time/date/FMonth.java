@@ -2,13 +2,13 @@ package de.invesdwin.util.time.date;
 
 import java.time.Month;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
 
 import org.joda.time.DateTimeConstants;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.error.UnknownArgumentException;
 
 @Immutable
@@ -209,9 +209,9 @@ public enum FMonth {
         }
     };
 
-    private static final Map<Integer, FMonth> CALENDAR_LOOKUP = new HashMap<Integer, FMonth>();
-    private static final Map<Month, FMonth> JAVA_TIME_LOOKUP = new HashMap<Month, FMonth>();
-    private static final Map<Integer, FMonth> JODA_TIME_LOOKUP = new HashMap<Integer, FMonth>();
+    private static final Map<Integer, FMonth> CALENDAR_LOOKUP = ILockCollectionFactory.getInstance(false).newMap();
+    private static final Map<Month, FMonth> JAVA_TIME_LOOKUP = ILockCollectionFactory.getInstance(false).newMap();
+    private static final Map<Integer, FMonth> JODA_TIME_LOOKUP = ILockCollectionFactory.getInstance(false).newMap();
 
     static {
         for (final FMonth f : FMonth.values()) {

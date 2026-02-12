@@ -1,12 +1,12 @@
 package de.invesdwin.util.time.date.holiday.provider.custom;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.holiday.provider.IHolidayManagerProvider;
@@ -27,7 +27,7 @@ public final class CustomHolidayManagerProvider implements IHolidayManagerProvid
 
     public static final CustomHolidayManagerProvider INSTANCE = new CustomHolidayManagerProvider();
 
-    private static final Map<String, IHolidayManager> ID_MANAGER = new HashMap<>();
+    private static final Map<String, IHolidayManager> ID_MANAGER = ILockCollectionFactory.getInstance(false).newMap();
     @GuardedBy("none for performance")
     private static String availableCalendarIdsInfo;
 

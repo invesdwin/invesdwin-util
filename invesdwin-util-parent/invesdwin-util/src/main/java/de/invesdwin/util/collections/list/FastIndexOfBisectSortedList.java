@@ -1,7 +1,6 @@
 package de.invesdwin.util.collections.list;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -11,6 +10,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.iterable.ATransformingIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.lang.comparator.AComparator;
@@ -18,7 +18,7 @@ import de.invesdwin.util.lang.comparator.IComparator;
 
 @NotThreadSafe
 public class FastIndexOfBisectSortedList<E> implements List<E> {
-    private final Map<E, IndexedValue<E>> map = new HashMap<>();
+    private final Map<E, IndexedValue<E>> map = ILockCollectionFactory.getInstance(false).newMap();
     private final BisectSortedList<IndexedValue<E>> list;
 
     /**

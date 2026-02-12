@@ -10,7 +10,6 @@ import java.net.Socket;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -34,6 +33,7 @@ import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
 import org.apache.hc.core5.util.TimeValue;
 
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.uri.Addresses;
 import de.invesdwin.util.lang.uri.URIs;
@@ -223,7 +223,7 @@ public final class URIsConnectApacheSync implements IURIsConnect {
             return this;
         }
         if (headers == null) {
-            headers = new HashMap<String, String>();
+            headers = ILockCollectionFactory.getInstance(false).newMap();
         }
         headers.put(key, value);
         return this;

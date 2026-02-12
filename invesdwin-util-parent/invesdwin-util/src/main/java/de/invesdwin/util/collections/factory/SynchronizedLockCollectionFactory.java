@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentHashMap.KeySetView;
@@ -173,25 +174,19 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
-    public <K, V> ConcurrentMap<K, V> newConcurrentMap() {
-        return newConcurrentMap(DEFAULT_INITIAL_SIZE);
+    public <K, V> ConcurrentMap<K, V> newConcurrentMap(final int initialSize, final float loadFactor,
+            final int concurrencyLevel) {
+        //CHECKSTYLE:OFF
+        return new ConcurrentHashMap<>(initialSize, loadFactor, concurrencyLevel);
+        //CHECKSTYLE:ON
     }
 
     @Override
-    public <K, V> ConcurrentMap<K, V> newConcurrentMap(final int initialSize) {
-        return newConcurrentMap(initialSize, DEFAULT_LOAD_FACTOR);
-    }
-
-    @Override
-    public <K, V> ConcurrentMap<K, V> newConcurrentMap(final int initialSize, final float loadFactor) {
-        return new ConcurrentHashMap<>(initialSize, loadFactor);
-    }
-
-    @Override
-    public <T> Set<T> newConcurrentSet(final int initialSize, final float loadFactor) {
+    public <T> Set<T> newConcurrentSet(final int initialSize, final float loadFactor, final int concurrencyLevel) {
         if (KEYSETVIEW_CONSTRUCTOR != null) {
             try {
-                return (Set<T>) KEYSETVIEW_CONSTRUCTOR.invoke(newConcurrentMap(initialSize, loadFactor), Boolean.TRUE);
+                return (Set<T>) KEYSETVIEW_CONSTRUCTOR
+                        .invoke(newConcurrentMap(initialSize, loadFactor, concurrencyLevel), Boolean.TRUE);
             } catch (final Throwable e) {
                 throw new RuntimeException(e);
             }
@@ -226,6 +221,16 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     @Override
     public <T> Set<T> newSet(final int initialSize, final float loadFactor) {
         return Collections.synchronizedSet(DisabledLockCollectionFactory.INSTANCE.newSet(initialSize, loadFactor));
+    }
+
+    @Override
+    public <T> NavigableSet<T> newTreeSet() {
+        return Collections.synchronizedNavigableSet(DisabledLockCollectionFactory.INSTANCE.newTreeSet());
+    }
+
+    @Override
+    public <T> NavigableSet<T> newTreeSet(final IComparator<? super T> comparator) {
+        return Collections.synchronizedNavigableSet(DisabledLockCollectionFactory.INSTANCE.newTreeSet(comparator));
     }
 
     @Override

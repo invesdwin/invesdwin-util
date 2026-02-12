@@ -2,13 +2,13 @@ package de.invesdwin.util.time.date;
 
 import java.time.DayOfWeek;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
 
 import org.joda.time.DateTimeConstants;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -162,10 +162,10 @@ public enum FWeekday {
         }
     };
 
-    private static final Map<Integer, FWeekday> CALENDAR_LOOKUP = new HashMap<Integer, FWeekday>();
-    private static final Map<DayOfWeek, FWeekday> JAVA_TIME_LOOKUP = new HashMap<DayOfWeek, FWeekday>();
-    private static final Map<Integer, FWeekday> JODA_TIME_LOOKUP = new HashMap<Integer, FWeekday>();
-    private static final Map<String, FWeekday> ALIAS_LOOKUP = new HashMap<>();
+    private static final Map<Integer, FWeekday> CALENDAR_LOOKUP = ILockCollectionFactory.getInstance(false).newMap();
+    private static final Map<DayOfWeek, FWeekday> JAVA_TIME_LOOKUP = ILockCollectionFactory.getInstance(false).newMap();
+    private static final Map<Integer, FWeekday> JODA_TIME_LOOKUP = ILockCollectionFactory.getInstance(false).newMap();
+    private static final Map<String, FWeekday> ALIAS_LOOKUP = ILockCollectionFactory.getInstance(false).newMap();
 
     static {
         for (final FWeekday f : FWeekday.values()) {

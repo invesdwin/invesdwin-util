@@ -1,6 +1,7 @@
 package de.invesdwin.util.collections.factory;
 
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -15,12 +16,17 @@ public final class FactoryBeanPathCollectionProvider implements IBeanPathCollect
 
     @Override
     public <K, V> Map<K, V> newMap() {
-        return ILockCollectionFactory.getInstance(false).newMap();
+        return DisabledLockCollectionFactory.INSTANCE.newMap();
     }
 
     @Override
     public <K, V> Map<K, V> newConcurrentMap() {
-        return ILockCollectionFactory.getInstance(true).newConcurrentMap();
+        return SynchronizedLockCollectionFactory.INSTANCE.newConcurrentMap();
+    }
+
+    @Override
+    public <T> Set<T> newSet() {
+        return DisabledLockCollectionFactory.INSTANCE.newSet();
     }
 
 }

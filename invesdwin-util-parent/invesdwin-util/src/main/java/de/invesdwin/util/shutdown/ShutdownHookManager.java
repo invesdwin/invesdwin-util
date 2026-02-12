@@ -1,7 +1,6 @@
 package de.invesdwin.util.shutdown;
 
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,6 +10,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.concurrent.loop.LoopInterruptedCheck;
 import de.invesdwin.util.error.InterruptedRuntimeException;
 import de.invesdwin.util.lang.Objects;
@@ -26,7 +26,8 @@ public final class ShutdownHookManager {
 
     public static final ShutdownHookManager INSTANCE = new ShutdownHookManager();
     @GuardedBy("INSTANCE")
-    private static final Map<Integer, ShutdownHookThread> REGISTERED_HOOKS = new HashMap<Integer, ShutdownHookThread>();
+    private static final Map<Integer, ShutdownHookThread> REGISTERED_HOOKS = ILockCollectionFactory.getInstance(false)
+            .newLinkedMap();
     private static volatile boolean shuttingDown;
     private static final LoopInterruptedCheck REMOVE_OBSOLETE_THREADS_CHECK = new LoopInterruptedCheck(
             Duration.ONE_MINUTE) {

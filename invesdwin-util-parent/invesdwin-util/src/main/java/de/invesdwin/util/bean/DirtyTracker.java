@@ -6,8 +6,6 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,6 +23,7 @@ import de.invesdwin.norva.beanpath.spi.element.table.column.ITableColumnBeanPath
 import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.fast.concurrent.ASynchronizedFastIterableDelegateSet;
 import de.invesdwin.util.collections.fast.concurrent.SynchronizedSet;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
@@ -40,7 +39,7 @@ public class DirtyTracker implements Serializable {
     private static final ALoadingCache<Class<?>, Set<String>> TYPE_BEANPATHS = new ALoadingCache<Class<?>, Set<String>>() {
         @Override
         protected Set<String> loadValue(final Class<?> key) {
-            final Set<String> beanPaths = new HashSet<String>();
+            final Set<String> beanPaths = ILockCollectionFactory.getInstance(false).newSet();
             BeanClassProcessor.process(key, new SimpleBeanPathVisitorSupport() {
                 @Override
                 public void visitProperty(final IPropertyBeanPathElement e) {
@@ -62,11 +61,11 @@ public class DirtyTracker implements Serializable {
     private final ASynchronizedFastIterableDelegateSet<IDirtyTrackerListener> listeners = new ASynchronizedFastIterableDelegateSet<IDirtyTrackerListener>() {
         @Override
         protected Set<IDirtyTrackerListener> newDelegate() {
-            return new LinkedHashSet<IDirtyTrackerListener>();
+            return ILockCollectionFactory.getInstance(false).newLinkedSet();
         }
     };
     @GuardedBy("this")
-    private final Set<String> changedBeanPaths = new LinkedHashSet<String>();
+    private final Set<String> changedBeanPaths = ILockCollectionFactory.getInstance(false).newLinkedSet();
 
     @GuardedBy("this")
     private boolean trackingChangesDirectly;

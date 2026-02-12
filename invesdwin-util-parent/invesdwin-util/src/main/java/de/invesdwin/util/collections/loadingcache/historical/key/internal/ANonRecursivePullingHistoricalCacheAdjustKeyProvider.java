@@ -1,13 +1,12 @@
 package de.invesdwin.util.collections.loadingcache.historical.key.internal;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.key.AdjustedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
@@ -20,8 +19,8 @@ public abstract class ANonRecursivePullingHistoricalCacheAdjustKeyProvider
 
     private volatile FDate curHighestAllowedKey;
     private volatile FDate prevHighestAllowedKey;
-    private final Set<HistoricalCacheForClear> historicalCachesForClear = Collections
-            .synchronizedSet(new HashSet<HistoricalCacheForClear>());
+    private final Set<HistoricalCacheForClear> historicalCachesForClear = ILockCollectionFactory.getInstance(true)
+            .newSet();
     private final AHistoricalCache<?> parent;
     private final int hashCode = super.hashCode();
 

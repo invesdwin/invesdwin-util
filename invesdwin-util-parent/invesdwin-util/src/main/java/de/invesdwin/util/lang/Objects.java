@@ -3,8 +3,8 @@ package de.invesdwin.util.lang;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -18,6 +18,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathObjects;
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
@@ -32,7 +33,7 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 public final class Objects extends AObjectsStaticFacade {
 
     public static final boolean DEFAULT_APPEND_MISSING_VALUES = true;
-    public static final Set<String> REFLECTION_EXCLUDED_FIELDS = new HashSet<String>();
+    public static final Set<String> REFLECTION_EXCLUDED_FIELDS = ILockCollectionFactory.getInstance(false).newSet();
     public static final IComparator<Object> COMPARATOR = IComparator.getDefaultInstance();
     public static final Object[] EMPTY_ARRAY = new Object[0];
 
@@ -94,6 +95,17 @@ public final class Objects extends AObjectsStaticFacade {
         } else if (a instanceof Collection && b instanceof Collection) {
             final Collection<?> cA = (Collection<?>) a;
             final Collection<?> cB = (Collection<?>) b;
+            final int aSize = cA.size();
+            final int bSize = cB.size();
+            if (aSize != bSize) {
+                return false;
+            } else if (aSize == 0) {
+                //both are equal in size, so we only have to check one side
+                return true;
+            }
+        } else if (a instanceof Map && b instanceof Map) {
+            final Map<?, ?> cA = (Map<?, ?>) a;
+            final Map<?, ?> cB = (Map<?, ?>) b;
             final int aSize = cA.size();
             final int bSize = cB.size();
             if (aSize != bSize) {

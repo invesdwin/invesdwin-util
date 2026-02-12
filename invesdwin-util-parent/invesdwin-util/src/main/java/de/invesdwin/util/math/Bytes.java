@@ -6,24 +6,17 @@ import java.nio.charset.CodingErrorAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.IntBinaryOperator;
-import java.util.function.IntUnaryOperator;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.jspecify.annotations.Nullable;
-
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.collections.primitive.util.BucketHashUtil;
-import de.invesdwin.util.collections.primitive.util.DirectByteArrayAccess;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.string.Charsets;
 import de.invesdwin.util.math.internal.ABytesStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastBytes;
 import de.invesdwin.util.math.internal.CheckedCastBytesObj;
-import jakarta.validation.constraints.PositiveOrZero;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ABytesStaticFacade", targets = { CheckedCastBytes.class,
         CheckedCastBytesObj.class,
@@ -451,218 +444,6 @@ public final class Bytes extends ABytesStaticFacade {
         }
 
         return result;
-    }
-
-    public static byte[] safe(final byte @Nullable [] b) {
-        return b != null ? b : EMPTY_ARRAY;
-    }
-
-    public static boolean isEmpty(final byte @Nullable [] b) {
-        return b == null || b.length <= 0;
-    }
-
-    public static boolean nonEmpty(final byte @Nullable [] b) {
-        return b != null && b.length > 0;
-    }
-
-    public static int len(final byte @Nullable [] b) {
-        return b != null ? b.length : 0;
-    }
-
-    /// Simple bytes (from ints)
-    public static byte[] bytes(final int... elements) {
-        final int len = elements != null ? elements.length : 0;
-        final byte[] b = new byte[len];
-        for (int i = 0; i < len; i++) {
-            b[i] = (byte) elements[i];
-        }
-        return b;
-    }
-
-    /**
-     * A common case of copying arrays from start to [start .. min(len1,len2)) Used when increasing or decreasing the
-     * array length.
-     * 
-     * @see System#arraycopy(Object, int, Object, int, int)
-     * @see java.util.Arrays#copyOf
-     * @see java.util.Arrays#copyOfRange
-     * @see java.util.Arrays#copyOfRangeInt
-     * @see org.apache.commons.lang3.ArrayUtils#addAll
-     * @see com.google.common.collect.ObjectArrays#concat
-     * @see it.unimi.dsi.fastutil.objects.ObjectArrays#grow
-     * @see it.unimi.dsi.fastutil.objects.ObjectArrays#trim
-     */
-    public static <A> A arraycopy(@Nullable final A src, final A dst, @PositiveOrZero final int len) {
-        if (src != null) {
-            System.arraycopy(src, 0, dst, 0, len);
-        }
-        return dst;
-    }
-
-    /**
-     * Similar to JDK and FastUtil, but fixes mistakes and doesn't clone.
-     * 
-     * @see Arrays#copyOfRange(byte[], int, int)
-     * @see it.unimi.dsi.fastutil.bytes.ByteArrays#copy(byte[], int, int)
-     */
-    public static byte[] copyOrSame(final byte @Nullable [] src, @PositiveOrZero final int from,
-            @PositiveOrZero final int toNewLen) {
-        if (src == null || (from <= 0 && toNewLen >= src.length)) {
-            return src;
-        }
-
-        int tail = src.length - from;
-        if (tail > toNewLen) {
-            tail = toNewLen;
-        }
-        final byte[] b = new byte[tail];
-        System.arraycopy(src, from, b, 0, tail);
-        return b;
-    }
-
-    /**
-     * Similar to {@link java.util.Arrays#setAll(int[], IntUnaryOperator)} but for byte and returns argument-array (e.g.
-     * newly created, no extra line with assignment) One argument version with index.
-     * 
-     * @see #setAll(byte[], IntBinaryOperator)
-     */
-    public static byte[] setAll(final byte @Nullable [] array, final IntUnaryOperator generator) {
-        if (array == null) {
-            return EMPTY_ARRAY;
-        }
-
-        for (int i = 0, len = array.length; i < len; i++) {
-            final int b = generator.applyAsInt(i);
-            if (b < Short.MIN_VALUE) {
-                break;
-            } // pseudo command `break`
-            if (b > Short.MAX_VALUE) {
-                continue;
-            } // skip
-            array[i] = (byte) b;
-        }
-        return array;
-    }
-
-    /**
-     * Similar to {@link java.util.Arrays#setAll(int[], IntUnaryOperator)} but for byte and returns argument-array (e.g.
-     * newly created, no extra line with assignment) Two argument version with index and current byte.
-     * 
-     * @see #setAll(byte[], IntUnaryOperator)
-     */
-    public static byte[] setAll(final byte @Nullable [] array, final IntBinaryOperator modifier) {
-        if (array == null) {
-            return EMPTY_ARRAY;
-        }
-
-        for (int i = 0, len = array.length; i < len; i++) {
-            final int b = modifier.applyAsInt(i, array[i]);
-            if (b < Short.MIN_VALUE) {
-                break;
-            } // pseudo command `break`
-            if (b > Short.MAX_VALUE) {
-                continue;
-            } // skip
-            array[i] = (byte) b;
-        }
-        return array;
-    }
-
-    /**
-     * Для работы с bytes лучше ByteBuf (netty, vert.x, oIo) или Input/OutputStream
-     * 
-     * @see Arrays#copyOf
-     * @see Arrays#copyOfRange
-     * @see Arrays#copyOfRangeByte
-     * @see JSystem#arraycopy(Object, Object, int)
-     * @see #concatClone(byte[], byte[])
-     * @see JBuffer
-     * @see it.unimi.dsi.fastutil.bytes.ByteArrays#swap
-     * @see it.unimi.dsi.fastutil.bytes.ByteArrays#trim
-     * @see it.unimi.dsi.fastutil.bytes.ByteArrays#grow
-     * @see it.unimi.dsi.fastutil.bytes.ByteArrays#setLength
-     * 
-     * @see org.apache.commons.lang3.ArrayUtils#addAll
-     * 
-     * @see com.google.common.collect.ObjectArrays#concat
-     * @see it.unimi.dsi.fastutil.objects.ObjectArrays#grow
-     */
-    public static byte[] concatOrSame(final byte @Nullable [] a, final byte @Nullable [] b) {
-        final int len1;
-        //CHECKSTYLE:OFF
-        if (a == null || (len1 = a.length) <= 0) {
-            //CHECKSTYLE:ON
-            return b == null || b.length <= 0 ? EMPTY_ARRAY : b;
-        } //×a
-
-        final int len2;
-        //CHECKSTYLE:OFF
-        if (b == null || (len2 = b.length) <= 0) {
-            //CHECKSTYLE:ON
-            return a;
-        } //×b
-
-        final byte[] c = new byte[len1 + len2];
-        System.arraycopy(a, 0, c, 0, len1);
-        System.arraycopy(b, 0, c, len1, len2);
-        return c;
-    }
-
-    /** Similar to {@link #concatOrSame}, but if only one array is not empty → returns cloned array */
-    public static byte[] concatClone(final byte @Nullable [] a, final byte @Nullable [] b) {
-        final int len1;
-        //CHECKSTYLE:OFF
-        if (a == null || (len1 = a.length) <= 0) {
-            //CHECKSTYLE:ON
-            return b == null || b.length <= 0 ? EMPTY_ARRAY : b.clone();
-        } //×a
-
-        final int len2;
-        //CHECKSTYLE:OFF
-        if (b == null || (len2 = b.length) <= 0) {
-            //CHECKSTYLE:ON
-            return a.clone();
-        } //×b
-
-        final byte[] c = new byte[len1 + len2];
-        System.arraycopy(a, 0, c, 0, len1);
-        System.arraycopy(b, 0, c, len1, len2);
-        return c;
-    }
-
-    /** Concat multiple byte arrays */
-    public static byte[] concatMulti(final byte @Nullable [] @Nullable... byteArrays) {
-        if (BucketHashUtil.blankVarargs(byteArrays)) {
-            return EMPTY_ARRAY;
-        }
-
-        int total = 0;// total length = all bytes in all arrays
-        for (final byte[] src : byteArrays) {
-            if (src != null) {
-                total += src.length;
-            }
-        }
-
-        final byte[] result = new byte[total];
-        int j = 0;
-
-        for (final byte[] src : byteArrays) {
-            if (src != null && src.length > 0) {
-                System.arraycopy(src, 0, result, j, src.length);
-                j += src.length;
-            }
-        }
-        return result;
-    }
-
-    public static byte[] longToBytes(final long longValue) {
-        final byte[] b = new byte[8];
-        DirectByteArrayAccess.setLong(b, 0, longValue);
-        return b;
-    }
-
-    public static long bytesToLong(final byte[] bytes) {
-        return DirectByteArrayAccess.getLong(bytes, 0);
     }
 
 }

@@ -2,9 +2,6 @@ package de.invesdwin.util.concurrent.taskinfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,6 +14,8 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.collections.factory.pool.set.ICloseableSet;
+import de.invesdwin.util.collections.factory.pool.set.PooledSet;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.concurrent.taskinfo.provider.ITaskInfoProvider;
 import de.invesdwin.util.concurrent.taskinfo.provider.TaskInfoStatus;
@@ -33,7 +32,9 @@ import io.netty.util.concurrent.FastThreadLocal;
 public final class TaskInfoManager {
 
     @GuardedBy("this.class")
-    private static final Map<String, Map<Integer, WeakReferenceTaskInfoProvider>> NAME_TASKS = new LinkedHashMap<>();
+    private static final Map<String, Map<Integer, WeakReferenceTaskInfoProvider>> NAME_TASKS = ILockCollectionFactory
+            .getInstance(false)
+            .newLinkedMap();
     @GuardedBy("this.class")
     private static final IFastIterableSet<ITaskInfoListener> LISTENERS = ILockCollectionFactory.getInstance(false)
             .newFastIterableLinkedSet();
@@ -47,7 +48,7 @@ public final class TaskInfoManager {
         Map<Integer, WeakReferenceTaskInfoProvider> tasks = NAME_TASKS.get(name);
         boolean added = false;
         if (tasks == null) {
-            tasks = new LinkedHashMap<>();
+            tasks = ILockCollectionFactory.getInstance(false).newLinkedMap();
             Assertions.checkNull(NAME_TASKS.put(name, tasks));
             added = true;
         } else {
@@ -123,22 +124,23 @@ public final class TaskInfoManager {
 
     public static synchronized List<TaskInfo> getTaskInfos() {
         final List<TaskInfo> taskInfos = new ArrayList<>();
-        final Set<String> completedTaskInfoNames = new HashSet<>();
-        for (final Entry<String, Map<Integer, WeakReferenceTaskInfoProvider>> entry : NAME_TASKS.entrySet()) {
-            final String name = entry.getKey();
-            final Collection<WeakReferenceTaskInfoProvider> tasks = entry.getValue().values();
-            final TaskInfo taskInfo = getTaskInfo(name, tasks);
-            if (taskInfo.isCompleted()) {
-                completedTaskInfoNames.add(name);
-            } else {
-                taskInfos.add(taskInfo);
+        try (ICloseableSet<String> completedTaskInfoNames = PooledSet.getInstance()) {
+            for (final Entry<String, Map<Integer, WeakReferenceTaskInfoProvider>> entry : NAME_TASKS.entrySet()) {
+                final String name = entry.getKey();
+                final Collection<WeakReferenceTaskInfoProvider> tasks = entry.getValue().values();
+                final TaskInfo taskInfo = getTaskInfo(name, tasks);
+                if (taskInfo.isCompleted()) {
+                    completedTaskInfoNames.add(name);
+                } else {
+                    taskInfos.add(taskInfo);
+                }
             }
+            for (final String name : completedTaskInfoNames) {
+                Assertions.checkNotNull(NAME_TASKS.remove(name));
+                triggerOnTaskInfoRemoved(name);
+            }
+            return taskInfos;
         }
-        for (final String name : completedTaskInfoNames) {
-            Assertions.checkNotNull(NAME_TASKS.remove(name));
-            triggerOnTaskInfoRemoved(name);
-        }
-        return taskInfos;
     }
 
     public static synchronized List<String> getTaskInfoNames() {
@@ -208,7 +210,7 @@ public final class TaskInfoManager {
                 final String description = task.getDescription();
                 if (Strings.isNotBlank(description)) {
                     if (createdDescriptions == null) {
-                        createdDescriptions = new LinkedHashSet<>();
+                        createdDescriptions = ILockCollectionFactory.getInstance(false).newLinkedSet();
                     }
                     createdDescriptions.add(description);
                 }
@@ -218,7 +220,7 @@ public final class TaskInfoManager {
                 final String description = task.getDescription();
                 if (Strings.isNotBlank(description)) {
                     if (startedDescriptions == null) {
-                        startedDescriptions = new LinkedHashSet<>();
+                        startedDescriptions = ILockCollectionFactory.getInstance(false).newLinkedSet();
                         createdDescriptions = null;
                     }
                     startedDescriptions.add(description);

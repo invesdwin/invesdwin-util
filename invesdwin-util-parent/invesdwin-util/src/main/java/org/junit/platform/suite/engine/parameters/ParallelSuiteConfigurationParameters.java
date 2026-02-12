@@ -2,7 +2,6 @@ package org.junit.platform.suite.engine.parameters;
 
 import static org.junit.platform.commons.util.AnnotationUtils.findAnnotation;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -16,6 +15,7 @@ import org.junit.platform.engine.ConfigurationParameters;
 import org.junit.platform.engine.support.hierarchical.DefaultParallelExecutionConfigurationStrategy;
 import org.junit.platform.launcher.core.LauncherConfigurationParametersAccessor;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.test.ParallelSuite;
 
@@ -152,7 +152,7 @@ public class ParallelSuiteConfigurationParameters implements ConfigurationParame
     }
 
     private ConfigurationParameters newConfigurationParameters() {
-        final Map<String, String> overrideParamters = new LinkedHashMap<>();
+        final Map<String, String> overrideParamters = ILockCollectionFactory.getInstance(false).newLinkedMap();
         if (overrideParent) {
             overrideParamters.put(KEY_PARALLEL, String.valueOf(parallel));
             overrideParamters.put(KEY_PARALLEL_SUITES, String.valueOf(parallelSuites));

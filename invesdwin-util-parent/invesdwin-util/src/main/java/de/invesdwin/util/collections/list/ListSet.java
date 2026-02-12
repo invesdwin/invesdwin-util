@@ -2,7 +2,6 @@ package de.invesdwin.util.collections.list;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +9,7 @@ import java.util.Set;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.delegate.ADelegateList;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 
 @NotThreadSafe
 public class ListSet<E> extends ADelegateList<E> implements Set<E> {
@@ -25,7 +25,7 @@ public class ListSet<E> extends ADelegateList<E> implements Set<E> {
     }
 
     protected Set<E> newSet() {
-        return new HashSet<E>();
+        return ILockCollectionFactory.getInstance(false).newSet();
     }
 
     @Override

@@ -6,8 +6,10 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.function.Supplier;
 
 import javax.annotation.concurrent.Immutable;
@@ -121,7 +123,8 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
-    public <K, V> Map<K, V> newConcurrentMap(final int initialSize, final float loadFactor) {
+    public <K, V> Map<K, V> newConcurrentMap(final int initialSize, final float loadFactor,
+            final int concurrencyLevel) {
         return newMap(initialSize, loadFactor);
     }
 
@@ -166,13 +169,31 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
+    public <T> NavigableSet<T> newTreeSet() {
+        //CHECKSTYLE:OFF
+        return new TreeSet<T>();
+        //CHECKSTYLE:ON
+    }
+
+    @Override
+    public <T> NavigableSet<T> newTreeSet(final IComparator<? super T> comparator) {
+        //CHECKSTYLE:OFF
+        return new TreeSet<T>(comparator.asTyped());
+        //CHECKSTYLE:ON
+    }
+
+    @Override
     public <K, V> NavigableMap<K, V> newTreeMap() {
+        //CHECKSTYLE:OFF
         return new TreeMap<K, V>();
+        //CHECKSTYLE:ON
     }
 
     @Override
     public <K, V> NavigableMap<K, V> newTreeMap(final IComparator<? super K> comparator) {
+        //CHECKSTYLE:OFF
         return new TreeMap<K, V>(comparator.asTyped());
+        //CHECKSTYLE:ON
     }
 
     @Override
@@ -196,7 +217,7 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
-    public <T> Set<T> newConcurrentSet(final int initialSize, final float loadFactor) {
+    public <T> Set<T> newConcurrentSet(final int initialSize, final float loadFactor, final int concurrencyLevel) {
         return newSet(initialSize, loadFactor);
     }
 
@@ -207,7 +228,9 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     @Override
     public <K, V> Map<K, V> newIdentityMap(final int initialSize) {
+        //CHECKSTYLE:OFF
         return new IdentityHashMap<K, V>(initialSize);
+        //CHECKSTYLE:ON
     }
 
     @Override

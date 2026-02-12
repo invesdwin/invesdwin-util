@@ -1,11 +1,9 @@
 package de.invesdwin.util.time.date.holiday.provider.jollyday;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
@@ -17,6 +15,7 @@ import de.focus_shift.HolidayCalendar;
 import de.focus_shift.HolidayManager;
 import de.focus_shift.ManagerParameters;
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
@@ -63,8 +62,8 @@ public final class JollydayHolidayManagerProvider implements IHolidayManagerProv
                 }
             }
         };
-        CALENDAR_ID = new HashMap<>();
-        ID_CALENDAR = new HashMap<>();
+        CALENDAR_ID = ILockCollectionFactory.getInstance(false).newMap();
+        ID_CALENDAR = ILockCollectionFactory.getInstance(false).newMap();
         for (final HolidayCalendar cal : HolidayCalendar.values()) {
             CALENDAR_ID.put(prepareHolidayCalendarId(cal.name()), cal.getId());
             ID_CALENDAR.put(prepareHolidayCalendarId(cal.getId()), cal);
@@ -80,7 +79,7 @@ public final class JollydayHolidayManagerProvider implements IHolidayManagerProv
     private JollydayHolidayManagerProvider() {}
 
     private static Set<String> newAvailableCalendarIds() {
-        final Set<String> availableCalendarIds = new TreeSet<>();
+        final Set<String> availableCalendarIds = ILockCollectionFactory.getInstance(false).newTreeSet();
         final PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         try {
             final Resource[] resources = resolver.getResources("classpath*:/holidays/Holidays_*.xml");

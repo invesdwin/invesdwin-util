@@ -10,7 +10,6 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -22,6 +21,7 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.commons.io.IOUtils;
 
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.uri.Addresses;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.lang.uri.connect.IURIsConnect;
@@ -210,7 +210,7 @@ public final class URIsConnectOkHttp implements IURIsConnect {
             return this;
         }
         if (headers == null) {
-            headers = new HashMap<String, String>();
+            headers = ILockCollectionFactory.getInstance(false).newMap();
         }
         headers.put(key, value);
         return this;

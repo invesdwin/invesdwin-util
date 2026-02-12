@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -51,6 +52,12 @@ public interface ILockCollectionFactory {
 
     <T> IFastIterableList<T> newFastIterableArrayList(int initialSize);
 
+    default <T> Set<T> newSet(final Collection<? extends T> copyOf) {
+        final Set<T> set = newSet(copyOf.size());
+        set.addAll(copyOf);
+        return set;
+    }
+
     default <T> Set<T> newSet() {
         return newSet(DEFAULT_INITIAL_SIZE);
     }
@@ -61,6 +68,10 @@ public interface ILockCollectionFactory {
 
     <T> Set<T> newSet(int initialSize, float loadFactor);
 
+    <T> NavigableSet<T> newTreeSet();
+
+    <T> NavigableSet<T> newTreeSet(IComparator<? super T> comparator);
+
     default <T> IFastIterableSet<T> newFastIterableSet() {
         return newFastIterableSet(DEFAULT_INITIAL_SIZE);
     }
@@ -70,6 +81,12 @@ public interface ILockCollectionFactory {
     }
 
     <T> IFastIterableSet<T> newFastIterableSet(int initialSize, float loadFactor);
+
+    default <T> Set<T> newLinkedSet(final Collection<? extends T> copyOf) {
+        final Set<T> set = newLinkedSet(copyOf.size());
+        set.addAll(copyOf);
+        return set;
+    }
 
     default <T> Set<T> newLinkedSet() {
         return newLinkedSet(DEFAULT_INITIAL_SIZE);
@@ -105,13 +122,23 @@ public interface ILockCollectionFactory {
         return newConcurrentSet(initialSize, DEFAULT_LOAD_FACTOR);
     }
 
-    <T> Set<T> newConcurrentSet(int initialSize, float loadFactor);
+    default <T> Set<T> newConcurrentSet(final int initialSize, final float loadFactor) {
+        return newConcurrentSet(initialSize, loadFactor, DEFAULT_CONCURRENCY_LEVEL);
+    }
+
+    <T> Set<T> newConcurrentSet(int initialSize, float loadFactor, int concurrencyLevel);
 
     default <T> Set<T> newIdentitySet() {
         return newIdentitySet(DEFAULT_INITIAL_SIZE_IDENTITY);
     }
 
     <T> Set<T> newIdentitySet(int initialSize);
+
+    default <K, V> Map<K, V> newMap(final Map<? extends K, ? extends V> copyOf) {
+        final Map<K, V> map = newMap(copyOf.size());
+        map.putAll(copyOf);
+        return map;
+    }
 
     default <K, V> Map<K, V> newMap() {
         return newMap(DEFAULT_INITIAL_SIZE);
@@ -133,6 +160,12 @@ public interface ILockCollectionFactory {
 
     <K, V> IFastIterableMap<K, V> newFastIterableMap(int initialSize, float loadFactor);
 
+    default <K, V> Map<K, V> newLinkedMap(final Map<? extends K, ? extends V> copyOf) {
+        final Map<K, V> map = newLinkedMap(copyOf.size());
+        map.putAll(copyOf);
+        return map;
+    }
+
     default <K, V> Map<K, V> newLinkedMap() {
         return newLinkedMap(DEFAULT_INITIAL_SIZE);
     }
@@ -151,7 +184,11 @@ public interface ILockCollectionFactory {
         return newConcurrentMap(initialSize, DEFAULT_LOAD_FACTOR);
     }
 
-    <K, V> Map<K, V> newConcurrentMap(int initialSize, float loadFactor);
+    default <K, V> Map<K, V> newConcurrentMap(final int initialSize, final float loadFactor) {
+        return newConcurrentMap(initialSize, loadFactor, DEFAULT_CONCURRENCY_LEVEL);
+    }
+
+    <K, V> Map<K, V> newConcurrentMap(int initialSize, float loadFactor, int concurrencyLevel);
 
     default <K, V> Map<K, V> newIdentityMap() {
         return newIdentityMap(DEFAULT_INITIAL_SIZE_IDENTITY);

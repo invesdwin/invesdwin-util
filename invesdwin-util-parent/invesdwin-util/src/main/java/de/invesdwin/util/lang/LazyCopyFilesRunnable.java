@@ -1,12 +1,12 @@
 package de.invesdwin.util.lang;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 
@@ -17,7 +17,7 @@ public class LazyCopyFilesRunnable implements Runnable {
 
     private final List<File> fromFiles;
     private final File toFolder;
-    private final Map<String, Long> file_lastModified = new HashMap<String, Long>();
+    private final Map<String, Long> file_lastModified = ILockCollectionFactory.getInstance(false).newMap();
 
     public LazyCopyFilesRunnable(final List<File> fromFiles, final File toFolder) {
         this.fromFiles = fromFiles;

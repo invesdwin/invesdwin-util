@@ -8,8 +8,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -20,6 +18,7 @@ import org.apache.commons.codec.EncoderException;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.string.Charsets;
 import de.invesdwin.util.lang.string.Strings;
@@ -171,7 +170,7 @@ public final class URIs {
      */
     private static Map<String, String> getQueryMap(final String query) {
         final String[] params = query.split("&");
-        final Map<String, String> map = new HashMap<String, String>();
+        final Map<String, String> map = ILockCollectionFactory.getInstance(false).newMap();
         for (final String param : params) {
             final String name = Strings.substringBefore(param, "=");
             final String value = Strings.substringAfter(param, "=");
@@ -250,7 +249,7 @@ public final class URIs {
         if (queryPairs.length == 0) {
             return Collections.emptyMap();
         }
-        final Map<String, String> result = new LinkedHashMap<String, String>();
+        final Map<String, String> result = ILockCollectionFactory.getInstance(false).newLinkedMap();
         splitQueryPairs(queryPairs, result);
         return result;
     }

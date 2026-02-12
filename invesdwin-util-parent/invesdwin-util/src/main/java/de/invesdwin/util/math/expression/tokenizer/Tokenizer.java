@@ -1,10 +1,10 @@
 package de.invesdwin.util.math.expression.tokenizer;
 
-import java.util.IdentityHashMap;
 import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.math.expression.tokenizer.Token.TokenType;
 
@@ -27,12 +27,12 @@ public class Tokenizer extends ALookahead<Token> {
     private static final char SCIENTIFIC_NOTATION_SEPARATOR = 'e';
     private static final char UPPER_SCIENTIFIC_NOTATION_SEPARATOR = 'E';
 
-    private static final Map<Character, Character> STRING_DELIMITERS = new IdentityHashMap<Character, Character>() {
-        {
-            put('"', '\\');
-            put('\'', '\0');
-        }
-    };
+    private static final Map<Character, Character> STRING_DELIMITERS = ILockCollectionFactory.getInstance(false)
+            .newIdentityMap();
+    static {
+        STRING_DELIMITERS.put('"', '\\');
+        STRING_DELIMITERS.put('\'', '\0');
+    }
 
     protected final LookaheadReader input;
     private boolean semicolonAllowed;

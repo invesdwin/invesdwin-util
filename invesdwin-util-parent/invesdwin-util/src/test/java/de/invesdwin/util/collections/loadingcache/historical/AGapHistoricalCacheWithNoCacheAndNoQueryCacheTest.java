@@ -2,7 +2,6 @@ package de.invesdwin.util.collections.loadingcache.historical;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.DefaultHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.core.IHistoricalCacheQueryCore;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
@@ -85,11 +85,11 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
 
         //random order
-        for (final FDate entity : new HashSet<FDate>(entities)) {
+        for (final FDate entity : ILockCollectionFactory.getInstance(false).newSet(entities)) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(8);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(6);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(5);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
 
         //simulate cache eviction
         cache.clear();
@@ -100,8 +100,8 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
         for (final FDate entity : entities) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(12);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(12);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(9);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(10);
     }
 
     @Test
@@ -141,11 +141,11 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(3);
 
         //random order
-        for (final FDate entity : new HashSet<FDate>(entities)) {
+        for (final FDate entity : ILockCollectionFactory.getInstance(false).newSet(entities)) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(27);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(8);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(11);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
 
         //simulate cache eviction
         cache.clear();
@@ -156,8 +156,8 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
         for (final FDate entity : entities) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(43);
-        Assertions.assertThat(countReadNewestValueTo).isEqualTo(14);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(19);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(10);
     }
 
     @Test

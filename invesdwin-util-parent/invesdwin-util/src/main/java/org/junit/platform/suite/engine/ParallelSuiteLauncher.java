@@ -1,6 +1,5 @@
 package org.junit.platform.suite.engine;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.junit.platform.engine.CancellationToken;
@@ -17,6 +16,8 @@ import org.junit.platform.launcher.core.ServiceLoaderTestEngineRegistry;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import org.junit.platform.launcher.listeners.TestExecutionSummary;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+
 // @Immutable
 final class ParallelSuiteLauncher {
 
@@ -31,7 +32,7 @@ final class ParallelSuiteLauncher {
     }
 
     static ParallelSuiteLauncher create() {
-        final Set<TestEngine> engines = new LinkedHashSet<>();
+        final Set<TestEngine> engines = ILockCollectionFactory.getInstance(false).newLinkedSet();
         new ServiceLoaderTestEngineRegistry().loadTestEngines().forEach(engines::add);
         return new ParallelSuiteLauncher(engines);
     }

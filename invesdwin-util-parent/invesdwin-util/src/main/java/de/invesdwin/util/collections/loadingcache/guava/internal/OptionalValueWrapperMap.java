@@ -1,14 +1,14 @@
 package de.invesdwin.util.collections.loadingcache.guava.internal;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import com.google.common.base.Optional;
+
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 
 /**
  * This is a workaround to make googles ComputingMap work with null values.
@@ -114,10 +114,10 @@ public class OptionalValueWrapperMap<K, V> implements Map<K, V> {
 
     @Override
     public Collection<V> values() {
-        final Set<V> values = new HashSet<V>();
+        final Set<V> values = ILockCollectionFactory.getInstance(false).newSet();
         final Collection<Optional<V>> maybeNullValues = delegate.values();
         for (final Optional<V> maybeNullValue : maybeNullValues) {
-            final V value = maybeGet((K) null, maybeNullValue);
+            final V value = maybeGet(null, maybeNullValue);
             if (value != null) {
                 values.add(value);
             }
@@ -127,7 +127,7 @@ public class OptionalValueWrapperMap<K, V> implements Map<K, V> {
 
     @Override
     public Set<Entry<K, V>> entrySet() {
-        final Map<K, V> map = new HashMap<K, V>();
+        final Map<K, V> map = ILockCollectionFactory.getInstance(false).newMap();
         for (final Entry<K, Optional<V>> e : delegate.entrySet()) {
             final V value = maybeGet(e.getKey(), e.getValue());
             map.put(e.getKey(), value);
@@ -143,7 +143,7 @@ public class OptionalValueWrapperMap<K, V> implements Map<K, V> {
             }
             return v;
         } else {
-            return (V) null;
+            return null;
         }
     }
 

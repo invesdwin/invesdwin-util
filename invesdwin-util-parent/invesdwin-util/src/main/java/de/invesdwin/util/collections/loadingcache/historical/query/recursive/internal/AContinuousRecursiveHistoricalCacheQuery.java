@@ -3,13 +3,13 @@ package de.invesdwin.util.collections.loadingcache.historical.query.recursive.in
 import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.TreeMap;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.eviction.EvictionMode;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
@@ -81,8 +81,8 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
     private FDate lastRecursionKey;
     //BTreeMap has problems with removing first entry so we use TreeMap
     @GuardedBy("parent")
-    private final NavigableMap<FDate, V> highestRecursionResultsAsc = new TreeMap<FDate, V>(
-            FDate.COMPARATOR.asNotNullSafe());
+    private final NavigableMap<FDate, V> highestRecursionResultsAsc = ILockCollectionFactory.getInstance(false)
+            .newTreeMap(FDate.COMPARATOR.asNotNullSafe());
     private final int maxHighestRecursionResultsCount;
     @GuardedBy("parent")
     private boolean shouldAppendHighestRecursionResults;

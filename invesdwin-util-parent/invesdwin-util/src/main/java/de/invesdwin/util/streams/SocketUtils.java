@@ -4,12 +4,12 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.net.ServerSocketFactory;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.random.PseudoRandomGenerators;
 
@@ -324,7 +324,7 @@ public class SocketUtils {
             Assertions.checkTrue((maxPort - minPort) >= numRequested,
                     "'numRequested' must not be greater than 'maxPort' - 'minPort'");
 
-            final SortedSet<Integer> availablePorts = new TreeSet<>();
+            final SortedSet<Integer> availablePorts = ILockCollectionFactory.getInstance(false).newTreeSet();
             int attemptCount = 0;
             while ((++attemptCount <= numRequested + 100) && availablePorts.size() < numRequested) {
                 availablePorts.add(findAvailablePort(minPort, maxPort));

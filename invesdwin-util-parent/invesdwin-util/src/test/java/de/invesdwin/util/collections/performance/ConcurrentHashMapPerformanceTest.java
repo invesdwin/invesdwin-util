@@ -23,7 +23,7 @@ import de.invesdwin.util.time.duration.Duration;
 public class ConcurrentHashMapPerformanceTest extends ADatabasePerformanceTest {
 
     @Test
-    public void testMapDbPerformance() throws InterruptedException {
+    public void testConcurrentHashMapPerformance() throws InterruptedException {
         final Map<FDate, FDate> table = ILockCollectionFactory.getInstance(true).newConcurrentMap();
 
         final LoopInterruptedCheck loopCheck = new LoopInterruptedCheck(Duration.ONE_SECOND);

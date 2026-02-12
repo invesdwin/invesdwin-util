@@ -1,7 +1,6 @@
 package de.invesdwin.util.lang;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.date.FDate;
 
@@ -121,14 +121,14 @@ public class StringsTest {
                 object = new PrettyToStringVO(maxEbene);
                 collection = Arrays.asList(new PrettyToStringVO(level + 2), new PrettyToStringVO(level + 1),
                         new PrettyToStringVO(level + 1));
-                map = new HashMap<Object, PrettyToStringVO>();
+                map = ILockCollectionFactory.getInstance(false).newMap();
                 map.put("1", new PrettyToStringVO(level + 2));
                 map.put("2", new PrettyToStringVO(level + 2));
                 map.put(new PrettyToStringVO(level + 2), new PrettyToStringVO(level + 2));
             } else {
                 object = this;
                 collection = new ArrayList<PrettyToStringVO>();
-                map = new HashMap<Object, PrettyToStringVO>();
+                map = ILockCollectionFactory.getInstance(false).newMap();
             }
         }
 
