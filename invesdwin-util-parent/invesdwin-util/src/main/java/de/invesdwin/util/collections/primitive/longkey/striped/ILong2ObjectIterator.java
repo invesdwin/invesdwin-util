@@ -5,6 +5,7 @@ import java.util.function.LongConsumer;
 
 import org.jspecify.annotations.Nullable;
 
+import de.invesdwin.util.collections.primitive.objkey.striped.IObjectIterator;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongSpliterator;
 

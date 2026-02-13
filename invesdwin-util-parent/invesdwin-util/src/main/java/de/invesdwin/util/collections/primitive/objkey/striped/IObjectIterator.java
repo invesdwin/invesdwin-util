@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.primitive.longkey.striped;
+package de.invesdwin.util.collections.primitive.objkey.striped;
 
 import java.util.Iterator;
 import java.util.Spliterator;
@@ -85,9 +85,4 @@ public interface IObjectIterator<E> extends ObjectIterator<E>, ObjectSpliterator
         return StreamSupport.stream(this, false/* not parallel */);
     }
 
-    // todo review/test https://github.com/javadev/underscore-java ➕ https://github.com/rgmatute/lodash-java/blob/master/src/rgmatute/lodash/java/__.java
-    // https://github.com/lacuna/bifurcan/blob/master/doc/comparison.md
-    // https://github.com/GlenKPeterson/Paguro ➕ https://vavr.io/ + https://github.com/brianburton/java-immutable-collections ×https://github.com/hrldcpr/pcollections  @ https://www.reddit.com/r/java/comments/x4fvgp/what_is_the_best_persistent_collection_library/
-
-    default void close() {}//~ AutoCloseable#close implements в CloseableIterator, чтобы IDEA не ругалась на не-закрытие JIterator
 }

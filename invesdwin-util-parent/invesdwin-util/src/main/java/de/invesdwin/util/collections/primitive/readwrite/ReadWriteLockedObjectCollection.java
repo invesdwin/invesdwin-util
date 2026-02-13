@@ -15,7 +15,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Collections;
-import de.invesdwin.util.collections.primitive.longkey.striped.IObjectIterator;
+import de.invesdwin.util.collections.primitive.objkey.striped.IObjectIterator;
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
