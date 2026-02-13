@@ -27,6 +27,7 @@ public final class Characters extends ACharactersStaticFacade {
     public static final IComparator<Character> COMPARATOR = IComparator.getDefaultInstance();
 
     public static final char[] EMPTY_ARRAY = new char[0];
+    public static final Character[] EMPTY_ARRAY_OBJ = new Character[0];
 
     private Characters() {}
 

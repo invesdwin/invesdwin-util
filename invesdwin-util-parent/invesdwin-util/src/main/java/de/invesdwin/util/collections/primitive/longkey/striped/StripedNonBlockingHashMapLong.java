@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.primitive.longkey.striped;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
@@ -25,9 +26,13 @@ import de.invesdwin.util.collections.primitive.objkey.striped.IObjectIterator;
 import de.invesdwin.util.collections.primitive.util.BucketHashUtil;
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
 import de.invesdwin.util.concurrent.lock.padded.PaddedCloseableReentrantLock;
+import de.invesdwin.util.math.Longs;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.LongCollection;
+import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.ObjectCollection;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /**
@@ -49,6 +54,10 @@ public class StripedNonBlockingHashMapLong<V>
     private final NonBlockingHashMapLong<V> m;
     /** @see com.google.common.util.concurrent.Striped#lock(int) */
     private final PaddedCloseableReentrantLock[] s;
+    private final ObjectSet<Map.Entry<Long, V>> entrySet = new EntrySet();
+    private final ObjectSet<Long2ObjectMap.Entry<V>> long2ObjectEntrySet = new Long2ObjectEntrySet();
+    private final LongSet keySet = new KeySet();
+    private final ObjectCollection<V> values = new ValuesCollection();
 
     @SuppressWarnings("resource")
     public StripedNonBlockingHashMapLong(final int initialSize, final int concurrencyLevel) {
@@ -278,7 +287,7 @@ public class StripedNonBlockingHashMapLong<V>
 
     @Override
     public LongSet keySet() {
-        throw new UnsupportedOperationException("keySet");
+        return keySet;
     }
 
     public long[] keySetLong() {
@@ -295,138 +304,12 @@ public class StripedNonBlockingHashMapLong<V>
      */
     @Override
     public ObjectCollection<V> values() {
-        return new ObjectCollection<V>() {
-            private final Collection<V> delegate = m.values();
-
-            @Override
-            public boolean add(final V k) {
-                throw newUnmodifiableException();
-            }
-
-            @Override
-            public boolean remove(final Object k) {
-                throw newUnmodifiableException();
-            }
-
-            @Override
-            public int size() {
-                return StripedNonBlockingHashMapLong.this.size();
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return StripedNonBlockingHashMapLong.this.isEmpty();
-            }
-
-            @Override
-            public boolean contains(final Object o) {
-                return containsValue(o);
-            }
-
-            @Override
-            public IObjectIterator<V> iterator() {
-                final Iterator<V> it = delegate.iterator();
-                return new IObjectIterator<V>() {
-                    @Override
-                    public boolean hasNext() {
-                        return it.hasNext();
-                    }
-
-                    @Override
-                    public V next() {
-                        return it.next();
-                    }
-
-                    @Override
-                    public String toString() {
-                        return it.toString();
-                    }
-                };
-            }
-
-            @Override
-            public IObjectIterator<V> spliterator() {
-                return iterator();
-            }
-
-            @Override
-            public Stream<V> stream() {
-                return iterator().stream();
-            }
-
-            @Override
-            public Stream<V> parallelStream() {
-                return iterator().stream().parallel();
-            }
-
-            @Override
-            public void clear() {
-                throw newUnmodifiableException();
-            }
-
-            @Override
-            public <T> T[] toArray(final T[] a) {
-                return delegate.toArray(a);
-            }
-
-            @Override
-            public Object[] toArray() {
-                return delegate.toArray();
-            }
-
-            @Override
-            public void forEach(final Consumer<? super V> action) {
-                delegate.forEach(action);
-            }
-
-            @Override
-            public boolean containsAll(final Collection<?> c) {
-                return delegate.containsAll(c);
-            }
-
-            @Override
-            public boolean addAll(final Collection<? extends V> c) {
-                throw newUnmodifiableException();
-            }
-
-            @Override
-            public boolean removeAll(final Collection<?> c) {
-                throw newUnmodifiableException();
-            }
-
-            @Override
-            public boolean retainAll(final Collection<?> c) {
-                throw newUnmodifiableException();
-            }
-
-            @Override
-            public boolean removeIf(final Predicate<? super V> filter) {
-                throw newUnmodifiableException();
-            }
-
-            @Override
-            public String toString() {
-                return delegate.toString();
-            }
-
-            @Override
-            public int hashCode() {
-                return delegate.hashCode();
-            }
-
-            @Override
-            public boolean equals(final Object o) {
-                if (o == this) {
-                    return true;
-                }
-                return delegate.equals(o);
-            }
-        };
+        return values;
     }
 
     @Override
     public ObjectSet<Map.Entry<Long, V>> entrySet() {
-        throw new UnsupportedOperationException("entrySet");
+        return entrySet;
     }
 
     @Override
@@ -493,7 +376,7 @@ public class StripedNonBlockingHashMapLong<V>
 
     @Override
     public ObjectSet<Long2ObjectMap.Entry<V>> long2ObjectEntrySet() {
-        throw new UnsupportedOperationException();
+        return long2ObjectEntrySet;
     }
 
     //CHECKSTYLE:OFF
@@ -517,6 +400,487 @@ public class StripedNonBlockingHashMapLong<V>
                 }
             };
             return withLock.apply(x);
+        }
+    }
+
+    private final class ValuesCollection implements ObjectCollection<V> {
+        private final Collection<V> delegate = m.values();
+
+        @Override
+        public boolean add(final V k) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean remove(final Object k) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public int size() {
+            return StripedNonBlockingHashMapLong.this.size();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return StripedNonBlockingHashMapLong.this.isEmpty();
+        }
+
+        @Override
+        public boolean contains(final Object o) {
+            return containsValue(o);
+        }
+
+        @Override
+        public IObjectIterator<V> iterator() {
+            final Iterator<V> it = delegate.iterator();
+            return new IObjectIterator<V>() {
+                @Override
+                public boolean hasNext() {
+                    return it.hasNext();
+                }
+
+                @Override
+                public V next() {
+                    return it.next();
+                }
+
+                @Override
+                public String toString() {
+                    return it.toString();
+                }
+            };
+        }
+
+        @Override
+        public IObjectIterator<V> spliterator() {
+            return iterator();
+        }
+
+        @Override
+        public Stream<V> stream() {
+            return iterator().stream();
+        }
+
+        @Override
+        public Stream<V> parallelStream() {
+            return iterator().stream().parallel();
+        }
+
+        @Override
+        public void clear() {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public <T> T[] toArray(final T[] a) {
+            return delegate.toArray(a);
+        }
+
+        @Override
+        public Object[] toArray() {
+            return delegate.toArray();
+        }
+
+        @Override
+        public void forEach(final Consumer<? super V> action) {
+            delegate.forEach(action);
+        }
+
+        @Override
+        public boolean containsAll(final Collection<?> c) {
+            return delegate.containsAll(c);
+        }
+
+        @Override
+        public boolean addAll(final Collection<? extends V> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean removeAll(final Collection<?> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean retainAll(final Collection<?> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean removeIf(final Predicate<? super V> filter) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public String toString() {
+            return delegate.toString();
+        }
+
+        @Override
+        public int hashCode() {
+            return delegate.hashCode();
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (o == this) {
+                return true;
+            }
+            return delegate.equals(o);
+        }
+    }
+
+    private final class KeySet implements LongSet {
+
+        private final Set<Long> delegate = m.keySet();
+
+        @Override
+        public int size() {
+            return StripedNonBlockingHashMapLong.this.size();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return StripedNonBlockingHashMapLong.this.isEmpty();
+        }
+
+        @Override
+        public boolean contains(final Object o) {
+            return delegate.contains(o);
+        }
+
+        @Override
+        public boolean contains(final long key) {
+            return delegate.contains(key);
+        }
+
+        @Override
+        public LongIterator iterator() {
+            final Iterator<Long> it = delegate.iterator();
+            return new LongIterator() {
+                @Override
+                public boolean hasNext() {
+                    return it.hasNext();
+                }
+
+                @Override
+                public Long next() {
+                    return it.next();
+                }
+
+                @Override
+                public long nextLong() {
+                    return it.next();
+                }
+
+                @Override
+                public void remove() {
+                    it.remove();
+                }
+
+                @Override
+                public String toString() {
+                    return it.toString();
+                }
+
+            };
+        }
+
+        @Override
+        public Object[] toArray() {
+            return delegate.toArray();
+        }
+
+        @Override
+        public <T> T[] toArray(final T[] a) {
+            return delegate.toArray(a);
+        }
+
+        @Override
+        public long[] toArray(final long[] a) {
+            if (a.length != 0) {
+                throw new IllegalArgumentException("a.length needs to be 0, but " + a.length);
+            }
+            return toLongArray();
+        }
+
+        @Override
+        public long[] toLongArray() {
+            return Longs.checkedCastVector(delegate.toArray(Longs.EMPTY_ARRAY_OBJ));
+        }
+
+        @Override
+        public long[] toLongArray(final long[] a) {
+            if (a.length != 0) {
+                throw new IllegalArgumentException("a.length needs to be 0, but " + a.length);
+            }
+            return toLongArray();
+        }
+
+        @Override
+        public boolean add(final long e) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean remove(final Object o) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean remove(final long k) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean containsAll(final Collection<?> c) {
+            return delegate.containsAll(c);
+        }
+
+        @Override
+        public boolean containsAll(final LongCollection c) {
+            return delegate.containsAll(c);
+        }
+
+        @Override
+        public boolean addAll(final Collection<? extends Long> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean addAll(final LongCollection c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean retainAll(final Collection<?> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean retainAll(final LongCollection c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean removeAll(final Collection<?> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean removeAll(final LongCollection c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public void clear() {
+            throw newUnmodifiableException();
+        }
+
+    }
+
+    private final class EntrySet implements ObjectSet<Map.Entry<Long, V>> {
+
+        private final Set<Map.Entry<Long, V>> delegate = m.entrySet();
+
+        @Override
+        public int size() {
+            return StripedNonBlockingHashMapLong.this.size();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return StripedNonBlockingHashMapLong.this.isEmpty();
+        }
+
+        @Override
+        public boolean contains(final Object o) {
+            return delegate.contains(o);
+        }
+
+        @Override
+        public ObjectIterator<Map.Entry<Long, V>> iterator() {
+            final Iterator<Map.Entry<Long, V>> it = delegate.iterator();
+            return new IObjectIterator<Map.Entry<Long, V>>() {
+                @Override
+                public boolean hasNext() {
+                    return it.hasNext();
+                }
+
+                @Override
+                public Map.Entry<Long, V> next() {
+                    return it.next();
+                }
+
+                @Override
+                public void remove() {
+                    it.remove();
+                }
+
+                @Override
+                public String toString() {
+                    return it.toString();
+                }
+            };
+        }
+
+        @Override
+        public Object[] toArray() {
+            return delegate.toArray();
+        }
+
+        @Override
+        public <T> T[] toArray(final T[] a) {
+            return delegate.toArray(a);
+        }
+
+        @Override
+        public boolean add(final Map.Entry<Long, V> e) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean remove(final Object o) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean containsAll(final Collection<?> c) {
+            return delegate.containsAll(c);
+        }
+
+        @Override
+        public boolean addAll(final Collection<? extends Map.Entry<Long, V>> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean retainAll(final Collection<?> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean removeAll(final Collection<?> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public void clear() {
+            throw newUnmodifiableException();
+        }
+    }
+
+    private final class Long2ObjectEntrySet implements ObjectSet<Long2ObjectMap.Entry<V>> {
+
+        private final Set<Map.Entry<Long, V>> delegate = m.entrySet();
+
+        @Override
+        public int size() {
+            return StripedNonBlockingHashMapLong.this.size();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return StripedNonBlockingHashMapLong.this.isEmpty();
+        }
+
+        @Override
+        public boolean contains(final Object o) {
+            return delegate.contains(o);
+        }
+
+        @Override
+        public ObjectIterator<Long2ObjectMap.Entry<V>> iterator() {
+            final Iterator<Map.Entry<Long, V>> it = delegate.iterator();
+            return new IObjectIterator<Long2ObjectMap.Entry<V>>() {
+                @Override
+                public boolean hasNext() {
+                    return it.hasNext();
+                }
+
+                @Override
+                public Long2ObjectMap.Entry<V> next() {
+                    final Map.Entry<Long, V> entry = it.next();
+                    return new Long2ObjectMap.Entry<V>() {
+                        @Override
+                        public Long getKey() {
+                            return entry.getKey();
+                        }
+
+                        @Override
+                        public long getLongKey() {
+                            return entry.getKey();
+                        }
+
+                        @Override
+                        public V getValue() {
+                            return entry.getValue();
+                        }
+
+                        @Override
+                        public V setValue(final V value) {
+                            return entry.setValue(value);
+                        }
+
+                    };
+                }
+
+                @Override
+                public void remove() {
+                    it.remove();
+                }
+
+                @Override
+                public String toString() {
+                    return it.toString();
+                }
+            };
+        }
+
+        @Override
+        public Object[] toArray() {
+            return delegate.toArray();
+        }
+
+        @Override
+        public <T> T[] toArray(final T[] a) {
+            return delegate.toArray(a);
+        }
+
+        @Override
+        public boolean add(final Long2ObjectMap.Entry<V> e) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean remove(final Object o) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean containsAll(final Collection<?> c) {
+            return delegate.containsAll(c);
+        }
+
+        @Override
+        public boolean addAll(final Collection<? extends Long2ObjectMap.Entry<V>> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean retainAll(final Collection<?> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public boolean removeAll(final Collection<?> c) {
+            throw newUnmodifiableException();
+        }
+
+        @Override
+        public void clear() {
+            throw newUnmodifiableException();
         }
     }
 
