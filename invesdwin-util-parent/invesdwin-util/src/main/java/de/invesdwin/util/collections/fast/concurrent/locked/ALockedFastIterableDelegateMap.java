@@ -38,7 +38,6 @@ public abstract class ALockedFastIterableDelegateMap<K, V> implements IFastItera
     @GuardedBy("lock")
     private final Map<K, V> delegate;
     private final ILock lock;
-
     private final Set<Entry<K, V>> entrySet = new EntrySet();
     private final Set<K> keySet = new KeySet();
     private final Collection<V> values = new ValuesCollection();

@@ -22,17 +22,12 @@ import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
 public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap<K, V> {
 
     private transient BufferingIterator<Entry<K, V>> fastIterable;
-
     private transient Entry<K, V>[] entryArray;
     private transient K[] keyArray;
     private transient V[] valueArray;
-
     private final Map<K, V> delegate;
-
     private final Set<Entry<K, V>> entrySet = new EntrySet();
-
     private final Set<K> keySet = new KeySet();
-
     private final Collection<V> values = new ValuesCollection();
 
     protected AFastIterableDelegateMap(final Map<K, V> delegate) {

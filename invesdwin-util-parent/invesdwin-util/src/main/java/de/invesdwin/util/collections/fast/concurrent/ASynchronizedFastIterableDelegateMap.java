@@ -27,21 +27,16 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     @GuardedBy("this")
     private transient BufferingIterator<Entry<K, V>> fastIterable;
-
     @GuardedBy("this")
     private transient Entry<K, V>[] entryArray;
     @GuardedBy("this")
     private transient K[] keyArray;
     @GuardedBy("this")
     private transient V[] valueArray;
-
     @GuardedBy("this")
     private final Map<K, V> delegate;
-
     private final Set<Entry<K, V>> entrySet = new EntrySet();
-
     private final Set<K> keySet = new KeySet();
-
     private final Collection<V> values = new ValuesCollection();
 
     protected ASynchronizedFastIterableDelegateMap(final Map<K, V> delegate) {

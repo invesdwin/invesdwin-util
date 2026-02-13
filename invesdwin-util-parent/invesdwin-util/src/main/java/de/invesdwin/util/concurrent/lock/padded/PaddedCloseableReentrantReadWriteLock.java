@@ -2,6 +2,9 @@ package de.invesdwin.util.concurrent.lock.padded;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+/**
+ * @see com.google.common.util.concurrent.Striped.PaddedLock
+ */
 @ThreadSafe
 public final class PaddedCloseableReentrantReadWriteLock extends CloseableReentrantReadWriteLock {
     /*

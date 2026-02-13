@@ -7,7 +7,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
 
 /**
- * @see com.google.common.util.concurrent.Striped.PaddedLock
  * @see java.util.concurrent.locks.ReadWriteLock
  */
 @ThreadSafe

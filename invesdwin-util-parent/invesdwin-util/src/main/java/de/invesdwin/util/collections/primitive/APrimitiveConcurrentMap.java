@@ -78,6 +78,9 @@ public abstract class APrimitiveConcurrentMap<K, V> implements IPrimitiveConcurr
 
     @Override
     public void clear() {
+        if (isEmpty()) {
+            return;
+        }
         for (int i = 0; i < locks.length; i++) {
             try (ICloseableLock lock = writeAt(i)) {
                 mapAt(i).clear();

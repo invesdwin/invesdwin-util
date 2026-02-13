@@ -59,7 +59,7 @@ public class StripedNonBlockingHashMapLong<V>
     public StripedNonBlockingHashMapLong(final int initialSize, final int concurrencyLevel,
             final boolean optimizeForSpace) {
         assert concurrencyLevel > 0 : "Stripes must be positive, but " + concurrencyLevel;
-        assert concurrencyLevel < 100_000_000 : "Too much Stripes: " + concurrencyLevel;
+        assert concurrencyLevel < 100_000_000 : "Too many stripes: " + concurrencyLevel;
         m = new NonBlockingHashMapLong<>(Math.max(initialSize, concurrencyLevel), optimizeForSpace);
         s = new PaddedCloseableReentrantLock[concurrencyLevel];
         for (int i = 0; i < concurrencyLevel; i++) {
@@ -86,10 +86,16 @@ public class StripedNonBlockingHashMapLong<V>
 
     @Override
     public synchronized void clear() {
+        if (isEmpty()) {
+            return;
+        }
         withAllKeysWriteLock(NonBlockingHashMapLong::clear);
     }
 
     public synchronized void clear(final boolean large) {
+        if (isEmpty()) {
+            return;
+        }
         withAllKeysWriteLock(map -> map.clear(large));
     }
 
@@ -279,42 +285,47 @@ public class StripedNonBlockingHashMapLong<V>
         return m.keySetLong();
     }
 
+    private UnsupportedOperationException newUnmodifiableException() {
+        return new UnsupportedOperationException("Unmodifiable, only reading methods supported");
+    }
+
     /**
      * @see NonBlockingHashMapLong#values()
      * @see it.unimi.dsi.fastutil.objects.ObjectCollections#unmodifiable(ObjectCollection)
      */
     @Override
     public ObjectCollection<V> values() {
-        final Collection<V> collection = m.values();
         return new ObjectCollection<V>() {
+            private final Collection<V> delegate = m.values();
+
             @Override
             public boolean add(final V k) {
-                throw new UnsupportedOperationException();
+                throw newUnmodifiableException();
             }
 
             @Override
             public boolean remove(final Object k) {
-                throw new UnsupportedOperationException();
+                throw newUnmodifiableException();
             }
 
             @Override
             public int size() {
-                return collection.size();
+                return StripedNonBlockingHashMapLong.this.size();
             }
 
             @Override
             public boolean isEmpty() {
-                return collection.isEmpty();
+                return StripedNonBlockingHashMapLong.this.isEmpty();
             }
 
             @Override
             public boolean contains(final Object o) {
-                return collection.contains(o);
+                return containsValue(o);
             }
 
             @Override
             public IObjectIterator<V> iterator() {
-                final Iterator<V> it = collection.iterator();
+                final Iterator<V> it = delegate.iterator();
                 return new IObjectIterator<V>() {
                     @Override
                     public boolean hasNext() {
@@ -350,57 +361,57 @@ public class StripedNonBlockingHashMapLong<V>
 
             @Override
             public void clear() {
-                throw new UnsupportedOperationException();
+                throw newUnmodifiableException();
             }
 
             @Override
             public <T> T[] toArray(final T[] a) {
-                return collection.toArray(a);
+                return delegate.toArray(a);
             }
 
             @Override
             public Object[] toArray() {
-                return collection.toArray();
+                return delegate.toArray();
             }
 
             @Override
             public void forEach(final Consumer<? super V> action) {
-                collection.forEach(action);
+                delegate.forEach(action);
             }
 
             @Override
             public boolean containsAll(final Collection<?> c) {
-                return collection.containsAll(c);
+                return delegate.containsAll(c);
             }
 
             @Override
             public boolean addAll(final Collection<? extends V> c) {
-                throw new UnsupportedOperationException();
+                throw newUnmodifiableException();
             }
 
             @Override
             public boolean removeAll(final Collection<?> c) {
-                throw new UnsupportedOperationException();
+                throw newUnmodifiableException();
             }
 
             @Override
             public boolean retainAll(final Collection<?> c) {
-                throw new UnsupportedOperationException();
+                throw newUnmodifiableException();
             }
 
             @Override
             public boolean removeIf(final Predicate<? super V> filter) {
-                throw new UnsupportedOperationException();
+                throw newUnmodifiableException();
             }
 
             @Override
             public String toString() {
-                return collection.toString();
+                return delegate.toString();
             }
 
             @Override
             public int hashCode() {
-                return collection.hashCode();
+                return delegate.hashCode();
             }
 
             @Override
@@ -408,7 +419,7 @@ public class StripedNonBlockingHashMapLong<V>
                 if (o == this) {
                     return true;
                 }
-                return collection.equals(o);
+                return delegate.equals(o);
             }
         };
     }
@@ -450,7 +461,7 @@ public class StripedNonBlockingHashMapLong<V>
 
     @Override
     public void replaceAll(final BiFunction<? super Long, ? super V, ? extends V> function) {
-        throw new UnsupportedOperationException();
+        withAllKeysWriteLock(map -> map.replaceAll(function));
     }
 
     @Override

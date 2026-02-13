@@ -17,8 +17,8 @@ import java.util.stream.Stream;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.jctools.maps.NonBlockingHashMap;
 import org.jctools.maps.NonBlockingHashMapLong;
+import org.jctools.maps.NonBlockingIdentityHashMap;
 import org.jspecify.annotations.Nullable;
 
 import de.invesdwin.util.collections.primitive.IPrimitiveConcurrentMap;
@@ -36,16 +36,16 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
  * https://github.com/JCTools/JCTools/blob/master/jctools-core/src/main/java/org/jctools/maps/NonBlockingHashMapLong.java
  * https://stackoverflow.com/questions/61721386/caffeine-cache-specify-expiry-for-an-entry
  * 
- * @see org.jctools.maps.NonBlockingHashMap
+ * @see org.jctools.maps.NonBlockingIdentityHashMap
  * @see it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
  * @see com.google.common.util.concurrent.Striped
  * 
- * @see AStripedNonBlockingHashMapCacheExpirer
+ * @see AStripedNonBlockingIdentityHashMapCacheExpirer
  */
 @ThreadSafe
-public class StripedNonBlockingHashMap<K, V>
+public class StripedNonBlockingIdentityHashMap<K, V>
         implements ConcurrentMap<K, V>, Object2ObjectMap<K, V>, IPrimitiveConcurrentMap, Iterable<K> {
-    private final NonBlockingHashMap<K, V> m;
+    private final NonBlockingIdentityHashMap<K, V> m;
     /** @see com.google.common.util.concurrent.Striped#lock(int) */
     private final PaddedCloseableReentrantLock[] s;
 
@@ -55,10 +55,10 @@ public class StripedNonBlockingHashMap<K, V>
     private final ObjectCollection<V> values = new ValuesCollection();
 
     @SuppressWarnings("resource")
-    public StripedNonBlockingHashMap(final int initialSize, final int concurrencyLevel) {
+    public StripedNonBlockingIdentityHashMap(final int initialSize, final int concurrencyLevel) {
         assert concurrencyLevel > 0 : "Stripes must be positive, but " + concurrencyLevel;
         assert concurrencyLevel < 100_000_000 : "Too many stripes: " + concurrencyLevel;
-        m = new NonBlockingHashMap<K, V>(Math.max(initialSize, concurrencyLevel));
+        m = new NonBlockingIdentityHashMap<K, V>(Math.max(initialSize, concurrencyLevel));
         s = new PaddedCloseableReentrantLock[concurrencyLevel];
         for (int i = 0; i < concurrencyLevel; i++) {
             s[i] = new PaddedCloseableReentrantLock();
@@ -91,7 +91,7 @@ public class StripedNonBlockingHashMap<K, V>
     }
 
     //CHECKSTYLE:OFF
-    public void withAllKeysWriteLock(final Consumer<NonBlockingHashMap<K, V>> singleThreadMapModifier) {
+    public void withAllKeysWriteLock(final Consumer<NonBlockingIdentityHashMap<K, V>> singleThreadMapModifier) {
         //CHECKSTYLE:ON
         for (final PaddedCloseableReentrantLock paddedLock : s) {
             paddedLock.lock();
@@ -173,12 +173,12 @@ public class StripedNonBlockingHashMap<K, V>
 
     /** @see NonBlockingHashMapLong.IteratorLong */
     public static class StripedKeyIterator<K> implements IObjectIterator<K> {
-        private final StripedNonBlockingHashMap<K, ?> owner;
+        private final StripedNonBlockingIdentityHashMap<K, ?> owner;
         private final Iterator<K> it;
         private K seenKey;// ^ safe for concurrent
 
         @SuppressWarnings("unchecked")
-        public StripedKeyIterator(final StripedNonBlockingHashMap<K, ?> owner) {
+        public StripedKeyIterator(final StripedNonBlockingIdentityHashMap<K, ?> owner) {
             this.owner = owner;
             it = (Iterator<K>) owner.m.keys();
         }//new
@@ -342,12 +342,12 @@ public class StripedNonBlockingHashMap<K, V>
 
         @Override
         public int size() {
-            return StripedNonBlockingHashMap.this.size();
+            return StripedNonBlockingIdentityHashMap.this.size();
         }
 
         @Override
         public boolean isEmpty() {
-            return StripedNonBlockingHashMap.this.isEmpty();
+            return StripedNonBlockingIdentityHashMap.this.isEmpty();
         }
 
         @Override
@@ -466,12 +466,12 @@ public class StripedNonBlockingHashMap<K, V>
 
         @Override
         public int size() {
-            return StripedNonBlockingHashMap.this.size();
+            return StripedNonBlockingIdentityHashMap.this.size();
         }
 
         @Override
         public boolean isEmpty() {
-            return StripedNonBlockingHashMap.this.isEmpty();
+            return StripedNonBlockingIdentityHashMap.this.isEmpty();
         }
 
         @Override
@@ -557,12 +557,12 @@ public class StripedNonBlockingHashMap<K, V>
 
         @Override
         public int size() {
-            return StripedNonBlockingHashMap.this.size();
+            return StripedNonBlockingIdentityHashMap.this.size();
         }
 
         @Override
         public boolean isEmpty() {
-            return StripedNonBlockingHashMap.this.isEmpty();
+            return StripedNonBlockingIdentityHashMap.this.isEmpty();
         }
 
         @Override
@@ -648,12 +648,12 @@ public class StripedNonBlockingHashMap<K, V>
 
         @Override
         public int size() {
-            return StripedNonBlockingHashMap.this.size();
+            return StripedNonBlockingIdentityHashMap.this.size();
         }
 
         @Override
         public boolean isEmpty() {
-            return StripedNonBlockingHashMap.this.isEmpty();
+            return StripedNonBlockingIdentityHashMap.this.isEmpty();
         }
 
         @Override
@@ -750,8 +750,8 @@ public class StripedNonBlockingHashMap<K, V>
     }
 
     /** Simple template to add an expiration support */
-    public abstract static class AStripedNonBlockingHashMapCacheExpirer<K, V> {
-        protected final StripedNonBlockingHashMap<K, V> cacheMap;
+    public abstract static class AStripedNonBlockingIdentityHashMapCacheExpirer<K, V> {
+        protected final StripedNonBlockingIdentityHashMap<K, V> cacheMap;
 
         /**
          * Heuristic: {@link #expire()} is called from a single thread (scheduler) when working correctly:
@@ -759,7 +759,7 @@ public class StripedNonBlockingHashMap<K, V>
          */
         protected long expiredCount;
 
-        public AStripedNonBlockingHashMapCacheExpirer(final StripedNonBlockingHashMap<K, V> cacheMap) {
+        public AStripedNonBlockingIdentityHashMapCacheExpirer(final StripedNonBlockingIdentityHashMap<K, V> cacheMap) {
             this.cacheMap = cacheMap;
         }//new
 
@@ -785,8 +785,8 @@ public class StripedNonBlockingHashMap<K, V>
          * @see org.springframework.scheduling.annotation.Scheduled
          * @see java.util.Set#removeIf
          * 
-         * @see StripedNonBlockingHashMap#forEachKey(LongConsumer)
-         * @see StripedNonBlockingHashMap#withLock
+         * @see StripedNonBlockingIdentityHashMap#forEachKey(LongConsumer)
+         * @see StripedNonBlockingIdentityHashMap#withLock
          */
         @SuppressWarnings("unchecked")
         public long expire() {
