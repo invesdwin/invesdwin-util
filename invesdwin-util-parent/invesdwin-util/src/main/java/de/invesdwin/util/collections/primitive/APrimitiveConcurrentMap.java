@@ -19,7 +19,7 @@ import jakarta.validation.constraints.Positive;
  * @see org.jctools.maps.NonBlockingHashMapLong
  */
 @ThreadSafe
-public abstract class APrimitiveConcurrentMap<K, V> implements IPrimitiveConcurrentKeyMap {
+public abstract class APrimitiveConcurrentMap<K, V> implements IPrimitiveConcurrentMap {
     private final PaddedCloseableReentrantReadWriteLock[] locks;
 
     protected APrimitiveConcurrentMap(@Positive final int concurrencyLevel) {

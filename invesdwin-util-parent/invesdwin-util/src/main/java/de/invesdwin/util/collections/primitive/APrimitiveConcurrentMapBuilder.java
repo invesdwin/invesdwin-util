@@ -6,7 +6,7 @@ import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.math.Integers;
 
 @NotThreadSafe
-public abstract class APrimitiveConcurrentMapBuilder<T extends IPrimitiveConcurrentKeyMap, V> {
+public abstract class APrimitiveConcurrentMapBuilder<T extends IPrimitiveConcurrentMap, V> {
     protected PrimitiveConcurrentMapMode mode = PrimitiveConcurrentMapMode.DEFAULT;
     protected int concurrencyLevel = ILockCollectionFactory.DEFAULT_CONCURRENCY_LEVEL;
     protected int initialCapacity = ILockCollectionFactory.DEFAULT_INITIAL_SIZE;

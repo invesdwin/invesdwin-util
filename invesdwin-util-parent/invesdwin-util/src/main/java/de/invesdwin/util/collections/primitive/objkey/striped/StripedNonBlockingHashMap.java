@@ -20,7 +20,7 @@ import org.jctools.maps.NonBlockingHashMap;
 import org.jctools.maps.NonBlockingHashMapLong;
 import org.jspecify.annotations.Nullable;
 
-import de.invesdwin.util.collections.primitive.IPrimitiveConcurrentKeyMap;
+import de.invesdwin.util.collections.primitive.IPrimitiveConcurrentMap;
 import de.invesdwin.util.collections.primitive.longkey.ConcurrentLong2ObjectMap;
 import de.invesdwin.util.collections.primitive.util.BucketHashUtil;
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
@@ -42,7 +42,7 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
  */
 @ThreadSafe
 public class StripedNonBlockingHashMap<K, V>
-        implements ConcurrentMap<K, V>, Object2ObjectMap<K, V>, IPrimitiveConcurrentKeyMap, Iterable<K> {
+        implements ConcurrentMap<K, V>, Object2ObjectMap<K, V>, IPrimitiveConcurrentMap, Iterable<K> {
     private final NonBlockingHashMap<K, V> m;
     /** @see com.google.common.util.concurrent.Striped#lock(int) */
     private final PaddedCloseableReentrantLock[] s;

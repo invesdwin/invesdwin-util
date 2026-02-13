@@ -19,7 +19,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.jctools.maps.NonBlockingHashMapLong;
 import org.jspecify.annotations.Nullable;
 
-import de.invesdwin.util.collections.primitive.IPrimitiveConcurrentKeyMap;
+import de.invesdwin.util.collections.primitive.IPrimitiveConcurrentMap;
 import de.invesdwin.util.collections.primitive.longkey.ConcurrentLong2ObjectMap;
 import de.invesdwin.util.collections.primitive.objkey.striped.IObjectIterator;
 import de.invesdwin.util.collections.primitive.util.BucketHashUtil;
@@ -43,7 +43,7 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
  */
 @ThreadSafe
 public class StripedNonBlockingHashMapLong<V>
-        implements ConcurrentMap<Long, V>, Long2ObjectMap<V>, IPrimitiveConcurrentKeyMap, Iterable<Long> {
+        implements ConcurrentMap<Long, V>, Long2ObjectMap<V>, IPrimitiveConcurrentMap, Iterable<Long> {
     public static final boolean DEFAULT_OPTIMIZE_FOR_SPACE = true;
 
     private final NonBlockingHashMapLong<V> m;
