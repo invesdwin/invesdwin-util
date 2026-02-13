@@ -11,27 +11,22 @@ import de.invesdwin.util.concurrent.lock.ICloseableLock;
  * @see java.util.concurrent.locks.ReadWriteLock
  */
 @ThreadSafe
-public class CloseableReentrantReadWriteLock extends ReentrantReadWriteLock implements ICloseableLock {
-
-    private final ICloseableLock write = () -> writeLock().unlock();
+public class CloseableReentrantReadWriteLock extends ReentrantReadWriteLock {
 
     public CloseableReentrantReadWriteLock() {
         super(false);
     }//new unfair
 
-    @Override
-    public void close() {
-        readLock().unlock();
+    public ICloseableLock readLocked() {
+        final ReadLock readLock = readLock();
+        readLock.lock();
+        return readLock::unlock;
     }
 
-    public ICloseableLock read() {
-        readLock().lock();
-        return this;
-    }
-
-    public ICloseableLock write() {
-        writeLock().lock();
-        return write;
+    public ICloseableLock writeLocked() {
+        final WriteLock writeLock = writeLock();
+        writeLock.lock();
+        return writeLock::unlock;
     }
 
 }

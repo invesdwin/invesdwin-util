@@ -37,11 +37,11 @@ public abstract class APrimitiveConcurrentMap<K, V> implements IPrimitiveConcurr
     protected abstract Function<K, V> mapAt(int index);
 
     protected ICloseableLock readAt(final int lockIndex) {
-        return locks[lockIndex].read();
+        return locks[lockIndex].readLocked();
     }
 
     protected ICloseableLock writeAt(final int lockIndex) {
-        return locks[lockIndex].write();
+        return locks[lockIndex].writeLocked();
     }
 
     protected ReentrantReadWriteLock.ReadLock readLock(final int lockIndex) {

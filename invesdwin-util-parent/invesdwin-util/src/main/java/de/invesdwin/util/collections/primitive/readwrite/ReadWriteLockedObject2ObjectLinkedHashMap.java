@@ -42,11 +42,11 @@ public class ReadWriteLockedObject2ObjectLinkedHashMap<K, V> implements Object2O
     }//new
 
     protected ICloseableLock read() {
-        return lock.read();
+        return lock.readLocked();
     }
 
     protected ICloseableLock write() {
-        return lock.write();
+        return lock.writeLocked();
     }
 
     @Override

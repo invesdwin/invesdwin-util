@@ -11,6 +11,11 @@ public interface ILock extends Lock, ICloseableLock {
 
     String getName();
 
+    default ICloseableLock locked() {
+        lock();
+        return this;
+    }
+
     boolean isLocked();
 
     boolean isLockedByCurrentThread();

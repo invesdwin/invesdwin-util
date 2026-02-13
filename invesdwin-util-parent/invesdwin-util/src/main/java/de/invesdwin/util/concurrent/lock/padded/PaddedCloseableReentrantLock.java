@@ -33,7 +33,7 @@ public final class PaddedCloseableReentrantLock extends ReentrantLock implements
     }
 
     //@MustBeClosed
-    public PaddedCloseableReentrantLock write() {
+    public PaddedCloseableReentrantLock locked() {
         lock();
         return this;
     }
