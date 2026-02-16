@@ -171,11 +171,14 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     public <K, V> ConcurrentMap<K, V> newConcurrentMap(final int initialSize, final float loadFactor,
             final int concurrencyLevel) {
         //CHECKSTYLE:OFF
-        //generally best for low cpu counts
-        //        return new ConcurrentHashMap<K, V>(initialSize, loadFactor, concurrencyLevel);
+        if (Executors.getCpuThreadPoolCount() >= 32) {
+            //optimized for parallel writes without blocking
+            return new NonBlockingHashMap<K, V>(initialSize);
+        } else {
+            //generally best for low cpu counts
+            return new ConcurrentHashMap<K, V>(initialSize, loadFactor, concurrencyLevel);
+        }
         //CHECKSTYLE:ON
-        //optimized for parallel writes and reads without blocking
-        return new NonBlockingHashMap<K, V>(initialSize);
         //optimized for heap size and parallel reads
         //        return new ConcurrentObject2ObjectMap<>(new PrimitiveConcurrentMapConfig().setInitialCapacity(initialSize)
         //                .setLoadFactor(loadFactor)
