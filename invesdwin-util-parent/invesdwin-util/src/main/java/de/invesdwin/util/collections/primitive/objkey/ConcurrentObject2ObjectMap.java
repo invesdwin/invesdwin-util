@@ -457,7 +457,7 @@ public class ConcurrentObject2ObjectMap<K, V> extends APrimitiveConcurrentMap<K,
                 private int bucketIndex = -1;
                 private Iterator<Object2ObjectMap.Entry<K, V>> currentIterator = it.unimi.dsi.fastutil.objects.ObjectIterators
                         .emptyIterator();
-                private Object2ObjectMap.Entry<K, V> seenEntry;
+                private K seenKey;
 
                 @Override
                 public boolean hasNext() {
@@ -482,13 +482,14 @@ public class ConcurrentObject2ObjectMap<K, V> extends APrimitiveConcurrentMap<K,
                     if (!hasNext()) {
                         throw new IllegalStateException("No more elements");
                     }
-                    seenEntry = currentIterator.next();
-                    return seenEntry;
+                    final Object2ObjectMap.Entry<K, V> next = currentIterator.next();
+                    seenKey = next.getKey();
+                    return next;
                 }
 
                 @Override
                 public void remove() {
-                    ConcurrentObject2ObjectMap.this.remove(seenEntry.getKey());
+                    ConcurrentObject2ObjectMap.this.remove(seenKey);
                 }
 
                 @Override

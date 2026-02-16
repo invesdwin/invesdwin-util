@@ -679,7 +679,7 @@ public class ConcurrentInt2FloatMap extends APrimitiveConcurrentMap<Integer, Flo
                 private int bucketIndex = -1;
                 private Iterator<Int2FloatMap.Entry> currentIterator = it.unimi.dsi.fastutil.objects.ObjectIterators
                         .emptyIterator();
-                private Int2FloatMap.Entry seenEntry;
+                private int seenKey;
 
                 @Override
                 public boolean hasNext() {
@@ -704,13 +704,14 @@ public class ConcurrentInt2FloatMap extends APrimitiveConcurrentMap<Integer, Flo
                     if (!hasNext()) {
                         throw new IllegalStateException("No more elements");
                     }
-                    seenEntry = currentIterator.next();
-                    return seenEntry;
+                    final Int2FloatMap.Entry entry = currentIterator.next();
+                    seenKey = entry.getIntKey();
+                    return entry;
                 }
 
                 @Override
                 public void remove() {
-                    ConcurrentInt2FloatMap.this.remove(seenEntry.getIntKey());
+                    ConcurrentInt2FloatMap.this.remove(seenKey);
                 }
 
                 @Override

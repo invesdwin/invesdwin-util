@@ -621,7 +621,7 @@ public class ConcurrentInt2ObjectMap<V> extends APrimitiveConcurrentMap<Integer,
                 private int bucketIndex = -1;
                 private Iterator<Int2ObjectMap.Entry<V>> currentIterator = it.unimi.dsi.fastutil.objects.ObjectIterators
                         .emptyIterator();
-                private Int2ObjectMap.Entry<V> seenEntry;
+                private int seenKey;
 
                 @Override
                 public boolean hasNext() {
@@ -646,13 +646,14 @@ public class ConcurrentInt2ObjectMap<V> extends APrimitiveConcurrentMap<Integer,
                     if (!hasNext()) {
                         throw new IllegalStateException("No more elements");
                     }
-                    seenEntry = currentIterator.next();
-                    return seenEntry;
+                    final Int2ObjectMap.Entry<V> next = currentIterator.next();
+                    seenKey = next.getIntKey();
+                    return next;
                 }
 
                 @Override
                 public void remove() {
-                    ConcurrentInt2ObjectMap.this.remove(seenEntry.getIntKey());
+                    ConcurrentInt2ObjectMap.this.remove(seenKey);
                 }
 
                 @Override

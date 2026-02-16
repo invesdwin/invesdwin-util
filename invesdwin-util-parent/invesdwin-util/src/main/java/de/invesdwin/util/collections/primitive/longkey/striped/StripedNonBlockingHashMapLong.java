@@ -782,7 +782,7 @@ public class StripedNonBlockingHashMapLong<V> extends AbstractMap<Long, V>
         public ObjectIterator<Map.Entry<Long, V>> iterator() {
             final Iterator<Map.Entry<Long, V>> it = delegate.iterator();
             return new IObjectIterator<Map.Entry<Long, V>>() {
-                private Map.Entry<Long, V> seenEntry;
+                private Long seenKey;
 
                 @Override
                 public boolean hasNext() {
@@ -791,13 +791,14 @@ public class StripedNonBlockingHashMapLong<V> extends AbstractMap<Long, V>
 
                 @Override
                 public Map.Entry<Long, V> next() {
-                    seenEntry = it.next();
-                    return it.next();
+                    final Map.Entry<Long, V> next = it.next();
+                    seenKey = next.getKey();
+                    return next;
                 }
 
                 @Override
                 public void remove() {
-                    try (ICloseableLock lock = write(seenEntry.getKey())) {
+                    try (ICloseableLock lock = write(seenKey)) {
                         it.remove();
                     }
                 }
@@ -892,7 +893,7 @@ public class StripedNonBlockingHashMapLong<V> extends AbstractMap<Long, V>
             final Iterator<Map.Entry<Long, V>> it = delegate.iterator();
             return new IObjectIterator<Long2ObjectMap.Entry<V>>() {
 
-                private Map.Entry<Long, V> seenEntry;
+                private Long seenKey;
 
                 @Override
                 public boolean hasNext() {
@@ -902,7 +903,7 @@ public class StripedNonBlockingHashMapLong<V> extends AbstractMap<Long, V>
                 @Override
                 public Long2ObjectMap.Entry<V> next() {
                     final Map.Entry<Long, V> entry = it.next();
-                    seenEntry = entry;
+                    seenKey = entry.getKey();
                     return new Long2ObjectMap.Entry<V>() {
                         @Override
                         public Long getKey() {
@@ -929,7 +930,7 @@ public class StripedNonBlockingHashMapLong<V> extends AbstractMap<Long, V>
 
                 @Override
                 public void remove() {
-                    try (ICloseableLock lock = write(seenEntry.getKey())) {
+                    try (ICloseableLock lock = write(seenKey)) {
                         it.remove();
                     }
                 }

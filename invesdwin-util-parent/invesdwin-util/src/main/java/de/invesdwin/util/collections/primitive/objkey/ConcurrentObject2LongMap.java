@@ -613,7 +613,7 @@ public class ConcurrentObject2LongMap<K> extends APrimitiveConcurrentMap<K, Long
                 private int bucketIndex = -1;
                 private Iterator<Object2LongMap.Entry<K>> currentIterator = it.unimi.dsi.fastutil.objects.ObjectIterators
                         .emptyIterator();
-                private Object2LongMap.Entry<K> seenEntry;
+                private K seenKey;
 
                 @Override
                 public boolean hasNext() {
@@ -638,13 +638,14 @@ public class ConcurrentObject2LongMap<K> extends APrimitiveConcurrentMap<K, Long
                     if (!hasNext()) {
                         throw new IllegalStateException("No more elements");
                     }
-                    seenEntry = currentIterator.next();
-                    return seenEntry;
+                    final Object2LongMap.Entry<K> next = currentIterator.next();
+                    seenKey = next.getKey();
+                    return next;
                 }
 
                 @Override
                 public void remove() {
-                    ConcurrentObject2LongMap.this.removeLong(seenEntry.getKey());
+                    ConcurrentObject2LongMap.this.removeLong(seenKey);
                 }
 
                 @Override
