@@ -5,7 +5,7 @@ import java.util.concurrent.locks.Lock;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.concurrent.loop.SpinWait;
+import de.invesdwin.util.concurrent.loop.spinwait.SpinWait;
 
 @Immutable
 public final class SpinWaitingLockingStrategy implements ILockingStrategy {

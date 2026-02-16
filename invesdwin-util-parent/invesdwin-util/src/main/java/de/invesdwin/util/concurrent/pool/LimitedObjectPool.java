@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.concurrent.loop.ASpinWait;
+import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 

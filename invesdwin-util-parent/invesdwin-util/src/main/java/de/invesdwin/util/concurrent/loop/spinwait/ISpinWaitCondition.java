@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent.loop.base;
+package de.invesdwin.util.concurrent.loop.spinwait;
 
 public interface ISpinWaitCondition {
 

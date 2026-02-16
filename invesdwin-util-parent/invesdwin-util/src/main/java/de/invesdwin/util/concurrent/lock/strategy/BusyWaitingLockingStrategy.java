@@ -6,7 +6,7 @@ import java.util.concurrent.locks.Lock;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.concurrent.Threads;
-import de.invesdwin.util.concurrent.loop.base.ABaseSpinWait;
+import de.invesdwin.util.concurrent.loop.spinwait.ABaseSpinWait;
 
 @Immutable
 public final class BusyWaitingLockingStrategy implements ILockingStrategy {

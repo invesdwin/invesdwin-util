@@ -13,7 +13,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.concurrent.future.throwing.IThrowingIORunnable;
 import de.invesdwin.util.concurrent.future.throwing.IThrowingTimeoutRunnable;
-import de.invesdwin.util.concurrent.loop.ASpinWait;
+import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.error.FastTimeoutException;
 import de.invesdwin.util.lang.uri.URIs;

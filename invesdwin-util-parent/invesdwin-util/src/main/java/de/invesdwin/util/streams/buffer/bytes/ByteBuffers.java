@@ -19,7 +19,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.concurrent.loop.ASpinWait;
+import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.lang.Objects;

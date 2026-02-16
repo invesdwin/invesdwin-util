@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent.loop;
+package de.invesdwin.util.concurrent.loop.spinwait;
 
 import javax.annotation.concurrent.NotThreadSafe;
 

@@ -1,11 +1,9 @@
-package de.invesdwin.util.concurrent.loop;
+package de.invesdwin.util.concurrent.loop.spinwait;
 
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.concurrent.loop.base.ABaseSpinWait;
-import de.invesdwin.util.concurrent.loop.base.ISpinWaitCondition;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.duration.Duration;
 
