@@ -124,14 +124,19 @@ public class StripedNonBlockingHashMapLong<V> extends AbstractMap<Long, V>
     }
 
     @Override
-    public synchronized void clear() {
+    public void clear() {
         if (isEmpty()) {
             return;
         }
-        if (preserveLargeArraysOnClear) {
-            withAllKeysWriteLock(map -> map.clear(true));
-        } else {
-            withAllKeysWriteLock(NonBlockingHashMapLong::clear);
+        synchronized (this) {
+            if (isEmpty()) {
+                return;
+            }
+            if (preserveLargeArraysOnClear) {
+                withAllKeysWriteLock(map -> map.clear(true));
+            } else {
+                withAllKeysWriteLock(NonBlockingHashMapLong::clear);
+            }
         }
     }
 

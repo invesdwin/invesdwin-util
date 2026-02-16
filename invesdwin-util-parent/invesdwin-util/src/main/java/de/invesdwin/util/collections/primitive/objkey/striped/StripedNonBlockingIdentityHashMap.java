@@ -109,11 +109,16 @@ public class StripedNonBlockingIdentityHashMap<K, V> extends AbstractMap<K, V>
     }
 
     @Override
-    public synchronized void clear() {
+    public void clear() {
         if (isEmpty()) {
             return;
         }
-        withAllKeysWriteLock(map -> map.clear());
+        synchronized (this) {
+            if (isEmpty()) {
+                return;
+            }
+            withAllKeysWriteLock(map -> map.clear());
+        }
     }
 
     //CHECKSTYLE:OFF

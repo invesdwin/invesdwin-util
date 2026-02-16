@@ -149,7 +149,11 @@ public class ConcurrentLong2IntMap extends APrimitiveConcurrentMap<Long, Integer
     public Integer put(final Long key, final Integer value) {
         final int bucket = getBucket(key);
         try (ICloseableLock lock = writeAt(bucket)) {
-            return maps[bucket].put(key, value);
+            final Integer existing = maps[bucket].put(key, value);
+            if (existing == null || existing == defaultValue) {
+                size.incrementAndGet();
+            }
+            return existing;
         }
     }
 
@@ -157,7 +161,11 @@ public class ConcurrentLong2IntMap extends APrimitiveConcurrentMap<Long, Integer
     public int put(final long key, final int value) {
         final int bucket = getBucket(key);
         try (ICloseableLock lock = writeAt(bucket)) {
-            return maps[bucket].put(key, value);
+            final int existing = maps[bucket].put(key, value);
+            if (existing == defaultValue) {
+                size.incrementAndGet();
+            }
+            return existing;
         }
     }
 
@@ -166,7 +174,11 @@ public class ConcurrentLong2IntMap extends APrimitiveConcurrentMap<Long, Integer
     public Integer remove(final Object key) {
         final int bucket = getBucket(key);
         try (ICloseableLock lock = writeAt(bucket)) {
-            return maps[bucket].remove(key);
+            final Integer removed = maps[bucket].remove(key);
+            if (removed != null && removed != defaultValue) {
+                size.decrementAndGet();
+            }
+            return removed;
         }
     }
 
@@ -174,7 +186,11 @@ public class ConcurrentLong2IntMap extends APrimitiveConcurrentMap<Long, Integer
     public int remove(final long key) {
         final int bucket = getBucket(key);
         try (ICloseableLock lock = writeAt(bucket)) {
-            return maps[bucket].remove(key);
+            final int removed = maps[bucket].remove(key);
+            if (removed != defaultValue) {
+                size.decrementAndGet();
+            }
+            return removed;
         }
     }
 
@@ -183,7 +199,11 @@ public class ConcurrentLong2IntMap extends APrimitiveConcurrentMap<Long, Integer
     public boolean remove(final Object key, final Object value) {
         final int bucket = getBucket(key);
         try (ICloseableLock lock = writeAt(bucket)) {
-            return maps[bucket].remove(key, value);
+            final boolean removed = maps[bucket].remove(key, value);
+            if (removed) {
+                size.decrementAndGet();
+            }
+            return removed;
         }
     }
 
@@ -191,7 +211,11 @@ public class ConcurrentLong2IntMap extends APrimitiveConcurrentMap<Long, Integer
     public boolean remove(final long key, final int value) {
         final int bucket = getBucket(key);
         try (ICloseableLock lock = writeAt(bucket)) {
-            return maps[bucket].remove(key, value);
+            final boolean removed = maps[bucket].remove(key, value);
+            if (removed) {
+                size.decrementAndGet();
+            }
+            return removed;
         }
     }
 
@@ -229,7 +253,10 @@ public class ConcurrentLong2IntMap extends APrimitiveConcurrentMap<Long, Integer
                     if (oldV != defaultValue) {
                         v = oldV;
                     } else {
-                        m.put(key.intValue(), v);
+                        final Integer existing = m.put(key.longValue(), v);
+                        if (existing == null || existing == defaultValue) {
+                            size.incrementAndGet();
+                        }
                     }
                 }
             }
@@ -254,7 +281,10 @@ public class ConcurrentLong2IntMap extends APrimitiveConcurrentMap<Long, Integer
                     if (oldV != defaultValue) {
                         v = oldV;
                     } else {
-                        m.put(key, v);
+                        final int existing = m.put(key, v);
+                        if (existing == defaultValue) {
+                            size.incrementAndGet();
+                        }
                     }
                 }
             }
@@ -279,7 +309,10 @@ public class ConcurrentLong2IntMap extends APrimitiveConcurrentMap<Long, Integer
                     if (oldV != defaultValue) {
                         v = oldV;
                     } else {
-                        m.put(key, v);
+                        final int existing = m.put(key, v);
+                        if (existing == defaultValue) {
+                            size.incrementAndGet();
+                        }
                     }
                 }
             }

@@ -149,7 +149,11 @@ public class ConcurrentInt2FloatMap extends APrimitiveConcurrentMap<Integer, Flo
     public Float put(final Integer key, final Float value) {
         final int bucket = getBucket(key);
         try (ICloseableLock lock = writeAt(bucket)) {
-            return maps[bucket].put(key, value);
+            final Float existing = maps[bucket].put(key, value);
+            if (existing == null || existing == defaultValue) {
+                size.incrementAndGet();
+            }
+            return existing;
         }
     }
 
@@ -157,7 +161,11 @@ public class ConcurrentInt2FloatMap extends APrimitiveConcurrentMap<Integer, Flo
     public float put(final int key, final float value) {
         final int bucket = getBucket(key);
         try (ICloseableLock lock = writeAt(bucket)) {
-            return maps[bucket].put(key, value);
+            final float existing = maps[bucket].put(key, value);
+            if (existing == defaultValue) {
+                size.incrementAndGet();
+            }
+            return existing;
         }
     }
 
@@ -166,7 +174,11 @@ public class ConcurrentInt2FloatMap extends APrimitiveConcurrentMap<Integer, Flo
     public Float remove(final Object key) {
         final int bucket = getBucket(key);
         try (ICloseableLock lock = writeAt(bucket)) {
-            return maps[bucket].remove(key);
+            final Float removed = maps[bucket].remove(key);
+            if (removed != null && removed != defaultValue) {
+                size.decrementAndGet();
+            }
+            return removed;
         }
     }
 
@@ -174,7 +186,11 @@ public class ConcurrentInt2FloatMap extends APrimitiveConcurrentMap<Integer, Flo
     public float remove(final int key) {
         final int bucket = getBucket(key);
         try (ICloseableLock lock = writeAt(bucket)) {
-            return maps[bucket].remove(key);
+            final float removed = maps[bucket].remove(key);
+            if (removed != defaultValue) {
+                size.decrementAndGet();
+            }
+            return removed;
         }
     }
 
@@ -183,7 +199,11 @@ public class ConcurrentInt2FloatMap extends APrimitiveConcurrentMap<Integer, Flo
     public boolean remove(final Object key, final Object value) {
         final int bucket = getBucket(key);
         try (ICloseableLock lock = writeAt(bucket)) {
-            return maps[bucket].remove(key, value);
+            final boolean removed = maps[bucket].remove(key, value);
+            if (removed) {
+                size.decrementAndGet();
+            }
+            return removed;
         }
     }
 
@@ -191,7 +211,11 @@ public class ConcurrentInt2FloatMap extends APrimitiveConcurrentMap<Integer, Flo
     public boolean remove(final int key, final float value) {
         final int bucket = getBucket(key);
         try (ICloseableLock lock = writeAt(bucket)) {
-            return maps[bucket].remove(key, value);
+            final boolean removed = maps[bucket].remove(key, value);
+            if (removed) {
+                size.decrementAndGet();
+            }
+            return removed;
         }
     }
 
@@ -229,7 +253,10 @@ public class ConcurrentInt2FloatMap extends APrimitiveConcurrentMap<Integer, Flo
                     if (oldV != defaultValue) {
                         v = oldV;
                     } else {
-                        m.put(key.intValue(), v);
+                        final Float existing = m.put(key.intValue(), v);
+                        if (existing == null || existing == defaultValue) {
+                            size.incrementAndGet();
+                        }
                     }
                 }
             }
@@ -254,7 +281,10 @@ public class ConcurrentInt2FloatMap extends APrimitiveConcurrentMap<Integer, Flo
                     if (oldV != defaultValue) {
                         v = oldV;
                     } else {
-                        m.put(key, v);
+                        final float existing = m.put(key, v);
+                        if (existing == defaultValue) {
+                            size.incrementAndGet();
+                        }
                     }
                 }
             }
@@ -279,7 +309,10 @@ public class ConcurrentInt2FloatMap extends APrimitiveConcurrentMap<Integer, Flo
                     if (oldV != defaultValue) {
                         v = oldV;
                     } else {
-                        m.put(key, v);
+                        final float existing = m.put(key, v);
+                        if (existing == defaultValue) {
+                            size.incrementAndGet();
+                        }
                     }
                 }
             }

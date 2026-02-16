@@ -1,6 +1,7 @@
 package de.invesdwin.util.collections.primitive;
 
 import java.util.AbstractMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -21,6 +22,7 @@ import it.unimi.dsi.fastutil.Function;
 @ThreadSafe
 public abstract class APrimitiveConcurrentMap<K, V> extends AbstractMap<K, V> implements IPrimitiveConcurrentMap {
     protected final PaddedCloseableReentrantReadWriteLock[] locks;
+    protected final AtomicInteger size = new AtomicInteger();
     private final ILockingStrategy lockingStrategy;
 
     protected APrimitiveConcurrentMap(final PrimitiveConcurrentMapConfig config) {
@@ -49,6 +51,14 @@ public abstract class APrimitiveConcurrentMap<K, V> extends AbstractMap<K, V> im
 
     @Override
     public int size() {
+        return size.get();
+    }
+
+    /**
+     * WARNING: should not be needed since size estimate should be good enough.
+     */
+    @Deprecated
+    public int sizeForced() {
         int sum = 0;
         for (int i = 0; i < locks.length; i++) {
             try (ICloseableLock lock = readAt(i)) {
@@ -59,28 +69,38 @@ public abstract class APrimitiveConcurrentMap<K, V> extends AbstractMap<K, V> im
     }
 
     @Override
-    public boolean isEmpty() {
-        for (int i = 0; i < locks.length; i++) {
-            try (ICloseableLock lock = readAt(i)) {
-                final boolean nonEmpty = mapAt(i).size() > 0;
-                if (nonEmpty) {
-                    return false;
-                }
-            }
-        }
-        return true;// all sub-maps are empty
+    public final boolean isEmpty() {
+        return size() == 0;
     }
 
     @Override
-    public void clear() {
+    public final void clear() {
         if (isEmpty()) {
             return;
         }
+        synchronized (this) {
+            if (isEmpty()) {
+                return;
+            }
+            internalClear();
+        }
+    }
+
+    /**
+     * WARNING: should not be needed since size estimate should be good enough.
+     */
+    @Deprecated
+    public final synchronized void clearForced() {
+        internalClear();
+    }
+
+    private void internalClear() {
         for (int i = 0; i < locks.length; i++) {
             try (ICloseableLock lock = writeAt(i)) {
                 mapAt(i).clear();
             }
         }
+        size.set(0);
     }
 
     protected int getBucket(final long key) {
