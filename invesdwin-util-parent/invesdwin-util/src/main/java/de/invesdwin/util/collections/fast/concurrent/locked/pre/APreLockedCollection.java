@@ -186,12 +186,12 @@ public abstract class APreLockedCollection<E> implements Collection<E> {
 
     @Override
     public final boolean equals(final Object object) {
+        if (object == this) {
+            return true;
+        }
         final Collection<E> delegate = getPreLockedDelegate();
         try {
-            if (object == this) {
-                return true;
-            }
-            return object == this || delegate.equals(object);
+            return delegate.equals(object);
         } finally {
             lock.unlock();
         }

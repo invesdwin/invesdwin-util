@@ -140,6 +140,19 @@ public abstract class ADelegateMap<K, V> implements Map<K, V>, ISerializableValu
     }
 
     @Override
+    public int hashCode() {
+        return getDelegate().hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        return getDelegate().equals(obj);
+    }
+
+    @Override
     public boolean replace(final K key, final V oldValue, final V newValue) {
         if (isPutAllowed(key, newValue)) {
             return getDelegate().replace(key, oldValue, newValue);

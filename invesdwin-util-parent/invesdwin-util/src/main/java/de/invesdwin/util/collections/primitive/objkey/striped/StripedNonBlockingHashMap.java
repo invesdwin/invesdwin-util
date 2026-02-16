@@ -1,5 +1,6 @@
 package de.invesdwin.util.collections.primitive.objkey.striped;
 
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -21,11 +22,15 @@ import org.jctools.maps.NonBlockingHashMap;
 import org.jctools.maps.NonBlockingHashMapLong;
 import org.jspecify.annotations.Nullable;
 
+import de.invesdwin.util.collections.primitive.APrimitiveConcurrentMap;
 import de.invesdwin.util.collections.primitive.IPrimitiveConcurrentMap;
+import de.invesdwin.util.collections.primitive.PrimitiveConcurrentMapConfig;
 import de.invesdwin.util.collections.primitive.longkey.ConcurrentLong2ObjectMap;
 import de.invesdwin.util.collections.primitive.util.BucketHashUtil;
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
 import de.invesdwin.util.concurrent.lock.padded.PaddedCloseableReentrantLock;
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import it.unimi.dsi.fastutil.objects.Object2ObjectFunction;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectCollection;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -43,33 +48,54 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
  * @see AStripedNonBlockingHashMapCacheExpirer
  */
 @ThreadSafe
-public class StripedNonBlockingHashMap<K, V>
+public class StripedNonBlockingHashMap<K, V> extends AbstractMap<K, V>
         implements ConcurrentMap<K, V>, Object2ObjectMap<K, V>, IPrimitiveConcurrentMap, Iterable<K> {
     private final NonBlockingHashMap<K, V> m;
     /** @see com.google.common.util.concurrent.Striped#lock(int) */
+    private final ILockingStrategy lockingStrategy;
     private final PaddedCloseableReentrantLock[] s;
+    private final ObjectSet<Map.Entry<K, V>> entrySet;
+    private final ObjectSet<Object2ObjectMap.Entry<K, V>> object2ObjectEntrySet;
+    private final ObjectSet<K> keySet;
+    private final ObjectCollection<V> values;
 
-    private final ObjectSet<Map.Entry<K, V>> entrySet = new EntrySet();
-    private final ObjectSet<Object2ObjectMap.Entry<K, V>> object2ObjectEntrySet = new Object2ObjectEntrySet();
-    private final ObjectSet<K> keySet = new KeySet();
-    private final ObjectCollection<V> values = new ValuesCollection();
+    public StripedNonBlockingHashMap() {
+        this(PrimitiveConcurrentMapConfig.DEFAULT);
+    }
 
-    @SuppressWarnings("resource")
-    public StripedNonBlockingHashMap(final int initialSize, final int concurrencyLevel) {
+    public StripedNonBlockingHashMap(final PrimitiveConcurrentMapConfig config) {
+        final int concurrencyLevel = config.getConcurrencyLevel();
         assert concurrencyLevel > 0 : "Stripes must be positive, but " + concurrencyLevel;
         assert concurrencyLevel < 100_000_000 : "Too many stripes: " + concurrencyLevel;
-        m = new NonBlockingHashMap<K, V>(Math.max(initialSize, concurrencyLevel));
+        this.lockingStrategy = config.getLockingStrategy();
+        m = new NonBlockingHashMap<K, V>(Math.max(config.getInitialCapacity(), concurrencyLevel));
         s = new PaddedCloseableReentrantLock[concurrencyLevel];
         for (int i = 0; i < concurrencyLevel; i++) {
             s[i] = new PaddedCloseableReentrantLock();
         }
+        this.entrySet = new EntrySet();
+        this.object2ObjectEntrySet = new Object2ObjectEntrySet();
+        this.keySet = new KeySet();
+        this.values = new ValuesCollection();
     }//new
 
     /** @see com.google.common.util.concurrent.Striped#get(Object) */
-    protected PaddedCloseableReentrantLock write(final Object key) {
+    protected ICloseableLock write(final Object key) {
         final PaddedCloseableReentrantLock lock = s[BucketHashUtil.bucket(key, s.length)];
-        lock.lock();
-        return lock;
+        return lock.locked(lockingStrategy);
+    }
+
+    @Override
+    public int hashCode() {
+        return m.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        return m.equals(obj);
     }
 
     @Override
@@ -94,7 +120,7 @@ public class StripedNonBlockingHashMap<K, V>
     public void withAllKeysWriteLock(final Consumer<NonBlockingHashMap<K, V>> singleThreadMapModifier) {
         //CHECKSTYLE:ON
         for (final PaddedCloseableReentrantLock paddedLock : s) {
-            paddedLock.lock();
+            lockingStrategy.lock(paddedLock);
         }
         try {
             singleThreadMapModifier.accept(m);
@@ -162,15 +188,6 @@ public class StripedNonBlockingHashMap<K, V>
         }
     }
 
-    /** @see NonBlockingHashMapLong#putAll */
-    @SuppressWarnings("deprecation")
-    @Override
-    public void putAll(final Map<? extends K, ? extends V> fromMap) {
-        for (final Map.Entry<K, V> e : m.entrySet()) {
-            put(e.getKey(), e.getValue());
-        }
-    }
-
     /** @see NonBlockingHashMapLong.IteratorLong */
     public static class StripedKeyIterator<K> implements IObjectIterator<K> {
         private final StripedNonBlockingHashMap<K, ?> owner;
@@ -227,7 +244,7 @@ public class StripedNonBlockingHashMap<K, V>
     }
 
     private UnsupportedOperationException newUnmodifiableException() {
-        return new UnsupportedOperationException("Unmodifiable, only reading methods supported");
+        return APrimitiveConcurrentMap.newUnmodifiableException();
     }
 
     /**
@@ -246,30 +263,57 @@ public class StripedNonBlockingHashMap<K, V>
 
     @Override
     public V merge(final K key, final V value, final BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
-        try (ICloseableLock lock = write(key)) {
-            return m.merge(key, value, remappingFunction);
-        }
+        return ConcurrentMap.super.merge(key, value, remappingFunction);
     }
 
     @Override
     public V compute(final K key, final BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
-        try (ICloseableLock lock = write(key)) {
-            return m.compute(key, remappingFunction);
-        }
+        return ConcurrentMap.super.compute(key, remappingFunction);
     }
 
     @Override
     public V computeIfPresent(final K key, final BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
-        try (ICloseableLock lock = write(key)) {
-            return m.computeIfPresent(key, remappingFunction);
-        }
+        return ConcurrentMap.super.computeIfPresent(key, remappingFunction);
     }
 
     @Override
     public V computeIfAbsent(final K key, final Function<? super K, ? extends V> mappingFunction) {
-        try (ICloseableLock lock = write(key)) {
-            return m.computeIfAbsent(key, mappingFunction);
+        V v = m.get(key);
+        if (v == null) {
+            //bad idea to synchronize in apply, this might cause deadlocks when threads are used inside of it
+            v = mappingFunction.apply(key);
+            if (v != null) {
+                try (ICloseableLock lock = write(key)) {
+                    final V oldV = m.get(key);
+                    if (oldV != null) {
+                        v = oldV;
+                    } else {
+                        m.put(key, v);
+                    }
+                }
+            }
         }
+        return v;
+    }
+
+    @Override
+    public V computeIfAbsent(final K key, final Object2ObjectFunction<? super K, ? extends V> mappingFunction) {
+        V v = m.get(key);
+        if (v == null) {
+            //bad idea to synchronize in apply, this might cause deadlocks when threads are used inside of it
+            v = mappingFunction.apply(key);
+            if (v != null) {
+                try (ICloseableLock lock = write(key)) {
+                    final V oldV = m.get(key);
+                    if (oldV != null) {
+                        v = oldV;
+                    } else {
+                        m.put(key, v);
+                    }
+                }
+            }
+        }
+        return v;
     }
 
     @Override
@@ -288,6 +332,7 @@ public class StripedNonBlockingHashMap<K, V>
         return v != null ? v : defaultValue;
     }
 
+    @Deprecated
     @Override
     public void defaultReturnValue(final V rv) {
         throw new UnsupportedOperationException();
@@ -357,7 +402,7 @@ public class StripedNonBlockingHashMap<K, V>
 
         @Override
         public IObjectIterator<V> iterator() {
-            final Iterator<V> it = delegate.iterator();
+            final Iterator<Map.Entry<K, V>> it = entrySet.iterator();
             return new IObjectIterator<V>() {
                 @Override
                 public boolean hasNext() {
@@ -366,17 +411,12 @@ public class StripedNonBlockingHashMap<K, V>
 
                 @Override
                 public V next() {
-                    return it.next();
+                    return it.next().getValue();
                 }
 
                 @Override
                 public void remove() {
                     it.remove();
-                }
-
-                @Override
-                public String toString() {
-                    return it.toString();
                 }
             };
         }
@@ -476,31 +516,32 @@ public class StripedNonBlockingHashMap<K, V>
 
         @Override
         public boolean contains(final Object o) {
-            return delegate.contains(o);
+            return containsKey(o);
         }
 
         @Override
         public ObjectIterator<K> iterator() {
-            final Iterator<K> it = delegate.iterator();
+            final Iterator<K> iterator = delegate.iterator();
             return new IObjectIterator<K>() {
+
+                private K seenKey;
+
                 @Override
                 public boolean hasNext() {
-                    return it.hasNext();
+                    return iterator.hasNext();
                 }
 
                 @Override
                 public K next() {
-                    return it.next();
+                    seenKey = iterator.next();
+                    return seenKey;
                 }
 
                 @Override
                 public void remove() {
-                    it.remove();
-                }
-
-                @Override
-                public String toString() {
-                    return it.toString();
+                    try (ICloseableLock lock = write(seenKey)) {
+                        iterator.remove();
+                    }
                 }
             };
         }
@@ -549,6 +590,19 @@ public class StripedNonBlockingHashMap<K, V>
         public void clear() {
             throw newUnmodifiableException();
         }
+
+        @Override
+        public int hashCode() {
+            return delegate.hashCode();
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (o == this) {
+                return true;
+            }
+            return delegate.equals(o);
+        }
     }
 
     private final class EntrySet implements ObjectSet<Map.Entry<K, V>> {
@@ -574,6 +628,8 @@ public class StripedNonBlockingHashMap<K, V>
         public ObjectIterator<Map.Entry<K, V>> iterator() {
             final Iterator<Map.Entry<K, V>> it = delegate.iterator();
             return new IObjectIterator<Map.Entry<K, V>>() {
+                private Map.Entry<K, V> seenEntry;
+
                 @Override
                 public boolean hasNext() {
                     return it.hasNext();
@@ -581,12 +637,15 @@ public class StripedNonBlockingHashMap<K, V>
 
                 @Override
                 public Map.Entry<K, V> next() {
-                    return it.next();
+                    seenEntry = it.next();
+                    return seenEntry;
                 }
 
                 @Override
                 public void remove() {
-                    it.remove();
+                    try (ICloseableLock lock = write(seenEntry.getKey())) {
+                        it.remove();
+                    }
                 }
 
                 @Override
@@ -640,6 +699,19 @@ public class StripedNonBlockingHashMap<K, V>
         public void clear() {
             throw newUnmodifiableException();
         }
+
+        @Override
+        public int hashCode() {
+            return delegate.hashCode();
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (o == this) {
+                return true;
+            }
+            return delegate.equals(o);
+        }
     }
 
     private final class Object2ObjectEntrySet implements ObjectSet<Object2ObjectMap.Entry<K, V>> {
@@ -665,6 +737,8 @@ public class StripedNonBlockingHashMap<K, V>
         public ObjectIterator<Object2ObjectMap.Entry<K, V>> iterator() {
             final Iterator<Map.Entry<K, V>> it = delegate.iterator();
             return new IObjectIterator<Object2ObjectMap.Entry<K, V>>() {
+                private Map.Entry<K, V> seenEntry;
+
                 @Override
                 public boolean hasNext() {
                     return it.hasNext();
@@ -673,6 +747,7 @@ public class StripedNonBlockingHashMap<K, V>
                 @Override
                 public Object2ObjectMap.Entry<K, V> next() {
                     final Map.Entry<K, V> entry = it.next();
+                    seenEntry = entry;
                     return new Object2ObjectMap.Entry<K, V>() {
                         @Override
                         public K getKey() {
@@ -693,7 +768,9 @@ public class StripedNonBlockingHashMap<K, V>
 
                 @Override
                 public void remove() {
-                    it.remove();
+                    try (ICloseableLock lock = write(seenEntry.getKey())) {
+                        it.remove();
+                    }
                 }
 
                 @Override
@@ -746,6 +823,19 @@ public class StripedNonBlockingHashMap<K, V>
         @Override
         public void clear() {
             throw newUnmodifiableException();
+        }
+
+        @Override
+        public int hashCode() {
+            return delegate.hashCode();
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (o == this) {
+                return true;
+            }
+            return delegate.equals(o);
         }
     }
 

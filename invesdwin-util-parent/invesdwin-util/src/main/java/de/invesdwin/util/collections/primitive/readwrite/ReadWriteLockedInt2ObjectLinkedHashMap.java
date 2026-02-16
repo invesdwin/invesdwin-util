@@ -101,6 +101,7 @@ public class ReadWriteLockedInt2ObjectLinkedHashMap<V> implements Int2ObjectSort
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void forEach(final BiConsumer<? super Integer, ? super V> action) {
         try (ICloseableLock lock = read()) {

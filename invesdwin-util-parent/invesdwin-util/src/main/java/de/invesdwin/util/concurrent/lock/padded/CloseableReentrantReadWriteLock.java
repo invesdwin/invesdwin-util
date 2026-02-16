@@ -5,6 +5,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 
 /**
  * @see java.util.concurrent.locks.ReadWriteLock
@@ -25,6 +26,18 @@ public class CloseableReentrantReadWriteLock extends ReentrantReadWriteLock {
     public ICloseableLock writeLocked() {
         final WriteLock writeLock = writeLock();
         writeLock.lock();
+        return writeLock::unlock;
+    }
+
+    public ICloseableLock readLocked(final ILockingStrategy strategy) {
+        final ReadLock readLock = readLock();
+        strategy.lock(readLock);
+        return readLock::unlock;
+    }
+
+    public ICloseableLock writeLocked(final ILockingStrategy strategy) {
+        final WriteLock writeLock = writeLock();
+        strategy.lock(writeLock);
         return writeLock::unlock;
     }
 

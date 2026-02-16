@@ -421,6 +421,9 @@ public abstract class AReadWriteLockedFastIterableDelegateList<E> implements IFa
 
     @Override
     public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
         lock.readLock().lock();
         try {
             return delegate.equals(obj);

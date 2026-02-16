@@ -122,6 +122,9 @@ public abstract class ADelegateCollection<E> implements Collection<E>, ISerializ
 
     @Override
     public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
         return getDelegate().equals(obj);
     }
 

@@ -174,6 +174,9 @@ public abstract class AFastIterableDelegateSet<E> implements IFastIterableSet<E>
 
     @Override
     public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
         return delegate.equals(obj);
     }
 

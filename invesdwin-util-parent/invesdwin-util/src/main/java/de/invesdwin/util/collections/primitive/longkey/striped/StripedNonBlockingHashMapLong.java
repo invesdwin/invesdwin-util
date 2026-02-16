@@ -1,5 +1,6 @@
 package de.invesdwin.util.collections.primitive.longkey.striped;
 
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.LongConsumer;
+import java.util.function.LongFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -20,13 +22,17 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.jctools.maps.NonBlockingHashMapLong;
 import org.jspecify.annotations.Nullable;
 
+import de.invesdwin.util.collections.primitive.APrimitiveConcurrentMap;
 import de.invesdwin.util.collections.primitive.IPrimitiveConcurrentMap;
+import de.invesdwin.util.collections.primitive.PrimitiveConcurrentMapConfig;
 import de.invesdwin.util.collections.primitive.longkey.ConcurrentLong2ObjectMap;
 import de.invesdwin.util.collections.primitive.objkey.striped.IObjectIterator;
 import de.invesdwin.util.collections.primitive.util.BucketHashUtil;
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
 import de.invesdwin.util.concurrent.lock.padded.PaddedCloseableReentrantLock;
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 import de.invesdwin.util.math.Longs;
+import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongCollection;
 import it.unimi.dsi.fastutil.longs.LongIterator;
@@ -47,40 +53,64 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
  * @see AStripedNonBlockingHashMapLongCacheExpirer
  */
 @ThreadSafe
-public class StripedNonBlockingHashMapLong<V>
+public class StripedNonBlockingHashMapLong<V> extends AbstractMap<Long, V>
         implements ConcurrentMap<Long, V>, Long2ObjectMap<V>, IPrimitiveConcurrentMap, Iterable<Long> {
     public static final boolean DEFAULT_OPTIMIZE_FOR_SPACE = true;
+    public static final boolean DEFAULT_PRESERVE_LARGE_ARRAYS_ON_CLEAR = true;
 
+    private final ILockingStrategy lockingStrategy;
+    private final boolean preserveLargeArraysOnClear;
     private final NonBlockingHashMapLong<V> m;
     /** @see com.google.common.util.concurrent.Striped#lock(int) */
     private final PaddedCloseableReentrantLock[] s;
-    private final ObjectSet<Map.Entry<Long, V>> entrySet = new EntrySet();
-    private final ObjectSet<Long2ObjectMap.Entry<V>> long2ObjectEntrySet = new Long2ObjectEntrySet();
-    private final LongSet keySet = new KeySet();
-    private final ObjectCollection<V> values = new ValuesCollection();
+    private final ObjectSet<Map.Entry<Long, V>> entrySet;
+    private final ObjectSet<Long2ObjectMap.Entry<V>> long2ObjectEntrySet;
+    private final LongSet keySet;
+    private final ObjectCollection<V> values;
 
-    @SuppressWarnings("resource")
-    public StripedNonBlockingHashMapLong(final int initialSize, final int concurrencyLevel) {
-        this(initialSize, concurrencyLevel, DEFAULT_OPTIMIZE_FOR_SPACE);
+    public StripedNonBlockingHashMapLong() {
+        this(PrimitiveConcurrentMapConfig.DEFAULT);
     }
 
-    @SuppressWarnings("resource")
-    public StripedNonBlockingHashMapLong(final int initialSize, final int concurrencyLevel,
-            final boolean optimizeForSpace) {
+    public StripedNonBlockingHashMapLong(final PrimitiveConcurrentMapConfig config) {
+        this(config, DEFAULT_OPTIMIZE_FOR_SPACE, DEFAULT_PRESERVE_LARGE_ARRAYS_ON_CLEAR);
+    }
+
+    public StripedNonBlockingHashMapLong(final PrimitiveConcurrentMapConfig config, final boolean optimizeForSpace,
+            final boolean preserveLargeArraysOnClear) {
+        final int concurrencyLevel = config.getConcurrencyLevel();
         assert concurrencyLevel > 0 : "Stripes must be positive, but " + concurrencyLevel;
         assert concurrencyLevel < 100_000_000 : "Too many stripes: " + concurrencyLevel;
-        m = new NonBlockingHashMapLong<>(Math.max(initialSize, concurrencyLevel), optimizeForSpace);
+        this.lockingStrategy = config.getLockingStrategy();
+        this.preserveLargeArraysOnClear = preserveLargeArraysOnClear;
+        m = new NonBlockingHashMapLong<>(Math.max(config.getInitialCapacity(), concurrencyLevel), optimizeForSpace);
         s = new PaddedCloseableReentrantLock[concurrencyLevel];
         for (int i = 0; i < concurrencyLevel; i++) {
             s[i] = new PaddedCloseableReentrantLock();
         }
+        this.entrySet = new EntrySet();
+        this.long2ObjectEntrySet = new Long2ObjectEntrySet();
+        this.keySet = new KeySet();
+        this.values = new ValuesCollection();
     }//new
 
     /** @see com.google.common.util.concurrent.Striped#get(Object) */
-    protected PaddedCloseableReentrantLock write(final long key) {
+    protected ICloseableLock write(final long key) {
         final PaddedCloseableReentrantLock lock = s[BucketHashUtil.bucket(key, s.length)];
-        lock.lock();
-        return lock;
+        return lock.locked(lockingStrategy);
+    }
+
+    @Override
+    public int hashCode() {
+        return m.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        return m.equals(obj);
     }
 
     @Override
@@ -98,21 +128,18 @@ public class StripedNonBlockingHashMapLong<V>
         if (isEmpty()) {
             return;
         }
-        withAllKeysWriteLock(NonBlockingHashMapLong::clear);
-    }
-
-    public synchronized void clear(final boolean large) {
-        if (isEmpty()) {
-            return;
+        if (preserveLargeArraysOnClear) {
+            withAllKeysWriteLock(map -> map.clear(true));
+        } else {
+            withAllKeysWriteLock(NonBlockingHashMapLong::clear);
         }
-        withAllKeysWriteLock(map -> map.clear(large));
     }
 
     //CHECKSTYLE:OFF
     public void withAllKeysWriteLock(final Consumer<NonBlockingHashMapLong<V>> singleThreadMapModifier) {
         //CHECKSTYLE:ON
         for (final PaddedCloseableReentrantLock paddedLock : s) {
-            paddedLock.lock();
+            lockingStrategy.lock(paddedLock);
         }
         try {
             singleThreadMapModifier.accept(m);
@@ -228,15 +255,6 @@ public class StripedNonBlockingHashMapLong<V>
         }
     }
 
-    /** @see NonBlockingHashMapLong#putAll */
-    @SuppressWarnings("deprecation")
-    @Override
-    public void putAll(final Map<? extends Long, ? extends V> fromMap) {
-        for (final Map.Entry<Long, V> e : m.entrySet()) {
-            put(e.getKey(), e.getValue());
-        }
-    }
-
     /** @see NonBlockingHashMapLong.IteratorLong */
     public static class StripedLongIterator implements ILong2ObjectIterator {
         private final StripedNonBlockingHashMapLong<?> owner;
@@ -295,7 +313,7 @@ public class StripedNonBlockingHashMapLong<V>
     }
 
     private UnsupportedOperationException newUnmodifiableException() {
-        return new UnsupportedOperationException("Unmodifiable, only reading methods supported");
+        return APrimitiveConcurrentMap.newUnmodifiableException();
     }
 
     /**
@@ -312,34 +330,65 @@ public class StripedNonBlockingHashMapLong<V>
         return entrySet;
     }
 
-    @Override
-    public V merge(final Long key, final V value,
-            final BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
-        try (ICloseableLock lock = write(key)) {
-            return m.merge(key, value, remappingFunction);
-        }
-    }
-
-    @Override
-    public V compute(final Long key, final BiFunction<? super Long, ? super V, ? extends V> remappingFunction) {
-        try (ICloseableLock lock = write(key)) {
-            return m.compute(key, remappingFunction);
-        }
-    }
-
-    @Override
-    public V computeIfPresent(final Long key,
-            final BiFunction<? super Long, ? super V, ? extends V> remappingFunction) {
-        try (ICloseableLock lock = write(key)) {
-            return m.computeIfPresent(key, remappingFunction);
-        }
-    }
-
+    @Deprecated
     @Override
     public V computeIfAbsent(final Long key, final Function<? super Long, ? extends V> mappingFunction) {
-        try (ICloseableLock lock = write(key)) {
-            return m.computeIfAbsent(key, mappingFunction);
+        V v = m.get(key);
+        if (v == null) {
+            //bad idea to synchronize in apply, this might cause deadlocks when threads are used inside of it
+            v = mappingFunction.apply(key);
+            if (v != null) {
+                try (ICloseableLock lock = write(key)) {
+                    final V oldV = m.get(key);
+                    if (oldV != null) {
+                        v = oldV;
+                    } else {
+                        m.put(key, v);
+                    }
+                }
+            }
         }
+        return v;
+    }
+
+    @Override
+    public V computeIfAbsent(final long key, final Long2ObjectFunction<? extends V> mappingFunction) {
+        V v = m.get(key);
+        if (v == null) {
+            //bad idea to synchronize in apply, this might cause deadlocks when threads are used inside of it
+            v = mappingFunction.apply(key);
+            if (v != null) {
+                try (ICloseableLock lock = write(key)) {
+                    final V oldV = m.get(key);
+                    if (oldV != null) {
+                        v = oldV;
+                    } else {
+                        m.put(key, v);
+                    }
+                }
+            }
+        }
+        return v;
+    }
+
+    @Override
+    public V computeIfAbsent(final long key, final LongFunction<? extends V> mappingFunction) {
+        V v = m.get(key);
+        if (v == null) {
+            //bad idea to synchronize in apply, this might cause deadlocks when threads are used inside of it
+            v = mappingFunction.apply(key);
+            if (v != null) {
+                try (ICloseableLock lock = write(key)) {
+                    final V oldV = m.get(key);
+                    if (oldV != null) {
+                        v = oldV;
+                    } else {
+                        m.put(key, v);
+                    }
+                }
+            }
+        }
+        return v;
     }
 
     @Override
@@ -364,6 +413,7 @@ public class StripedNonBlockingHashMapLong<V>
         return v != null ? v : defaultValue;
     }
 
+    @Deprecated
     @Override
     public void defaultReturnValue(final V rv) {
         throw new UnsupportedOperationException();
@@ -433,7 +483,7 @@ public class StripedNonBlockingHashMapLong<V>
 
         @Override
         public IObjectIterator<V> iterator() {
-            final Iterator<V> it = delegate.iterator();
+            final Iterator<Map.Entry<Long, V>> it = entrySet.iterator();
             return new IObjectIterator<V>() {
                 @Override
                 public boolean hasNext() {
@@ -442,7 +492,12 @@ public class StripedNonBlockingHashMapLong<V>
 
                 @Override
                 public V next() {
-                    return it.next();
+                    return it.next().getValue();
+                }
+
+                @Override
+                public void remove() {
+                    it.remove();
                 }
 
                 @Override
@@ -545,20 +600,23 @@ public class StripedNonBlockingHashMapLong<V>
             return StripedNonBlockingHashMapLong.this.isEmpty();
         }
 
+        @Deprecated
         @Override
         public boolean contains(final Object o) {
-            return delegate.contains(o);
+            return containsKey(o);
         }
 
         @Override
         public boolean contains(final long key) {
-            return delegate.contains(key);
+            return containsKey(key);
         }
 
         @Override
         public LongIterator iterator() {
             final Iterator<Long> it = delegate.iterator();
             return new LongIterator() {
+                private Long seenKey;
+
                 @Override
                 public boolean hasNext() {
                     return it.hasNext();
@@ -571,12 +629,15 @@ public class StripedNonBlockingHashMapLong<V>
 
                 @Override
                 public long nextLong() {
-                    return it.next();
+                    seenKey = it.next();
+                    return seenKey;
                 }
 
                 @Override
                 public void remove() {
-                    it.remove();
+                    try (ICloseableLock lock = write(seenKey)) {
+                        it.remove();
+                    }
                 }
 
                 @Override
@@ -678,6 +739,19 @@ public class StripedNonBlockingHashMapLong<V>
             throw newUnmodifiableException();
         }
 
+        @Override
+        public int hashCode() {
+            return delegate.hashCode();
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (o == this) {
+                return true;
+            }
+            return delegate.equals(o);
+        }
+
     }
 
     private final class EntrySet implements ObjectSet<Map.Entry<Long, V>> {
@@ -703,6 +777,8 @@ public class StripedNonBlockingHashMapLong<V>
         public ObjectIterator<Map.Entry<Long, V>> iterator() {
             final Iterator<Map.Entry<Long, V>> it = delegate.iterator();
             return new IObjectIterator<Map.Entry<Long, V>>() {
+                private Map.Entry<Long, V> seenEntry;
+
                 @Override
                 public boolean hasNext() {
                     return it.hasNext();
@@ -710,12 +786,15 @@ public class StripedNonBlockingHashMapLong<V>
 
                 @Override
                 public Map.Entry<Long, V> next() {
+                    seenEntry = it.next();
                     return it.next();
                 }
 
                 @Override
                 public void remove() {
-                    it.remove();
+                    try (ICloseableLock lock = write(seenEntry.getKey())) {
+                        it.remove();
+                    }
                 }
 
                 @Override
@@ -769,6 +848,19 @@ public class StripedNonBlockingHashMapLong<V>
         public void clear() {
             throw newUnmodifiableException();
         }
+
+        @Override
+        public int hashCode() {
+            return delegate.hashCode();
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (o == this) {
+                return true;
+            }
+            return delegate.equals(o);
+        }
     }
 
     private final class Long2ObjectEntrySet implements ObjectSet<Long2ObjectMap.Entry<V>> {
@@ -794,6 +886,9 @@ public class StripedNonBlockingHashMapLong<V>
         public ObjectIterator<Long2ObjectMap.Entry<V>> iterator() {
             final Iterator<Map.Entry<Long, V>> it = delegate.iterator();
             return new IObjectIterator<Long2ObjectMap.Entry<V>>() {
+
+                private Map.Entry<Long, V> seenEntry;
+
                 @Override
                 public boolean hasNext() {
                     return it.hasNext();
@@ -802,6 +897,7 @@ public class StripedNonBlockingHashMapLong<V>
                 @Override
                 public Long2ObjectMap.Entry<V> next() {
                     final Map.Entry<Long, V> entry = it.next();
+                    seenEntry = entry;
                     return new Long2ObjectMap.Entry<V>() {
                         @Override
                         public Long getKey() {
@@ -828,7 +924,9 @@ public class StripedNonBlockingHashMapLong<V>
 
                 @Override
                 public void remove() {
-                    it.remove();
+                    try (ICloseableLock lock = write(seenEntry.getKey())) {
+                        it.remove();
+                    }
                 }
 
                 @Override
@@ -881,6 +979,19 @@ public class StripedNonBlockingHashMapLong<V>
         @Override
         public void clear() {
             throw newUnmodifiableException();
+        }
+
+        @Override
+        public int hashCode() {
+            return delegate.hashCode();
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (o == this) {
+                return true;
+            }
+            return delegate.equals(o);
         }
     }
 

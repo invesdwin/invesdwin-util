@@ -61,6 +61,9 @@ public class UnmodifiableMap<K, V> extends AUnmodifiableMap<K, V> {
 
     @Override
     public boolean equals(final Object o) {
+        if (o == this) {
+            return true;
+        }
         return getDelegate().equals(o);
     }
 

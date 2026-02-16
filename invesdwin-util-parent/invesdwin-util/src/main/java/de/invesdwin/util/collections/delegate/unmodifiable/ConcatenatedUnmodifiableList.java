@@ -113,6 +113,9 @@ public class ConcatenatedUnmodifiableList<E> extends AUnmodifiableList<E> {
 
     @Override
     public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
         return Collections.elementsEqual(this, obj);
     }
 

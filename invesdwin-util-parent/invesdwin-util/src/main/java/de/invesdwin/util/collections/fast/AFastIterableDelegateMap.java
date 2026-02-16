@@ -11,6 +11,7 @@ import de.invesdwin.util.bean.tuple.ImmutableEntry;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
+import de.invesdwin.util.collections.primitive.APrimitiveConcurrentMap;
 
 /**
  * Boosts the iteration speed over the values by keeping a fast iterator instance that only gets modified when changes
@@ -198,8 +199,7 @@ public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap
     }
 
     private UnsupportedOperationException newUnmodifiableException() {
-        return new UnsupportedOperationException(
-                "Unmodifiable, only size/isEmpty/contains/containsAll/iterator/toArray methods supported");
+        return APrimitiveConcurrentMap.newUnmodifiableException();
     }
 
     @Override
@@ -235,6 +235,9 @@ public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap
 
     @Override
     public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
         return delegate.equals(obj);
     }
 
@@ -315,6 +318,19 @@ public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap
         public void clear() {
             throw newUnmodifiableException();
         }
+
+        @Override
+        public int hashCode() {
+            return delegate.values().hashCode();
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (o == this) {
+                return true;
+            }
+            return delegate.values().equals(o);
+        }
     }
 
     private final class KeySet implements Set<K> {
@@ -393,6 +409,19 @@ public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap
         public void clear() {
             throw newUnmodifiableException();
         }
+
+        @Override
+        public int hashCode() {
+            return delegate.keySet().hashCode();
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (o == this) {
+                return true;
+            }
+            return delegate.keySet().equals(o);
+        }
     }
 
     private final class EntrySet implements Set<Entry<K, V>> {
@@ -469,6 +498,19 @@ public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap
         @Override
         public void clear() {
             throw newUnmodifiableException();
+        }
+
+        @Override
+        public int hashCode() {
+            return delegate.entrySet().hashCode();
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (o == this) {
+                return true;
+            }
+            return delegate.entrySet().equals(o);
         }
     }
 

@@ -1,14 +1,14 @@
 package de.invesdwin.util.collections.primitive;
 
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.AbstractMap;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.primitive.util.BucketHashUtil;
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
 import de.invesdwin.util.concurrent.lock.padded.PaddedCloseableReentrantReadWriteLock;
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 import it.unimi.dsi.fastutil.Function;
-import jakarta.validation.constraints.Positive;
 
 /**
  * Origin:
@@ -19,10 +19,12 @@ import jakarta.validation.constraints.Positive;
  * @see org.jctools.maps.NonBlockingHashMapLong
  */
 @ThreadSafe
-public abstract class APrimitiveConcurrentMap<K, V> implements IPrimitiveConcurrentMap {
-    private final PaddedCloseableReentrantReadWriteLock[] locks;
+public abstract class APrimitiveConcurrentMap<K, V> extends AbstractMap<K, V> implements IPrimitiveConcurrentMap {
+    protected final PaddedCloseableReentrantReadWriteLock[] locks;
+    private final ILockingStrategy lockingStrategy;
 
-    protected APrimitiveConcurrentMap(@Positive final int concurrencyLevel) {
+    protected APrimitiveConcurrentMap(final PrimitiveConcurrentMapConfig config) {
+        final int concurrencyLevel = config.getConcurrencyLevel();
         if (concurrencyLevel < 1 || concurrencyLevel > 100_000_000) {
             throw new IllegalArgumentException(
                     "concurrencyLevel must be between 1 and 100_000_000, but: " + concurrencyLevel);
@@ -31,25 +33,18 @@ public abstract class APrimitiveConcurrentMap<K, V> implements IPrimitiveConcurr
         for (int i = 0; i < concurrencyLevel; i++) {
             locks[i] = new PaddedCloseableReentrantReadWriteLock();
         }
+        this.lockingStrategy = config.getLockingStrategy();
     }//new
 
     /** Lock must be held! */
     protected abstract Function<K, V> mapAt(int index);
 
     protected ICloseableLock readAt(final int lockIndex) {
-        return locks[lockIndex].readLocked();
+        return locks[lockIndex].readLocked(lockingStrategy);
     }
 
     protected ICloseableLock writeAt(final int lockIndex) {
-        return locks[lockIndex].writeLocked();
-    }
-
-    protected ReentrantReadWriteLock.ReadLock readLock(final int lockIndex) {
-        return locks[lockIndex].readLock();
-    }
-
-    protected ReentrantReadWriteLock.WriteLock writeLock(final int lockIndex) {
-        return locks[lockIndex].writeLock();
+        return locks[lockIndex].writeLocked(lockingStrategy);
     }
 
     @Override
@@ -99,4 +94,9 @@ public abstract class APrimitiveConcurrentMap<K, V> implements IPrimitiveConcurr
     protected int getBucket(final Object key) {
         return BucketHashUtil.bucket(key, locks.length);
     }
+
+    public static UnsupportedOperationException newUnmodifiableException() {
+        return new UnsupportedOperationException("Unmodifiable, only reading methods supported");
+    }
+
 }

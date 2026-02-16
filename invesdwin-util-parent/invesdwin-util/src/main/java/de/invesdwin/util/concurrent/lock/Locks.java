@@ -29,6 +29,8 @@ import de.invesdwin.util.concurrent.lock.internal.readwrite.WrappedReadWriteLock
 import de.invesdwin.util.concurrent.lock.internal.readwrite.WrappedReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
+import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.concurrent.lock.trace.internal.DisabledLockTrace;
 import de.invesdwin.util.concurrent.lock.trace.internal.EnabledLockTrace;
@@ -56,6 +58,7 @@ public final class Locks extends ALocksStaticFacade {
     private static ILockTrace lockTrace = DisabledLockTrace.INSTANCE;
     private static Duration lockWaitTimeout = null;
     private static boolean lockWaitTimeoutOnlyWriteLocks = false;
+    private static ILockingStrategy lockingStrategy = DefaultLockingStrategy.INSTANCE;
 
     /**
      * Keep it disabled by default to keep best performance.
@@ -108,7 +111,7 @@ public final class Locks extends ALocksStaticFacade {
             final ReentrantLock cLock = (ReentrantLock) lock;
             return maybeWrap(lockName, cLock);
         } else {
-            return maybeWrapTimeout(maybeWrapTrace(lockName, lock));
+            return maybeWrapTimeout(maybeWrapStrategy(maybeWrapTrace(lockName, lock)));
         }
     }
 
@@ -118,6 +121,15 @@ public final class Locks extends ALocksStaticFacade {
             return lock;
         } else {
             return new TimeoutLock(lock, lockWaitTimeoutCopy);
+        }
+    }
+
+    private static ILock maybeWrapStrategy(final ILock lock) {
+        final ILockingStrategy lockingStrategy = getLockingStrategy();
+        if (lockingStrategy == null) {
+            return lock;
+        } else {
+            return lock.withStrategy(lockingStrategy);
         }
     }
 
@@ -133,7 +145,7 @@ public final class Locks extends ALocksStaticFacade {
         if (lock instanceof IReentrantLock) {
             return (IReentrantLock) lock;
         } else {
-            return maybeWrapTimeout(maybeWrapTrace(lockName, lock));
+            return maybeWrapTimeout(maybeWrapStrategy(maybeWrapTrace(lockName, lock)));
         }
     }
 
@@ -143,6 +155,15 @@ public final class Locks extends ALocksStaticFacade {
             return lock;
         } else {
             return new TimeoutReentrantLock(lock, lockWaitTimeoutCopy);
+        }
+    }
+
+    private static IReentrantLock maybeWrapStrategy(final IReentrantLock lock) {
+        final ILockingStrategy lockingStrategy = getLockingStrategy();
+        if (lockingStrategy == null) {
+            return lock;
+        } else {
+            return lock.withStrategy(lockingStrategy);
         }
     }
 
@@ -161,16 +182,25 @@ public final class Locks extends ALocksStaticFacade {
             final ReentrantReadWriteLock cLock = (ReentrantReadWriteLock) lock;
             return maybeWrap(lockName, cLock);
         } else {
-            return maybeWrapTimeout(maybeWrapTrace(lockName, lock));
+            return maybeWrapTimeout(maybeWrapStrategy(maybeWrapTrace(lockName, lock)));
         }
     }
 
     private static IReadWriteLock maybeWrapTimeout(final IReadWriteLock lock) {
         final Duration lockWaitTimeoutCopy = getLockWaitTimeout();
-        if (lockWaitTimeoutCopy == null || isLockWaitTimeoutOnlyWriteLocks()) {
+        if (lockWaitTimeoutCopy == null) {
             return lock;
         } else {
-            return new TimeoutReadWriteLock(lock, lockWaitTimeoutCopy);
+            return new TimeoutReadWriteLock(lock, lockWaitTimeoutCopy, isLockWaitTimeoutOnlyWriteLocks());
+        }
+    }
+
+    private static IReadWriteLock maybeWrapStrategy(final IReadWriteLock lock) {
+        final ILockingStrategy lockingStrategy = getLockingStrategy();
+        if (lockingStrategy == null) {
+            return lock;
+        } else {
+            return lock.withStrategy(lockingStrategy);
         }
     }
 
@@ -186,7 +216,7 @@ public final class Locks extends ALocksStaticFacade {
         if (lock instanceof IReentrantReadWriteLock) {
             return (IReentrantReadWriteLock) lock;
         } else {
-            return maybeWrapTimeout(maybeWrapTrace(lockName, lock));
+            return maybeWrapTimeout(maybeWrapStrategy(maybeWrapTrace(lockName, lock)));
         }
     }
 
@@ -196,6 +226,15 @@ public final class Locks extends ALocksStaticFacade {
             return lock;
         } else {
             return new TimeoutReentrantReadWriteLock(lock, lockWaitTimeoutCopy, isLockWaitTimeoutOnlyWriteLocks());
+        }
+    }
+
+    private static IReentrantReadWriteLock maybeWrapStrategy(final IReentrantReadWriteLock lock) {
+        final ILockingStrategy lockingStrategy = getLockingStrategy();
+        if (lockingStrategy == null) {
+            return lock;
+        } else {
+            return lock.withStrategy(lockingStrategy);
         }
     }
 
@@ -244,6 +283,18 @@ public final class Locks extends ALocksStaticFacade {
     public static void setLockWaitTimeout(final Duration lockWaitTimeout, final boolean onlyWriteLocks) {
         Locks.lockWaitTimeout = lockWaitTimeout;
         Locks.lockWaitTimeoutOnlyWriteLocks = onlyWriteLocks;
+    }
+
+    public static void setLockingStrategy(final ILockingStrategy lockingStrategy) {
+        if (lockingStrategy == null) {
+            Locks.lockingStrategy = DefaultLockingStrategy.INSTANCE;
+        } else {
+            Locks.lockingStrategy = lockingStrategy;
+        }
+    }
+
+    public static ILockingStrategy getLockingStrategy() {
+        return lockingStrategy;
     }
 
     public static void timeoutLock(final ILock lock, final Duration lockWaitTimeout) {

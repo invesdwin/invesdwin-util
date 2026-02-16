@@ -2,9 +2,11 @@ package de.invesdwin.util.concurrent.lock.internal.readwrite;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.read.TimeoutReadLock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.write.TimeoutWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -12,12 +14,21 @@ import de.invesdwin.util.time.duration.Duration;
 public class TimeoutReadWriteLock implements IReadWriteLock {
 
     private final IReadWriteLock delegate;
-    private final TimeoutReadLock readLock;
+    private final Duration lockWaitTimeout;
+    private final boolean onlyWriteLock;
+    private final ILock readLock;
     private final TimeoutWriteLock writeLock;
 
-    public TimeoutReadWriteLock(final IReadWriteLock delegate, final Duration lockWaitTimeout) {
+    public TimeoutReadWriteLock(final IReadWriteLock delegate, final Duration lockWaitTimeout,
+            final boolean onlyWriteLock) {
         this.delegate = delegate;
-        this.readLock = new TimeoutReadLock(delegate.readLock(), lockWaitTimeout);
+        this.lockWaitTimeout = lockWaitTimeout;
+        this.onlyWriteLock = onlyWriteLock;
+        if (onlyWriteLock) {
+            this.readLock = delegate.readLock();
+        } else {
+            this.readLock = new TimeoutReadLock(delegate.readLock(), lockWaitTimeout);
+        }
         this.writeLock = new TimeoutWriteLock(delegate.writeLock(), lockWaitTimeout);
     }
 
@@ -37,7 +48,7 @@ public class TimeoutReadWriteLock implements IReadWriteLock {
     }
 
     @Override
-    public TimeoutReadLock readLock() {
+    public ILock readLock() {
         return readLock;
     }
 
@@ -48,7 +59,23 @@ public class TimeoutReadWriteLock implements IReadWriteLock {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).addValue(delegate).toString();
+        return Objects.toStringHelper(this)
+                .addValue(delegate)
+                .addValue(lockWaitTimeout)
+                .addValue(onlyWriteLock)
+                .toString();
+    }
+
+    @Override
+    public ILockingStrategy getStrategy() {
+        return delegate.getStrategy();
+    }
+
+    //CHECKSTYLE:OFF
+    @Override
+    public IReadWriteLock withStrategy(final ILockingStrategy strategy) {
+        //CHECKSTYLE:ON
+        return new TimeoutReadWriteLock(delegate.withStrategy(strategy), lockWaitTimeout, onlyWriteLock);
     }
 
 }

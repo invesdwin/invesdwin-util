@@ -455,11 +455,11 @@ public class LongArrayBitSetBase implements IPrimitiveArrayId {
 
     @Override
     public boolean equals(final Object obj) {
-        if (!(obj instanceof LongArrayBitSetBase)) {
-            return false;
-        }
         if (this == obj) {
             return true;
+        }
+        if (!(obj instanceof LongArrayBitSetBase)) {
+            return false;
         }
         final LongArrayBitSetBase set = (LongArrayBitSetBase) obj;
 

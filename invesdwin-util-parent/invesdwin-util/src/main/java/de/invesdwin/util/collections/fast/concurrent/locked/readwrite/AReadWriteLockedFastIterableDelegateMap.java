@@ -14,6 +14,7 @@ import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
+import de.invesdwin.util.collections.primitive.APrimitiveConcurrentMap;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 
@@ -302,8 +303,7 @@ public abstract class AReadWriteLockedFastIterableDelegateMap<K, V> implements I
     }
 
     private UnsupportedOperationException newUnmodifiableException() {
-        return new UnsupportedOperationException(
-                "Unmodifiable, only size/isEmpty/contains/containsAll/iterator/toArray methods supported");
+        return APrimitiveConcurrentMap.newUnmodifiableException();
     }
 
     @Override
@@ -369,6 +369,9 @@ public abstract class AReadWriteLockedFastIterableDelegateMap<K, V> implements I
 
     @Override
     public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
         lock.readLock().lock();
         try {
             return delegate.equals(obj);
@@ -474,6 +477,29 @@ public abstract class AReadWriteLockedFastIterableDelegateMap<K, V> implements I
         public void clear() {
             throw newUnmodifiableException();
         }
+
+        @Override
+        public int hashCode() {
+            lock.readLock().lock();
+            try {
+                return delegate.values().hashCode();
+            } finally {
+                lock.readLock().unlock();
+            }
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            lock.readLock().lock();
+            try {
+                return delegate.values().equals(obj);
+            } finally {
+                lock.readLock().unlock();
+            }
+        }
     }
 
     private final class KeySet implements Set<K>, Serializable {
@@ -571,6 +597,29 @@ public abstract class AReadWriteLockedFastIterableDelegateMap<K, V> implements I
         @Override
         public void clear() {
             throw newUnmodifiableException();
+        }
+
+        @Override
+        public int hashCode() {
+            lock.readLock().lock();
+            try {
+                return delegate.keySet().hashCode();
+            } finally {
+                lock.readLock().unlock();
+            }
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            lock.readLock().lock();
+            try {
+                return delegate.keySet().equals(obj);
+            } finally {
+                lock.readLock().unlock();
+            }
         }
     }
 
@@ -686,6 +735,29 @@ public abstract class AReadWriteLockedFastIterableDelegateMap<K, V> implements I
         @Override
         public void clear() {
             throw newUnmodifiableException();
+        }
+
+        @Override
+        public int hashCode() {
+            lock.readLock().lock();
+            try {
+                return delegate.entrySet().hashCode();
+            } finally {
+                lock.readLock().unlock();
+            }
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            lock.readLock().lock();
+            try {
+                return delegate.entrySet().equals(obj);
+            } finally {
+                lock.readLock().unlock();
+            }
         }
     }
 

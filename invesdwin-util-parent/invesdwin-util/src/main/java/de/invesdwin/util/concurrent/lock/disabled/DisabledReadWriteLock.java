@@ -4,6 +4,8 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
+import de.invesdwin.util.concurrent.lock.strategy.DisabledLockingStrategy;
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 
 @Immutable
 public final class DisabledReadWriteLock implements IReadWriteLock {
@@ -35,6 +37,18 @@ public final class DisabledReadWriteLock implements IReadWriteLock {
     @Override
     public ILock writeLock() {
         return DisabledLock.INSTANCE;
+    }
+
+    //CHECKSTYLE:OFF
+    @Override
+    public IReadWriteLock withStrategy(final ILockingStrategy strategy) {
+        //CHECKSTYLE:ON
+        return this;
+    }
+
+    @Override
+    public ILockingStrategy getStrategy() {
+        return DisabledLockingStrategy.INSTANCE;
     }
 
 }

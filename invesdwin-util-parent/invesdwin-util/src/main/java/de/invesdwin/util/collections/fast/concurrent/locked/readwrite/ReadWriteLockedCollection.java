@@ -196,12 +196,12 @@ public class ReadWriteLockedCollection<E> implements Collection<E> {
 
     @Override
     public boolean equals(final Object object) {
+        if (object == this) {
+            return true;
+        }
         lock.readLock().lock();
         try {
-            if (object == this) {
-                return true;
-            }
-            return object == this || getDelegate().equals(object);
+            return getDelegate().equals(object);
         } finally {
             lock.readLock().unlock();
         }

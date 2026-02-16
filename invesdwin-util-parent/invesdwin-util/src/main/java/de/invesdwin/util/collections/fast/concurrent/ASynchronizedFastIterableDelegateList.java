@@ -246,8 +246,13 @@ public abstract class ASynchronizedFastIterableDelegateList<E> implements IFastI
     }
 
     @Override
-    public synchronized boolean equals(final Object obj) {
-        return delegate.equals(obj);
+    public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        synchronized (this) {
+            return delegate.equals(obj);
+        }
     }
 
     private final class RefreshingListIterator implements ListIterator<E> {

@@ -277,6 +277,9 @@ public abstract class ALockedFastIterableDelegateSet<E> implements IFastIterable
 
     @Override
     public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
         lock.lock();
         try {
             return delegate.equals(obj);

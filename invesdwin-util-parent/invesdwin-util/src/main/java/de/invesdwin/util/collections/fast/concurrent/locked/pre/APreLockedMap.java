@@ -126,6 +126,9 @@ public abstract class APreLockedMap<K, V> implements Map<K, V> {
 
     @Override
     public final boolean equals(final Object object) {
+        if (object == this) {
+            return true;
+        }
         final Map<K, V> delegate = getPreLockedDelegate();
         try {
             if (object == this) {

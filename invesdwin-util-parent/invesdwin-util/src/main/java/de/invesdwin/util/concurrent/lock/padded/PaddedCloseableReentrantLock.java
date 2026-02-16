@@ -5,6 +5,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 
 /**
  * @see com.google.common.util.concurrent.Striped.PaddedLock
@@ -32,9 +33,13 @@ public final class PaddedCloseableReentrantLock extends ReentrantLock implements
         unlock();
     }
 
-    //@MustBeClosed
-    public PaddedCloseableReentrantLock locked() {
+    public ICloseableLock locked() {
         lock();
+        return this;
+    }
+
+    public ICloseableLock locked(final ILockingStrategy strategy) {
+        strategy.lock(this);
         return this;
     }
 }

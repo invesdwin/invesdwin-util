@@ -7,6 +7,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantWriteLock;
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -73,7 +74,19 @@ public class TimeoutReentrantWriteLock implements IReentrantWriteLock {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).addValue(delegate).toString();
+        return Objects.toStringHelper(this).addValue(delegate).addValue(lockWaitTimeout).toString();
+    }
+
+    @Override
+    public ILockingStrategy getStrategy() {
+        return delegate.getStrategy();
+    }
+
+    //CHECKSTYLE:OFF
+    @Override
+    public IReentrantWriteLock withStrategy(final ILockingStrategy strategy) {
+        //CHECKSTYLE:ON
+        return new TimeoutReentrantWriteLock(delegate.withStrategy(strategy), lockWaitTimeout);
     }
 
 }

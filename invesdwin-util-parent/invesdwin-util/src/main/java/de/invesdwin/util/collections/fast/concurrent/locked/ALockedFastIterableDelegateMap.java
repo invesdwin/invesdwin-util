@@ -14,6 +14,7 @@ import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
+import de.invesdwin.util.collections.primitive.APrimitiveConcurrentMap;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
 
@@ -274,8 +275,7 @@ public abstract class ALockedFastIterableDelegateMap<K, V> implements IFastItera
     }
 
     private UnsupportedOperationException newUnmodifiableException() {
-        return new UnsupportedOperationException(
-                "Unmodifiable, only size/isEmpty/contains/containsAll/iterator/toArray methods supported");
+        return APrimitiveConcurrentMap.newUnmodifiableException();
     }
 
     @Override
@@ -341,6 +341,9 @@ public abstract class ALockedFastIterableDelegateMap<K, V> implements IFastItera
 
     @Override
     public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
         lock.lock();
         try {
             return delegate.equals(obj);
@@ -446,6 +449,29 @@ public abstract class ALockedFastIterableDelegateMap<K, V> implements IFastItera
         public void clear() {
             throw newUnmodifiableException();
         }
+
+        @Override
+        public int hashCode() {
+            lock.lock();
+            try {
+                return delegate.values().hashCode();
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            lock.lock();
+            try {
+                return delegate.values().equals(obj);
+            } finally {
+                lock.unlock();
+            }
+        }
     }
 
     private final class KeySet implements Set<K>, Serializable {
@@ -543,6 +569,29 @@ public abstract class ALockedFastIterableDelegateMap<K, V> implements IFastItera
         @Override
         public void clear() {
             throw newUnmodifiableException();
+        }
+
+        @Override
+        public int hashCode() {
+            lock.lock();
+            try {
+                return delegate.keySet().hashCode();
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            lock.lock();
+            try {
+                return delegate.keySet().equals(obj);
+            } finally {
+                lock.unlock();
+            }
         }
     }
 
@@ -645,6 +694,29 @@ public abstract class ALockedFastIterableDelegateMap<K, V> implements IFastItera
         @Override
         public void clear() {
             throw newUnmodifiableException();
+        }
+
+        @Override
+        public int hashCode() {
+            lock.lock();
+            try {
+                return delegate.entrySet().hashCode();
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            lock.lock();
+            try {
+                return delegate.entrySet().equals(obj);
+            } finally {
+                lock.unlock();
+            }
         }
     }
 

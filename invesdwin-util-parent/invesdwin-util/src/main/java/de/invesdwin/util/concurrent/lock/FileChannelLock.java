@@ -13,6 +13,9 @@ import java.util.concurrent.locks.Condition;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyLock;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.time.Instant;
@@ -227,6 +230,18 @@ public class FileChannelLock implements Closeable, ILock {
     @Override
     public Condition newCondition() {
         throw new UnsupportedOperationException("not implemented");
+    }
+
+    //CHECKSTYLE:OFF
+    @Override
+    public ILock withStrategy(final ILockingStrategy strategy) {
+        //CHECKSTYLE:ON
+        return StrategyLock.maybeWrap(strategy, this);
+    }
+
+    @Override
+    public ILockingStrategy getStrategy() {
+        return DefaultLockingStrategy.INSTANCE;
     }
 
 }

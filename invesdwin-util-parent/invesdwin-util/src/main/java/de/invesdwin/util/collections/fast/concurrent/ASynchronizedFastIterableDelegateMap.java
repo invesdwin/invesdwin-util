@@ -14,6 +14,7 @@ import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
+import de.invesdwin.util.collections.primitive.APrimitiveConcurrentMap;
 
 /**
  * Boosts the iteration speed over the values by keeping a fast iterator instance that only gets modified when changes
@@ -207,8 +208,7 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
     }
 
     private UnsupportedOperationException newUnmodifiableException() {
-        return new UnsupportedOperationException(
-                "Unmodifiable, only size/isEmpty/contains/containsAll/iterator/toArray methods supported");
+        return APrimitiveConcurrentMap.newUnmodifiableException();
     }
 
     @Override
@@ -243,8 +243,13 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
     }
 
     @Override
-    public synchronized boolean equals(final Object obj) {
-        return delegate.equals(obj);
+    public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        synchronized (this) {
+            return delegate.equals(obj);
+        }
     }
 
     private final class ValuesCollection implements Collection<V>, Serializable {
@@ -332,6 +337,23 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
         public void clear() {
             throw newUnmodifiableException();
         }
+
+        @Override
+        public int hashCode() {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.values().hashCode();
+            }
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (o == this) {
+                return true;
+            }
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.values().equals(o);
+            }
+        }
     }
 
     private final class KeySet implements Set<K>, Serializable {
@@ -417,6 +439,23 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
         @Override
         public void clear() {
             throw newUnmodifiableException();
+        }
+
+        @Override
+        public int hashCode() {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.keySet().hashCode();
+            }
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (o == this) {
+                return true;
+            }
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.keySet().equals(o);
+            }
         }
     }
 
@@ -504,6 +543,23 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
         @Override
         public void clear() {
             throw newUnmodifiableException();
+        }
+
+        @Override
+        public int hashCode() {
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.entrySet().hashCode();
+            }
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (o == this) {
+                return true;
+            }
+            synchronized (ASynchronizedFastIterableDelegateMap.this) {
+                return delegate.entrySet().equals(o);
+            }
         }
     }
 
