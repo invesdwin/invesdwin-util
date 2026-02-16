@@ -18,6 +18,7 @@ import de.invesdwin.util.collections.primitive.PrimitiveConcurrentMapConfig;
 import de.invesdwin.util.collections.primitive.objkey.entry.NodeImmutableObject2ObjectEntry;
 import de.invesdwin.util.collections.primitive.objkey.striped.IObjectIterator;
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
+import de.invesdwin.util.error.FastNoSuchElementException;
 import it.unimi.dsi.fastutil.objects.Object2ObjectFunction;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -492,7 +493,7 @@ public class ConcurrentObject2ObjectMap<K, V> extends APrimitiveConcurrentMap<K,
                 @Override
                 public Object2ObjectMap.Entry<K, V> next() {
                     if (!hasNext()) {
-                        throw new IllegalStateException("No more elements");
+                        throw FastNoSuchElementException.getInstance("No more elements");
                     }
                     final Object2ObjectMap.Entry<K, V> next = currentIterator.next();
                     seenKey = next.getKey();

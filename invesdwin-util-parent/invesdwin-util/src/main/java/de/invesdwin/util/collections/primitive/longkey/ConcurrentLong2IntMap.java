@@ -17,6 +17,7 @@ import de.invesdwin.util.collections.primitive.PrimitiveConcurrentMapConfig;
 import de.invesdwin.util.collections.primitive.longkey.entry.NodeImmutableLong2IntEntry;
 import de.invesdwin.util.collections.primitive.objkey.striped.IObjectIterator;
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
+import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import it.unimi.dsi.fastutil.ints.IntCollection;
@@ -714,7 +715,7 @@ public class ConcurrentLong2IntMap extends APrimitiveConcurrentMap<Long, Integer
                 @Override
                 public Long2IntMap.Entry next() {
                     if (!hasNext()) {
-                        throw new IllegalStateException("No more elements");
+                        throw FastNoSuchElementException.getInstance("No more elements");
                     }
                     final Long2IntMap.Entry next = currentIterator.next();
                     seenKey = next.getLongKey();

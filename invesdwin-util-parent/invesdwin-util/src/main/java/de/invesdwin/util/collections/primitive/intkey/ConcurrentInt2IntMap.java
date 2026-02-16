@@ -17,6 +17,7 @@ import de.invesdwin.util.collections.primitive.PrimitiveConcurrentMapConfig;
 import de.invesdwin.util.collections.primitive.intkey.entry.NodeImmutableInt2IntEntry;
 import de.invesdwin.util.collections.primitive.objkey.striped.IObjectIterator;
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
+import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.math.Integers;
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
@@ -711,7 +712,7 @@ public class ConcurrentInt2IntMap extends APrimitiveConcurrentMap<Integer, Integ
                 @Override
                 public Int2IntMap.Entry next() {
                     if (!hasNext()) {
-                        throw new IllegalStateException("No more elements");
+                        throw FastNoSuchElementException.getInstance("No more elements");
                     }
                     final Int2IntMap.Entry next = currentIterator.next();
                     seenKey = next.getIntKey();
