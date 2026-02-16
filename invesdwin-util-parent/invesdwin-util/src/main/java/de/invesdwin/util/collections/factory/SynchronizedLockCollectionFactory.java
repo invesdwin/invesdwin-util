@@ -17,6 +17,8 @@ import java.util.function.Supplier;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.jctools.maps.NonBlockingHashMap;
+
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.bitset.SynchronizedBitSet;
@@ -128,23 +130,14 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
 
     @Override
     public <K, V> IFastIterableMap<K, V> newFastIterableTreeMap() {
-        return new SynchronizedFastIterableDelegateMap<K, V>(DisabledLockCollectionFactory.INSTANCE.newTreeMap()) {
-            @Override
-            protected void addToFastIterable(final K key, final V value) {
-                refreshFastIterable();
-            }
-        };
+        return new RefreshingSynchronizedFastIterableDelegateMap<K, V>(
+                DisabledLockCollectionFactory.INSTANCE.newTreeMap());
     }
 
     @Override
     public <K, V> IFastIterableMap<K, V> newFastIterableTreeMap(final IComparator<? super K> comparator) {
-        return new SynchronizedFastIterableDelegateMap<K, V>(
-                DisabledLockCollectionFactory.INSTANCE.newTreeMap(comparator)) {
-            @Override
-            protected void addToFastIterable(final K key, final V value) {
-                refreshFastIterable();
-            }
-        };
+        return new RefreshingSynchronizedFastIterableDelegateMap<K, V>(
+                DisabledLockCollectionFactory.INSTANCE.newTreeMap(comparator));
     }
 
     @Override
@@ -178,8 +171,15 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     public <K, V> ConcurrentMap<K, V> newConcurrentMap(final int initialSize, final float loadFactor,
             final int concurrencyLevel) {
         //CHECKSTYLE:OFF
-        return new ConcurrentHashMap<>(initialSize, loadFactor, concurrencyLevel);
+        //generally best for low cpu counts
+        //        return new ConcurrentHashMap<K, V>(initialSize, loadFactor, concurrencyLevel);
         //CHECKSTYLE:ON
+        //optimized for parallel writes and reads without blocking
+        return new NonBlockingHashMap<K, V>(initialSize);
+        //optimized for heap size and parallel reads
+        //        return new ConcurrentObject2ObjectMap<>(new PrimitiveConcurrentMapConfig().setInitialCapacity(initialSize)
+        //                .setLoadFactor(loadFactor)
+        //                .setConcurrencyLevel(concurrencyLevel));
     }
 
     @Override
@@ -269,6 +269,18 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     @Override
     public boolean isThreadSafe() {
         return true;
+    }
+
+    private static final class RefreshingSynchronizedFastIterableDelegateMap<K, V>
+            extends SynchronizedFastIterableDelegateMap<K, V> {
+        private RefreshingSynchronizedFastIterableDelegateMap(final Map<K, V> delegate) {
+            super(delegate);
+        }
+
+        @Override
+        protected void addToFastIterable(final K key, final V value) {
+            refreshFastIterable();
+        }
     }
 
     private static final class SynchronizedNestedExecutor extends ANestedExecutor {
