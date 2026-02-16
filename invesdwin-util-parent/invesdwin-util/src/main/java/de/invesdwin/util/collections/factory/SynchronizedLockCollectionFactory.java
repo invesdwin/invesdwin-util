@@ -171,7 +171,7 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     public <K, V> ConcurrentMap<K, V> newConcurrentMap(final int initialSize, final float loadFactor,
             final int concurrencyLevel) {
         //CHECKSTYLE:OFF
-        if (Executors.getCpuThreadPoolCount() >= 32) {
+        if (concurrencyLevel >= 32) {
             //optimized for parallel writes without blocking
             return new NonBlockingHashMap<K, V>(initialSize);
         } else {
