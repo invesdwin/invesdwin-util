@@ -16,11 +16,13 @@ import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
+import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import de.invesdwin.util.concurrent.reference.lazy.ILazyReference;
 import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.math.Integers;
 import it.unimi.dsi.fastutil.Hash;
 
 public interface ILockCollectionFactory {
@@ -35,6 +37,10 @@ public interface ILockCollectionFactory {
      * higher load factor means better space efficiency while having a worse lookup performance (due to collisions)
      */
     float DEFAULT_LOAD_FACTOR = Hash.DEFAULT_LOAD_FACTOR;
+
+    static int getDefaultConcurrencyLevel() {
+        return Integers.max(Executors.getCpuThreadPoolCount(), DEFAULT_CONCURRENCY_LEVEL);
+    }
 
     ILock newLock(String name);
 
@@ -140,7 +146,7 @@ public interface ILockCollectionFactory {
     }
 
     default <T> Set<T> newConcurrentSet(final int initialSize, final float loadFactor) {
-        return newConcurrentSet(initialSize, loadFactor, DEFAULT_CONCURRENCY_LEVEL);
+        return newConcurrentSet(initialSize, loadFactor, getDefaultConcurrencyLevel());
     }
 
     <T> Set<T> newConcurrentSet(int initialSize, float loadFactor, int concurrencyLevel);
@@ -202,7 +208,7 @@ public interface ILockCollectionFactory {
     }
 
     default <K, V> Map<K, V> newConcurrentMap(final int initialSize, final float loadFactor) {
-        return newConcurrentMap(initialSize, loadFactor, DEFAULT_CONCURRENCY_LEVEL);
+        return newConcurrentMap(initialSize, loadFactor, getDefaultConcurrencyLevel());
     }
 
     <K, V> Map<K, V> newConcurrentMap(int initialSize, float loadFactor, int concurrencyLevel);

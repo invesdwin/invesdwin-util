@@ -37,7 +37,7 @@ public class PrimitiveConcurrentMapConfig extends AValueObject {
             throw newImmutableException();
         }
     };
-    protected int concurrencyLevel = ILockCollectionFactory.DEFAULT_CONCURRENCY_LEVEL;
+    protected int concurrencyLevel = ILockCollectionFactory.getDefaultConcurrencyLevel();
     protected int initialCapacity = ILockCollectionFactory.DEFAULT_INITIAL_SIZE;
     protected float loadFactor = ILockCollectionFactory.DEFAULT_LOAD_FACTOR;
     protected ILockingStrategy lockingStrategy = Locks.getLockingStrategy();
