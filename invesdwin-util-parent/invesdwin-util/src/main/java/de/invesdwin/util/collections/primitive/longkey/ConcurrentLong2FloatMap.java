@@ -5,14 +5,16 @@ import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.LongToDoubleFunction;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
+import de.invesdwin.util.collections.iterable.buffer.NodeBufferingIterator;
 import de.invesdwin.util.collections.primitive.APrimitiveConcurrentMap;
 import de.invesdwin.util.collections.primitive.PrimitiveConcurrentMapConfig;
+import de.invesdwin.util.collections.primitive.longkey.entry.NodeImmutableLong2FloatEntry;
 import de.invesdwin.util.collections.primitive.objkey.striped.IObjectIterator;
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
 import de.invesdwin.util.math.Floats;
@@ -677,7 +679,7 @@ public class ConcurrentLong2FloatMap extends APrimitiveConcurrentMap<Long, Float
             }
             return new IObjectIterator<Long2FloatMap.Entry>() {
                 private int bucketIndex = -1;
-                private Iterator<Long2FloatMap.Entry> currentIterator = it.unimi.dsi.fastutil.objects.ObjectIterators
+                private Iterator<? extends Long2FloatMap.Entry> currentIterator = it.unimi.dsi.fastutil.objects.ObjectIterators
                         .emptyIterator();
                 private long seenKey;
 
@@ -693,9 +695,19 @@ public class ConcurrentLong2FloatMap extends APrimitiveConcurrentMap<Long, Float
                     return true;
                 }
 
-                private Iterator<Long2FloatMap.Entry> newIterator(final int bucket) {
+                private Iterator<? extends Long2FloatMap.Entry> newIterator(final int bucket) {
                     try (ICloseableLock lock = readAt(bucket)) {
-                        return new BufferingIterator<Long2FloatMap.Entry>(delegates[bucket]);
+                        final NodeBufferingIterator<NodeImmutableLong2FloatEntry> buffer = new NodeBufferingIterator<NodeImmutableLong2FloatEntry>();
+                        final ObjectIterator<Long2FloatMap.Entry> it = delegates[bucket].iterator();
+                        try {
+                            while (true) {
+                                final Long2FloatMap.Entry next = it.next();
+                                buffer.add(NodeImmutableLong2FloatEntry.of(next.getLongKey(), next.getFloatValue()));
+                            }
+                        } catch (final NoSuchElementException e) {
+                            //end reached
+                        }
+                        return buffer;
                     }
                 }
 

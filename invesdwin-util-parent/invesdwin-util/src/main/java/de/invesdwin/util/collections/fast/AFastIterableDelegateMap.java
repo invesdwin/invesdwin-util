@@ -8,8 +8,9 @@ import java.util.Set;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
+import de.invesdwin.util.bean.tuple.NodeImmutableEntry;
 import de.invesdwin.util.collections.Collections;
-import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
+import de.invesdwin.util.collections.iterable.buffer.NodeBufferingIterator;
 import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
 import de.invesdwin.util.collections.primitive.APrimitiveConcurrentMap;
 
@@ -22,7 +23,7 @@ import de.invesdwin.util.collections.primitive.APrimitiveConcurrentMap;
 @NotThreadSafe
 public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap<K, V> {
 
-    private transient BufferingIterator<Entry<K, V>> fastIterable;
+    private transient NodeBufferingIterator<NodeImmutableEntry<K, V>> fastIterable;
     private transient Entry<K, V>[] entryArray;
     private transient K[] keyArray;
     private transient V[] valueArray;
@@ -67,7 +68,7 @@ public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap
 
     protected void addToFastIterable(final K key, final V value) {
         if (fastIterable != null) {
-            fastIterable.add(ImmutableEntry.of(key, value));
+            fastIterable.add(NodeImmutableEntry.of(key, value));
         }
         entryArray = null;
         keyArray = null;
@@ -81,7 +82,7 @@ public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap
         }
         delegate.clear();
         if (fastIterable != null) {
-            fastIterable = new BufferingIterator<Entry<K, V>>();
+            fastIterable = new NodeBufferingIterator<NodeImmutableEntry<K, V>>();
         }
         entryArray = null;
         keyArray = null;
@@ -440,19 +441,20 @@ public abstract class AFastIterableDelegateMap<K, V> implements IFastIterableMap
             return delegate.entrySet().contains(o);
         }
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         @Override
         public Iterator<Entry<K, V>> iterator() {
             if (entryArray != null) {
                 return new ArrayCloseableIterator<>(entryArray);
             }
             if (fastIterable == null) {
-                fastIterable = new BufferingIterator<Entry<K, V>>();
+                fastIterable = new NodeBufferingIterator<NodeImmutableEntry<K, V>>();
                 for (final Entry<K, V> e : delegate.entrySet()) {
                     //koloboke reuses/resets its entries, thus we have to make a safe copy
-                    fastIterable.add(ImmutableEntry.of(e.getKey(), e.getValue()));
+                    fastIterable.add(NodeImmutableEntry.of(e.getKey(), e.getValue()));
                 }
             }
-            return fastIterable.iterator();
+            return (Iterator) fastIterable.iterator();
         }
 
         @Override

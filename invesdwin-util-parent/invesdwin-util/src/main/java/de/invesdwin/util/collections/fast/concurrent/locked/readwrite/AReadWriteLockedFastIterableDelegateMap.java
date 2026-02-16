@@ -10,9 +10,10 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
+import de.invesdwin.util.bean.tuple.NodeImmutableEntry;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
-import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
+import de.invesdwin.util.collections.iterable.buffer.NodeBufferingIterator;
 import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
 import de.invesdwin.util.collections.primitive.APrimitiveConcurrentMap;
 import de.invesdwin.util.concurrent.lock.Locks;
@@ -29,7 +30,7 @@ public abstract class AReadWriteLockedFastIterableDelegateMap<K, V> implements I
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     @GuardedBy("lock")
-    private transient BufferingIterator<Entry<K, V>> fastIterable;
+    private transient NodeBufferingIterator<NodeImmutableEntry<K, V>> fastIterable;
     @GuardedBy("lock")
     private transient Entry<K, V>[] entryArray;
     @GuardedBy("lock")
@@ -104,7 +105,7 @@ public abstract class AReadWriteLockedFastIterableDelegateMap<K, V> implements I
 
     protected void addToFastIterable(final K key, final V value) {
         if (fastIterable != null) {
-            fastIterable.add(ImmutableEntry.of(key, value));
+            fastIterable.add(NodeImmutableEntry.of(key, value));
         }
         entryArray = null;
         keyArray = null;
@@ -120,7 +121,7 @@ public abstract class AReadWriteLockedFastIterableDelegateMap<K, V> implements I
             }
             delegate.clear();
             if (fastIterable != null) {
-                fastIterable = new BufferingIterator<Entry<K, V>>();
+                fastIterable = new NodeBufferingIterator<NodeImmutableEntry<K, V>>();
             }
             entryArray = null;
             keyArray = null;
@@ -644,6 +645,7 @@ public abstract class AReadWriteLockedFastIterableDelegateMap<K, V> implements I
             }
         }
 
+        @SuppressWarnings({ "rawtypes", "unchecked" })
         @Override
         public Iterator<Entry<K, V>> iterator() {
             lock.readLock().lock();
@@ -652,9 +654,9 @@ public abstract class AReadWriteLockedFastIterableDelegateMap<K, V> implements I
                 if (entryArrayCopy != null) {
                     return new ArrayCloseableIterator<>(entryArrayCopy);
                 }
-                final BufferingIterator<Entry<K, V>> fastIterableCopy = fastIterable;
+                final NodeBufferingIterator<NodeImmutableEntry<K, V>> fastIterableCopy = fastIterable;
                 if (fastIterableCopy != null) {
-                    return fastIterableCopy.iterator();
+                    return (Iterator) fastIterableCopy.iterator();
                 }
             } finally {
                 lock.readLock().unlock();
@@ -665,13 +667,13 @@ public abstract class AReadWriteLockedFastIterableDelegateMap<K, V> implements I
                     return new ArrayCloseableIterator<>(entryArray);
                 }
                 if (fastIterable == null) {
-                    fastIterable = new BufferingIterator<Entry<K, V>>();
+                    fastIterable = new NodeBufferingIterator<NodeImmutableEntry<K, V>>();
                     for (final Entry<K, V> e : delegate.entrySet()) {
                         //koloboke and other maps reuse/reset its entries, thus we have to make a safe copy
-                        fastIterable.add(ImmutableEntry.of(e.getKey(), e.getValue()));
+                        fastIterable.add(NodeImmutableEntry.of(e.getKey(), e.getValue()));
                     }
                 }
-                return fastIterable.iterator();
+                return (Iterator) fastIterable.iterator();
             } finally {
                 lock.writeLock().unlock();
             }

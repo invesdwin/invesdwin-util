@@ -5,14 +5,16 @@ import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.IntUnaryOperator;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
+import de.invesdwin.util.collections.iterable.buffer.NodeBufferingIterator;
 import de.invesdwin.util.collections.primitive.APrimitiveConcurrentMap;
 import de.invesdwin.util.collections.primitive.PrimitiveConcurrentMapConfig;
+import de.invesdwin.util.collections.primitive.intkey.entry.NodeImmutableInt2IntEntry;
 import de.invesdwin.util.collections.primitive.objkey.striped.IObjectIterator;
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
 import de.invesdwin.util.math.Integers;
@@ -674,7 +676,7 @@ public class ConcurrentInt2IntMap extends APrimitiveConcurrentMap<Integer, Integ
             }
             return new IObjectIterator<Int2IntMap.Entry>() {
                 private int bucketIndex = -1;
-                private Iterator<Int2IntMap.Entry> currentIterator = it.unimi.dsi.fastutil.objects.ObjectIterators
+                private Iterator<? extends Int2IntMap.Entry> currentIterator = it.unimi.dsi.fastutil.objects.ObjectIterators
                         .emptyIterator();
                 private int seenKey;
 
@@ -690,9 +692,19 @@ public class ConcurrentInt2IntMap extends APrimitiveConcurrentMap<Integer, Integ
                     return true;
                 }
 
-                private Iterator<Int2IntMap.Entry> newIterator(final int bucket) {
+                private Iterator<? extends Int2IntMap.Entry> newIterator(final int bucket) {
                     try (ICloseableLock lock = readAt(bucket)) {
-                        return new BufferingIterator<Int2IntMap.Entry>(delegates[bucket]);
+                        final NodeBufferingIterator<NodeImmutableInt2IntEntry> buffer = new NodeBufferingIterator<NodeImmutableInt2IntEntry>();
+                        final ObjectIterator<Int2IntMap.Entry> it = delegates[bucket].iterator();
+                        try {
+                            while (true) {
+                                final Int2IntMap.Entry next = it.next();
+                                buffer.add(NodeImmutableInt2IntEntry.of(next.getIntKey(), next.getIntValue()));
+                            }
+                        } catch (final NoSuchElementException e) {
+                            //end reached
+                        }
+                        return buffer;
                     }
                 }
 

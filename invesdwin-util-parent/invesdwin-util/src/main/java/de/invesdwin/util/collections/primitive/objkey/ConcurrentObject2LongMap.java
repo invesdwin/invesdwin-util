@@ -5,15 +5,17 @@ import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
+import de.invesdwin.util.collections.iterable.buffer.NodeBufferingIterator;
 import de.invesdwin.util.collections.primitive.APrimitiveConcurrentMap;
 import de.invesdwin.util.collections.primitive.PrimitiveConcurrentMapConfig;
+import de.invesdwin.util.collections.primitive.objkey.entry.NodeImmutableObject2LongEntry;
 import de.invesdwin.util.collections.primitive.objkey.striped.IObjectIterator;
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
 import de.invesdwin.util.math.Longs;
@@ -611,7 +613,7 @@ public class ConcurrentObject2LongMap<K> extends APrimitiveConcurrentMap<K, Long
             }
             return new IObjectIterator<Object2LongMap.Entry<K>>() {
                 private int bucketIndex = -1;
-                private Iterator<Object2LongMap.Entry<K>> currentIterator = it.unimi.dsi.fastutil.objects.ObjectIterators
+                private Iterator<? extends Object2LongMap.Entry<K>> currentIterator = it.unimi.dsi.fastutil.objects.ObjectIterators
                         .emptyIterator();
                 private K seenKey;
 
@@ -627,9 +629,19 @@ public class ConcurrentObject2LongMap<K> extends APrimitiveConcurrentMap<K, Long
                     return true;
                 }
 
-                private Iterator<Object2LongMap.Entry<K>> newIterator(final int bucket) {
+                private Iterator<? extends Object2LongMap.Entry<K>> newIterator(final int bucket) {
                     try (ICloseableLock lock = readAt(bucket)) {
-                        return new BufferingIterator<Object2LongMap.Entry<K>>(delegates[bucket]);
+                        final NodeBufferingIterator<NodeImmutableObject2LongEntry<K>> buffer = new NodeBufferingIterator<NodeImmutableObject2LongEntry<K>>();
+                        final ObjectIterator<Object2LongMap.Entry<K>> it = delegates[bucket].iterator();
+                        try {
+                            while (true) {
+                                final Object2LongMap.Entry<K> next = it.next();
+                                buffer.add(NodeImmutableObject2LongEntry.of(next.getKey(), next.getLongValue()));
+                            }
+                        } catch (final NoSuchElementException e) {
+                            //end reached
+                        }
+                        return buffer;
                     }
                 }
 

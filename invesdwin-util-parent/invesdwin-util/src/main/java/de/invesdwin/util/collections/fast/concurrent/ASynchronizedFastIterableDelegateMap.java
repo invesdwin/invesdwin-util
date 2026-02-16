@@ -10,9 +10,10 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.bean.tuple.ImmutableEntry;
+import de.invesdwin.util.bean.tuple.NodeImmutableEntry;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
-import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
+import de.invesdwin.util.collections.iterable.buffer.NodeBufferingIterator;
 import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
 import de.invesdwin.util.collections.primitive.APrimitiveConcurrentMap;
 
@@ -27,7 +28,7 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
 
     //arraylist wins in raw iterator speed compared to bufferingIterator since no remove is needed, though we need protection against concurrent modification
     @GuardedBy("this")
-    private transient BufferingIterator<Entry<K, V>> fastIterable;
+    private transient NodeBufferingIterator<NodeImmutableEntry<K, V>> fastIterable;
     @GuardedBy("this")
     private transient Entry<K, V>[] entryArray;
     @GuardedBy("this")
@@ -76,7 +77,7 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
 
     protected void addToFastIterable(final K key, final V value) {
         if (fastIterable != null) {
-            fastIterable.add(ImmutableEntry.of(key, value));
+            fastIterable.add(NodeImmutableEntry.of(key, value));
         }
         entryArray = null;
         keyArray = null;
@@ -90,7 +91,7 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
         }
         delegate.clear();
         if (fastIterable != null) {
-            fastIterable = new BufferingIterator<Entry<K, V>>();
+            fastIterable = new NodeBufferingIterator<NodeImmutableEntry<K, V>>();
         }
         entryArray = null;
         keyArray = null;
@@ -477,6 +478,7 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
             }
         }
 
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         @Override
         public Iterator<Entry<K, V>> iterator() {
             synchronized (ASynchronizedFastIterableDelegateMap.this) {
@@ -484,13 +486,13 @@ public abstract class ASynchronizedFastIterableDelegateMap<K, V> implements IFas
                     return new ArrayCloseableIterator<>(entryArray);
                 }
                 if (fastIterable == null) {
-                    fastIterable = new BufferingIterator<Entry<K, V>>();
+                    fastIterable = new NodeBufferingIterator<NodeImmutableEntry<K, V>>();
                     for (final Entry<K, V> e : delegate.entrySet()) {
                         //koloboke and other maps reuse/reset its entries, thus we have to make a safe copy
-                        fastIterable.add(ImmutableEntry.of(e.getKey(), e.getValue()));
+                        fastIterable.add(NodeImmutableEntry.of(e.getKey(), e.getValue()));
                     }
                 }
-                return fastIterable.iterator();
+                return (Iterator) fastIterable.iterator();
             }
         }
 
