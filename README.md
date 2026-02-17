@@ -49,6 +49,21 @@ This makes working with lots of tasks in thread pools easier by providing method
 Provides a way to create a pipes and filters work chain with steps to parallelize on. Chaining of tasks can make complex workloads far easier to implement. For example loading a financial data cache from a rest service and transforming that into a binary local cache format in a parallel fashion becomes easy with this design.
 #### `@ParallelSuite`
 Use this annotation instead of `@Suite` from JUnit to parallelize test suites/classes/methods. The annotation provides parameters to configure parallelization needs and control inheritance.
+#### `Locks`
+Creates named locks that help debugging deadlocks by printing traces or timeouts when they occur as an extension of [CycleDetectingLockFactory from Guava](https://github.com/google/guava/blob/master/guava/src/com/google/common/util/concurrent/CycleDetectingLockFactory.java). For example wrong order of lock/unlock or keeping readLocks open so that a writeLock can never be acquired or blocks for too long. Also offers ILockingStrategy wrappers that allow to use BusyWaiting/SpinWaiting strategies instead of the default blocking lock prcedures for low latency scenarios.
+
+## Collections
+#### `ILockCollectionFactory`
+This is a factory for creating various thread safe or non thread safe collections. It applies defaults and heuristics for performance/memory tradeoffs. For example when to use [RoaringBitMap](https://github.com/RoaringBitmap/RoaringBitmap) instead of JDK BitSet or when to use [NonBlockingHashMap](https://github.com/JCTools/JCTools/blob/master/jctools-core/src/main/java/org/jctools/maps/NonBlockingHashMap.java) over JDK ConcurrentHashMap. It generally prefers collections that reduce garbage collector overhead by utilising [fastutil](https://github.com/vigna/fastutil/) where this can be done without performance penalties. There are also PooledMap/Set/List implementations that can be reused to avoid allocations throughout utility functions.
+#### `FastIterable Map/Set/List`
+Wrappers for collections that cache array representation for faster iteration over collections. Also prevents ConcurrentModificationExceptions, though with inverted pattern compared to CopyOnWrite collections.
+#### `Concurrent Primitive 2 Primitive Map`
+An improved version of [fastutil-concurrent-wrapper](https://github.com/magicprinc/fastutil-concurrent-wrapper), which already improved upon the original version from [trivago](https://github.com/trivago/fastutil-concurrent-wrapper). This is done by:
+- implementing the full fastutil interfaces
+- adding some more types for e.g. Object2Object maps
+- supporting a configurable ILockingStrategy instead of requiring another map implementation per locking strategy
+- an improved computeIfAbsent (no need for a write lock if a value already exists)
+- an estimated size (use a volatile counter instead of counting every map with a lock)
 
 ## Beans
 #### `APropertyChangeSupported`
