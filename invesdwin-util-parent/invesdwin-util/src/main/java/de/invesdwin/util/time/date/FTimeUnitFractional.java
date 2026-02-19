@@ -370,12 +370,12 @@ public enum FTimeUnitFractional {
 
         @Override
         public double toMonths(final double duration) {
-            return toDays(duration) * DAYS_IN_MONTH;
+            return toDays(duration) / DAYS_IN_MONTH;
         }
 
         @Override
         public double toYears(final double duration) {
-            return toDays(duration) * DAYS_IN_YEAR;
+            return toDays(duration) / DAYS_IN_YEAR;
         }
 
     },
@@ -428,17 +428,17 @@ public enum FTimeUnitFractional {
 
         @Override
         public double toWeeks(final double duration) {
-            return toDays(duration) * DAYS_IN_WEEK;
+            return toDays(duration) / DAYS_IN_WEEK;
         }
 
         @Override
         public double toMonths(final double duration) {
-            return toDays(duration) * DAYS_IN_MONTH;
+            return toDays(duration) / DAYS_IN_MONTH;
         }
 
         @Override
         public double toYears(final double duration) {
-            return toDays(duration) * DAYS_IN_YEAR;
+            return toDays(duration) / DAYS_IN_YEAR;
         }
 
     },
@@ -491,17 +491,17 @@ public enum FTimeUnitFractional {
 
         @Override
         public double toWeeks(final double duration) {
-            return toDays(duration) * DAYS_IN_WEEK;
+            return toDays(duration) / DAYS_IN_WEEK;
         }
 
         @Override
         public double toMonths(final double duration) {
-            return toDays(duration) * DAYS_IN_MONTH;
+            return toDays(duration) / DAYS_IN_MONTH;
         }
 
         @Override
         public double toYears(final double duration) {
-            return toDays(duration) * DAYS_IN_YEAR;
+            return toDays(duration) / DAYS_IN_YEAR;
         }
 
     },
@@ -554,17 +554,17 @@ public enum FTimeUnitFractional {
 
         @Override
         public double toWeeks(final double duration) {
-            return toDays(duration) * DAYS_IN_WEEK;
+            return toDays(duration) / DAYS_IN_WEEK;
         }
 
         @Override
         public double toMonths(final double duration) {
-            return toDays(duration) * DAYS_IN_MONTH;
+            return toDays(duration) / DAYS_IN_MONTH;
         }
 
         @Override
         public double toYears(final double duration) {
-            return toDays(duration) * DAYS_IN_YEAR;
+            return toDays(duration) / DAYS_IN_YEAR;
         }
 
     },
@@ -617,17 +617,17 @@ public enum FTimeUnitFractional {
 
         @Override
         public double toWeeks(final double duration) {
-            return toDays(duration) * DAYS_IN_WEEK;
+            return toDays(duration) / DAYS_IN_WEEK;
         }
 
         @Override
         public double toMonths(final double duration) {
-            return toDays(duration) * DAYS_IN_MONTH;
+            return toDays(duration) / DAYS_IN_MONTH;
         }
 
         @Override
         public double toYears(final double duration) {
-            return toDays(duration) * DAYS_IN_YEAR;
+            return toDays(duration) / DAYS_IN_YEAR;
         }
 
     },
@@ -680,17 +680,17 @@ public enum FTimeUnitFractional {
 
         @Override
         public double toWeeks(final double duration) {
-            return toDays(duration) * DAYS_IN_WEEK;
+            return toDays(duration) / DAYS_IN_WEEK;
         }
 
         @Override
         public double toMonths(final double duration) {
-            return toDays(duration) * DAYS_IN_MONTH;
+            return toDays(duration) / DAYS_IN_MONTH;
         }
 
         @Override
         public double toYears(final double duration) {
-            return toDays(duration) * DAYS_IN_YEAR;
+            return toDays(duration) / DAYS_IN_YEAR;
         }
 
     },
@@ -742,17 +742,17 @@ public enum FTimeUnitFractional {
 
         @Override
         public double toWeeks(final double duration) {
-            return toDays(duration) * DAYS_IN_WEEK;
+            return toDays(duration) / DAYS_IN_WEEK;
         }
 
         @Override
         public double toMonths(final double duration) {
-            return toDays(duration) * DAYS_IN_MONTH;
+            return toDays(duration) / DAYS_IN_MONTH;
         }
 
         @Override
         public double toYears(final double duration) {
-            return toDays(duration) * DAYS_IN_YEAR;
+            return toDays(duration) / DAYS_IN_YEAR;
         }
 
     },
@@ -805,17 +805,17 @@ public enum FTimeUnitFractional {
 
         @Override
         public double toWeeks(final double duration) {
-            return toDays(duration) * DAYS_IN_WEEK;
+            return toDays(duration) / DAYS_IN_WEEK;
         }
 
         @Override
         public double toMonths(final double duration) {
-            return toDays(duration) * DAYS_IN_MONTH;
+            return toDays(duration) / DAYS_IN_MONTH;
         }
 
         @Override
         public double toYears(final double duration) {
-            return toDays(duration) * DAYS_IN_YEAR;
+            return toDays(duration) / DAYS_IN_YEAR;
         }
 
     };
