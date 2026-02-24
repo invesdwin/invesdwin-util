@@ -50,7 +50,7 @@ Provides a way to create a pipes and filters work chain with steps to paralleliz
 #### `@ParallelSuite`
 Use this annotation instead of `@Suite` from JUnit to parallelize test suites/classes/methods. The annotation provides parameters to configure parallelization needs and control inheritance.
 #### `Locks`
-Creates named locks that help debugging deadlocks by printing traces or timeouts when they occur as an extension of [CycleDetectingLockFactory from Guava](https://github.com/google/guava/blob/master/guava/src/com/google/common/util/concurrent/CycleDetectingLockFactory.java). For example wrong order of lock/unlock or keeping readLocks open so that a writeLock can never be acquired or blocks for too long. Also offers ILockingStrategy wrappers that allow to use BusyWaiting/SpinWaiting strategies instead of the default blocking lock prcedures for low latency scenarios.
+Creates named locks that help debugging deadlocks by printing traces or timeouts when they occur as an extension of [CycleDetectingLockFactory from Guava](https://github.com/google/guava/blob/master/guava/src/com/google/common/util/concurrent/CycleDetectingLockFactory.java). For example wrong order of lock/unlock or keeping readLocks open so that a writeLock can never be acquired or blocks for too long. Also offers ILockingStrategy wrappers that allow to use BusyWaiting/SpinWaiting strategies instead of the default blocking lock procedures for low latency scenarios.
 
 ## Collections
 #### `ILockCollectionFactory`
