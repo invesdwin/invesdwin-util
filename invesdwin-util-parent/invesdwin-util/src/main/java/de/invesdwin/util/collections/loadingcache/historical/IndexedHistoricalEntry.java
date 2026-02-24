@@ -12,7 +12,7 @@ import de.invesdwin.util.time.date.FDate;
 public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
 
     private final int parentIdentityHashCode;
-    private IHistoricalCacheInternalMethods<V> loadValueInternalMethods;
+    private volatile IHistoricalCacheInternalMethods<V> loadValueInternalMethods;
     private volatile FDate key;
     private volatile Optional<V> value;
     private volatile FDate prevKey;
