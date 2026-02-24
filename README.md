@@ -58,7 +58,7 @@ This is a factory for creating various thread safe or non thread safe collection
 #### `FastIterable Map/Set/List`
 Wrappers for collections that cache array representation for faster iteration over collections. Also prevents ConcurrentModificationExceptions, though with inverted pattern compared to CopyOnWrite collections.
 #### `Concurrent Primitive 2 Primitive Map`
-An improved version of [fastutil-concurrent-wrapper](https://github.com/magicprinc/fastutil-concurrent-wrapper), which already improved upon the original version from [trivago](https://github.com/trivago/fastutil-concurrent-wrapper). This is done by:
+An improved version of [magicprinc/fastutil-concurrent-wrapper](https://github.com/magicprinc/fastutil-concurrent-wrapper), which already improved upon the original version from [trivago](https://github.com/trivago/fastutil-concurrent-wrapper). This is done by:
 - implementing the full fastutil interfaces
 - adding some more types for e.g. Object2Object maps
 - supporting a configurable ILockingStrategy instead of requiring another map implementation per locking strategy
