@@ -11,20 +11,23 @@ import de.invesdwin.util.time.date.FDate;
 @ThreadSafe
 public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
 
-    private final IHistoricalCacheInternalMethods<V> parent;
+    private final int parentIdentityHashCode;
+    private IHistoricalCacheInternalMethods<V> loadValueInternalMethods;
     private volatile FDate key;
     private volatile Optional<V> value;
     private volatile FDate prevKey;
     private volatile FDate nextKey;
 
-    public IndexedHistoricalEntry(final IHistoricalCacheInternalMethods<V> parent, final FDate key) {
-        this.parent = parent;
-        this.key = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(key);
+    public IndexedHistoricalEntry(final IHistoricalCacheInternalMethods<V> internalMethods, final FDate key) {
+        this.parentIdentityHashCode = internalMethods.getParentIdentityHashCode();
+        this.key = internalMethods.getAdjustKeyProvider().newAlreadyAdjustedKey(key);
+        this.loadValueInternalMethods = internalMethods;
     }
 
-    public IndexedHistoricalEntry(final IHistoricalCacheInternalMethods<V> parent, final FDate key, final V value) {
-        this.parent = parent;
-        this.key = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(key);
+    public IndexedHistoricalEntry(final IHistoricalCacheInternalMethods<V> internalMethods, final FDate key,
+            final V value) {
+        this.parentIdentityHashCode = internalMethods.getParentIdentityHashCode();
+        this.key = internalMethods.getAdjustKeyProvider().newAlreadyAdjustedKey(key);
         this.value = Optional.ofNullable(value);
     }
 
@@ -35,8 +38,12 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
 
     @Override
     public V getValue() {
-        if (value == null) {
-            loadValue();
+        final IHistoricalCacheInternalMethods<V> loadValueInternalMethodsCopy = loadValueInternalMethods;
+        if (loadValueInternalMethodsCopy != null) {
+            //better stay lock-free here to avoid deadlocks (unconfirmed)
+            loadValue(loadValueInternalMethodsCopy);
+            //prevent memory leak due to reference leak
+            loadValueInternalMethods = null;
         }
         return value.orElse(null);
     }
@@ -55,17 +62,17 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
         }
     }
 
-    public void setValue(final FDate key, final V value) {
-        this.key = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(key);
+    public void setValue(final IHistoricalCacheInternalMethods<V> internalMethods, final FDate key, final V value) {
+        this.key = internalMethods.getAdjustKeyProvider().newAlreadyAdjustedKey(key);
         this.value = Optional.ofNullable(value);
     }
 
     @SuppressWarnings("unchecked")
-    private synchronized void loadValue() {
+    private synchronized void loadValue(final IHistoricalCacheInternalMethods<V> internalMethods) {
         if (value != null) {
             return;
         }
-        final V v = parent.newLoadValue().evaluateGeneric(key);
+        final V v = internalMethods.newLoadValue().evaluateGeneric(key);
         value = Optional.ofNullable(v);
         if (v == null) {
             return;
@@ -79,24 +86,24 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
             final IHistoricalEntry<V> ccValue = (IHistoricalEntry<V>) cValue.asHistoricalEntry();
             unadj = ccValue.getKey();
         } else {
-            unadj = parent.extractKey(key, v);
+            unadj = internalMethods.extractKey(key, v);
         }
-        key = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(unadj);
+        key = internalMethods.getAdjustKeyProvider().newAlreadyAdjustedKey(unadj);
     }
 
-    public FDate getPrevKey() {
+    public FDate getPrevKey(final IHistoricalCacheInternalMethods<V> internalMethods) {
         if (prevKey == null) {
             synchronized (this) {
                 if (prevKey == null) {
-                    parent.invokeRefreshIfRequested();
-                    final FDate unadj = parent.innerCalculatePreviousKey(key);
+                    internalMethods.invokeRefreshIfRequested();
+                    final FDate unadj = internalMethods.innerCalculatePreviousKey(key);
                     if (unadj == null) {
                         return null;
                     }
                     if (unadj.isAfterNotNullSafe(key)) {
                         return null;
                     }
-                    final FDate adj = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(unadj);
+                    final FDate adj = internalMethods.getAdjustKeyProvider().newAlreadyAdjustedKey(unadj);
                     if (adj.isAfterNotNullSafe(key)) {
                         return null;
                     }
@@ -107,7 +114,7 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
         return prevKey;
     }
 
-    public void setPrevKey(final FDate prev) {
+    public void setPrevKey(final IHistoricalCacheInternalMethods<V> internalMethods, final FDate prev) {
         if (prev == null) {
             this.prevKey = null;
             return;
@@ -116,7 +123,7 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
             this.prevKey = null;
             return;
         }
-        final FDate adj = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(prev);
+        final FDate adj = internalMethods.getAdjustKeyProvider().newAlreadyAdjustedKey(prev);
         if (adj.isAfterNotNullSafe(key)) {
             this.prevKey = null;
             return;
@@ -124,19 +131,19 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
         this.prevKey = adj;
     }
 
-    public FDate getNextKey() {
+    public FDate getNextKey(final IHistoricalCacheInternalMethods<V> internalMethods) {
         if (nextKey == null) {
             synchronized (this) {
                 if (nextKey == null) {
-                    parent.invokeRefreshIfRequested();
-                    final FDate unadj = parent.innerCalculateNextKey(key);
+                    internalMethods.invokeRefreshIfRequested();
+                    final FDate unadj = internalMethods.innerCalculateNextKey(key);
                     if (unadj == null) {
                         return null;
                     }
                     if (unadj.isBeforeOrEqualToNotNullSafe(key)) {
                         return null;
                     }
-                    final FDate adj = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(unadj);
+                    final FDate adj = internalMethods.getAdjustKeyProvider().newAlreadyAdjustedKey(unadj);
                     if (adj.isBeforeOrEqualToNotNullSafe(key)) {
                         return null;
                     }
@@ -147,7 +154,7 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
         return nextKey;
     }
 
-    public void setNextKey(final FDate next) {
+    public void setNextKey(final IHistoricalCacheInternalMethods<V> internalMethods, final FDate next) {
         if (next == null) {
             this.nextKey = null;
             return;
@@ -156,7 +163,7 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
             this.nextKey = null;
             return;
         }
-        final FDate adj = parent.getAdjustKeyProvider().newAlreadyAdjustedKey(next);
+        final FDate adj = internalMethods.getAdjustKeyProvider().newAlreadyAdjustedKey(next);
         if (adj.isBeforeOrEqualToNotNullSafe(key)) {
             this.nextKey = null;
             return;
@@ -179,42 +186,42 @@ public final class IndexedHistoricalEntry<V> implements IHistoricalEntry<V> {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> IHistoricalEntry<T> maybeExtractKey(final IHistoricalCacheInternalMethods<T> parent,
+    public static <T> IHistoricalEntry<T> maybeExtractKey(final IHistoricalCacheInternalMethods<T> internalMethods,
             final FDate key, final T value) {
         if (value == null) {
             return null;
         }
         if (value instanceof IndexedHistoricalEntry) {
             final IndexedHistoricalEntry<T> cValue = (IndexedHistoricalEntry<T>) value;
-            if (cValue.parent == parent) {
+            if (cValue.parentIdentityHashCode == internalMethods.getParentIdentityHashCode()) {
                 return cValue;
             }
         }
         if (value instanceof IHistoricalEntry) {
             final IHistoricalEntry<T> cValue = (IHistoricalEntry<T>) value;
-            return new IndexedHistoricalEntry<T>(parent, cValue.getKey(), cValue.getValue());
+            return new IndexedHistoricalEntry<T>(internalMethods, cValue.getKey(), cValue.getValue());
         } else if (value instanceof IHistoricalValue) {
             final IHistoricalValue<T> cValue = (IHistoricalValue<T>) value;
             final IHistoricalEntry<T> ccValue = (IHistoricalEntry<T>) cValue.asHistoricalEntry();
-            return new IndexedHistoricalEntry<T>(parent, ccValue.getKey(), ccValue.getValue());
+            return new IndexedHistoricalEntry<T>(internalMethods, ccValue.getKey(), ccValue.getValue());
         } else {
-            final FDate valueKey = parent.extractKey(key, value);
-            return new IndexedHistoricalEntry<T>(parent, valueKey, value);
+            final FDate valueKey = internalMethods.extractKey(key, value);
+            return new IndexedHistoricalEntry<T>(internalMethods, valueKey, value);
         }
     }
 
-    public static <T> IHistoricalEntry<T> maybeExtractKey(final IHistoricalCacheInternalMethods<T> parent,
+    public static <T> IHistoricalEntry<T> maybeExtractKey(final IHistoricalCacheInternalMethods<T> internalMethods,
             final FDate key, final IHistoricalEntry<T> value) {
         if (value == null) {
             return null;
         }
         if (value instanceof IndexedHistoricalEntry) {
             final IndexedHistoricalEntry<T> cValue = (IndexedHistoricalEntry<T>) value;
-            if (cValue.parent == parent) {
+            if (cValue.parentIdentityHashCode == internalMethods.getParentIdentityHashCode()) {
                 return cValue;
             }
         }
-        return new IndexedHistoricalEntry<T>(parent, value.getKey(), value.getValue());
+        return new IndexedHistoricalEntry<T>(internalMethods, value.getKey(), value.getValue());
     }
 
     @Override

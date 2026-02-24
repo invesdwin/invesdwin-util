@@ -619,18 +619,18 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
 
     public class GapValuesMap extends ValuesMap {
 
-        private final WeakThreadLocalReference<ALatestValueByGapCache<IHistoricalEntry<V>>> latestValueByGapCacheHolder = new WeakThreadLocalReference<ALatestValueByGapCache<IHistoricalEntry<V>>>() {
-            @Override
-            protected ALatestValueByGapCache<IHistoricalEntry<V>> initialValue() {
-                return new LatestValueByGapCache();
-            };
-        };
+        private final WeakThreadLocalReference<LatestValueByGapCache<V>> latestValueByGapCacheHolder = new WeakThreadLocalReference<LatestValueByGapCache<V>>();
+        private final AGapHistoricalCache<V> parent = AGapHistoricalCache.this;
 
         @Override
         public IHistoricalEntry<V> get(final FDate key) {
             invokeRefreshIfRequested();
-            final ALatestValueByGapCache<IHistoricalEntry<V>> latestValueByGapCache = latestValueByGapCacheHolder.get();
-            final IHistoricalEntry<V> value = latestValueByGapCache.getLatestValueByGap(key);
+            LatestValueByGapCache<V> latestValueByGapCache = latestValueByGapCacheHolder.get();
+            if (latestValueByGapCache == null) {
+                latestValueByGapCache = new LatestValueByGapCache<>(this);
+                latestValueByGapCacheHolder.set(latestValueByGapCache);
+            }
+            final IHistoricalEntry<V> value = latestValueByGapCache.getLatestValueByGap(this, key);
             return value;
         }
 
@@ -638,121 +638,131 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             return super.superGet(key);
         }
 
-        private final class LatestValueByGapCache extends ALatestValueByGapCache<IHistoricalEntry<V>> {
+    }
 
-            private Optional<FDate> maxKeyInDB;
-            private int lastResetIndexMaxKey = getLastResetIndex() - 1;
+    private static final class LatestValueByGapCache<V>
+            extends ALatestValueByGapCache<IHistoricalEntry<V>, AGapHistoricalCache<V>.GapValuesMap> {
 
-            @Override
-            protected int getLastResetIndex() {
-                return lastResetIndex.get();
+        private Optional<FDate> maxKeyInDB;
+        private int lastResetIndexMaxKey;
+
+        private LatestValueByGapCache(final AGapHistoricalCache<V>.GapValuesMap parent) {
+            super(parent);
+            this.lastResetIndexMaxKey = getLastResetIndex(parent) - 1;
+        }
+
+        @Override
+        protected int getLastResetIndex(final AGapHistoricalCache<V>.GapValuesMap parent) {
+            return parent.parent.lastResetIndex.get();
+        }
+
+        @Override
+        protected FDate getHighestAllowedKey(final AGapHistoricalCache<V>.GapValuesMap parent,
+                final int lastResetIndex) {
+            final FDate highestAllowedKey = parent.parent.getAdjustKeyProvider().getHighestAllowedKey(true);
+            if (highestAllowedKey != null) {
+                return highestAllowedKey;
             }
+            return getMaxKeyInDB(parent, lastResetIndex);
+        }
 
-            @Override
-            protected FDate getHighestAllowedKey(final int lastResetIndex) {
-                final FDate highestAllowedKey = getAdjustKeyProvider().getHighestAllowedKey(true);
-                if (highestAllowedKey != null) {
-                    return highestAllowedKey;
-                }
-                return getMaxKeyInDB(lastResetIndex);
-            }
-
-            private FDate getMaxKeyInDB(final int lastResetIndex) {
-                if (maxKeyInDB == null || lastResetIndexMaxKey != lastResetIndex) {
-                    //                    final V maxValueInDB = readLatestValueFor(maxKey());
-                    //                    if (maxValueInDB != null) {
-                    //                        maxKeyInDB = innerExtractKey(maxValueInDB);
-                    //                        lastResetIndexMaxKey = lastResetIndex;
-                    //                        return maxKeyInDB;
-                    //                    }
-                    lastResetIndexMaxKey = lastResetIndex;
-                    final IHistoricalEntry<V> maxEntryInDB = superGet(maxKey());
-                    if (maxEntryInDB != null) {
-                        maxKeyInDB = Optional.of(extractEndTime(maxEntryInDB));
-                        return maxKeyInDB.get();
-                    } else {
-                        maxKeyInDB = Optional.ofNullable(null);
-                    }
-                    return null;
+        private FDate getMaxKeyInDB(final AGapHistoricalCache<V>.GapValuesMap parent, final int lastResetIndex) {
+            if (maxKeyInDB == null || lastResetIndexMaxKey != lastResetIndex) {
+                //                    final V maxValueInDB = readLatestValueFor(maxKey());
+                //                    if (maxValueInDB != null) {
+                //                        maxKeyInDB = innerExtractKey(maxValueInDB);
+                //                        lastResetIndexMaxKey = lastResetIndex;
+                //                        return maxKeyInDB;
+                //                    }
+                lastResetIndexMaxKey = lastResetIndex;
+                final IHistoricalEntry<V> maxEntryInDB = parent.superGet(parent.parent.maxKey());
+                if (maxEntryInDB != null) {
+                    maxKeyInDB = Optional.of(extractEndTime(maxEntryInDB));
+                    return maxKeyInDB.get();
                 } else {
-                    return maxKeyInDB.orElse(null);
+                    maxKeyInDB = Optional.ofNullable(null);
                 }
+                return null;
+            } else {
+                return maxKeyInDB.orElse(null);
             }
+        }
 
-            @Override
-            protected IHistoricalEntry<V> getFirstValue() {
-                final IHistoricalEntry<V> minValueInDB = getMinValueInDB();
-                //eager load value
-                if (minValueInDB != null) {
-                    minValueInDB.getValue();
-                }
-                return minValueInDB;
+        @Override
+        protected IHistoricalEntry<V> getFirstValue(final AGapHistoricalCache<V>.GapValuesMap parent) {
+            return eagerLoadValue(getMinValueInDB(parent));
+        }
+
+        private IHistoricalEntry<V> getMinValueInDB(final AGapHistoricalCache<V>.GapValuesMap parent) {
+            final FDate minKey = parent.parent.minKey();
+            //                final V firstValue = readLatestValueFor(minKey);
+            //                if (firstValue != null) {
+            //                    final FDate firstValueKey = innerExtractKey(firstValue);
+            //                    final IndexedHistoricalEntry<V> firstEntry = new IndexedHistoricalEntry<>(internalMethods,
+            //                            firstValueKey, firstValue);
+            //                    firstEntry.setPrevKey(firstValueKey);
+            //                    return firstEntry;
+            //                }
+            return eagerLoadValue(parent.superSuperGet(minKey));
+        }
+
+        private IHistoricalEntry<V> eagerLoadValue(final IHistoricalEntry<V> entry) {
+            if (entry == null) {
+                return null;
             }
+            //eager load value to prevent memory leak
+            entry.getValue();
+            return entry;
+        }
 
-            private IHistoricalEntry<V> getMinValueInDB() {
-                final FDate minKey = minKey();
-                //                final V firstValue = readLatestValueFor(minKey);
-                //                if (firstValue != null) {
-                //                    final FDate firstValueKey = innerExtractKey(firstValue);
-                //                    final IndexedHistoricalEntry<V> firstEntry = new IndexedHistoricalEntry<>(internalMethods,
-                //                            firstValueKey, firstValue);
-                //                    firstEntry.setPrevKey(firstValueKey);
-                //                    return firstEntry;
-                //                }
-                return superSuperGet(minKey);
+        @Override
+        protected IHistoricalEntry<V> getLatestValue(final AGapHistoricalCache<V>.GapValuesMap parent,
+                final FDate key) {
+            return eagerLoadValue(parent.superSuperGet(key));
+        }
+
+        @Override
+        protected IHistoricalEntry<V> getNextValue(final AGapHistoricalCache<V>.GapValuesMap parent,
+                final IHistoricalEntry<V> value, final boolean reloadNextKey) {
+            final IndexedHistoricalEntry<V> cValue = (IndexedHistoricalEntry<V>) value;
+            if (reloadNextKey) {
+                cValue.setNextKey(parent.parent.internalMethods, null);
             }
-
-            @Override
-            protected IHistoricalEntry<V> getLatestValue(final FDate key) {
-                return superSuperGet(key);
+            final FDate nextKey = cValue.getNextKey(parent.parent.internalMethods);
+            if (nextKey == null) {
+                return cValue;
             }
-
-            @Override
-            protected IHistoricalEntry<V> getNextValue(final IHistoricalEntry<V> value, final boolean reloadNextKey) {
-                final IndexedHistoricalEntry<V> cValue = (IndexedHistoricalEntry<V>) value;
-                if (reloadNextKey) {
-                    cValue.setNextKey(null);
-                }
-                final FDate nextKey = cValue.getNextKey();
-                if (nextKey == null) {
-                    return cValue;
-                }
-                if (nextKey.equalsNotNullSafe(cValue.getKey())) {
-                    return cValue;
-                }
-                final IHistoricalEntry<V> nextValue = superSuperGet(nextKey);
-                if (nextValue == null) {
-                    return cValue;
-                }
-                //eager load value
-                nextValue.getValue();
-                return nextValue;
+            if (nextKey.equalsNotNullSafe(cValue.getKey())) {
+                return cValue;
             }
-
-            @Override
-            protected IHistoricalEntry<V> getPreviousValue(final IHistoricalEntry<V> value) {
-                final IndexedHistoricalEntry<V> cValue = (IndexedHistoricalEntry<V>) value;
-                final FDate prevKey = cValue.getPrevKey();
-                if (prevKey == null) {
-                    return cValue;
-                }
-                if (prevKey.equalsNotNullSafe(cValue.getKey())) {
-                    return cValue;
-                }
-                final IHistoricalEntry<V> prevValue = superSuperGet(prevKey);
-                if (prevValue == null) {
-                    return cValue;
-                }
-                //eager load value
-                prevValue.getValue();
-                return prevValue;
+            final IHistoricalEntry<V> nextValue = parent.superSuperGet(nextKey);
+            if (nextValue == null) {
+                return cValue;
             }
+            return eagerLoadValue(nextValue);
+        }
 
-            @Override
-            protected FDate extractEndTime(final IHistoricalEntry<V> value) {
-                return value.getKey();
+        @Override
+        protected IHistoricalEntry<V> getPreviousValue(final AGapHistoricalCache<V>.GapValuesMap parent,
+                final IHistoricalEntry<V> value) {
+            final IndexedHistoricalEntry<V> cValue = (IndexedHistoricalEntry<V>) value;
+            final FDate prevKey = cValue.getPrevKey(parent.parent.internalMethods);
+            if (prevKey == null) {
+                return cValue;
             }
+            if (prevKey.equalsNotNullSafe(cValue.getKey())) {
+                return cValue;
+            }
+            final IHistoricalEntry<V> prevValue = parent.superSuperGet(prevKey);
+            if (prevValue == null) {
+                return cValue;
+            }
+            return eagerLoadValue(prevValue);
+        }
 
+        @Override
+        protected FDate extractEndTime(final IHistoricalEntry<V> value) {
+            return value.getKey();
         }
 
     }

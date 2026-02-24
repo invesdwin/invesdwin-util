@@ -670,6 +670,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
 
     private final class HistoricalCacheInternalMethods implements IHistoricalCacheInternalMethods<V> {
 
+        private final int parentIdentityHashCode = System.identityHashCode(AHistoricalCache.this);
         private IEvaluateGenericFDate<V> loadValueF;
         private IEvaluateGenericFDate<IHistoricalEntry<V>> computeEntryF;
 
@@ -818,6 +819,11 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
             return AHistoricalCache.this.isAlignKeys();
         }
 
+        @Override
+        public int getParentIdentityHashCode() {
+            return parentIdentityHashCode;
+        }
+
     }
 
     private final class InnerHistoricalCacheExtractKeyProvider implements IHistoricalCacheExtractKeyProvider<V> {
@@ -857,14 +863,14 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         public FDate calculatePreviousKey(final FDate key) {
             final IndexedHistoricalEntry<V> entry = (IndexedHistoricalEntry<V>) getValuesMap().computeIfAbsent(key,
                     computeEmpty);
-            return entry.getPrevKey();
+            return entry.getPrevKey(internalMethods);
         }
 
         @Override
         public FDate calculateNextKey(final FDate key) {
             final IndexedHistoricalEntry<V> entry = (IndexedHistoricalEntry<V>) getValuesMap().computeIfAbsent(key,
                     computeEmpty);
-            return entry.getNextKey();
+            return entry.getNextKey(internalMethods);
         }
 
         @Override
@@ -900,14 +906,14 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
             } else {
                 entry = (IndexedHistoricalEntry<V>) getValuesMap().computeIfAbsent(valueKey, computeEmpty);
                 if (value != null) {
-                    entry.setValue(valueKey, value);
+                    entry.setValue(internalMethods, valueKey, value);
                 }
             }
             if (previousKey != null) {
-                entry.setPrevKey(previousKey);
+                entry.setPrevKey(internalMethods, previousKey);
             }
             if (nextKey != null) {
-                entry.setNextKey(nextKey);
+                entry.setNextKey(internalMethods, nextKey);
             }
             return entry;
         }
@@ -918,7 +924,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
                     computeEmpty);
             final V valueIfPresent = value.getValueIfPresent();
             if (valueIfPresent != null) {
-                entry.setValue(key, valueIfPresent);
+                entry.setValue(internalMethods, key, valueIfPresent);
             }
             return entry;
         }
@@ -928,7 +934,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
             final IndexedHistoricalEntry<V> entry = (IndexedHistoricalEntry<V>) getValuesMap().computeIfAbsent(key,
                     computeEmpty);
             if (value != null) {
-                entry.setValue(key, value);
+                entry.setValue(internalMethods, key, value);
             }
             return entry;
         }
