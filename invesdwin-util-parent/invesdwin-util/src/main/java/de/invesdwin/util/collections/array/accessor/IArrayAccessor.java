@@ -6,4 +6,6 @@ public interface IArrayAccessor {
 
     boolean isEmpty();
 
+    void clear();
+
 }

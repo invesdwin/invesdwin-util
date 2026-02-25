@@ -85,4 +85,9 @@ public class SliceDelegateBooleanArray implements IBooleanArray {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException();
+    }
+
 }

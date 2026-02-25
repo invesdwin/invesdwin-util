@@ -85,4 +85,9 @@ public class SliceDelegateGenericArray<E> implements IGenericArray<E> {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException();
+    }
+
 }

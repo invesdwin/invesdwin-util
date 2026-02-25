@@ -32,7 +32,11 @@ public class BitSetBooleanArray implements IBooleanArray {
 
     @Override
     public void set(final int index, final boolean value) {
-        bitSet.add(index);
+        if (value) {
+            bitSet.add(index);
+        } else {
+            bitSet.remove(index);
+        }
     }
 
     @Override
@@ -98,6 +102,11 @@ public class BitSetBooleanArray implements IBooleanArray {
     @Override
     public int getBuffer(final IByteBuffer buffer) throws IOException {
         return bitSet.getBuffer(buffer);
+    }
+
+    @Override
+    public void clear() {
+        bitSet.clear();
     }
 
 }

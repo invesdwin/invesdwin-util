@@ -99,4 +99,9 @@ public class HeapIntegerArray implements IIntegerArray {
         return size() * Integer.BYTES;
     }
 
+    @Override
+    public void clear() {
+        Arrays.fill(values, 0);
+    }
+
 }

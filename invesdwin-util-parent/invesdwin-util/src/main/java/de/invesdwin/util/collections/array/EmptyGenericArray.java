@@ -85,4 +85,7 @@ public final class EmptyGenericArray<E> implements IGenericArray<E> {
         return INSTANCE;
     }
 
+    @Override
+    public void clear() {}
+
 }

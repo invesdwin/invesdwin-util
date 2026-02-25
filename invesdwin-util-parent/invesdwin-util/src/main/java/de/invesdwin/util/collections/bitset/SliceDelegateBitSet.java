@@ -144,4 +144,9 @@ public final class SliceDelegateBitSet implements IBitSet {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException();
+    }
+
 }

@@ -91,4 +91,9 @@ public class BufferIntegerArray implements IIntegerArray {
         return buffer.capacity();
     }
 
+    @Override
+    public void clear() {
+        buffer.clear();
+    }
+
 }

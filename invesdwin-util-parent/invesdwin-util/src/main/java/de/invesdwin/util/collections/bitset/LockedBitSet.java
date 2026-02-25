@@ -214,4 +214,14 @@ public class LockedBitSet implements IBitSet {
         }
     }
 
+    @Override
+    public void clear() {
+        lock.lock();
+        try {
+            delegate.clear();
+        } finally {
+            lock.unlock();
+        }
+    }
+
 }

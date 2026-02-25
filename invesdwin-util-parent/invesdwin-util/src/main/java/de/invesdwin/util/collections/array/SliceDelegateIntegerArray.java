@@ -85,4 +85,9 @@ public class SliceDelegateIntegerArray implements IIntegerArray {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException();
+    }
+
 }

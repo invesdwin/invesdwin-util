@@ -99,4 +99,9 @@ public class HeapLongArray implements ILongArray {
         return size() * Long.BYTES;
     }
 
+    @Override
+    public void clear() {
+        Arrays.fill(values, 0L);
+    }
+
 }

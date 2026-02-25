@@ -209,4 +209,10 @@ public class JavaBitSet implements IBitSet {
         return delegate.getBuffer(buffer.sliceFrom(BufferBooleanArray.ARRAY_INDEX));
     }
 
+    @Override
+    public void clear() {
+        bitSet.clear();
+        trueCount = 0;
+    }
+
 }

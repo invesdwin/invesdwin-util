@@ -91,4 +91,8 @@ public class BufferDoubleArray implements IDoubleArray {
         return buffer.capacity();
     }
 
+    @Override
+    public void clear() {
+        buffer.clear();
+    }
 }

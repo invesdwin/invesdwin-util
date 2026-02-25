@@ -190,4 +190,10 @@ public class LongArrayBitSet implements IBitSet {
         return bitSet.getWords().getBuffer(buffer.sliceFrom(BufferBooleanArray.ARRAY_INDEX));
     }
 
+    @Override
+    public void clear() {
+        bitSet.clear();
+        trueCount = 0;
+    }
+
 }

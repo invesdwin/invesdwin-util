@@ -75,4 +75,7 @@ public final class EmptyDoubleArray implements IDoubleArray {
         return 0;
     }
 
+    @Override
+    public void clear() {}
+
 }

@@ -99,4 +99,9 @@ public class HeapDoubleArray implements IDoubleArray {
         return size() * Double.BYTES;
     }
 
+    @Override
+    public void clear() {
+        Arrays.fill(values, 0D);
+    }
+
 }

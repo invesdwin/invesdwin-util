@@ -75,4 +75,7 @@ public final class EmptyIntegerArray implements IIntegerArray {
         return 0;
     }
 
+    @Override
+    public void clear() {}
+
 }

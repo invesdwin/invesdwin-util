@@ -232,9 +232,7 @@ public class LongArrayBitSetBase implements IPrimitiveArrayId {
     }
 
     public void clear() {
-        for (int i = words.size() - 1; i >= 0; i--) {
-            words.set(i, 0);
-        }
+        words.clear();
     }
 
     public boolean get(final int bitIndex) {

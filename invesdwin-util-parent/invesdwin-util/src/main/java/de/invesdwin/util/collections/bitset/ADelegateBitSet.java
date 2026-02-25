@@ -103,4 +103,9 @@ public abstract class ADelegateBitSet implements IBitSet {
         return getDelegate().getBuffer(buffer);
     }
 
+    @Override
+    public void clear() {
+        getDelegate().clear();
+    }
+
 }

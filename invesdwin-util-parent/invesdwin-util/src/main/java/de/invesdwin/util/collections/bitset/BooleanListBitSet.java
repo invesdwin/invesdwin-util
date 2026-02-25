@@ -123,4 +123,10 @@ public class BooleanListBitSet implements IBitSet {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void clear() {
+        bitSet.clear();
+        trueCount = 0;
+    }
+
 }

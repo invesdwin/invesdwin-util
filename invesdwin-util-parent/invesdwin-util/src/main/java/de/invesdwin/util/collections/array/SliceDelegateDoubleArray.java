@@ -85,4 +85,9 @@ public class SliceDelegateDoubleArray implements IDoubleArray {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException();
+    }
+
 }

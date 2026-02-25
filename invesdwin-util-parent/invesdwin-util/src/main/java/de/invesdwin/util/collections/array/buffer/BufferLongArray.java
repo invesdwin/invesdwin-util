@@ -91,4 +91,9 @@ public class BufferLongArray implements ILongArray {
         return buffer.capacity();
     }
 
+    @Override
+    public void clear() {
+        buffer.clear();
+    }
+
 }

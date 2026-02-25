@@ -2,6 +2,7 @@ package de.invesdwin.util.collections.bitset;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
@@ -108,6 +109,12 @@ public class BooleanArrayBitSet implements IBitSet {
     @Override
     public int getBuffer(final IByteBuffer buffer) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clear() {
+        Arrays.fill(bitSet, false);
+        trueCount = 0;
     }
 
 }

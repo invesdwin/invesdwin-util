@@ -75,4 +75,7 @@ public final class EmptyLongArray implements ILongArray {
         return 0;
     }
 
+    @Override
+    public void clear() {}
+
 }
