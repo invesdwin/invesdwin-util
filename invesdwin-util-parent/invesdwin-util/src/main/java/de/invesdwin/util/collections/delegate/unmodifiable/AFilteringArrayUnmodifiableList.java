@@ -6,6 +6,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
 import de.invesdwin.util.collections.iterable.skip.ASkippingIterator;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 
 @Immutable
 public abstract class AFilteringArrayUnmodifiableList<E> extends AUnmodifiableList<E> {
@@ -51,7 +52,7 @@ public abstract class AFilteringArrayUnmodifiableList<E> extends AUnmodifiableLi
                 size++;
             }
         }
-        throw new IndexOutOfBoundsException(String.valueOf(index));
+        throw FastIndexOutOfBoundsException.getInstance("%s", index);
     }
 
     @Override

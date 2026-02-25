@@ -257,7 +257,7 @@ public final class Throwables extends AThrowablesStaticFacade {
     }
 
     public static IndexOutOfBoundsException newIndexOutOfBoundsException(final int index) {
-        return new IndexOutOfBoundsException("Index out of range: " + index);
+        return FastIndexOutOfBoundsException.getInstance("Index out of range: %s", index);
     }
 
 }

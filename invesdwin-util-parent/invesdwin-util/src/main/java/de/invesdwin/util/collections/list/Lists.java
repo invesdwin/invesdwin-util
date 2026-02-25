@@ -21,6 +21,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.list.internal.AListsStaticFacade;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.reflection.Reflections;
@@ -72,8 +73,8 @@ public final class Lists extends AListsStaticFacade {
             }
         } else {
             if (fromIndexInclusive > toIndexExclusive) {
-                throw new IndexOutOfBoundsException(
-                        "From Index: " + fromIndexInclusive + " > To Index: " + toIndexExclusive);
+                throw FastIndexOutOfBoundsException.getInstance("From Index: %s > To Index: %s", fromIndexInclusive,
+                        toIndexExclusive);
             }
             final int index = fromIndexInclusive;
             for (int i = fromIndexInclusive; i < toIndexExclusive; i++) {

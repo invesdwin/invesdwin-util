@@ -8,7 +8,8 @@ import de.invesdwin.util.lang.string.description.TextDescription;
 @NotThreadSafe
 public final class FastRecursiveLoadException extends RecursiveLoadException {
 
-    private static final FastRecursiveLoadException INSTANCE = new FastRecursiveLoadException("recursive load");
+    private static final FastRecursiveLoadException INSTANCE = new FastRecursiveLoadException(
+            "recursive load (Throwables.setDebugStackTraceEnabled(true) for more details)");
 
     private static final long serialVersionUID = 1L;
 

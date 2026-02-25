@@ -8,6 +8,7 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
@@ -104,7 +105,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + offset + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", offset, capacity());
     }
 
     @Override
@@ -197,7 +198,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                     }
                 }
             }
-            throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+            throw new IndexOutOfBoundsException("offset=" + index + " capacity=" + capacity());
         }
     }
 
@@ -245,7 +246,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                     }
                 }
             }
-            throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+            throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
         }
     }
 

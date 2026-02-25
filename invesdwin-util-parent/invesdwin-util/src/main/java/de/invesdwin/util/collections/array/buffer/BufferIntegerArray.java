@@ -7,6 +7,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.array.IIntegerArray;
 import de.invesdwin.util.collections.array.SliceDelegateIntegerArray;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -27,11 +28,17 @@ public class BufferIntegerArray implements IIntegerArray {
 
     @Override
     public void set(final int index, final int value) {
+        if (index < 0 || index >= size()) {
+            throw FastIndexOutOfBoundsException.getInstance("Index: %s, Size: %s", index + size());
+        }
         buffer.putInt(index * Integer.BYTES, value);
     }
 
     @Override
     public int get(final int index) {
+        if (index < 0 || index >= size()) {
+            throw FastIndexOutOfBoundsException.getInstance("Index: %s, Size: %s", index + size());
+        }
         return buffer.getInt(index * Integer.BYTES);
     }
 

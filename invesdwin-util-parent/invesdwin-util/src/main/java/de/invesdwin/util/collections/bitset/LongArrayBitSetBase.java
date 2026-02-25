@@ -11,6 +11,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.array.ILongArray;
 import de.invesdwin.util.collections.array.IPrimitiveArrayId;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.math.Integers;
 
 /**
@@ -58,26 +59,26 @@ public class LongArrayBitSetBase implements IPrimitiveArrayId {
 
     private void ensureCapacity(final int wordsRequired) {
         if (words.size() < wordsRequired) {
-            throw new IndexOutOfBoundsException(
-                    "wordsRequired=" + wordsRequired + " is beyond wordsSize=" + words.size());
+            throw FastIndexOutOfBoundsException.getInstance("wordsRequired=%s is beyond wordsSize=%s", wordsRequired,
+                    words.size());
         }
     }
 
     private static void checkRange(final int fromIndex, final int toIndex) {
         if (fromIndex < 0) {
-            throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
+            throw FastIndexOutOfBoundsException.getInstance("fromIndex < 0: %s", fromIndex);
         }
         if (toIndex < 0) {
-            throw new IndexOutOfBoundsException("toIndex < 0: " + toIndex);
+            throw FastIndexOutOfBoundsException.getInstance("toIndex < 0: %s", toIndex);
         }
         if (fromIndex > toIndex) {
-            throw new IndexOutOfBoundsException("fromIndex: " + fromIndex + " > toIndex: " + toIndex);
+            throw FastIndexOutOfBoundsException.getInstance("fromIndex: %s > toIndex: %s", fromIndex, toIndex);
         }
     }
 
     public void flip(final int bitIndex) {
         if (bitIndex < 0) {
-            throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+            throw FastIndexOutOfBoundsException.getInstance("bitIndex < 0: %s", bitIndex);
         }
 
         final int wordIndex = wordIndex(bitIndex);
@@ -119,7 +120,7 @@ public class LongArrayBitSetBase implements IPrimitiveArrayId {
 
     public void set(final int bitIndex) {
         if (bitIndex < 0) {
-            throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+            throw FastIndexOutOfBoundsException.getInstance("bitIndex < 0: %s", bitIndex);
         }
 
         final int wordIndex = wordIndex(bitIndex);
@@ -178,7 +179,7 @@ public class LongArrayBitSetBase implements IPrimitiveArrayId {
 
     public void clear(final int bitIndex) {
         if (bitIndex < 0) {
-            throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+            throw FastIndexOutOfBoundsException.getInstance("bitIndex < 0: %s", bitIndex);
         }
 
         final int wordIndex = wordIndex(bitIndex);
@@ -237,7 +238,7 @@ public class LongArrayBitSetBase implements IPrimitiveArrayId {
 
     public boolean get(final int bitIndex) {
         if (bitIndex < 0) {
-            throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+            throw FastIndexOutOfBoundsException.getInstance("bitIndex < 0: %s", bitIndex);
         }
 
         final int wordIndex = wordIndex(bitIndex);
@@ -246,7 +247,7 @@ public class LongArrayBitSetBase implements IPrimitiveArrayId {
 
     public int nextSetBit(final int fromIndex) {
         if (fromIndex < 0) {
-            throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
+            throw FastIndexOutOfBoundsException.getInstance("fromIndex < 0: %s", fromIndex);
         }
 
         int u = wordIndex(fromIndex);
@@ -271,7 +272,7 @@ public class LongArrayBitSetBase implements IPrimitiveArrayId {
         // Neither spec nor implementation handle bitsets of maximal length.
         // See 4816253.
         if (fromIndex < 0) {
-            throw new IndexOutOfBoundsException("fromIndex < 0: " + fromIndex);
+            throw FastIndexOutOfBoundsException.getInstance("fromIndex < 0: %s", fromIndex);
         }
 
         int u = wordIndex(fromIndex);
@@ -297,7 +298,7 @@ public class LongArrayBitSetBase implements IPrimitiveArrayId {
             if (fromIndex == -1) {
                 return -1;
             }
-            throw new IndexOutOfBoundsException("fromIndex < -1: " + fromIndex);
+            throw FastIndexOutOfBoundsException.getInstance("fromIndex < -1: %s", fromIndex);
         }
 
         int u = wordIndex(fromIndex);
@@ -323,7 +324,7 @@ public class LongArrayBitSetBase implements IPrimitiveArrayId {
             if (fromIndex == -1) {
                 return -1;
             }
-            throw new IndexOutOfBoundsException("fromIndex < -1: " + fromIndex);
+            throw FastIndexOutOfBoundsException.getInstance("fromIndex < -1: %s", fromIndex);
         }
 
         int u = wordIndex(fromIndex);

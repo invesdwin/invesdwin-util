@@ -5,6 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.array.accessor.IGenericArrayAccessor;
 import de.invesdwin.util.collections.queue.IGenericQueue;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
 /**
@@ -118,11 +119,11 @@ public class CircularGenericArrayQueue<E> implements IGenericQueue<E>, IGenericA
 
     private int arrayIndexReverse(final int index) {
         if (index >= size) {
-            throw new IndexOutOfBoundsException(
-                    "index[" + index + "] should not be greater or equal to size[" + size + "]");
+            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be greater or equal to size[%s]",
+                    index, size);
         }
         if (index < 0) {
-            throw new IndexOutOfBoundsException("index[" + index + "] should not be negative");
+            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be negative", index);
         }
         final int idx = (endArrayIndex - index);
         if (idx < 0) {
@@ -135,11 +136,11 @@ public class CircularGenericArrayQueue<E> implements IGenericQueue<E>, IGenericA
 
     private int arrayIndex(final int index) {
         if (index >= size) {
-            throw new IndexOutOfBoundsException(
-                    "index[" + index + "] should not be greater or equal to size[" + size + "]");
+            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be greater or equal to size[%s]",
+                    index, size);
         }
         if (index < 0) {
-            throw new IndexOutOfBoundsException("index[" + index + "] should not be negative");
+            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be negative", index);
         }
         final int idx = (startArrayIndex + index) % capacity;
         return idx;

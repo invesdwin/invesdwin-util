@@ -10,6 +10,7 @@ import de.invesdwin.util.collections.array.IBooleanArray;
 import de.invesdwin.util.collections.array.SliceDelegateBooleanArray;
 import de.invesdwin.util.collections.bitset.LongArrayBitSet;
 import de.invesdwin.util.collections.bitset.LongArrayBitSetBase;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -51,11 +52,17 @@ public class BufferBooleanArray implements IBooleanArray {
 
     @Override
     public void set(final int index, final boolean value) {
+        if (index < 0 || index >= size()) {
+            throw FastIndexOutOfBoundsException.getInstance("Index: %s, Size: %s", index + size());
+        }
         delegate.set(index, value);
     }
 
     @Override
     public boolean get(final int index) {
+        if (index < 0 || index >= size()) {
+            throw FastIndexOutOfBoundsException.getInstance("Index: %s, Size: %s", index + size());
+        }
         return delegate.get(index);
     }
 

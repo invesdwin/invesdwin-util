@@ -5,6 +5,7 @@ import javax.annotation.concurrent.Immutable;
 import org.agrona.DirectBuffer;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
@@ -132,8 +133,8 @@ public final class MemoryBuffers {
     public static void ensureCapacity(final IMemoryBuffer buffer, final long desiredCapacity) {
         final long capacity = buffer.capacity();
         if (desiredCapacity > capacity) {
-            throw new IndexOutOfBoundsException(
-                    "desiredCapacity=" + desiredCapacity + " is beyond capacity=" + capacity);
+            throw FastIndexOutOfBoundsException.getInstance("desiredCapacity=%s is beyond capacity=%s", desiredCapacity,
+                    capacity);
         }
     }
 

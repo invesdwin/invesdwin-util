@@ -20,6 +20,7 @@ import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.streams.InputStreams;
@@ -811,15 +812,15 @@ public class ChronicleDelegateByteBuffer implements IByteBuffer {
 
     private void ensureCapacity(final int index, final int length) {
         if (index < 0 || length < 0) {
-            throw new IndexOutOfBoundsException("negative value: index=" + index + " length=" + length);
+            throw FastIndexOutOfBoundsException.getInstance("negative value: index=%s length=%s", index, length);
         }
 
         final long resultingPosition = index + (long) length;
         final int currentArrayLength = capacity();
         if (resultingPosition > currentArrayLength) {
             if (resultingPosition > ExpandableArrayBuffer.MAX_ARRAY_LENGTH) {
-                throw new IndexOutOfBoundsException("index=" + index + " length=" + length + " maxCapacity="
-                        + ExpandableArrayBuffer.MAX_ARRAY_LENGTH);
+                throw FastIndexOutOfBoundsException.getInstance("index=%s length=%s maxCapacity=%s", index, length,
+                        +ExpandableArrayBuffer.MAX_ARRAY_LENGTH);
             }
 
             ensureCapacity((int) resultingPosition);

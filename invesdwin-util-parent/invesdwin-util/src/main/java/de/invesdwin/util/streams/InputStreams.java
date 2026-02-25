@@ -15,6 +15,7 @@ import de.invesdwin.util.concurrent.future.throwing.IThrowingIORunnable;
 import de.invesdwin.util.concurrent.future.throwing.IThrowingTimeoutRunnable;
 import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.FastTimeoutException;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
@@ -476,7 +477,7 @@ public final class InputStreams {
     public static <X extends RuntimeException> int checkFromIndexSize(final int fromIndex, final int size,
             final int length) {
         if ((length | fromIndex | size) < 0 || size > length - fromIndex) {
-            throw new IndexOutOfBoundsException("fromIndex=" + fromIndex + " size=" + size + " length=" + length);
+            throw FastIndexOutOfBoundsException.getInstance("fromIndex=%s size=%s length=%s", fromIndex, size, length);
         }
         return fromIndex;
     }

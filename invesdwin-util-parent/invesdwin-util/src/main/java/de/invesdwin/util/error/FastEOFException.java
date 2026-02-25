@@ -18,7 +18,8 @@ import de.invesdwin.util.lang.string.description.TextDescription;
 @NotThreadSafe
 public final class FastEOFException extends EOFException {
 
-    private static final FastEOFException INSTANCE = new FastEOFException("end reached");
+    private static final FastEOFException INSTANCE = new FastEOFException(
+            "end reached (Throwables.setDebugStackTraceEnabled(true) for more details)");
 
     private static final long serialVersionUID = 1L;
 

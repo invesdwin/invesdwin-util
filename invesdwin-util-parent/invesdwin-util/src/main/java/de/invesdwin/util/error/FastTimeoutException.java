@@ -18,7 +18,8 @@ import de.invesdwin.util.lang.string.description.TextDescription;
 @NotThreadSafe
 public final class FastTimeoutException extends TimeoutException {
 
-    private static final FastTimeoutException INSTANCE = new FastTimeoutException("timeout exceeded");
+    private static final FastTimeoutException INSTANCE = new FastTimeoutException(
+            "timeout exceeded (Throwables.setDebugStackTraceEnabled(true) for more details)");
 
     private static final long serialVersionUID = 1L;
 

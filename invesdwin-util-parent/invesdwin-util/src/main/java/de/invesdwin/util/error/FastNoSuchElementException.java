@@ -18,7 +18,8 @@ import de.invesdwin.util.lang.string.description.TextDescription;
 @NotThreadSafe
 public final class FastNoSuchElementException extends NoSuchElementException {
 
-    private static final FastNoSuchElementException INSTANCE = new FastNoSuchElementException("end reached");
+    private static final FastNoSuchElementException INSTANCE = new FastNoSuchElementException(
+            "end reached (Throwables.setDebugStackTraceEnabled(true) for more details)");
 
     private static final long serialVersionUID = 1L;
 

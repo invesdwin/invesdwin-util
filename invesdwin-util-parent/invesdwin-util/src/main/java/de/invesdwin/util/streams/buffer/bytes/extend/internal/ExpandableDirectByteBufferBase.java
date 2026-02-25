@@ -46,6 +46,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.LangUtil;
 import org.agrona.MutableDirectBuffer;
 
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 
@@ -209,7 +210,7 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
     @Override
     public void checkLimit(final int limit) {
         if (limit < 0) {
-            throw new IndexOutOfBoundsException("limit cannot be negative: limit=" + limit);
+            throw FastIndexOutOfBoundsException.getInstance("limit cannot be negative: limit=%s", limit);
         }
 
         ensureCapacity(limit, SIZE_OF_BYTE);
@@ -1467,15 +1468,15 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
 
     private void ensureCapacity(final int index, final int length) {
         if (index < 0 || length < 0) {
-            throw new IndexOutOfBoundsException("negative value: index=" + index + " length=" + length);
+            throw FastIndexOutOfBoundsException.getInstance("negative value: index=%s length=%s", index, length);
         }
 
         final long resultingPosition = index + (long) length;
         final int currentCapacity = capacity;
         if (resultingPosition > currentCapacity) {
             if (resultingPosition > MAX_BUFFER_LENGTH) {
-                throw new IndexOutOfBoundsException(
-                        "index=" + index + " length=" + length + " maxCapacity=" + MAX_BUFFER_LENGTH);
+                throw FastIndexOutOfBoundsException.getInstance("index=%s length=%s maxCapacity=%s", index, length,
+                        MAX_BUFFER_LENGTH);
             }
 
             final int newCapacity = calculateExpansion(currentCapacity, (int) resultingPosition);
@@ -1502,8 +1503,8 @@ public class ExpandableDirectByteBufferBase implements MutableDirectBuffer {
         final int currentCapacity = capacity;
         final long resultingPosition = index + (long) length;
         if (index < 0 || length < 0 || resultingPosition > currentCapacity) {
-            throw new IndexOutOfBoundsException(
-                    "index=" + index + " length=" + length + " capacity=" + currentCapacity);
+            throw FastIndexOutOfBoundsException.getInstance("index=%s length=%s capacity=%s", index, length,
+                    currentCapacity);
         }
     }
 

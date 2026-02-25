@@ -47,6 +47,7 @@ import org.agrona.LangUtil;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.SystemUtil;
 
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
@@ -361,7 +362,7 @@ public class UnsafeMemoryBase {
 
     public void checkLimit(final long limit) {
         if (limit > capacity) {
-            throw new IndexOutOfBoundsException("limit=" + limit + " is beyond capacity=" + capacity);
+            throw FastIndexOutOfBoundsException.getInstance("limit=%s is beyond capacity=%s", limit, capacity);
         }
     }
 
@@ -1660,14 +1661,14 @@ public class UnsafeMemoryBase {
 
     private void boundsCheck(final long index) {
         if (index < 0 || index >= capacity) {
-            throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity);
+            throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity);
         }
     }
 
     private void boundsCheck0(final long index, final long length) {
         final long resultingPosition = index + length;
         if (index < 0 || length < 0 || resultingPosition > capacity) {
-            throw new IndexOutOfBoundsException("index=" + index + " length=" + length + " capacity=" + capacity);
+            throw FastIndexOutOfBoundsException.getInstance("index=%s length=%s capacity=%s", index, length, capacity);
         }
     }
 

@@ -45,6 +45,7 @@ import org.agrona.LangUtil;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 
@@ -1421,15 +1422,15 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
 
     private void ensureCapacity(final int index, final int length) {
         if (index < 0 || length < 0) {
-            throw new IndexOutOfBoundsException("negative value: index=" + index + " length=" + length);
+            throw FastIndexOutOfBoundsException.getInstance("negative value: index=%s length=%s", index, length);
         }
 
         final long resultingPosition = index + (long) length;
         final int currentArrayLength = byteArray.length;
         if (resultingPosition > currentArrayLength) {
             if (resultingPosition > MAX_ARRAY_LENGTH) {
-                throw new IndexOutOfBoundsException(
-                        "index=" + index + " length=" + length + " maxCapacity=" + MAX_ARRAY_LENGTH);
+                throw FastIndexOutOfBoundsException.getInstance("index=%s length=%s maxCapacity=%s", index, length,
+                        MAX_ARRAY_LENGTH);
             }
 
             final int newLength = calculateExpansion(currentArrayLength, (int) resultingPosition);
@@ -1455,8 +1456,8 @@ public class UninitializedExpandableArrayBufferBase implements MutableDirectBuff
         final int currentArrayLength = byteArray.length;
         final long resultingPosition = index + (long) length;
         if (index < 0 || length < 0 || resultingPosition > currentArrayLength) {
-            throw new IndexOutOfBoundsException(
-                    "index=" + index + " length=" + length + " capacity=" + currentArrayLength);
+            throw FastIndexOutOfBoundsException.getInstance("index=%s length=%s capacity=%s", index, length,
+                    currentArrayLength);
         }
     }
 

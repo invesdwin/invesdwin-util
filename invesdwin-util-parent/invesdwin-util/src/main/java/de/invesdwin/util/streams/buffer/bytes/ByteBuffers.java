@@ -22,6 +22,7 @@ import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.error.FastEOFException;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.lang.string.Charsets;
@@ -621,8 +622,8 @@ public final class ByteBuffers {
     public static void ensureCapacity(final IByteBuffer buffer, final int desiredCapacity) {
         final int capacity = buffer.capacity();
         if (desiredCapacity > capacity) {
-            throw new IndexOutOfBoundsException(
-                    "desiredCapacity=" + desiredCapacity + " is beyond capacity=" + capacity);
+            throw FastIndexOutOfBoundsException.getInstance("desiredCapacity=%s is beyond capacity=%s", desiredCapacity,
+                    capacity);
         }
     }
 
