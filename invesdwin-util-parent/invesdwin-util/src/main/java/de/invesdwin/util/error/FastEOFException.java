@@ -33,7 +33,7 @@ public final class FastEOFException extends EOFException {
 
     @Override
     public synchronized Throwable fillInStackTrace() {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             return super.fillInStackTrace();
         } else {
             return this; // no stack trace for performance
@@ -41,7 +41,7 @@ public final class FastEOFException extends EOFException {
     }
 
     public static EOFException maybeReplace(final EOFException e) {
-        if (e instanceof FastEOFException || Throwables.isDebugStackTraceEnabled()) {
+        if (e instanceof FastEOFException || isDebugStackTraceEnabled()) {
             return e;
         } else {
             return getInstance(e);
@@ -49,7 +49,7 @@ public final class FastEOFException extends EOFException {
     }
 
     public static EOFException maybeReplace(final EOFException e, final String message) {
-        if (e instanceof FastEOFException || Throwables.isDebugStackTraceEnabled()) {
+        if (e instanceof FastEOFException || isDebugStackTraceEnabled()) {
             return e;
         } else {
             return getInstance(message, e);
@@ -57,7 +57,7 @@ public final class FastEOFException extends EOFException {
     }
 
     public static FastEOFException getInstance(final String message) {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             return new FastEOFException(message);
         } else {
             return INSTANCE;
@@ -65,7 +65,7 @@ public final class FastEOFException extends EOFException {
     }
 
     public static FastEOFException getInstance(final String message, final Object arg) {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             return new FastEOFException(TextDescription.format(message, arg));
         } else {
             return INSTANCE;
@@ -73,7 +73,7 @@ public final class FastEOFException extends EOFException {
     }
 
     public static FastEOFException getInstance(final String message, final Object arg1, final Object arg2) {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             return new FastEOFException(TextDescription.format(message, arg1, arg2));
         } else {
             return INSTANCE;
@@ -81,7 +81,7 @@ public final class FastEOFException extends EOFException {
     }
 
     public static FastEOFException getInstance(final String message, final Object... args) {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             return new FastEOFException(TextDescription.format(message, args));
         } else {
             return INSTANCE;
@@ -93,7 +93,7 @@ public final class FastEOFException extends EOFException {
     }
 
     public static FastEOFException getInstance(final String message, final Throwable cause) {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             final FastEOFException eof = new FastEOFException(message);
             if (cause != null) {
                 eof.initCause(cause);
@@ -102,6 +102,10 @@ public final class FastEOFException extends EOFException {
         } else {
             return INSTANCE;
         }
+    }
+
+    private static boolean isDebugStackTraceEnabled() {
+        return Throwables.isDebugStackTraceEnabled();
     }
 
 }

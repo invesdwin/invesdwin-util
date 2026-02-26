@@ -33,7 +33,7 @@ public final class FastNoSuchElementException extends NoSuchElementException {
 
     @Override
     public synchronized Throwable fillInStackTrace() {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             return super.fillInStackTrace();
         } else {
             return this; // no stack trace for performance
@@ -41,7 +41,7 @@ public final class FastNoSuchElementException extends NoSuchElementException {
     }
 
     public static NoSuchElementException maybeReplace(final NoSuchElementException e) {
-        if (e instanceof FastNoSuchElementException || Throwables.isDebugStackTraceEnabled()) {
+        if (e instanceof FastNoSuchElementException || isDebugStackTraceEnabled()) {
             return e;
         } else {
             return getInstance(e);
@@ -49,7 +49,7 @@ public final class FastNoSuchElementException extends NoSuchElementException {
     }
 
     public static NoSuchElementException maybeReplace(final NoSuchElementException e, final String message) {
-        if (e instanceof FastNoSuchElementException || Throwables.isDebugStackTraceEnabled()) {
+        if (e instanceof FastNoSuchElementException || isDebugStackTraceEnabled()) {
             return e;
         } else {
             return getInstance(message, e);
@@ -57,7 +57,7 @@ public final class FastNoSuchElementException extends NoSuchElementException {
     }
 
     public static FastNoSuchElementException getInstance(final String message) {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             return new FastNoSuchElementException(message);
         } else {
             return INSTANCE;
@@ -65,7 +65,7 @@ public final class FastNoSuchElementException extends NoSuchElementException {
     }
 
     public static FastNoSuchElementException getInstance(final String message, final Object arg) {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             return new FastNoSuchElementException(TextDescription.format(message, arg));
         } else {
             return INSTANCE;
@@ -73,7 +73,7 @@ public final class FastNoSuchElementException extends NoSuchElementException {
     }
 
     public static FastNoSuchElementException getInstance(final String message, final Object arg1, final Object arg2) {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             return new FastNoSuchElementException(TextDescription.format(message, arg1, arg2));
         } else {
             return INSTANCE;
@@ -81,7 +81,7 @@ public final class FastNoSuchElementException extends NoSuchElementException {
     }
 
     public static FastNoSuchElementException getInstance(final String message, final Object... args) {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             return new FastNoSuchElementException(TextDescription.format(message, args));
         } else {
             return INSTANCE;
@@ -93,7 +93,7 @@ public final class FastNoSuchElementException extends NoSuchElementException {
     }
 
     public static FastNoSuchElementException getInstance(final String message, final Throwable cause) {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             final FastNoSuchElementException timeout = new FastNoSuchElementException(message);
             if (cause != null) {
                 timeout.initCause(cause);
@@ -102,6 +102,10 @@ public final class FastNoSuchElementException extends NoSuchElementException {
         } else {
             return INSTANCE;
         }
+    }
+
+    private static boolean isDebugStackTraceEnabled() {
+        return Throwables.isDebugStackTraceEnabled();
     }
 
 }
