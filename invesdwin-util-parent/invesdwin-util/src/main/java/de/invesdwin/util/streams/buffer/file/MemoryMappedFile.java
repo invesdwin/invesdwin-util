@@ -11,6 +11,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.IoUtil;
 
+import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -167,6 +168,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
                 this.address = IoUtil.map(channel, MapMode.READ_ONLY, this.offset, this.length);
             } else {
                 this.length = roundTo4096(length);
+                Files.forceMkdirParent(file);
                 this.raf = new RandomAccessFile(this.file, "rw");
                 raf.setLength(this.length);
                 this.channel = raf.getChannel();
