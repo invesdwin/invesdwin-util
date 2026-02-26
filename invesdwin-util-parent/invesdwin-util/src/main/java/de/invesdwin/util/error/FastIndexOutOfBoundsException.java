@@ -2,6 +2,8 @@ package de.invesdwin.util.error;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.agrona.DirectBuffer;
+
 import de.invesdwin.util.lang.string.description.TextDescription;
 
 /**
@@ -154,7 +156,7 @@ public final class FastIndexOutOfBoundsException extends IndexOutOfBoundsExcepti
     }
 
     private static boolean isDebugStackTraceEnabled() {
-        return Throwables.isDebugStackTraceEnabled();
+        return DirectBuffer.SHOULD_BOUNDS_CHECK || Throwables.isDebugStackTraceEnabled();
     }
 
 }
