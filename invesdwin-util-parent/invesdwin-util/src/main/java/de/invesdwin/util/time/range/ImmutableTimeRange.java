@@ -8,8 +8,10 @@ import de.invesdwin.util.time.date.ImmutableFDate;
 @Immutable
 public final class ImmutableTimeRange extends TimeRange {
 
-    private ImmutableTimeRange(final FDate from, final FDate to) {
-        super(ImmutableFDate.valueOf(from), ImmutableFDate.valueOf(to));
+    public static final ImmutableTimeRange UNLIMITED = new ImmutableTimeRange(null, null);
+
+    private ImmutableTimeRange(final ImmutableFDate from, final ImmutableFDate to) {
+        super(from, to);
     }
 
     @Override
@@ -29,7 +31,16 @@ public final class ImmutableTimeRange extends TimeRange {
         if (timeRange instanceof ImmutableTimeRange) {
             return (ImmutableTimeRange) timeRange;
         }
-        return new ImmutableTimeRange(timeRange.getFrom(), timeRange.getTo());
+        final FDate from = timeRange.getFrom();
+        final FDate to = timeRange.getTo();
+        return valueOf(from, to);
+    }
+
+    public static ImmutableTimeRange valueOf(final FDate from, final FDate to) {
+        if (from == null && to == null) {
+            return UNLIMITED;
+        }
+        return new ImmutableTimeRange(ImmutableFDate.valueOf(from), ImmutableFDate.valueOf(to));
     }
 
 }
