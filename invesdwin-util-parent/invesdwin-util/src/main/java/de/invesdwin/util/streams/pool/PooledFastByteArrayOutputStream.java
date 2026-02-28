@@ -22,7 +22,7 @@ public final class PooledFastByteArrayOutputStream extends FastByteArrayOutputSt
             () -> new PooledFastByteArrayOutputStream());
 
     private NonClosingDelegateOutputStream nonClosing;
-    private volatile boolean closed = true;
+    private boolean closed = true;
     private PooledFastByteArrayInputStream inputStream;
 
     private PooledFastByteArrayOutputStream() {}
@@ -46,8 +46,8 @@ public final class PooledFastByteArrayOutputStream extends FastByteArrayOutputSt
     @Override
     public void close() {
         if (!closed) {
-            POOL.returnObject(this);
             closed = true;
+            POOL.returnObject(this);
         }
     }
 
