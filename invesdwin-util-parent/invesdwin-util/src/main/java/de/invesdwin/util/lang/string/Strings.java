@@ -1,9 +1,11 @@
 package de.invesdwin.util.lang.string;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Scanner;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -16,6 +18,7 @@ import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.factory.pool.set.ICloseableSet;
 import de.invesdwin.util.collections.factory.pool.set.PooledSet;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.string.internal.AStringsStaticFacade;
@@ -743,6 +746,58 @@ public final class Strings extends AStringsStaticFacade {
             chunks.add(sb.toString());
         }
         return chunks;
+    }
+
+    @SuppressWarnings("resource")
+    public static ICloseableIterator<String> splitByMaxLength(final InputStream str, final int maxLength) {
+        return new ICloseableIterator<String>() {
+
+            private final int whitespaceMaxLength = (int) (maxLength * 1.1D);
+            private final int hardMaxLength = (int) (whitespaceMaxLength * 1.1D);
+            private final Scanner scanner;
+            private final StringBuilder sb;
+
+            {
+                scanner = new Scanner(str).useDelimiter("");
+                sb = new StringBuilder();
+            }
+
+            @Override
+            public boolean hasNext() {
+                return scanner.hasNext();
+            }
+
+            @Override
+            public String next() {
+                while (scanner.hasNext()) {
+                    final String str = scanner.next();
+                    if (str.length() > 1) {
+                        throw new IllegalStateException("Expected to read single characters, but got: " + str);
+                    }
+                    final char c = str.charAt(0);
+                    sb.append(c);
+                    if (sb.length() >= hardMaxLength
+                            || (sb.length() >= whitespaceMaxLength && Character.isWhitespace(c))
+                            || (sb.length() >= maxLength && c == '\n')) {
+                        final String chunk = sb.toString();
+                        sb.setLength(0);
+                        return chunk;
+                    }
+                }
+                if (sb.length() > 0) {
+                    return sb.toString();
+                } else {
+                    throw new IllegalStateException("No more chunks available");
+                }
+            }
+
+            @Override
+            public void close() {
+                scanner.close();
+                sb.setLength(0);
+            }
+
+        };
     }
 
     public static boolean isDecimal(final String str) {
