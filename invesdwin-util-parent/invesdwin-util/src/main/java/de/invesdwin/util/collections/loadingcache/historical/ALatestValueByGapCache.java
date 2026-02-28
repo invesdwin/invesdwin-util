@@ -44,6 +44,8 @@ public abstract class ALatestValueByGapCache<V, P> {
 
     protected abstract V getLatestValue(P parent, FDate key);
 
+    protected abstract V getLatestValueFallback(P parent, FDate key);
+
     protected abstract V getNextValue(P parent, V value, boolean reloadNextKey);
 
     protected abstract V getPreviousValue(P parent, V value);
@@ -57,7 +59,7 @@ public abstract class ALatestValueByGapCache<V, P> {
 
     public V getLatestValueByGap(final P parent, final FDate date) {
         if (queryActive) {
-            return getLatestValue(parent, date);
+            return getLatestValueFallback(parent, date);
         }
         queryActive = true;
         try {
@@ -65,10 +67,10 @@ public abstract class ALatestValueByGapCache<V, P> {
             if (prevResetIndex != lastResetIndex) {
                 final FDate newHighestAllowedKey = getHighestAllowedKey(parent, lastResetIndex);
                 if (newHighestAllowedKey == null) {
-                    return getLatestValue(parent, date);
+                    return getLatestValueFallback(parent, date);
                 } else if (date.isAfterOrEqualToNotNullSafe(newHighestAllowedKey)) {
                     lastHighestAllowedKey = newHighestAllowedKey;
-                    return getLatestValue(parent, newHighestAllowedKey);
+                    return getLatestValueFallback(parent, newHighestAllowedKey);
                 } else {
                     lastHighestAllowedKey = newHighestAllowedKey;
                     initFirstValue(parent);
@@ -83,7 +85,7 @@ public abstract class ALatestValueByGapCache<V, P> {
                     return trailForwardMaybe(parent, date, prevHighestAllowedKeyCopy, newHighestAllowedKey,
                             lastResetIndex);
                 } else if (date.isAfterOrEqualToNotNullSafe(newHighestAllowedKey)) {
-                    return getLatestValue(parent, newHighestAllowedKey);
+                    return getLatestValueFallback(parent, newHighestAllowedKey);
                 }
             }
             return lookupValue(parent, date, lastResetIndex, true);

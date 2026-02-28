@@ -718,7 +718,13 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         @Override
         protected IHistoricalEntry<V> getLatestValue(final AGapHistoricalCache<V>.GapValuesMap parent,
                 final FDate key) {
-            return eagerLoadValue(parent.superSuperGet(key));
+            return eagerLoadValue(getLatestValueFallback(parent, key));
+        }
+
+        @Override
+        protected IHistoricalEntry<V> getLatestValueFallback(final AGapHistoricalCache<V>.GapValuesMap parent,
+                final FDate key) {
+            return parent.superSuperGet(key);
         }
 
         @Override
