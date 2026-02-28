@@ -32,11 +32,11 @@ import jakarta.validation.constraints.PositiveOrZero;
  * @see it.unimi.dsi.fastutil.io.FastBufferedInputStream
  */
 @NotThreadSafe
-public class ExpandableByteArrayInputStream extends java.io.ByteArrayInputStream
+public class AccessibleByteArrayInputStream extends java.io.ByteArrayInputStream
         implements ObjectInput, MeasurableStream, RepositionableStream, ISafeCloseable, PrimitiveIterator.OfInt {
     protected int offset;
 
-    public ExpandableByteArrayInputStream(final byte[] array, @PositiveOrZero final int offset,
+    public AccessibleByteArrayInputStream(final byte[] array, @PositiveOrZero final int offset,
             @PositiveOrZero final int maxLength) {
         super(array, offset, maxLength);
         this.offset = offset;
@@ -45,12 +45,12 @@ public class ExpandableByteArrayInputStream extends java.io.ByteArrayInputStream
         count = Math.min(maxLength, array.length - offset);// offset|0..pos..length|...array.length
     }//new
 
-    public ExpandableByteArrayInputStream(final byte[] array) {
+    public AccessibleByteArrayInputStream(final byte[] array) {
         super(array);
     }//new
 
-    public ExpandableByteArrayInputStream(final java.io.ByteArrayOutputStream baos) {
-        super(baos instanceof ExpandableByteArrayOutputStream ? ((ExpandableByteArrayOutputStream) baos).array()
+    public AccessibleByteArrayInputStream(final java.io.ByteArrayOutputStream baos) {
+        super(baos instanceof AccessibleByteArrayOutputStream ? ((AccessibleByteArrayOutputStream) baos).array()
                 : baos.toByteArray(), 0, baos.size());
     }//new
 

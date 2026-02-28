@@ -32,7 +32,7 @@ import jakarta.validation.constraints.PositiveOrZero;
  * {@link #reset()} method will mark the content as empty, but will not decrease the capacity: use {@link #trim()} for
  * that purpose.
  * 
- * @see ExpandableByteArrayInputStream
+ * @see AccessibleByteArrayInputStream
  * 
  * @see org.springframework.util.ResizableByteArrayOutputStream
  * @see org.springframework.util.FastByteArrayOutputStream
@@ -53,13 +53,13 @@ import jakarta.validation.constraints.PositiveOrZero;
  * @see okio.Buffer
  */
 @NotThreadSafe
-public class ExpandableByteArrayOutputStream extends java.io.ByteArrayOutputStream
+public class AccessibleByteArrayOutputStream extends java.io.ByteArrayOutputStream
         implements RepositionableStream, ObjectOutput, MeasurableStream, ISafeCloseable, Appendable {
     /** The current writing position. */
     protected int position;
 
     /// Creates a new array output stream with an initial capacity of 160 bytes.
-    public ExpandableByteArrayOutputStream() {
+    public AccessibleByteArrayOutputStream() {
         super(160);
     }//new
 
@@ -67,7 +67,7 @@ public class ExpandableByteArrayOutputStream extends java.io.ByteArrayOutputStre
     ///
     /// @param initialCapacity
     ///            the initial length of the backing array.
-    public ExpandableByteArrayOutputStream(@PositiveOrZero final int initialCapacity) {
+    public AccessibleByteArrayOutputStream(@PositiveOrZero final int initialCapacity) {
         super(initialCapacity);
     }//new
 
@@ -75,22 +75,22 @@ public class ExpandableByteArrayOutputStream extends java.io.ByteArrayOutputStre
     ///
     /// @param a
     ///            the byte array to wrap.
-    public ExpandableByteArrayOutputStream(final byte[] a) {
+    public AccessibleByteArrayOutputStream(final byte[] a) {
         super(0);
         buf = a;
     }//new
 
-    public ExpandableByteArrayOutputStream(final byte[] a, @PositiveOrZero final int length) {
+    public AccessibleByteArrayOutputStream(final byte[] a, @PositiveOrZero final int length) {
         super(0);
         buf = a;
         count = Math.min(length, a.length);
     }//new
 
-    public ExpandableByteArrayOutputStream(final java.io.ByteArrayOutputStream baos) {
+    public AccessibleByteArrayOutputStream(final java.io.ByteArrayOutputStream baos) {
         super(0);
         count = baos.size();
-        if (baos instanceof ExpandableByteArrayOutputStream) {
-            final ExpandableByteArrayOutputStream us = (ExpandableByteArrayOutputStream) baos;
+        if (baos instanceof AccessibleByteArrayOutputStream) {
+            final AccessibleByteArrayOutputStream us = (AccessibleByteArrayOutputStream) baos;
             buf = us.array();
             position = us.writerIndex();
         } else {
@@ -394,7 +394,7 @@ public class ExpandableByteArrayOutputStream extends java.io.ByteArrayOutputStre
     }
 
     @Override
-    public ExpandableByteArrayOutputStream append(final CharSequence csq) {
+    public AccessibleByteArrayOutputStream append(final CharSequence csq) {
         append(csq, 0, csq.length());
         return this;
     }
@@ -402,7 +402,7 @@ public class ExpandableByteArrayOutputStream extends java.io.ByteArrayOutputStre
     /// @see #write(byte[], int, int)
     /// @see #writeBytes(byte[])
     @Override
-    public ExpandableByteArrayOutputStream append(final CharSequence csq, final int start, final int end) {
+    public AccessibleByteArrayOutputStream append(final CharSequence csq, final int start, final int end) {
         final int len = end - start;
         java.util.Objects.checkFromIndexSize(start, len, csq.length());
         final int len2 = len << 1;
@@ -419,7 +419,7 @@ public class ExpandableByteArrayOutputStream extends java.io.ByteArrayOutputStre
 
     /// @see #writeChar(int)
     @Override
-    public ExpandableByteArrayOutputStream append(final char c) {
+    public AccessibleByteArrayOutputStream append(final char c) {
         grow(2);
         DirectByteArrayAccess.setChar(buf, position, c);
         position += 2;
@@ -433,8 +433,8 @@ public class ExpandableByteArrayOutputStream extends java.io.ByteArrayOutputStre
     public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
-        } else if (obj instanceof ExpandableByteArrayOutputStream) {
-            final ExpandableByteArrayOutputStream baos = (ExpandableByteArrayOutputStream) obj;
+        } else if (obj instanceof AccessibleByteArrayOutputStream) {
+            final AccessibleByteArrayOutputStream baos = (AccessibleByteArrayOutputStream) obj;
             return java.util.Arrays.equals(buf, 0, count, baos.array(), 0, baos.size());
         } else if (obj instanceof java.io.ByteArrayOutputStream) {
             final java.io.ByteArrayOutputStream baos = (java.io.ByteArrayOutputStream) obj;
