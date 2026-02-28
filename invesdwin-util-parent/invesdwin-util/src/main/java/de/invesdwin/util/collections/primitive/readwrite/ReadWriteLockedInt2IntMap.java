@@ -6,7 +6,6 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
-import java.util.function.IntFunction;
 import java.util.function.ObjIntConsumer;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -15,36 +14,35 @@ import org.jspecify.annotations.Nullable;
 
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
 import de.invesdwin.util.concurrent.lock.padded.CloseableReentrantReadWriteLock;
-import it.unimi.dsi.fastutil.ints.Int2ObjectFunction;
-import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
-import it.unimi.dsi.fastutil.ints.IntComparator;
-import it.unimi.dsi.fastutil.ints.IntLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSortedSet;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSortedSet;
+import it.unimi.dsi.fastutil.ints.Int2IntFunction;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntCollection;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 /**
  * Origin:
- * https://github.com/magicprinc/fastutil-concurrent-wrapper/blob/master/src/main/java/com/trivago/fastutilconcurrentwrapper/intkey/SynchronizedInt2ObjLinkedHashMap.java
+ * https://github.com/magicprinc/fastutil-concurrent-wrapper/blob/master/src/main/java/com/trivago/fastutilconcurrentwrapper/intkey/SynchronizedInt2ObjHashMap.java
  * 
  * @see java.util.Collections#synchronizedMap(Map)
- * @see java.util.LinkedHashMap
- * @see it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap
+ * @see java.util.HashMap
+ * @see it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap
  */
 @ThreadSafe
-public class ReadWriteLockedInt2ObjectLinkedHashMap<V> implements Int2ObjectSortedMap<V> {
-    protected final Int2ObjectLinkedOpenHashMap<V> m;
+public class ReadWriteLockedInt2IntMap implements Int2IntMap {
+    protected final Int2IntOpenHashMap m;
     protected final CloseableReentrantReadWriteLock lock = new CloseableReentrantReadWriteLock();
 
-    public ReadWriteLockedInt2ObjectLinkedHashMap(final int expected, final float f) {
-        m = new Int2ObjectLinkedOpenHashMap<>(expected, f);
+    public ReadWriteLockedInt2IntMap(final int expected, final float f) {
+        m = new Int2IntOpenHashMap(expected, f);
     }//new
 
-    public ReadWriteLockedInt2ObjectLinkedHashMap() {
-        m = new Int2ObjectLinkedOpenHashMap<>();
+    public ReadWriteLockedInt2IntMap() {
+        m = new Int2IntOpenHashMap();
     }//new
 
     protected ICloseableLock read() {
@@ -75,7 +73,7 @@ public class ReadWriteLockedInt2ObjectLinkedHashMap<V> implements Int2ObjectSort
         }
     }
 
-    public V[] valueArray(final V[] valueArray) {
+    public int[] valueArray(final int[] valueArray) {
         try (ICloseableLock lock = read()) {
             return m.values().toArray(valueArray);
         }
@@ -87,15 +85,15 @@ public class ReadWriteLockedInt2ObjectLinkedHashMap<V> implements Int2ObjectSort
         }
     }
 
-    public void forEachValue(final Consumer<V> action) {
+    public void forEachValue(final Consumer action) {
         try (ICloseableLock lock = read()) {
             m.values().forEach(action);
         }
     }
 
-    public void forEachEntry(final ObjIntConsumer<V> action) {
+    public void forEachEntry(final ObjIntConsumer action) {
         try (ICloseableLock lock = read()) {
-            for (final Int2ObjectMap.Entry<V> e : m.int2ObjectEntrySet()) {
+            for (final Int2IntMap.Entry e : m.int2IntEntrySet()) {
                 action.accept(e.getValue(), e.getIntKey());
             }
         }
@@ -103,23 +101,9 @@ public class ReadWriteLockedInt2ObjectLinkedHashMap<V> implements Int2ObjectSort
 
     @SuppressWarnings("deprecation")
     @Override
-    public void forEach(final BiConsumer<? super Integer, ? super V> action) {
+    public void forEach(final BiConsumer<? super Integer, ? super Integer> action) {
         try (ICloseableLock lock = read()) {
             m.forEach(action);
-        }
-    }
-
-    @Override
-    public int firstIntKey() {
-        try (ICloseableLock lock = read()) {
-            return m.firstIntKey();
-        }
-    }
-
-    @Override
-    public int lastIntKey() {
-        try (ICloseableLock lock = read()) {
-            return m.lastIntKey();
         }
     }
 
@@ -131,7 +115,7 @@ public class ReadWriteLockedInt2ObjectLinkedHashMap<V> implements Int2ObjectSort
     }
 
     @Override
-    public V get(final int key) {
+    public int get(final int key) {
         try (ICloseableLock lock = read()) {
             return m.get(key);
         }
@@ -145,8 +129,15 @@ public class ReadWriteLockedInt2ObjectLinkedHashMap<V> implements Int2ObjectSort
     }
 
     @Override
+    public boolean containsValue(final int value) {
+        try (ICloseableLock lock = read()) {
+            return m.containsValue(value);
+        }
+    }
+
+    @Override
     @Deprecated
-    public V get(final Object key) {
+    public Integer get(final Object key) {
         try (ICloseableLock lock = read()) {
             return m.get(key);
         }
@@ -184,56 +175,36 @@ public class ReadWriteLockedInt2ObjectLinkedHashMap<V> implements Int2ObjectSort
         }
     }
 
-    @Override
-    public IntComparator comparator() {
-        return m.comparator();
-    }
-
     /** Full copy ~ snapshot! */
     @Override
-    public IntSortedSet keySet() {
+    public IntSet keySet() {
         try (ICloseableLock lock = read()) {
-            return new IntLinkedOpenHashSet(m.keySet());
+            return new IntOpenHashSet(m.keySet());
         }
     }
 
     /** Full copy ~ snapshot! */
     @Override
-    public ObjectArrayList<V> values() {
+    public IntCollection values() {
         try (ICloseableLock lock = read()) {
-            return new ObjectArrayList<>(m.values());
+            return new IntArrayList(m.values());
         }
     }
 
     /** Full copy ~ snapshot! */
     @Override
-    public ObjectSortedSet<Int2ObjectMap.Entry<V>> int2ObjectEntrySet() {
-        return new ObjectLinkedOpenHashSet<>(m.int2ObjectEntrySet());
+    public ObjectSet<Int2IntMap.Entry> int2IntEntrySet() {
+        return new ObjectOpenHashSet<>(m.int2IntEntrySet());
     }
 
     @Override
-    public void defaultReturnValue(final V rv) {
-        throw new UnsupportedOperationException();
+    public void defaultReturnValue(final int rv) {
+        m.defaultReturnValue(rv);
     }
 
     @Override
-    public @Nullable V defaultReturnValue() {
-        return null;
-    }
-
-    @Override
-    public Int2ObjectSortedMap<V> subMap(final int fromKey, final int toKey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Int2ObjectSortedMap<V> headMap(final int toKey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Int2ObjectSortedMap<V> tailMap(final int fromKey) {
-        throw new UnsupportedOperationException();
+    public @Nullable int defaultReturnValue() {
+        return m.defaultReturnValue();
     }
 
     public void forEachKeyWrite(final IntConsumer action) {
@@ -242,22 +213,14 @@ public class ReadWriteLockedInt2ObjectLinkedHashMap<V> implements Int2ObjectSort
         }
     }
 
-    public void forEachValueWrite(final Consumer<V> action) {
+    public void forEachValueWrite(final Consumer<Integer> action) {
         try (ICloseableLock lock = write()) {
             m.values().forEach(action);
         }
     }
 
-    public void forEachEntryWrite(final ObjIntConsumer<V> action) {
-        try (ICloseableLock lock = write()) {
-            for (final Int2ObjectMap.Entry<V> e : m.int2ObjectEntrySet()) {
-                action.accept(e.getValue(), e.getIntKey());
-            }
-        }
-    }
-
     //CHECKSTYLE:OFF
-    public <R> R withWriteLock(final Function<Int2ObjectLinkedOpenHashMap<V>, R> exclusiveAccess) {
+    public <R> R withWriteLock(final Function<Int2IntOpenHashMap, R> exclusiveAccess) {
         //CHECKSTYLE:ON
         try (ICloseableLock lock = write()) {
             return exclusiveAccess.apply(m);
@@ -265,7 +228,7 @@ public class ReadWriteLockedInt2ObjectLinkedHashMap<V> implements Int2ObjectSort
     }
 
     @Override
-    public void putAll(final Map<? extends Integer, ? extends V> from) {
+    public void putAll(final Map<? extends Integer, ? extends Integer> from) {
         try (ICloseableLock lock = write()) {
             m.putAll(from);
         }
@@ -279,79 +242,73 @@ public class ReadWriteLockedInt2ObjectLinkedHashMap<V> implements Int2ObjectSort
     }
 
     @Override
-    public V putIfAbsent(final int key, final V value) {
+    public int putIfAbsent(final int key, final int value) {
         try (ICloseableLock lock = write()) {
             return m.putIfAbsent(key, value);
         }
     }
 
     @Override
-    public boolean remove(final int key, final Object value) {
+    public boolean remove(final int key, final int value) {
         try (ICloseableLock lock = write()) {
             return m.remove(key, value);
         }
     }
 
     @Override
-    public boolean replace(final int key, final V oldValue, final V newValue) {
+    public boolean replace(final int key, final int oldValue, final int newValue) {
         try (ICloseableLock lock = write()) {
             return m.replace(key, oldValue, newValue);
         }
     }
 
     @Override
-    public V replace(final int key, final V value) {
+    public int replace(final int key, final int value) {
         try (ICloseableLock lock = write()) {
             return m.replace(key, value);
         }
     }
 
     @Override
-    public V computeIfAbsent(final int key, final IntFunction<? extends V> mappingFunction) {
+    public int computeIfAbsent(final int key, final Int2IntFunction mappingFunction) {
         try (ICloseableLock lock = write()) {
             return m.computeIfAbsent(key, mappingFunction);
         }
     }
 
     @Override
-    public V computeIfAbsent(final int key, final Int2ObjectFunction<? extends V> mappingFunction) {
-        try (ICloseableLock lock = write()) {
-            return m.computeIfAbsent(key, mappingFunction);
-        }
-    }
-
-    @Override
-    public V computeIfPresent(final int key,
-            final BiFunction<? super Integer, ? super V, ? extends V> remappingFunction) {
+    public int computeIfPresent(final int key,
+            final BiFunction<? super Integer, ? super Integer, ? extends Integer> remappingFunction) {
         try (ICloseableLock lock = write()) {
             return m.computeIfPresent(key, remappingFunction);
         }
     }
 
     @Override
-    public V compute(final int key, final BiFunction<? super Integer, ? super V, ? extends V> remappingFunction) {
+    public int compute(final int key,
+            final BiFunction<? super Integer, ? super Integer, ? extends Integer> remappingFunction) {
         try (ICloseableLock lock = write()) {
             return m.compute(key, remappingFunction);
         }
     }
 
     @Override
-    public V merge(final int key, final V value,
-            final BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
+    public int merge(final int key, final int value,
+            final BiFunction<? super Integer, ? super Integer, ? extends Integer> remappingFunction) {
         try (ICloseableLock lock = write()) {
             return m.merge(key, value, remappingFunction);
         }
     }
 
     @Override
-    public V put(final int key, final V value) {
+    public int put(final int key, final int value) {
         try (ICloseableLock lock = write()) {
             return m.put(key, value);
         }
     }
 
     @Override
-    public V remove(final int key) {
+    public int remove(final int key) {
         try (ICloseableLock lock = write()) {
             return m.remove(key);
         }
@@ -359,7 +316,7 @@ public class ReadWriteLockedInt2ObjectLinkedHashMap<V> implements Int2ObjectSort
 
     @Override
     @Deprecated
-    public V remove(final Object key) {
+    public Integer remove(final Object key) {
         try (ICloseableLock lock = write()) {
             return m.remove(key);
         }
@@ -367,21 +324,21 @@ public class ReadWriteLockedInt2ObjectLinkedHashMap<V> implements Int2ObjectSort
 
     @Override
     @Deprecated
-    public V put(final Integer key, final V value) {
+    public Integer put(final Integer key, final Integer value) {
         try (ICloseableLock lock = write()) {
             return m.put(key, value);
         }
     }
 
     @Override
-    public void replaceAll(final BiFunction<? super Integer, ? super V, ? extends V> function) {
+    public void replaceAll(final BiFunction<? super Integer, ? super Integer, ? extends Integer> function) {
         try (ICloseableLock lock = write()) {
             m.replaceAll(function);
         }
     }
 
     @Override
-    public V putIfAbsent(final Integer key, final V value) {
+    public Integer putIfAbsent(final Integer key, final Integer value) {
         try (ICloseableLock lock = write()) {
             return m.putIfAbsent(key, value);
         }
@@ -395,45 +352,46 @@ public class ReadWriteLockedInt2ObjectLinkedHashMap<V> implements Int2ObjectSort
     }
 
     @Override
-    public boolean replace(final Integer key, final V oldValue, final V newValue) {
+    public boolean replace(final Integer key, final Integer oldValue, final Integer newValue) {
         try (ICloseableLock lock = write()) {
             return m.replace(key, oldValue, newValue);
         }
     }
 
     @Override
-    public V replace(final Integer key, final V value) {
+    public Integer replace(final Integer key, final Integer value) {
         try (ICloseableLock lock = write()) {
             return m.replace(key, value);
         }
     }
 
     @Override
-    public V computeIfAbsent(final Integer key, final Function<? super Integer, ? extends V> mappingFunction) {
+    public Integer computeIfAbsent(final Integer key,
+            final Function<? super Integer, ? extends Integer> mappingFunction) {
         try (ICloseableLock lock = write()) {
             return m.computeIfAbsent(key, mappingFunction);
         }
     }
 
     @Override
-    public V computeIfPresent(final Integer key,
-            final BiFunction<? super Integer, ? super V, ? extends V> remappingFunction) {
+    public Integer computeIfPresent(final Integer key,
+            final BiFunction<? super Integer, ? super Integer, ? extends Integer> remappingFunction) {
         try (ICloseableLock lock = write()) {
             return m.computeIfPresent(key, remappingFunction);
         }
     }
 
     @Override
-    public V compute(final Integer key,
-            final BiFunction<? super Integer, ? super @Nullable V, ? extends V> remappingFunction) {
+    public Integer compute(final Integer key,
+            final BiFunction<? super Integer, ? super @Nullable Integer, ? extends Integer> remappingFunction) {
         try (ICloseableLock lock = write()) {
             return m.compute(key, remappingFunction);
         }
     }
 
     @Override
-    public V merge(final Integer key, final V value,
-            final BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
+    public Integer merge(final Integer key, final Integer value,
+            final BiFunction<? super Integer, ? super Integer, ? extends Integer> remappingFunction) {
         try (ICloseableLock lock = write()) {
             return m.merge(key, value, remappingFunction);
         }

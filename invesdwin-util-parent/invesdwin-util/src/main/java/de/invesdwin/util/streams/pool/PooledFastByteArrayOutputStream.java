@@ -22,11 +22,10 @@ public final class PooledFastByteArrayOutputStream extends FastByteArrayOutputSt
             () -> new PooledFastByteArrayOutputStream());
 
     private NonClosingDelegateOutputStream nonClosing;
-    private boolean closed = true;
+    private volatile boolean closed = true;
     private PooledFastByteArrayInputStream inputStream;
 
-    private PooledFastByteArrayOutputStream() {
-    }
+    private PooledFastByteArrayOutputStream() {}
 
     private PooledFastByteArrayOutputStream init() {
         if (!closed) {
@@ -52,6 +51,7 @@ public final class PooledFastByteArrayOutputStream extends FastByteArrayOutputSt
         }
     }
 
+    @Override
     public byte[] toByteArray() {
         final byte[] bytes = ByteBuffers.allocateByteArray(length);
         System.arraycopy(array, 0, bytes, 0, length);

@@ -29,15 +29,15 @@ import it.unimi.dsi.fastutil.objects.ObjectSortedSet;
  * @see java.util.LinkedHashMap
  */
 @ThreadSafe
-public class ReadWriteLockedObject2ObjectLinkedHashMap<K, V> implements Object2ObjectSortedMap<K, V> {
+public class ReadWriteLockedObject2ObjectLinkedMap<K, V> implements Object2ObjectSortedMap<K, V> {
     protected final Object2ObjectLinkedOpenHashMap<K, V> m;
     protected final CloseableReentrantReadWriteLock lock = new CloseableReentrantReadWriteLock();
 
-    public ReadWriteLockedObject2ObjectLinkedHashMap(final int expected, final float f) {
+    public ReadWriteLockedObject2ObjectLinkedMap(final int expected, final float f) {
         m = new Object2ObjectLinkedOpenHashMap<>(expected, f);
     }//new
 
-    public ReadWriteLockedObject2ObjectLinkedHashMap() {
+    public ReadWriteLockedObject2ObjectLinkedMap() {
         m = new Object2ObjectLinkedOpenHashMap<>();
     }//new
 
@@ -182,12 +182,12 @@ public class ReadWriteLockedObject2ObjectLinkedHashMap<K, V> implements Object2O
 
     @Override
     public void defaultReturnValue(final V rv) {
-        throw new UnsupportedOperationException();
+        m.defaultReturnValue(rv);
     }
 
     @Override
     public @Nullable V defaultReturnValue() {
-        return null;
+        return m.defaultReturnValue();
     }
 
     @Override
