@@ -62,8 +62,8 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
         if (key == null) {
             return false;
         }
-        //not updating highest allowed key, since this already happened during key adjustment
-        if (key.isAfter(internalMethods.getHighestAllowedKey(false))) {
+        //updating highest allowed key, since next value lookups might return null otherwise
+        if (key.isAfter(internalMethods.getHighestAllowedKey(true))) {
             return true;
         }
         return false;
