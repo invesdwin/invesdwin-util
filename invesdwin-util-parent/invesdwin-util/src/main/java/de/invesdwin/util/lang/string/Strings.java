@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Scanner;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -14,7 +13,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathStrings;
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.factory.pool.set.ICloseableSet;
 import de.invesdwin.util.collections.factory.pool.set.PooledSet;
@@ -27,6 +25,7 @@ import de.invesdwin.util.lang.string.internal.CommentRemover;
 import de.invesdwin.util.lang.string.internal.DefaultToStringStyle;
 import de.invesdwin.util.lang.string.internal.ExtendedReflectionToStringBuilder;
 import de.invesdwin.util.lang.string.internal.MultilineToStringStyle;
+import de.invesdwin.util.lang.string.internal.SplitByMaxLengthIterator;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.string.internal.AStringsStaticFacade", targets = {
@@ -711,93 +710,27 @@ public final class Strings extends AStringsStaticFacade {
                 break;
             }
         }
-        if (changed) {
+        if (changed && sb != null) {
             return sb.toString();
         } else {
             return str;
         }
     }
 
-    public static List<String> splitByMaxLength(final String str, final int maxLength) {
-        return splitByMaxLength(str, maxLength, false);
+    public static ICloseableIterator<String> splitByMaxLength(final String str, final int maxLength) {
+        return SplitByMaxLengthIterator.splitByMaxLength(str, maxLength);
     }
 
-    public static List<String> splitByMaxLength(final String str, final int maxLength, final boolean once) {
-        if (maxLength <= 0 || str.length() <= maxLength) {
-            return Collections.singletonList(str);
-        }
-        final int whitespaceMaxLength = (int) (maxLength * 1.1D);
-        final int hardMaxLength = (int) (whitespaceMaxLength * 1.1D);
-        final List<String> chunks = new ArrayList<>();
-        final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < str.length(); i++) {
-            final char c = str.charAt(i);
-            sb.append(c);
-            if (once && !chunks.isEmpty()) {
-                continue;
-            }
-            if (sb.length() >= hardMaxLength || (sb.length() >= whitespaceMaxLength && Character.isWhitespace(c))
-                    || (sb.length() >= maxLength && c == '\n')) {
-                chunks.add(sb.toString());
-                sb.setLength(0);
-            }
-        }
-        if (sb.length() > 0) {
-            chunks.add(sb.toString());
-        }
-        return chunks;
+    public static ICloseableIterator<String> splitByMaxLength(final String str, final int maxLength, final boolean once) {
+        return SplitByMaxLengthIterator.splitByMaxLength(str, maxLength, once);
     }
 
-    @SuppressWarnings("resource")
     public static ICloseableIterator<String> splitByMaxLength(final InputStream str, final int maxLength) {
-        return new ICloseableIterator<String>() {
+        return SplitByMaxLengthIterator.splitByMaxLength(str, maxLength);
+    }
 
-            private final int whitespaceMaxLength = (int) (maxLength * 1.1D);
-            private final int hardMaxLength = (int) (whitespaceMaxLength * 1.1D);
-            private final Scanner scanner;
-            private final StringBuilder sb;
-
-            {
-                scanner = new Scanner(str).useDelimiter("");
-                sb = new StringBuilder();
-            }
-
-            @Override
-            public boolean hasNext() {
-                return scanner.hasNext();
-            }
-
-            @Override
-            public String next() {
-                while (scanner.hasNext()) {
-                    final String str = scanner.next();
-                    if (str.length() > 1) {
-                        throw new IllegalStateException("Expected to read single characters, but got: " + str);
-                    }
-                    final char c = str.charAt(0);
-                    sb.append(c);
-                    if (sb.length() >= hardMaxLength
-                            || (sb.length() >= whitespaceMaxLength && Character.isWhitespace(c))
-                            || (sb.length() >= maxLength && c == '\n')) {
-                        final String chunk = sb.toString();
-                        sb.setLength(0);
-                        return chunk;
-                    }
-                }
-                if (sb.length() > 0) {
-                    return sb.toString();
-                } else {
-                    throw new IllegalStateException("No more chunks available");
-                }
-            }
-
-            @Override
-            public void close() {
-                scanner.close();
-                sb.setLength(0);
-            }
-
-        };
+    public static ICloseableIterator<String> splitByMaxLength(final InputStream str, final int maxLength, final boolean once) {
+        return SplitByMaxLengthIterator.splitByMaxLength(str, maxLength, once);
     }
 
     public static boolean isDecimal(final String str) {

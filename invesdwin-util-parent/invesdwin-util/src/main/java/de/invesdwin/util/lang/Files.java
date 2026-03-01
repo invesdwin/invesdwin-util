@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.TimeoutException;
 
 import javax.annotation.concurrent.Immutable;
@@ -414,26 +415,30 @@ public final class Files extends AFilesStaticFacade {
             final InputStream referenceSource, final int maxReferenceLength) {
         try (ICloseableIterator<String> references = Strings.splitByMaxLength(referenceSource, maxReferenceLength)) {
             int i = 0;
-            while (references.hasNext()) {
-                final String ref = references.next();
-                final File indexedReferenceFile;
-                if (i == 0) {
-                    indexedReferenceFile = referenceFile;
-                } else {
-                    indexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
-                }
-                if (createReferenceFile) {
-                    Files.writeStringToFileIfDifferent(indexedReferenceFile, ref);
-                } else {
-                    try {
-                        final String existingRef = Files.readFileToString(indexedReferenceFile,
-                                Charset.defaultCharset());
-                        Assertions.checkEquals(existingRef, ref);
-                    } catch (final IOException e) {
-                        throw new RuntimeException(e);
+            try {
+                while (true) {
+                    final String ref = references.next();
+                    final File indexedReferenceFile;
+                    if (i == 0) {
+                        indexedReferenceFile = referenceFile;
+                    } else {
+                        indexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
                     }
+                    if (createReferenceFile) {
+                        Files.writeStringToFileIfDifferent(indexedReferenceFile, ref);
+                    } else {
+                        try {
+                            final String existingRef = Files.readFileToString(indexedReferenceFile,
+                                    Charset.defaultCharset());
+                            Assertions.checkEquals(existingRef, ref);
+                        } catch (final IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    i++;
                 }
-                i++;
+            } catch (final NoSuchElementException e) {
+                //end reached
             }
             if (createReferenceFile) {
                 //delete any existing reference files that are not needed anymore
@@ -458,16 +463,20 @@ public final class Files extends AFilesStaticFacade {
             final int maxReferenceLength) {
         try (ICloseableIterator<String> references = Strings.splitByMaxLength(newReference, maxReferenceLength)) {
             int i = 0;
-            while (references.hasNext()) {
-                final String ref = references.next();
-                final File indexedReferenceFile;
-                if (i == 0) {
-                    indexedReferenceFile = referenceFile;
-                } else {
-                    indexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
+            try {
+                while (true) {
+                    final String ref = references.next();
+                    final File indexedReferenceFile;
+                    if (i == 0) {
+                        indexedReferenceFile = referenceFile;
+                    } else {
+                        indexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
+                    }
+                    Files.writeStringToFileIfDifferent(indexedReferenceFile, ref);
+                    i++;
                 }
-                Files.writeStringToFileIfDifferent(indexedReferenceFile, ref);
-                i++;
+            } catch (final NoSuchElementException e) {
+                //end reached
             }
             //delete any existing reference files that are not needed anymore
             while (true) {

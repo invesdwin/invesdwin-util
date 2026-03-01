@@ -198,7 +198,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                     }
                 }
             }
-            throw new IndexOutOfBoundsException("offset=" + index + " capacity=" + capacity());
+            throw FastIndexOutOfBoundsException.getInstance("offset=%s capacity=%s", index, capacity());
         }
     }
 
