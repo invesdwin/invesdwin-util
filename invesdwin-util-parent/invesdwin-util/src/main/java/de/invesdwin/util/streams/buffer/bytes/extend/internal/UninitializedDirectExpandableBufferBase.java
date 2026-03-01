@@ -58,7 +58,7 @@ import de.invesdwin.util.streams.buffer.bytes.UninitializedDirectByteBuffers;
  */
 @NotThreadSafe
 @SuppressWarnings("restriction")
-public class UninitializedExpandableDirectBufferBase implements MutableDirectBuffer, Closeable {
+public class UninitializedDirectExpandableBufferBase implements MutableDirectBuffer, Closeable {
     /**
      * Maximum length to which the underlying buffer can grow.
      */
@@ -71,13 +71,13 @@ public class UninitializedExpandableDirectBufferBase implements MutableDirectBuf
 
     private static final sun.misc.Unsafe UNSAFE = Reflections.getUnsafe();
 
-    private static final class UninitializedExpandableDirectBufferFinalizer extends AFinalizer {
+    private static final class UninitializedDirectExpandableBufferFinalizer extends AFinalizer {
 
         private long address;
         private int capacity;
         private java.nio.ByteBuffer byteBuffer;
 
-        private UninitializedExpandableDirectBufferFinalizer(final int initialCapacity) {
+        private UninitializedDirectExpandableBufferFinalizer(final int initialCapacity) {
             byteBuffer = UninitializedDirectByteBuffers.allocateDirectByteBufferNoCleaner(initialCapacity);
             capacity = initialCapacity;
             address = address(byteBuffer);
@@ -101,23 +101,23 @@ public class UninitializedExpandableDirectBufferBase implements MutableDirectBuf
 
     }
 
-    private final UninitializedExpandableDirectBufferFinalizer finalizer;
+    private final UninitializedDirectExpandableBufferFinalizer finalizer;
 
     /**
-     * Create an {@link UninitializedExpandableDirectBufferBase} with an initial length of {@link #INITIAL_CAPACITY}.
+     * Create an {@link UninitializedDirectExpandableBufferBase} with an initial length of {@link #INITIAL_CAPACITY}.
      */
-    public UninitializedExpandableDirectBufferBase() {
+    public UninitializedDirectExpandableBufferBase() {
         this(INITIAL_CAPACITY);
     }
 
     /**
-     * Create an {@link UninitializedExpandableDirectBufferBase} with a provided initial capacity.
+     * Create an {@link UninitializedDirectExpandableBufferBase} with a provided initial capacity.
      *
      * @param initialCapacity
      *            of the backing array.
      */
-    public UninitializedExpandableDirectBufferBase(final int initialCapacity) {
-        this.finalizer = new UninitializedExpandableDirectBufferFinalizer(initialCapacity);
+    public UninitializedDirectExpandableBufferBase(final int initialCapacity) {
+        this.finalizer = new UninitializedDirectExpandableBufferFinalizer(initialCapacity);
         this.finalizer.register(this);
     }
 
@@ -1446,7 +1446,7 @@ public class UninitializedExpandableDirectBufferBase implements MutableDirectBuf
             return false;
         }
 
-        final UninitializedExpandableDirectBufferBase that = (UninitializedExpandableDirectBufferBase) obj;
+        final UninitializedDirectExpandableBufferBase that = (UninitializedDirectExpandableBufferBase) obj;
 
         return compareTo(that) == 0;
     }
@@ -1498,8 +1498,8 @@ public class UninitializedExpandableDirectBufferBase implements MutableDirectBuf
      */
     @Override
     public String toString() {
-        return "UninitializedExpandableDirectBufferBase{" + "address=" + finalizer.address + ", capacity="
-                + finalizer.capacity + ", byteBuffer=" + finalizer.byteBuffer + '}';
+        return UninitializedDirectExpandableBufferBase.class.getSimpleName() + "{" + "address=" + finalizer.address
+                + ", capacity=" + finalizer.capacity + ", byteBuffer=" + finalizer.byteBuffer + '}';
     }
 
     private void ensureCapacity(final int index, final int length) {

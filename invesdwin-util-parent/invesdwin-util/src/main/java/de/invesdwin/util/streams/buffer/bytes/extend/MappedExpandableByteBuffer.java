@@ -2,6 +2,7 @@ package de.invesdwin.util.streams.buffer.bytes.extend;
 
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,6 +18,9 @@ import org.agrona.BitUtil;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
+import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
+import de.invesdwin.util.error.FastEOFException;
+import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
@@ -24,31 +28,37 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedArrayExpandableBufferBase;
+import de.invesdwin.util.streams.buffer.bytes.extend.internal.MappedExpandableBufferBase;
 import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferInputStream;
 import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferOutputStream;
 import de.invesdwin.util.streams.buffer.bytes.stream.ExpandableByteBufferOutputStream;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer;
+import de.invesdwin.util.time.duration.Duration;
 
-/**
- * Uninitialized can be default here since we don't have to register a cleaner anyway
- */
 @NotThreadSafe
-public class ArrayExpandableByteBuffer extends UninitializedArrayExpandableBufferBase implements IByteBuffer {
+public class MappedExpandableByteBuffer extends MappedExpandableBufferBase implements IByteBuffer {
 
     protected IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
-    public ArrayExpandableByteBuffer() {
+    public MappedExpandableByteBuffer() {
         super(INITIAL_CAPACITY);
     }
 
-    public ArrayExpandableByteBuffer(final int initialCapacity) {
+    public MappedExpandableByteBuffer(final int initialCapacity) {
         super(initialCapacity);
     }
 
-    public ArrayExpandableByteBuffer(final byte[] byteArray) {
-        super(byteArray);
+    public MappedExpandableByteBuffer(final int initialCapacity, final String name) {
+        super(initialCapacity, name);
+    }
+
+    public MappedExpandableByteBuffer(final int initialCapacity, final File file) {
+        super(initialCapacity, file);
+    }
+
+    public MappedExpandableByteBuffer(final int initialCapacity, final File file, final boolean deleteOnClose) {
+        super(initialCapacity, file, deleteOnClose);
     }
 
     @Override
@@ -142,6 +152,46 @@ public class ArrayExpandableByteBuffer extends UninitializedArrayExpandableBuffe
     @Override
     public OutputStream asOutputStream(final int index, final int length) {
         return new ByteBufferOutputStream(this, index, length);
+    }
+
+    @Deprecated
+    @Override
+    public byte[] asByteArray() {
+        throw newAsByteArrayUnsupported();
+    }
+
+    public static UnsupportedOperationException newAsByteArrayUnsupported() {
+        return new UnsupportedOperationException("This will give a bigger size than what was added to the buffer. "
+                + "Use buffer.asByteArrayTo(buffer.capacity()) if you really want this from an expandable buffer."
+                + "Also a slice(from, to)'d wrapper of this buffer should not cause this exception.");
+    }
+
+    @Deprecated
+    @Override
+    public byte[] asByteArrayCopy() {
+        throw newAsByteArrayUnsupported();
+    }
+
+    //CHECKSTYLE:OFF
+    @Override
+    public IByteBuffer clone() {
+        //CHECKSTYLE:ON
+        throw newAsByteArrayUnsupported();
+    }
+
+    @Override
+    public IByteBuffer clone(final int index, final int length) {
+        return ByteBuffers.wrap(asByteArrayCopy(index, length));
+    }
+
+    @Override
+    public byte[] asByteArray(final int index, final int length) {
+        return ByteBuffers.asByteArrayCopyGet(this, index, length);
+    }
+
+    @Override
+    public byte[] asByteArrayCopy(final int index, final int length) {
+        return ByteBuffers.asByteArrayCopyGet(this, index, length);
     }
 
     @Override
@@ -241,6 +291,97 @@ public class ArrayExpandableByteBuffer extends UninitializedArrayExpandableBuffe
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void getBytesTo(final int index, final DataOutput dst, final int length) throws IOException {
+        if (dst instanceof WritableByteChannel) {
+            getBytesTo(index, (WritableByteChannel) dst, length);
+        } else {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
+                final byte b = getByte(i);
+                dst.write(b);
+            }
+        }
+    }
+
+    @Override
+    public void getBytesTo(final int index, final OutputStream dst, final int length) throws IOException {
+        if (dst instanceof WritableByteChannel) {
+            getBytesTo(index, (WritableByteChannel) dst, length);
+        } else if (dst instanceof FileOutputStream && ((FileOutputStream) dst).getChannel() != null) {
+            final FileOutputStream cDst = (FileOutputStream) dst;
+            getBytesTo(index, cDst.getChannel(), length);
+        } else if (dst instanceof DataOutput) {
+            getBytesTo(index, (DataOutput) dst, length);
+        } else {
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
+                final byte b = getByte(i);
+                dst.write(b);
+            }
+        }
+    }
+
+    @Override
+    public void putBytesTo(final int index, final DataInput src, final int length) throws IOException {
+        if (src instanceof ReadableByteChannel) {
+            putBytesTo(index, (ReadableByteChannel) src, length);
+        } else {
+            ensureCapacity(index + length);
+            final int limit = index + length;
+            for (int i = index; i < limit; i++) {
+                final byte b = src.readByte();
+                putByte(i, b);
+            }
+        }
+    }
+
+    @Override
+    public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
+        if (src instanceof ReadableByteChannel) {
+            putBytesTo(index, (ReadableByteChannel) src, length);
+        } else if (src instanceof FileInputStream && ((FileInputStream) src).getChannel() != null) {
+            final FileInputStream cSrc = (FileInputStream) src;
+            putBytesTo(index, cSrc.getChannel(), length);
+        } else if (src instanceof DataInput) {
+            putBytesTo(index, (DataInput) src, length);
+        } else {
+            final Duration timeout = URIs.getDefaultNetworkTimeout();
+            long zeroCountNanos = -1L;
+
+            ensureCapacity(index + length);
+            final int limit = index + length;
+            for (int i = index; i < limit;) {
+                final int result = src.read();
+                if (result < 0) { // EOF
+                    throw ByteBuffers.newEOF();
+                }
+                if (result == 0 && timeout != null) {
+                    if (zeroCountNanos == -1) {
+                        zeroCountNanos = System.nanoTime();
+                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        throw FastEOFException.getInstance("write timeout exceeded");
+                    }
+                    ASpinWait.onSpinWaitStatic();
+                } else {
+                    zeroCountNanos = -1L;
+                    putByte(i, (byte) result);
+                    i++;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
+        OutputStreams.writeFullyNoTimeout(dst, asNioByteBuffer(index, length));
+    }
+
+    @Override
+    public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
+        InputStreams.readFullyNoTimeout(src, asNioByteBuffer(index, length));
     }
 
     @Override
@@ -484,97 +625,6 @@ public class ArrayExpandableByteBuffer extends UninitializedArrayExpandableBuffe
     }
 
     @Override
-    public byte[] asByteArray() {
-        return asByteArrayTo(capacity());
-    }
-
-    @Override
-    public byte[] asByteArrayCopy() {
-        return asByteArrayCopyTo(capacity());
-    }
-
-    //CHECKSTYLE:OFF
-    @Override
-    public IByteBuffer clone() {
-        //CHECKSTYLE:ON
-        return ByteBuffers.wrap(asByteArrayCopy());
-    }
-
-    @Override
-    public IByteBuffer clone(final int index, final int length) {
-        return ByteBuffers.wrap(asByteArrayCopy(index, length));
-    }
-
-    @Override
-    public byte[] asByteArray(final int index, final int length) {
-        return ByteBuffers.asByteArray(this, index, length);
-    }
-
-    @Override
-    public byte[] asByteArrayCopy(final int index, final int length) {
-        return ByteBuffers.asByteArrayCopy(this, index, length);
-    }
-
-    @Override
-    public void getBytesTo(final int index, final DataOutput dst, final int length) throws IOException {
-        if (dst instanceof WritableByteChannel) {
-            getBytesTo(index, (WritableByteChannel) dst, length);
-        } else {
-            dst.write(byteArray(), index, length);
-        }
-    }
-
-    @Override
-    public void getBytesTo(final int index, final OutputStream dst, final int length) throws IOException {
-        if (dst instanceof WritableByteChannel) {
-            getBytesTo(index, (WritableByteChannel) dst, length);
-        } else if (dst instanceof FileOutputStream && ((FileOutputStream) dst).getChannel() != null) {
-            final FileOutputStream cDst = (FileOutputStream) dst;
-            getBytesTo(index, cDst.getChannel(), length);
-        } else if (dst instanceof DataOutput) {
-            getBytesTo(index, (DataOutput) dst, length);
-        } else {
-            dst.write(byteArray(), index, length);
-        }
-    }
-
-    @Override
-    public void putBytesTo(final int index, final DataInput src, final int length) throws IOException {
-        if (src instanceof ReadableByteChannel) {
-            putBytesTo(index, (ReadableByteChannel) src, length);
-        } else {
-            ensureCapacity(index + length);
-            src.readFully(byteArray(), index, length);
-        }
-    }
-
-    @Override
-    public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
-        if (src instanceof ReadableByteChannel) {
-            putBytesTo(index, (ReadableByteChannel) src, length);
-        } else if (src instanceof FileInputStream && ((FileInputStream) src).getChannel() != null) {
-            final FileInputStream cSrc = (FileInputStream) src;
-            putBytesTo(index, cSrc.getChannel(), length);
-        } else if (src instanceof DataInput) {
-            putBytesTo(index, (DataInput) src, length);
-        } else {
-            ensureCapacity(index + length);
-            final byte[] array = byteArray();
-            InputStreams.readFullyNoTimeout(src, array, index, length);
-        }
-    }
-
-    @Override
-    public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
-        OutputStreams.writeFullyNoTimeout(dst, asNioByteBuffer(index, length));
-    }
-
-    @Override
-    public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
-        InputStreams.readFullyNoTimeout(src, asNioByteBuffer(index, length));
-    }
-
-    @Override
     public void clear(final byte value, final int index, final int length) {
         setMemory(index, length, value);
     }
@@ -591,7 +641,7 @@ public class ArrayExpandableByteBuffer extends UninitializedArrayExpandableBuffe
     @Override
     public java.nio.ByteBuffer asNioByteBuffer(final int index, final int length) {
         ensureCapacity(index + length);
-        final java.nio.ByteBuffer buffer = java.nio.ByteBuffer.wrap(byteArray());
+        final java.nio.ByteBuffer buffer = nioByteBuffer();
         if (index == 0 && length == capacity()) {
             return buffer;
         } else {

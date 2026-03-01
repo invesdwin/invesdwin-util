@@ -69,6 +69,7 @@ public final class Files extends AFilesStaticFacade {
 
     private static Boolean deleteNativeUnixAvailable = null;
     private static Boolean deleteNativeWindowsAvailable = null;
+    private static File tempDirectory;
 
     static {
         Assertions.assertThat(NORMALIZE_FILENAME_SEARCH.length).isEqualByComparingTo(NORMALIZE_FILENAME_REPLACE.length);
@@ -76,9 +77,24 @@ public final class Files extends AFilesStaticFacade {
         if (!OperatingSystem.isWindows()) {
             deleteNativeWindowsAvailable = false;
         }
+        //CHECKSTYLE:OFF
+        tempDirectory = new File(System.getProperty("java.io.tmpdir"));
+        //CHECKSTYLE:ON
     }
 
     private Files() {}
+
+    public static File getTempDirectory() {
+        return tempDirectory;
+    }
+
+    public static String getTempDirectoryPath() {
+        return tempDirectory.getAbsolutePath();
+    }
+
+    public static void setTempDirectory(final File tempDirectory) {
+        Files.tempDirectory = tempDirectory;
+    }
 
     public static void purgeOldFiles(final File directory, final Duration threshold) {
         if (!directory.exists()) {

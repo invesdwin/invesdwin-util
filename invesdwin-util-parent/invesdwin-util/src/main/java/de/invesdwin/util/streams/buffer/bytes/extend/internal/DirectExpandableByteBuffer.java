@@ -36,7 +36,7 @@ import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
-public class DirectExpandableByteBuffer extends ExpandableDirectByteBufferBase implements IByteBuffer {
+public class DirectExpandableByteBuffer extends DirectExpandableByteBufferBase implements IByteBuffer {
 
     protected IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 

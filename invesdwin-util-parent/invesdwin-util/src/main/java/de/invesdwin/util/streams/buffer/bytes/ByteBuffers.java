@@ -67,6 +67,7 @@ public final class ByteBuffers {
 
     public static final IObjectPool<ICloseableByteBuffer> EXPANDABLE_POOL = ArrayExpandableByteBufferPool.INSTANCE;
     public static final IObjectPool<ICloseableByteBuffer> DIRECT_EXPANDABLE_POOL = DirectExpandableByteBufferPool.INSTANCE;
+    public static final IObjectPool<ICloseableByteBuffer> MAPPED_EXPANDABLE_POOL = DirectExpandableByteBufferPool.INSTANCE;
 
     private static final ISliceInvoker SLICE_INVOKER;
 
