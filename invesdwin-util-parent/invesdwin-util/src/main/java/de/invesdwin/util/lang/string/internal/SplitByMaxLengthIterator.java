@@ -2,7 +2,9 @@ package de.invesdwin.util.lang.string.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
+import java.nio.charset.Charset;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -16,9 +18,9 @@ public final class SplitByMaxLengthIterator implements ICloseableIterator<String
     private final int whitespaceMaxLength;
     private final int hardMaxLength;
     private final boolean once;
-    private final byte[] buffer = new byte[8192]; // 8KB buffer
+    private final char[] buffer = new char[8192]; // 8KB character buffer
     private final StringBuilder sb;
-    private final InputStream input;
+    private final InputStreamReader reader;
     private int bufferPos = 0;
     private int bufferLen = 0;
     private boolean eof = false;
@@ -26,7 +28,7 @@ public final class SplitByMaxLengthIterator implements ICloseableIterator<String
     private boolean firstChunkReturned = false;
 
     private SplitByMaxLengthIterator(final InputStream input, final int maxLength, final boolean once) {
-        this.input = input;
+        this.reader = new InputStreamReader(input, Charset.defaultCharset());
         this.maxLength = maxLength;
         this.once = once;
         whitespaceMaxLength = (int) (maxLength * 1.1D);
@@ -70,7 +72,7 @@ public final class SplitByMaxLengthIterator implements ICloseableIterator<String
             if (bufferPos >= bufferLen) {
                 // Read more data
                 try {
-                    bufferLen = input.read(buffer);
+                    bufferLen = reader.read(buffer);
                     if (bufferLen == -1) {
                         eof = true;
                         break;
@@ -83,8 +85,7 @@ public final class SplitByMaxLengthIterator implements ICloseableIterator<String
 
             // Process current buffer
             while (bufferPos < bufferLen && !nextChunkReady) {
-                final byte b = buffer[bufferPos++];
-                final char c = (char) (b & 0xFF); // Handle as unsigned byte
+                final char c = buffer[bufferPos++];
 
                 sb.append(c);
 
@@ -104,7 +105,7 @@ public final class SplitByMaxLengthIterator implements ICloseableIterator<String
     @Override
     public void close() {
         try {
-            input.close();
+            reader.close();
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
