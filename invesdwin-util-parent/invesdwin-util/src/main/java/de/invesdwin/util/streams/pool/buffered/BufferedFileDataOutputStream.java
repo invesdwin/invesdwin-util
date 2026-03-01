@@ -76,7 +76,7 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
     }
 
     protected IObjectPool<ICloseableByteBuffer> getBufferPool() {
-        return ByteBuffers.EXPANDABLE_POOL;
+        return ByteBuffers.DIRECT_EXPANDABLE_POOL;
     }
 
     @Override
