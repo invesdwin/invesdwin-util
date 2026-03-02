@@ -1,4 +1,4 @@
-package de.invesdwin.util.lang.string;
+package de.invesdwin.util.streams;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,6 +9,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 import javax.annotation.concurrent.NotThreadSafe;
+
+import de.invesdwin.util.lang.string.Strings;
 
 @NotThreadSafe
 public class NormalizedPrintStream extends PrintStream {
