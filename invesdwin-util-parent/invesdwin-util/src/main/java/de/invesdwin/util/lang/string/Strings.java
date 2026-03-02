@@ -44,6 +44,9 @@ public final class Strings extends AStringsStaticFacade {
     public static final String NULL_TEXT = "null";
     public static final String DEFAULT_MISSING_VALUE = null;
 
+    public static final String NEWLINE = "\n";
+    public static final char NEWLINE_CHAR = '\n';
+
     private static final Map<String, String> SYMBOL_ESCAPEDHTML = ILockCollectionFactory.getInstance(false).newMap();
 
     private static final String[] AS_STRING_SPACES_SEARCH = new String[] { //
@@ -721,7 +724,8 @@ public final class Strings extends AStringsStaticFacade {
         return SplitByMaxLengthIterator.splitByMaxLength(str, maxLength);
     }
 
-    public static ICloseableIterator<String> splitByMaxLength(final String str, final int maxLength, final boolean once) {
+    public static ICloseableIterator<String> splitByMaxLength(final String str, final int maxLength,
+            final boolean once) {
         return SplitByMaxLengthIterator.splitByMaxLength(str, maxLength, once);
     }
 
@@ -729,7 +733,8 @@ public final class Strings extends AStringsStaticFacade {
         return SplitByMaxLengthIterator.splitByMaxLength(str, maxLength);
     }
 
-    public static ICloseableIterator<String> splitByMaxLength(final InputStream str, final int maxLength, final boolean once) {
+    public static ICloseableIterator<String> splitByMaxLength(final InputStream str, final int maxLength,
+            final boolean once) {
         return SplitByMaxLengthIterator.splitByMaxLength(str, maxLength, once);
     }
 
