@@ -21,6 +21,7 @@ import org.junit.platform.engine.support.store.NamespacedHierarchicalStore;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.future.Futures;
+import de.invesdwin.util.concurrent.handler.AlwaysUncaughtExecutorExceptionHandler;
 import de.invesdwin.util.concurrent.nested.ANestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 
@@ -30,7 +31,8 @@ public final class ParallelSuiteTestEngine implements TestEngine {
     private static final INestedExecutor EXECUTOR = new ANestedExecutor(ParallelSuiteTestEngine.class.getSimpleName()) {
         @Override
         protected WrappedExecutorService newNestedExecutor(final String nestedName) {
-            return Executors.newFixedThreadPool(nestedName, Executors.getCpuThreadPoolCount());
+            return Executors.newFixedThreadPool(nestedName, Executors.getCpuThreadPoolCount())
+                    .setExecutorExceptionHandler(AlwaysUncaughtExecutorExceptionHandler.INSTANCE);
         }
     };
 
