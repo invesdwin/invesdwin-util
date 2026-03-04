@@ -233,6 +233,11 @@ public class RoaringBitSet implements IBitSet {
     }
 
     @Override
+    public int getBufferLength() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void clear() {
         bitSet.clear();
         trueCount = 0;

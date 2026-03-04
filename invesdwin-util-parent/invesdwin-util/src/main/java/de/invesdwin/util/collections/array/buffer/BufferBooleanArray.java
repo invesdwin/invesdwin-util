@@ -119,6 +119,11 @@ public class BufferBooleanArray implements IBooleanArray {
     }
 
     @Override
+    public int getBufferLength() {
+        return ARRAY_INDEX + buffer.capacity();
+    }
+
+    @Override
     public void clear() {
         delegate.clear();
     }

@@ -105,6 +105,11 @@ public class HeapBooleanArray implements IBooleanArray {
     }
 
     @Override
+    public int getBufferLength() {
+        return 0;
+    }
+
+    @Override
     public void clear() {
         Arrays.fill(values, false);
     }

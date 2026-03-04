@@ -76,6 +76,11 @@ public final class EmptyIntegerArray implements IIntegerArray {
     }
 
     @Override
+    public int getBufferLength() {
+        return 0;
+    }
+
+    @Override
     public void clear() {}
 
 }

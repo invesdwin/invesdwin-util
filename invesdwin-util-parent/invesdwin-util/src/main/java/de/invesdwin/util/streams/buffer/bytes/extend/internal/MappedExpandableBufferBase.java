@@ -88,7 +88,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
 
         private final File file;
         private final boolean deleteOnClose;
-        private IMemoryMappedFile mappedFile;
+        private MemoryMappedFile mappedFile;
         private long address;
         private int capacity;
 
@@ -237,7 +237,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
      */
     @Override
     public java.nio.ByteBuffer byteBuffer() {
-        return null;
+        return finalizer.mappedFile.getMappedByteBuffer();
     }
 
     /**

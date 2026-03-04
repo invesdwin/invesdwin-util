@@ -96,6 +96,11 @@ public class HeapIntegerArray implements IIntegerArray {
         for (int i = 0; i < size(); i++) {
             buffer.putDouble(i * Integer.BYTES, get(i));
         }
+        return getBufferLength();
+    }
+
+    @Override
+    public int getBufferLength() {
         return size() * Integer.BYTES;
     }
 

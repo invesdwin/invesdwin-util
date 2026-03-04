@@ -145,6 +145,11 @@ public final class SliceDelegateBitSet implements IBitSet {
     }
 
     @Override
+    public int getBufferLength() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void clear() {
         throw new UnsupportedOperationException();
     }

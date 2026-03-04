@@ -99,6 +99,11 @@ public class BufferLongArray implements ILongArray {
     }
 
     @Override
+    public int getBufferLength() {
+        return buffer.capacity();
+    }
+
+    @Override
     public void clear() {
         buffer.clear();
     }

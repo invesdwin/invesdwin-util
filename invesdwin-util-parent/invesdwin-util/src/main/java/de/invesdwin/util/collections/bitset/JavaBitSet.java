@@ -206,7 +206,14 @@ public class JavaBitSet implements IBitSet {
             words = Arrays.copyOfRange(words, 0, wordsInUse);
         }
         final HeapLongArray delegate = new HeapLongArray(words);
-        return delegate.getBuffer(buffer.sliceFrom(BufferBooleanArray.ARRAY_INDEX));
+        return BufferBooleanArray.ARRAY_INDEX + delegate.getBuffer(buffer.sliceFrom(BufferBooleanArray.ARRAY_INDEX));
+    }
+
+    @SuppressWarnings("restriction")
+    @Override
+    public int getBufferLength() {
+        final int wordsInUse = (int) Reflections.getUnsafe().getObject(bitSet, BitSets.BITSET_WORDS_IN_USE_OFFSET);
+        return BufferBooleanArray.ARRAY_INDEX + Long.BYTES * wordsInUse;
     }
 
     @Override

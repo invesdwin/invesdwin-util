@@ -1,5 +1,6 @@
 package de.invesdwin.util.streams;
 
+import java.io.DataOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UTFDataFormatException;
@@ -89,13 +90,46 @@ public final class OutputStreams {
         writeLong(out, Double.doubleToLongBits(v));
     }
 
-    public static void writeChars(final OutputStream out, final String s) throws IOException {
+    public static int writeChars(final OutputStream out, final CharSequence s) throws IOException {
         final int len = s.length();
         for (int i = 0; i < len; i++) {
             final int v = s.charAt(i);
             out.write((v >>> 8) & 0xFF);
             out.write((v >>> 0) & 0xFF);
         }
+        return len * 2;
+    }
+
+    public static int writeAscii(final OutputStream out, final CharSequence s) throws IOException {
+        return writeAscii(out, s, 0, s.length());
+    }
+
+    public static int writeAscii(final OutputStream out, final CharSequence value, final int valueIndex,
+            final int length) throws IOException {
+        for (int i = 0; i < length; i++) {
+            char c = value.charAt(valueIndex + i);
+            if (c > 127) {
+                c = '?';
+            }
+            out.write((byte) c);
+        }
+        return length;
+    }
+
+    public static int writeAscii(final DataOutput out, final CharSequence s) throws IOException {
+        return writeAscii(out, s, 0, s.length());
+    }
+
+    public static int writeAscii(final DataOutput out, final CharSequence value, final int valueIndex, final int length)
+            throws IOException {
+        for (int i = 0; i < length; i++) {
+            char c = value.charAt(valueIndex + i);
+            if (c > 127) {
+                c = '?';
+            }
+            out.write((byte) c);
+        }
+        return length;
     }
 
     public static void writeFullyNoTimeout(final WritableByteChannel dst, final java.nio.ByteBuffer byteBuffer)
@@ -175,6 +209,56 @@ public final class OutputStreams {
     }
 
     public static int writeUTF(final OutputStream out, final String str) throws IOException {
+        final int strlen = str.length();
+        int utflen = strlen; // optimized for ASCII
+
+        for (int i = 0; i < strlen; i++) {
+            final int c = str.charAt(i);
+            if (c >= 0x80 || c == 0) {
+                utflen += (c >= 0x800) ? 2 : 1;
+            }
+        }
+
+        if (utflen > 65535 || /* overflow */ utflen < strlen) {
+            throw new UTFDataFormatException(tooLongMsg(str, utflen));
+        }
+
+        try (ICloseableByteBuffer bytearr = ByteBuffers.EXPANDABLE_POOL.borrowObject()) {
+            bytearr.ensureCapacity(utflen + 2);
+            int count = 0;
+            bytearr.putByte(count++, (byte) ((utflen >>> 8) & 0xFF));
+            bytearr.putByte(count++, (byte) ((utflen >>> 0) & 0xFF));
+
+            int i = 0;
+            for (i = 0; i < strlen; i++) { // optimized for initial run of ASCII
+                final int c = str.charAt(i);
+                if (c >= 0x80 || c == 0) {
+                    break;
+                }
+                bytearr.putByte(count++, (byte) c);
+            }
+
+            //CHECKSTYLE:OFF
+            for (; i < strlen; i++) {
+                //CHECKSTYLE:ON
+                final int c = str.charAt(i);
+                if (c < 0x80 && c != 0) {
+                    bytearr.putByte(count++, (byte) c);
+                } else if (c >= 0x800) {
+                    bytearr.putByte(count++, (byte) (0xE0 | ((c >> 12) & 0x0F)));
+                    bytearr.putByte(count++, (byte) (0x80 | ((c >> 6) & 0x3F)));
+                    bytearr.putByte(count++, (byte) (0x80 | ((c >> 0) & 0x3F)));
+                } else {
+                    bytearr.putByte(count++, (byte) (0xC0 | ((c >> 6) & 0x1F)));
+                    bytearr.putByte(count++, (byte) (0x80 | ((c >> 0) & 0x3F)));
+                }
+            }
+            out.write(bytearr.byteArray(), 0, utflen + 2);
+            return utflen + 2;
+        }
+    }
+
+    public static int writeUTF(final DataOutput out, final String str) throws IOException {
         final int strlen = str.length();
         int utflen = strlen; // optimized for ASCII
 

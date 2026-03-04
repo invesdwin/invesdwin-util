@@ -86,6 +86,11 @@ public class SliceDelegateIntegerArray implements IIntegerArray {
     }
 
     @Override
+    public int getBufferLength() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void clear() {
         throw new UnsupportedOperationException();
     }

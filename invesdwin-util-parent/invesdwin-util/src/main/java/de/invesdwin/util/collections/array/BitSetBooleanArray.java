@@ -105,6 +105,11 @@ public class BitSetBooleanArray implements IBooleanArray {
     }
 
     @Override
+    public int getBufferLength() {
+        return bitSet.getBufferLength();
+    }
+
+    @Override
     public void clear() {
         bitSet.clear();
     }

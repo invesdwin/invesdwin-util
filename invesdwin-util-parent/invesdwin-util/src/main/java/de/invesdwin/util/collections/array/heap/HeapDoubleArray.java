@@ -96,6 +96,11 @@ public class HeapDoubleArray implements IDoubleArray {
         for (int i = 0; i < size(); i++) {
             buffer.putDouble(i * Double.BYTES, get(i));
         }
+        return getBufferLength();
+    }
+
+    @Override
+    public int getBufferLength() {
         return size() * Double.BYTES;
     }
 

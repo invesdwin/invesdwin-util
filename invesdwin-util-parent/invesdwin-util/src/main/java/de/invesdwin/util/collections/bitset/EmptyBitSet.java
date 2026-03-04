@@ -130,6 +130,11 @@ public class EmptyBitSet implements IBitSet {
     }
 
     @Override
+    public int getBufferLength() {
+        return 0;
+    }
+
+    @Override
     public void clear() {}
 
 }

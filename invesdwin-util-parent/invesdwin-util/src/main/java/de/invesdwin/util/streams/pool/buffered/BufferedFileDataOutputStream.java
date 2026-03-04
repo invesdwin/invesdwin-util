@@ -76,7 +76,7 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
     }
 
     protected IObjectPool<ICloseableByteBuffer> getBufferPool() {
-        return ByteBuffers.EXPANDABLE_POOL;
+        return ByteBuffers.DIRECT_EXPANDABLE_POOL;
     }
 
     @Override
@@ -154,7 +154,7 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
 
     @Override
     public void writeUTF(final String str) throws IOException {
-        OutputStreams.writeUTF(this, str);
+        OutputStreams.writeUTF((DataOutput) this, str);
     }
 
     @Override
@@ -211,4 +211,5 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
     public RandomAccessFile getRandomAccessFile() {
         return randomAccessFile;
     }
+
 }
