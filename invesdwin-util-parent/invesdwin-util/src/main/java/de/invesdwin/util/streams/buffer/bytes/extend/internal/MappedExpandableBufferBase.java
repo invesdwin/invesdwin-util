@@ -97,6 +97,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
             this.file = file;
             this.deleteOnClose = deleteOnClose;
             try {
+                Files.forceMkdirParent(file);
                 mappedFile = new MemoryMappedFile(file, 0, initialCapacity, false, true);
             } catch (final IOException e) {
                 throw new UncheckedIOException(e);
