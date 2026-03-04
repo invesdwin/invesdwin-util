@@ -40,6 +40,7 @@ import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedDirec
 import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedDirectExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.internal.array.ArrayExpandableByteBufferPool;
 import de.invesdwin.util.streams.buffer.bytes.internal.direct.DirectExpandableByteBufferPool;
+import de.invesdwin.util.streams.buffer.bytes.internal.mapped.MappedExpandableByteBufferPool;
 import de.invesdwin.util.time.duration.Duration;
 
 @Immutable
@@ -67,7 +68,7 @@ public final class ByteBuffers {
 
     public static final IObjectPool<ICloseableByteBuffer> EXPANDABLE_POOL = ArrayExpandableByteBufferPool.INSTANCE;
     public static final IObjectPool<ICloseableByteBuffer> DIRECT_EXPANDABLE_POOL = DirectExpandableByteBufferPool.INSTANCE;
-    public static final IObjectPool<ICloseableByteBuffer> MAPPED_EXPANDABLE_POOL = DirectExpandableByteBufferPool.INSTANCE;
+    public static final IObjectPool<ICloseableByteBuffer> MAPPED_EXPANDABLE_POOL = MappedExpandableByteBufferPool.INSTANCE;
 
     private static final ISliceInvoker SLICE_INVOKER;
 
