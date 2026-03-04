@@ -25,8 +25,12 @@ public class UniqueNameGenerator {
         if (nextSequenceNumber == 1) {
             return name;
         } else {
-            return Strings.addSuffixToFileName(name, wrapSequenceNumber(nextSequenceNumber - 1));
+            return addSuffix(name, wrapSequenceNumber(nextSequenceNumber - 1));
         }
+    }
+
+    protected String addSuffix(final String name, final String suffix) {
+        return Strings.addSuffixToFileName(name, suffix);
     }
 
     protected String wrapSequenceNumber(final long sequenceNumber) {

@@ -37,6 +37,16 @@ public class LockedCloseableIterator<E> implements ICloseableIterator<E> {
     }
 
     @Override
+    public void remove() {
+        lock.lock();
+        try {
+            delegate.remove();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
     public void close() {
         lock.lock();
         try {

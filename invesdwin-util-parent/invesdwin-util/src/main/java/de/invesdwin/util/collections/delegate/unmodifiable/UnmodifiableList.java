@@ -73,6 +73,9 @@ public class UnmodifiableList<E> extends AUnmodifiableList<E> {
 
     @Override
     public boolean equals(final Object o) {
+        if (o == this) {
+            return true;
+        }
         return getDelegate().equals(o);
     }
 

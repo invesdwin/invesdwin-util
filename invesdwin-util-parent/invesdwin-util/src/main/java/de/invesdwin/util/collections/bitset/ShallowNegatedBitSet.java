@@ -127,4 +127,14 @@ public class ShallowNegatedBitSet implements IBitSet {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public int getBufferLength() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException();
+    }
+
 }

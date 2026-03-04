@@ -2,12 +2,12 @@ package de.invesdwin.util.math.expression;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.string.description.TextDescription;
@@ -62,7 +62,7 @@ public class ExpressionParser implements IExpressionParser {
     //CHECKSTYLE:OFF
     static {
         //CHECKSTYLE:ON
-        DEFAULT_FUNCTIONS = new LinkedHashMap<>();
+        DEFAULT_FUNCTIONS = ILockCollectionFactory.getInstance(false).newLinkedMap();
 
         putDefaultFunction(MathFunctions.SIN);
         putDefaultFunction(MathFunctions.COS);
@@ -182,7 +182,7 @@ public class ExpressionParser implements IExpressionParser {
             putDefaultFunction(StatisticalFunctions.newSampleStandardDeviationFunction(name));
         }
 
-        DEFAULT_VARIABLES = new LinkedHashMap<>();
+        DEFAULT_VARIABLES = ILockCollectionFactory.getInstance(false).newLinkedMap();
 
         putDefaultVariable(Variables.PI);
         putDefaultVariable(Variables.EULER);

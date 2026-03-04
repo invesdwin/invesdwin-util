@@ -8,7 +8,7 @@ import it.unimi.dsi.fastutil.io.FastByteArrayInputStream;
 public class StringInputStream extends FastByteArrayInputStream {
 
     public StringInputStream(final String value) {
-        super(value.getBytes());
+        super(value.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
 }

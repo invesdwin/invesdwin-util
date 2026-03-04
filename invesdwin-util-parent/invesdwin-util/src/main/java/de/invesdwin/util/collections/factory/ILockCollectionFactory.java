@@ -1,26 +1,36 @@
 package de.invesdwin.util.collections.factory;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.bitset.IBitSet;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
+import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import de.invesdwin.util.concurrent.reference.lazy.ILazyReference;
 import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.math.Integers;
 import it.unimi.dsi.fastutil.Hash;
 
 public interface ILockCollectionFactory {
 
+    /**
+     * See java.util.concurrent.ConcurrentHashMap.DEFAULT_CONCURRENCY_LEVEL
+     */
+    int DEFAULT_CONCURRENCY_LEVEL = 16;
     int DEFAULT_INITIAL_SIZE = Hash.DEFAULT_INITIAL_SIZE;
     int DEFAULT_INITIAL_SIZE_IDENTITY = 32;
     /*
@@ -28,11 +38,20 @@ public interface ILockCollectionFactory {
      */
     float DEFAULT_LOAD_FACTOR = Hash.DEFAULT_LOAD_FACTOR;
 
+    static int getDefaultConcurrencyLevel() {
+        return Integers.max(Executors.getCpuThreadPoolCount(), DEFAULT_CONCURRENCY_LEVEL);
+    }
+
     ILock newLock(String name);
 
     IReadWriteLock newReadWriteLock(String name);
 
     IBitSet newBitSet(int initialSize);
+
+    @SuppressWarnings("unchecked")
+    <T> List<T> newArrayList(T... copyOf);
+
+    <T> List<T> newArrayList(Collection<? extends T> copyOf);
 
     default <T> List<T> newArrayList() {
         return newArrayList(DEFAULT_INITIAL_SIZE);
@@ -46,6 +65,17 @@ public interface ILockCollectionFactory {
 
     <T> IFastIterableList<T> newFastIterableArrayList(int initialSize);
 
+    @SuppressWarnings("unchecked")
+    default <T> Set<T> newSet(final T... copyOf) {
+        return newSet(Arrays.asList(copyOf));
+    }
+
+    default <T> Set<T> newSet(final Collection<? extends T> copyOf) {
+        final Set<T> set = newSet(copyOf.size());
+        set.addAll(copyOf);
+        return set;
+    }
+
     default <T> Set<T> newSet() {
         return newSet(DEFAULT_INITIAL_SIZE);
     }
@@ -56,6 +86,10 @@ public interface ILockCollectionFactory {
 
     <T> Set<T> newSet(int initialSize, float loadFactor);
 
+    <T> NavigableSet<T> newTreeSet();
+
+    <T> NavigableSet<T> newTreeSet(IComparator<? super T> comparator);
+
     default <T> IFastIterableSet<T> newFastIterableSet() {
         return newFastIterableSet(DEFAULT_INITIAL_SIZE);
     }
@@ -65,6 +99,17 @@ public interface ILockCollectionFactory {
     }
 
     <T> IFastIterableSet<T> newFastIterableSet(int initialSize, float loadFactor);
+
+    @SuppressWarnings("unchecked")
+    default <T> Set<T> newLinkedSet(final T... copyOf) {
+        return newLinkedSet(Arrays.asList(copyOf));
+    }
+
+    default <T> Set<T> newLinkedSet(final Collection<? extends T> copyOf) {
+        final Set<T> set = newLinkedSet(copyOf.size());
+        set.addAll(copyOf);
+        return set;
+    }
 
     default <T> Set<T> newLinkedSet() {
         return newLinkedSet(DEFAULT_INITIAL_SIZE);
@@ -100,13 +145,23 @@ public interface ILockCollectionFactory {
         return newConcurrentSet(initialSize, DEFAULT_LOAD_FACTOR);
     }
 
-    <T> Set<T> newConcurrentSet(int initialSize, float loadFactor);
+    default <T> Set<T> newConcurrentSet(final int initialSize, final float loadFactor) {
+        return newConcurrentSet(initialSize, loadFactor, getDefaultConcurrencyLevel());
+    }
+
+    <T> Set<T> newConcurrentSet(int initialSize, float loadFactor, int concurrencyLevel);
 
     default <T> Set<T> newIdentitySet() {
         return newIdentitySet(DEFAULT_INITIAL_SIZE_IDENTITY);
     }
 
     <T> Set<T> newIdentitySet(int initialSize);
+
+    default <K, V> Map<K, V> newMap(final Map<? extends K, ? extends V> copyOf) {
+        final Map<K, V> map = newMap(copyOf.size());
+        map.putAll(copyOf);
+        return map;
+    }
 
     default <K, V> Map<K, V> newMap() {
         return newMap(DEFAULT_INITIAL_SIZE);
@@ -128,6 +183,12 @@ public interface ILockCollectionFactory {
 
     <K, V> IFastIterableMap<K, V> newFastIterableMap(int initialSize, float loadFactor);
 
+    default <K, V> Map<K, V> newLinkedMap(final Map<? extends K, ? extends V> copyOf) {
+        final Map<K, V> map = newLinkedMap(copyOf.size());
+        map.putAll(copyOf);
+        return map;
+    }
+
     default <K, V> Map<K, V> newLinkedMap() {
         return newLinkedMap(DEFAULT_INITIAL_SIZE);
     }
@@ -146,7 +207,11 @@ public interface ILockCollectionFactory {
         return newConcurrentMap(initialSize, DEFAULT_LOAD_FACTOR);
     }
 
-    <K, V> Map<K, V> newConcurrentMap(int initialSize, float loadFactor);
+    default <K, V> Map<K, V> newConcurrentMap(final int initialSize, final float loadFactor) {
+        return newConcurrentMap(initialSize, loadFactor, getDefaultConcurrencyLevel());
+    }
+
+    <K, V> Map<K, V> newConcurrentMap(int initialSize, float loadFactor, int concurrencyLevel);
 
     default <K, V> Map<K, V> newIdentityMap() {
         return newIdentityMap(DEFAULT_INITIAL_SIZE_IDENTITY);
@@ -199,5 +264,66 @@ public interface ILockCollectionFactory {
     }
 
     boolean isThreadSafe();
+
+    <K, V> Map<K, V> synchronizedMap(Map<K, V> map);
+
+    <T> Set<T> synchronizedSet(Set<T> set);
+
+    <T> List<T> synchronizedList(List<T> list);
+
+    <T> Collection<T> synchronizedCollection(Collection<T> collection);
+
+    <K, V> Map<K, V> synchronizedMap(Map<K, V> map, Object lock);
+
+    <T> Set<T> synchronizedSet(Set<T> set, Object lock);
+
+    <T> List<T> synchronizedList(List<T> list, Object lock);
+
+    <T> Collection<T> synchronizedCollection(Collection<T> collection, Object lock);
+
+    <K, V> Map<K, V> lockedMap(Map<K, V> map);
+
+    <T> Set<T> lockedSet(Set<T> set);
+
+    <T> List<T> lockedList(List<T> list);
+
+    <T> Collection<T> lockedCollection(Collection<T> collection);
+
+    <K, V> Map<K, V> lockedMap(Map<K, V> map, ILock lock);
+
+    <T> Set<T> lockedSet(Set<T> set, ILock lock);
+
+    <T> List<T> lockedList(List<T> list, ILock lock);
+
+    <T> Collection<T> lockedCollection(Collection<T> collection, ILock lock);
+
+    <T> Set<T> newImmutableSet(Collection<? extends T> copyOf);
+
+    <T> Set<T> newImmutableSet(Iterable<? extends T> copyOf);
+
+    <T> Set<T> newImmutableSet(Iterator<? extends T> copyOf);
+
+    @SuppressWarnings("unchecked")
+    <T> Set<T> newImmutableSet(T... copyOf);
+
+    <T> Set<T> newImmutableLinkedSet(Collection<? extends T> copyOf);
+
+    <T> Set<T> newImmutableLinkedSet(Iterable<? extends T> copyOf);
+
+    <T> Set<T> newImmutableLinkedSet(Iterator<? extends T> copyOf);
+
+    @SuppressWarnings("unchecked")
+    <T> Set<T> newImmutableLinkedSet(T... copyOf);
+
+    <K, V> Map<K, V> newImmutableLinkedMap(Map<? extends K, ? extends V> copyOf);
+
+    <T> List<T> newImmutableList(Collection<? extends T> copyOf);
+
+    <T> List<T> newImmutableList(Iterable<? extends T> copyOf);
+
+    <T> List<T> newImmutableList(Iterator<? extends T> copyOf);
+
+    @SuppressWarnings("unchecked")
+    <T> List<T> newImmutableList(T... copyOf);
 
 }

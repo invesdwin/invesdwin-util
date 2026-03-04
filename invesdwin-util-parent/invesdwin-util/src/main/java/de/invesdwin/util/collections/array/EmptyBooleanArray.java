@@ -75,4 +75,12 @@ public final class EmptyBooleanArray implements IBooleanArray {
         return 0;
     }
 
+    @Override
+    public int getBufferLength() {
+        return 0;
+    }
+
+    @Override
+    public void clear() {}
+
 }

@@ -2,7 +2,6 @@ package de.invesdwin.util.swing;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -15,6 +14,7 @@ import javax.swing.text.JTextComponent;
 
 import com.google.common.collect.ImmutableList;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.swing.button.JSplitButton;
 
 @Immutable
@@ -35,7 +35,7 @@ public abstract class AComponentFinder {
     };
 
     public Component find(final Component rootComponent) {
-        final Set<Component> targetComponents = new LinkedHashSet<Component>();
+        final Set<Component> targetComponents = ILockCollectionFactory.getInstance(false).newLinkedSet();
         findComponents(rootComponent, targetComponents, true);
         if (targetComponents.size() > 0) {
             return targetComponents.iterator().next();
@@ -45,7 +45,7 @@ public abstract class AComponentFinder {
     }
 
     public List<Component> findAll(final Component rootComponent) {
-        final Set<Component> targetComponents = new LinkedHashSet<Component>();
+        final Set<Component> targetComponents = ILockCollectionFactory.getInstance(false).newLinkedSet();
         findComponents(rootComponent, targetComponents, false);
         return ImmutableList.copyOf(targetComponents);
     }

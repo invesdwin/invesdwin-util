@@ -13,7 +13,8 @@ import io.netty.util.concurrent.FastThreadLocal;
  * WARNING: Instances of ThreadLocal objects should always be defined in static variables or else the threadLocal
  * instances might cause memory leaks.
  * 
- * Use WeakThreadLocalReference instead for instance thread locals without memory leaks.
+ * Use WeakThreadLocalReference instead for instance thread locals without memory leaks. Though make sure not to leak
+ * any references from the surrounding class by e.g. creating this instance from a static factory method.
  */
 @ThreadSafe
 public class WeakThreadLocalReference<V> implements IMutableReference<V> {

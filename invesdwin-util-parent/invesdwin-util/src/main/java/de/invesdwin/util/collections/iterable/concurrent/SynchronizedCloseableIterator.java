@@ -34,6 +34,13 @@ public class SynchronizedCloseableIterator<E> implements ICloseableIterator<E> {
     }
 
     @Override
+    public void remove() {
+        synchronized (lock) {
+            delegate.remove();
+        }
+    }
+
+    @Override
     public void close() {
         synchronized (lock) {
             delegate.close();

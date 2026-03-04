@@ -80,9 +80,17 @@ public final class EmptyGenericArray<E> implements IGenericArray<E> {
         return 0;
     }
 
+    @Override
+    public int getBufferLength() {
+        return 0;
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> EmptyGenericArray<T> getInstance() {
         return INSTANCE;
     }
+
+    @Override
+    public void clear() {}
 
 }

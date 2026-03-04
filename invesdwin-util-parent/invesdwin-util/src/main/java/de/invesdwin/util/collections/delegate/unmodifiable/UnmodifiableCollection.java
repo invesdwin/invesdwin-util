@@ -57,6 +57,9 @@ public class UnmodifiableCollection<E> extends AUnmodifiableCollection<E> {
 
     @Override
     public boolean equals(final Object o) {
+        if (o == this) {
+            return true;
+        }
         return getDelegate().equals(o);
     }
 

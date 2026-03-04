@@ -2,7 +2,6 @@ package de.invesdwin.util.time.date;
 
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -11,6 +10,7 @@ import javax.annotation.concurrent.Immutable;
 import org.joda.time.DurationField;
 import org.joda.time.DurationFieldType;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -1252,12 +1252,15 @@ public enum FTimeUnit {
     public static final int SECONDS_IN_HOUR = SECONDS_IN_MINUTE * MINUTES_IN_HOUR;
     public static final int SECONDS_IN_DAY = SECONDS_IN_HOUR * HOURS_IN_DAY;
 
-    private static final Map<TimeUnit, FTimeUnit> TIME_UNIT_LOOKUP = new HashMap<TimeUnit, FTimeUnit>();
-    private static final Map<Integer, FTimeUnit> CALENDAR_LOOKUP = new HashMap<Integer, FTimeUnit>();
-    private static final Map<ChronoUnit, FTimeUnit> JAVA_TIME_LOOKUP = new HashMap<ChronoUnit, FTimeUnit>();
-    private static final Map<DurationFieldType, FTimeUnit> JODA_TIME_LOOKUP = new HashMap<DurationFieldType, FTimeUnit>();
-    private static final Map<Long, FTimeUnit> DURATION_NANOS_LOOKUP = new HashMap<Long, FTimeUnit>();
-    private static final Map<String, FTimeUnit> ALIAS_LOOKUP = new HashMap<>();
+    private static final Map<TimeUnit, FTimeUnit> TIME_UNIT_LOOKUP = ILockCollectionFactory.getInstance(false).newMap();
+    private static final Map<Integer, FTimeUnit> CALENDAR_LOOKUP = ILockCollectionFactory.getInstance(false).newMap();
+    private static final Map<ChronoUnit, FTimeUnit> JAVA_TIME_LOOKUP = ILockCollectionFactory.getInstance(false)
+            .newMap();
+    private static final Map<DurationFieldType, FTimeUnit> JODA_TIME_LOOKUP = ILockCollectionFactory.getInstance(false)
+            .newMap();
+    private static final Map<Long, FTimeUnit> DURATION_NANOS_LOOKUP = ILockCollectionFactory.getInstance(false)
+            .newMap();
+    private static final Map<String, FTimeUnit> ALIAS_LOOKUP = ILockCollectionFactory.getInstance(false).newMap();
 
     static {
         for (final FTimeUnit f : values()) {

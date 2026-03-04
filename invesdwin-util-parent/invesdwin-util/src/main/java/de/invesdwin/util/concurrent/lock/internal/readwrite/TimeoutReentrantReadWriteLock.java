@@ -8,6 +8,7 @@ import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.read.TimeoutReadLock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.write.TimeoutReentrantWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -15,12 +16,16 @@ import de.invesdwin.util.time.duration.Duration;
 public class TimeoutReentrantReadWriteLock implements IReentrantReadWriteLock {
 
     private final IReentrantReadWriteLock delegate;
+    private final Duration lockWaitTimeout;
+    private final boolean onlyWriteLock;
     private final ILock readLock;
     private final TimeoutReentrantWriteLock writeLock;
 
     public TimeoutReentrantReadWriteLock(final IReentrantReadWriteLock delegate, final Duration lockWaitTimeout,
             final boolean onlyWriteLock) {
         this.delegate = delegate;
+        this.lockWaitTimeout = lockWaitTimeout;
+        this.onlyWriteLock = onlyWriteLock;
         if (onlyWriteLock) {
             this.readLock = delegate.readLock();
         } else {
@@ -101,7 +106,23 @@ public class TimeoutReentrantReadWriteLock implements IReentrantReadWriteLock {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).addValue(delegate).toString();
+        return Objects.toStringHelper(this)
+                .addValue(delegate)
+                .addValue(lockWaitTimeout)
+                .addValue(onlyWriteLock)
+                .toString();
+    }
+
+    @Override
+    public ILockingStrategy getStrategy() {
+        return delegate.getStrategy();
+    }
+
+    //CHECKSTYLE:OFF
+    @Override
+    public IReentrantReadWriteLock withStrategy(final ILockingStrategy strategy) {
+        //CHECKSTYLE:ON
+        return new TimeoutReentrantReadWriteLock(delegate.withStrategy(strategy), lockWaitTimeout, onlyWriteLock);
     }
 
 }

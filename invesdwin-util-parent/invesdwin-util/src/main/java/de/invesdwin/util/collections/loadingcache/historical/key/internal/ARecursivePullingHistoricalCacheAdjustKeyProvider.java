@@ -1,7 +1,6 @@
 package de.invesdwin.util.collections.loadingcache.historical.key.internal;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -9,7 +8,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.lang3.BooleanUtils;
 
-import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.key.AdjustedFDate;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
@@ -26,9 +25,9 @@ public abstract class ARecursivePullingHistoricalCacheAdjustKeyProvider implemen
 
     private volatile FDate curHighestAllowedKey;
     private volatile FDate prevHighestAllowedKey;
-    private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = Collections.synchronizedSet(new HashSet<FDate>());
-    private final Set<HistoricalCacheForClear> historicalCachesForClear = Collections
-            .synchronizedSet(new HashSet<HistoricalCacheForClear>());
+    private final Set<FDate> keysToRemoveOnNewHighestAllowedKey = ILockCollectionFactory.getInstance(true).newSet();
+    private final Set<HistoricalCacheForClear> historicalCachesForClear = ILockCollectionFactory.getInstance(true)
+            .newSet();
     private final AHistoricalCache<?> parent;
     private final int hashCode = super.hashCode();
 

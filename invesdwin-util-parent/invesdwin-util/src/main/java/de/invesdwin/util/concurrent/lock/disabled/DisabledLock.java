@@ -6,6 +6,8 @@ import java.util.concurrent.locks.Condition;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.strategy.DisabledLockingStrategy;
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 
 @Immutable
 public final class DisabledLock implements ILock {
@@ -51,6 +53,18 @@ public final class DisabledLock implements ILock {
     @Override
     public String getName() {
         return null;
+    }
+
+    //CHECKSTYLE:OFF
+    @Override
+    public ILock withStrategy(final ILockingStrategy strategy) {
+        //CHECKSTYLE:ON
+        return this;
+    }
+
+    @Override
+    public ILockingStrategy getStrategy() {
+        return DisabledLockingStrategy.INSTANCE;
     }
 
 }

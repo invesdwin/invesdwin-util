@@ -179,8 +179,13 @@ public abstract class ASynchronizedFastIterableDelegateSet<E> implements IFastIt
     }
 
     @Override
-    public synchronized boolean equals(final Object obj) {
-        return delegate.equals(obj);
+    public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        synchronized (this) {
+            return delegate.equals(obj);
+        }
     }
 
 }

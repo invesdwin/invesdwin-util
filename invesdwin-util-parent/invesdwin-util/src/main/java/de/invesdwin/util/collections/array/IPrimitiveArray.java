@@ -9,4 +9,6 @@ public interface IPrimitiveArray extends IArrayAccessor, IPrimitiveArrayId {
 
     int getBuffer(IByteBuffer buffer) throws IOException;
 
+    int getBufferLength();
+
 }

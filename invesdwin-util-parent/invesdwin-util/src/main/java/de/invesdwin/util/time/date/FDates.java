@@ -27,8 +27,10 @@ public final class FDates {
     public static final int MAX_YEAR = 5555;
     public static final int MIN_YEAR = 1;
 
-    public static final FDate MIN_DATE = FDateBuilder.newDate(MIN_YEAR, 1, 1, 0, 0, 0, 0, FTimeZone.UTC);
-    public static final FDate MAX_DATE = FDateBuilder.newDate(MAX_YEAR, 1, 1, 0, 0, 0, 0, FTimeZone.UTC);
+    public static final ImmutableFDate MIN_DATE = ImmutableFDate
+            .valueOf(FDateBuilder.newDate(MIN_YEAR, 1, 1, 0, 0, 0, 0, FTimeZone.UTC));
+    public static final ImmutableFDate MAX_DATE = ImmutableFDate
+            .valueOf(FDateBuilder.newDate(MAX_YEAR, 1, 1, 0, 0, 0, 0, FTimeZone.UTC));
 
     public static final int MISSING_INDEX = -1;
     public static final long MILLISECONDS_IN_DAY = FTimeUnit.MILLISECONDS_IN_DAY;

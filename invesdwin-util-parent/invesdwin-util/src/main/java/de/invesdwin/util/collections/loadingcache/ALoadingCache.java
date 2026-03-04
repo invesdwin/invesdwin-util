@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.loadingcache;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -105,7 +104,7 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
                     private final WeakThreadLocalReference<Set<K>> alreadyLoadingRef = new WeakThreadLocalReference<Set<K>>() {
                         @Override
                         protected Set<K> initialValue() {
-                            return new HashSet<K>();
+                            return ILockCollectionFactory.getInstance(false).newSet();
                         }
                     };
 
@@ -117,7 +116,7 @@ public abstract class ALoadingCache<K, V> extends ADelegateLoadingCache<K, V> {
                 };
             } else {
                 return new Function<K, V>() {
-                    private final Set<K> alreadyLoading = new HashSet<K>();
+                    private final Set<K> alreadyLoading = ILockCollectionFactory.getInstance(false).newSet();
 
                     @Override
                     public V apply(final K t) {

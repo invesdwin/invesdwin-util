@@ -1,6 +1,5 @@
 package de.invesdwin.util.bean;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -17,6 +16,8 @@ import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.visitor.SimpleBeanPathVisitorSupport;
 import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.bean.internal.ValueObjectMerge;
+import de.invesdwin.util.collections.factory.pool.set.ICloseableSet;
+import de.invesdwin.util.collections.factory.pool.set.PooledSet;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
 import jakarta.persistence.Transient;
@@ -139,12 +140,14 @@ public abstract class AValueObject extends APropertyChangeSupported
      */
     @Hidden(skip = true)
     public final void mergeFrom(final Object o, final boolean overwrite) {
-        innerMergeFrom(o, overwrite, false, new HashSet<String>());
+        try (ICloseableSet<String> recursionFilter = PooledSet.getInstance()) {
+            innerMergeFrom(o, overwrite, false, recursionFilter);
+        }
     }
 
     protected void innerMergeFrom(final Object o, final boolean overwrite, final boolean clone,
             final Set<String> recursionFilter) {
-        new ValueObjectMerge(this, overwrite, clone, new HashSet<String>()).merge(o);
+        new ValueObjectMerge(this, overwrite, clone, recursionFilter).merge(o);
     }
 
     /**
@@ -178,7 +181,9 @@ public abstract class AValueObject extends APropertyChangeSupported
     @Hidden(skip = true)
     public AValueObject shallowCloneReflective() {
         final AValueObject clone = shallowClone();
-        clone.innerMergeFrom(this, true, true, new HashSet<String>());
+        try (ICloseableSet<String> recursionFilter = PooledSet.getInstance()) {
+            clone.innerMergeFrom(this, true, true, recursionFilter);
+        }
         return clone;
     }
 

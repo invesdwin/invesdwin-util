@@ -187,7 +187,19 @@ public class LongArrayBitSet implements IBitSet {
     @Override
     public int getBuffer(final IByteBuffer buffer) throws IOException {
         buffer.putInt(BufferBooleanArray.LENGTH_INDEX, size);
-        return bitSet.getWords().getBuffer(buffer.sliceFrom(BufferBooleanArray.ARRAY_INDEX));
+        return BufferBooleanArray.ARRAY_INDEX
+                + bitSet.getWords().getBuffer(buffer.sliceFrom(BufferBooleanArray.ARRAY_INDEX));
+    }
+
+    @Override
+    public int getBufferLength() {
+        return BufferBooleanArray.ARRAY_INDEX + bitSet.getWords().getBufferLength();
+    }
+
+    @Override
+    public void clear() {
+        bitSet.clear();
+        trueCount = 0;
     }
 
 }

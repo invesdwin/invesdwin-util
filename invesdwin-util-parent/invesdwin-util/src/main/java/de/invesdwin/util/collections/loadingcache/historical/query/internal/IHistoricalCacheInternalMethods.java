@@ -67,4 +67,6 @@ public interface IHistoricalCacheInternalMethods<V> {
 
     boolean isAlignKeys();
 
+    int getParentIdentityHashCode();
+
 }

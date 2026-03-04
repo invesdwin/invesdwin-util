@@ -1,6 +1,5 @@
 package de.invesdwin.util.lang.string.description.internal;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
@@ -8,6 +7,8 @@ import javax.annotation.concurrent.Immutable;
 import org.slf4j.helpers.Util;
 
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.factory.pool.map.ICloseableMap;
+import de.invesdwin.util.collections.factory.pool.map.PooledMap;
 import de.invesdwin.util.lang.string.Strings;
 
 /**
@@ -78,13 +79,17 @@ public final class TextDescriptionFormatter {
                         // itself escaped: "abc x:\\%s"
                         // we have to consume one backward slash
                         sbuf.append(messagePattern, messagePatternIdx, delimiterStartIdx - 1);
-                        deeplyAppendParameter(sbuf, argArray[argIdx], new HashMap<Object[], Object>());
+                        try (ICloseableMap<Object[], Object> seenMap = PooledMap.getInstance()) {
+                            deeplyAppendParameter(sbuf, argArray[argIdx], seenMap);
+                        }
                         messagePatternIdx = delimiterStartIdx + 2;
                     }
                 } else {
                     // normal case
                     sbuf.append(messagePattern, messagePatternIdx, delimiterStartIdx);
-                    deeplyAppendParameter(sbuf, argArray[argIdx], new HashMap<Object[], Object>());
+                    try (ICloseableMap<Object[], Object> seenMap = PooledMap.getInstance()) {
+                        deeplyAppendParameter(sbuf, argArray[argIdx], seenMap);
+                    }
                     messagePatternIdx = delimiterStartIdx + 2;
                 }
             }

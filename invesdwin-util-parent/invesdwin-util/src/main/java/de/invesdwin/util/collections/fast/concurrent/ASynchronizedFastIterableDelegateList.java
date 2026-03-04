@@ -217,14 +217,14 @@ public abstract class ASynchronizedFastIterableDelegateList<E> implements IFastI
     }
 
     @Override
-    public ListIterator<E> listIterator() {
+    public synchronized ListIterator<E> listIterator() {
         final ListIterator<E> it = delegate.listIterator();
         final RefreshingListIterator listIterator = new RefreshingListIterator(it);
         return new SynchronizedListIterator<>(listIterator, this);
     }
 
     @Override
-    public ListIterator<E> listIterator(final int index) {
+    public synchronized ListIterator<E> listIterator(final int index) {
         final ListIterator<E> it = delegate.listIterator(index);
         final RefreshingListIterator listIterator = new RefreshingListIterator(it);
         return new SynchronizedListIterator<>(listIterator, this);
@@ -246,8 +246,13 @@ public abstract class ASynchronizedFastIterableDelegateList<E> implements IFastI
     }
 
     @Override
-    public synchronized boolean equals(final Object obj) {
-        return delegate.equals(obj);
+    public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        synchronized (this) {
+            return delegate.equals(obj);
+        }
     }
 
     private final class RefreshingListIterator implements ListIterator<E> {

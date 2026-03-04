@@ -17,7 +17,7 @@ import org.agrona.BitUtil;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
-import de.invesdwin.util.concurrent.loop.ASpinWait;
+import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.streams.InputStreams;
@@ -36,7 +36,7 @@ import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
-public class UninitializedDirectExpandableByteBuffer extends UninitializedExpandableDirectBufferBase
+public class UninitializedDirectExpandableByteBuffer extends UninitializedDirectExpandableBufferBase
         implements IByteBuffer {
 
     protected IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;

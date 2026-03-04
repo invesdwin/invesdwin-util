@@ -16,6 +16,7 @@ import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.EmptyInputStream;
 import de.invesdwin.util.streams.EmptyOutputStream;
@@ -473,7 +474,7 @@ public final class EmptyByteBuffer implements ICloseableByteBuffer {
     }
 
     public static IndexOutOfBoundsException newEmptyException() {
-        return new IndexOutOfBoundsException("empty");
+        return FastIndexOutOfBoundsException.getInstance("empty");
     }
 
     @SuppressWarnings("unchecked")

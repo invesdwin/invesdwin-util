@@ -100,4 +100,14 @@ public final class NoSkippingFakeBitSet implements IBitSet {
     public int getBuffer(final IByteBuffer buffer) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public int getBufferLength() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException();
+    }
 }

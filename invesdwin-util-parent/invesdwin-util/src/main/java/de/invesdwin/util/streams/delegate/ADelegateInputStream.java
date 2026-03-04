@@ -11,9 +11,9 @@ import org.apache.commons.io.input.ClosedInputStream;
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.error.Throwables;
-import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.string.description.TextDescription;
+import de.invesdwin.util.streams.closeable.Closeables;
 
 @NotThreadSafe
 public abstract class ADelegateInputStream extends InputStream {

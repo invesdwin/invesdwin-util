@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.loadingcache.guava.internal;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
@@ -13,6 +12,8 @@ import com.google.common.base.Optional;
 import com.google.common.cache.CacheStats;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
+
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 
 /**
  * This is a workaround to make googles ComputingMap work with null values.
@@ -49,7 +50,7 @@ public class OptionalValueWrapperLoadingCache<K, V> implements LoadingCache<K, V
     @Override
     public ImmutableMap<K, V> getAllPresent(final Iterable<?> keys) {
         final ImmutableMap<K, Optional<V>> allPresent = delegate.getAllPresent(keys);
-        final Map<K, V> nonnullAllPresent = new HashMap<K, V>();
+        final Map<K, V> nonnullAllPresent = ILockCollectionFactory.getInstance(false).newMap();
         for (final Entry<K, Optional<V>> e : allPresent.entrySet()) {
             final V value = maybeGet(e.getKey(), e.getValue());
             if (value != null) {
@@ -66,7 +67,7 @@ public class OptionalValueWrapperLoadingCache<K, V> implements LoadingCache<K, V
 
     @Override
     public void putAll(final Map<? extends K, ? extends V> m) {
-        final Map<K, Optional<V>> newMap = new HashMap<K, Optional<V>>();
+        final Map<K, Optional<V>> newMap = ILockCollectionFactory.getInstance(false).newMap(m.size());
         for (final Entry<? extends K, ? extends V> e : m.entrySet()) {
             final K key = e.getKey();
             final V value = e.getValue();
@@ -118,7 +119,7 @@ public class OptionalValueWrapperLoadingCache<K, V> implements LoadingCache<K, V
     @Override
     public ImmutableMap<K, V> getAll(final Iterable<? extends K> keys) throws ExecutionException {
         final ImmutableMap<K, Optional<V>> all = delegate.getAll(keys);
-        final Map<K, V> nonnullAll = new HashMap<K, V>();
+        final Map<K, V> nonnullAll = ILockCollectionFactory.getInstance(false).newMap();
         for (final Entry<K, Optional<V>> e : all.entrySet()) {
             final V value = maybeGet(e.getKey(), e.getValue());
             if (value != null) {

@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.performance;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.concurrent.loop.LoopInterruptedCheck;
 import de.invesdwin.util.time.Instant;
@@ -24,8 +23,8 @@ import de.invesdwin.util.time.duration.Duration;
 public class HashMapPerformanceTest extends ADatabasePerformanceTest {
 
     @Test
-    public void testMapDbPerformance() throws InterruptedException {
-        final Map<FDate, FDate> table = Collections.synchronizedMap(new HashMap<>());
+    public void testHashMapPerformance() throws InterruptedException {
+        final Map<FDate, FDate> table = ILockCollectionFactory.getInstance(true).newMap();
 
         final LoopInterruptedCheck loopCheck = new LoopInterruptedCheck(Duration.ONE_SECOND);
         final Instant writesStart = new Instant();

@@ -7,7 +7,6 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.bean.AValueObject;
 import de.invesdwin.util.lang.Objects;
 
-@SuppressWarnings("serial")
 @Immutable
 public class ImmutableEntry<K, V> extends AValueObject implements Entry<K, V> {
 
@@ -35,13 +34,13 @@ public class ImmutableEntry<K, V> extends AValueObject implements Entry<K, V> {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getClass(), getKey(), getValue());
+        return Objects.hashCode(getKey(), getValue());
     }
 
     @Override
     public boolean equals(final Object obj) {
-        if (obj instanceof ImmutableEntry) {
-            final ImmutableEntry<?, ?> castObj = (ImmutableEntry<?, ?>) obj;
+        if (obj instanceof Entry) {
+            final Entry<?, ?> castObj = (Entry<?, ?>) obj;
             return Objects.equals(getKey(), castObj.getKey()) && Objects.equals(getValue(), castObj.getValue());
         } else {
             return false;

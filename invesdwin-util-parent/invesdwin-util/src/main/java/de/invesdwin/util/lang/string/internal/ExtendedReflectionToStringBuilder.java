@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -13,13 +12,15 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.builder.ToStringSummary;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.reflection.field.IUnsafeField;
 import de.invesdwin.util.lang.string.Strings;
 
 @NotThreadSafe
 public class ExtendedReflectionToStringBuilder extends ReflectionToStringBuilder {
 
-    private static final Map<Class<?>, IUnsafeField<Object>[]> FIELDS_CACHE = new ConcurrentHashMap<Class<?>, IUnsafeField<Object>[]>();
+    private static final Map<Class<?>, IUnsafeField<Object>[]> FIELDS_CACHE = ILockCollectionFactory.getInstance(true)
+            .newConcurrentMap();
 
     public ExtendedReflectionToStringBuilder(final Object object) {
         super(object);

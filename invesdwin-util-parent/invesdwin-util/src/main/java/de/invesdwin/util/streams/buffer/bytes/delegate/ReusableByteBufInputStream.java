@@ -8,6 +8,7 @@ import java.io.InputStream;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.error.FastEOFException;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.lang.string.Strings;
 import io.netty.buffer.ByteBuf;
 
@@ -206,7 +207,7 @@ public class ReusableByteBufInputStream extends InputStream implements DataInput
 
     private void checkAvailable(final int fieldSize) throws IOException {
         if (fieldSize < 0) {
-            throw new IndexOutOfBoundsException("fieldSize cannot be a negative number");
+            throw FastIndexOutOfBoundsException.getInstance("fieldSize cannot be a negative number: %s", fieldSize);
         }
         if (fieldSize > available()) {
             throw FastEOFException
