@@ -48,7 +48,7 @@ public class CountingCloseableIterator<E> implements ICloseableIterator<E> {
         if (log.isInfoEnabled() && loopInterruptedCheck.checkNoInterrupt()) {
             final long elapsedNanos = System.nanoTime() - startNanos;
             final Duration duration = new Duration(elapsedNanos, FTimeUnit.NANOSECONDS);
-            log.info("%s(%s) iterating at %s processing %s since %s", CountingCloseableIterator.class.getSimpleName(),
+            log.info("%s(%s) loading at %s processing %s during %s", CountingCloseableIterator.class.getSimpleName(),
                     name, count, new ProcessedEventsRateString(count, duration), duration);
             logged = true;
         }
