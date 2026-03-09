@@ -205,4 +205,8 @@ public interface IHistoricalCacheQuery<V> extends IHistoricalCacheQueryInternalM
      */
     V computeValue(FDate key);
 
+    long size(FDate from, FDate to);
+
+    long sizeCached(FDate from, FDate to);
+
 }

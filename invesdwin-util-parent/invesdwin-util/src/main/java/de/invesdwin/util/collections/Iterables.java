@@ -6,8 +6,11 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.collections.internal.AIterablesStaticFacade;
+import de.invesdwin.util.collections.iterable.CountingCloseableIterator;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.lang.string.description.TextDescription;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.collections.internal.AIterablesStaticFacade", targets = {
@@ -19,6 +22,8 @@ import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
                 "com.google.common.collect.Iterables#toString(java.lang.Iterable)",
                 "com.google.common.collect.Iterables#get(java.lang.Iterable, int)" })
 public final class Iterables extends AIterablesStaticFacade {
+
+    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(Iterables.class);
 
     private Iterables() {}
 
@@ -45,6 +50,23 @@ public final class Iterables extends AIterablesStaticFacade {
             //end reached
         }
         return sb.toString();
+    }
+
+    public static <T> long sizeLong(final TextDescription name, final ICloseableIterable<T> iterable) {
+        return sizeLong(name, iterable.iterator());
+    }
+
+    public static <T> long sizeLong(final TextDescription name, final ICloseableIterator<T> iterator) {
+        try (CountingCloseableIterator<T> it = new CountingCloseableIterator<T>(LOG, name, iterator)) {
+            try {
+                while (true) {
+                    it.next();
+                }
+            } catch (final NoSuchElementException e) {
+                //end reached
+            }
+            return it.getCount();
+        }
     }
 
 }

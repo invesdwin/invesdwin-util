@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.Iterables;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
@@ -14,6 +15,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.error.FastNoSuchElementException;
+import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
@@ -521,6 +523,26 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                 };
             }
         };
+    }
+
+    @Override
+    public long size(final FDate from, final FDate to) {
+        final long sizeInterceptor = internalMethods.getQueryCore()
+                .getParent()
+                .getSizeQueryInterceptor()
+                .size(from, to);
+        if (sizeInterceptor != Long.MIN_VALUE) {
+            return sizeInterceptor;
+        } else {
+            return sizeCached(from, to);
+        }
+    }
+
+    @Override
+    public long sizeCached(final FDate from, final FDate to) {
+        return Iterables.sizeLong(new TextDescription("%s.sizeCached(%s, %s, %s)",
+                HistoricalCacheQuery.class.getSimpleName(), internalMethods.getParent(), from, to),
+                getEntriesCached(from, to));
     }
 
     @Override

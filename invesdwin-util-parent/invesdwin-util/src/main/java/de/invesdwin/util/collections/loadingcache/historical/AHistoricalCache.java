@@ -25,10 +25,13 @@ import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCacheNextQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCachePreviousKeysQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCacheRangeQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCacheSizeQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheNextQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCachePreviousKeysQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheSizeQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.RangeHistoricalCacheNextQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.RangeHistoricalCacheSizeQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCachePutProvider;
@@ -108,6 +111,8 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     private IHistoricalCachePreviousKeysQueryInterceptor previousKeysQueryInterceptor;
     @GuardedBy("none for performance")
     private IHistoricalCacheNextQueryInterceptor<V> nextQueryInterceptor;
+    @GuardedBy("none for performance")
+    private IHistoricalCacheSizeQueryInterceptor sizeQueryInterceptor;
 
     public AHistoricalCache() {}
 
@@ -570,6 +575,22 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         }
     }
 
+    protected final IHistoricalCacheSizeQueryInterceptor getSizeQueryInterceptor() {
+        if (sizeQueryInterceptor == null) {
+            sizeQueryInterceptor = newSizeQueryInterceptor();
+        }
+        return sizeQueryInterceptor;
+    }
+
+    protected IHistoricalCacheSizeQueryInterceptor newSizeQueryInterceptor() {
+        final IHistoricalCacheRangeQueryInterceptor<V> rangeQueryInterceptor = getRangeQueryInterceptor();
+        if (rangeQueryInterceptor instanceof DisabledHistoricalCacheRangeQueryInterceptor) {
+            return DisabledHistoricalCacheSizeQueryInterceptor.INSTANCE;
+        } else {
+            return new RangeHistoricalCacheSizeQueryInterceptor(this, rangeQueryInterceptor);
+        }
+    }
+
     protected IValuesMap<V> getValuesMap() {
         return valuesMap;
     }
@@ -687,6 +708,11 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         @Override
         public IHistoricalCacheNextQueryInterceptor<V> getNextQueryInterceptor() {
             return AHistoricalCache.this.getNextQueryInterceptor();
+        }
+
+        @Override
+        public IHistoricalCacheSizeQueryInterceptor getSizeQueryInterceptor() {
+            return AHistoricalCache.this.getSizeQueryInterceptor();
         }
 
         @Override

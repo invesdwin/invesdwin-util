@@ -247,6 +247,16 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
+    public long size(final FDate from, final FDate to) {
+        return delegate.size(from, to);
+    }
+
+    @Override
+    public long sizeCached(final FDate from, final FDate to) {
+        return delegate.sizeCached(from, to);
+    }
+
+    @Override
     public ICloseableIterable<FDate> getKeysCached(final FDate from, final FDate to) {
         return new AFilterSkippingIterable<FDate>(delegate.getKeysCached(from, to)) {
             @Override
