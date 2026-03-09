@@ -5,6 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.concurrent.loop.LoopInterruptedCheck;
 import de.invesdwin.util.lang.string.ProcessedEventsRateString;
 import de.invesdwin.util.lang.string.description.TextDescription;
+import de.invesdwin.util.log.ILog;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -13,7 +14,7 @@ public class CountingCloseableIterator<E> implements ICloseableIterator<E> {
 
     public static final Duration DEFAULT_CHECK_INTERVAL = Duration.FIVE_SECONDS;
 
-    private final org.slf4j.Logger log;
+    private final ILog log;
     private final TextDescription name;
     private final ICloseableIterator<E> delegate;
 
@@ -22,8 +23,7 @@ public class CountingCloseableIterator<E> implements ICloseableIterator<E> {
     private boolean logged;
     private long count;
 
-    public CountingCloseableIterator(final org.slf4j.Logger log, final TextDescription name,
-            final ICloseableIterator<E> delegate) {
+    public CountingCloseableIterator(final ILog log, final TextDescription name, final ICloseableIterator<E> delegate) {
         this.log = log;
         this.name = name;
         this.delegate = delegate;

@@ -11,6 +11,14 @@ public class XLoggerDelegateLog implements ILog {
 
     private final org.slf4j.ext.XLogger delegate;
 
+    public XLoggerDelegateLog(final String name) {
+        this(org.slf4j.ext.XLoggerFactory.getXLogger(name));
+    }
+
+    public XLoggerDelegateLog(final Class<?> clazz) {
+        this(org.slf4j.ext.XLoggerFactory.getXLogger(clazz));
+    }
+
     public XLoggerDelegateLog(final org.slf4j.ext.XLogger delegate) {
         this.delegate = delegate;
     }
