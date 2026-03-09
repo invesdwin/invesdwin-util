@@ -11,6 +11,7 @@ import de.invesdwin.util.log.ILog;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.duration.AEstimatedRemainingDuration;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
@@ -22,6 +23,17 @@ public class ProgressCountingCloseableIterator<E> implements ICloseableIterator<
     private final TextDescription name;
     private final ICloseableIterator<? extends E> delegate;
     private final long size;
+    private final AEstimatedRemainingDuration estimatedRemainingDuration = new AEstimatedRemainingDuration() {
+        @Override
+        protected Duration getElapsedDuration() {
+            return new Duration(System.nanoTime() - startNanos, FTimeUnit.NANOSECONDS);
+        }
+
+        @Override
+        protected Percent getProgressPercent() {
+            return new Percent(count, size).asScale(PercentScale.PERCENT);
+        }
+    };
 
     private final LoopInterruptedCheck loopInterruptedCheck;
     private final long startNanos;
@@ -54,10 +66,10 @@ public class ProgressCountingCloseableIterator<E> implements ICloseableIterator<
         if (log.isInfoEnabled() && loopInterruptedCheck.checkNoInterrupt()) {
             final long elapsedNanos = System.nanoTime() - startNanos;
             final Duration duration = new Duration(elapsedNanos, FTimeUnit.NANOSECONDS);
-            log.info("%s(%s) iterating at %s (%s/%s) processing %s since %s",
+            log.info("%s(%s) iterating at %s (%s/%s) processing %s during %s. Estimated remaining duration: %s",
                     ProgressCountingCloseableIterator.class.getSimpleName(), name,
                     new Percent(count, size).asScale(PercentScale.PERCENT), count, size,
-                    new ProcessedEventsRateString(count, duration), duration);
+                    new ProcessedEventsRateString(count, duration), duration, estimatedRemainingDuration);
             logged = true;
         }
         return next;
