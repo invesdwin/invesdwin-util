@@ -11,6 +11,7 @@ import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
+import de.invesdwin.util.time.date.FTimeUnit;
 
 @NotThreadSafe
 public abstract class AEstimatedRemainingDuration extends AValueObject {
@@ -141,5 +142,10 @@ public abstract class AEstimatedRemainingDuration extends AValueObject {
     protected abstract Duration getElapsedDuration();
 
     protected abstract Percent getProgressPercent();
+
+    @Override
+    public String toString() {
+        return getEstimatedRemainingDuration().toString(FTimeUnit.SECONDS);
+    }
 
 }
