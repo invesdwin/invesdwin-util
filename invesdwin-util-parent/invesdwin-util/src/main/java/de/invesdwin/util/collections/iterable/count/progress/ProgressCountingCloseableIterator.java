@@ -2,6 +2,7 @@ package de.invesdwin.util.collections.iterable.count.progress;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.count.CountingCloseableIterator;
 import de.invesdwin.util.concurrent.loop.LoopInterruptedCheck;
@@ -48,6 +49,8 @@ public class ProgressCountingCloseableIterator<E> implements ICloseableIterator<
         this.size = size;
         this.loopInterruptedCheck = new LoopInterruptedCheck(newCheckInterval());
         this.startNanos = System.nanoTime();
+        //prevent initial 0s estimate
+        Assertions.checkNotNull(estimatedRemainingDuration.getEstimatedRemainingDuration());
     }
 
     protected Duration newCheckInterval() {
