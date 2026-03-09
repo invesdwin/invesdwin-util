@@ -46,6 +46,9 @@ public class MemoryMappedFile implements IMemoryMappedFile {
      */
     public MemoryMappedFile(final File file, final long offset, final long length, final boolean readOnly,
             final boolean closeAllowed) throws IOException {
+        if (length < 0) {
+            throw new IllegalArgumentException("length must be non-negative: " + length);
+        }
         this.closeAllowed = closeAllowed;
         this.finalizer = new MemoryMappedFileFinalizer(file, offset, length, readOnly);
         this.finalizer.register(this);

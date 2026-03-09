@@ -24,6 +24,9 @@ public class FakeAllocatorBuffer implements IByteBuffer {
 
     public FakeAllocatorBuffer(final int id, final int capacity) {
         this.id = id;
+        if (capacity < 0) {
+            throw new IllegalArgumentException("capacity must be non-negative: " + capacity);
+        }
         this.capacity = capacity;
     }
 
