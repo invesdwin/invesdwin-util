@@ -171,13 +171,13 @@ public class MemoryMappedFile implements IMemoryMappedFile {
             this.readOnly = readOnly;
             this.file = file;
             this.offset = offset;
+            //use IMemoryMappedFile.roundTo4096 to round the length to a multiple of 4096 if not readOnly, otherwise use the length as is
+            this.length = length;
             if (readOnly) {
-                this.length = length;
                 this.raf = new RandomAccessFile(this.file, "r");
                 this.channel = raf.getChannel();
                 this.address = IoUtil.map(channel, MapMode.READ_ONLY, this.offset, this.length);
             } else {
-                this.length = roundTo4096(length);
                 this.raf = new RandomAccessFile(this.file, "rw");
                 raf.setLength(this.length);
                 this.channel = raf.getChannel();
@@ -233,10 +233,6 @@ public class MemoryMappedFile implements IMemoryMappedFile {
         @Override
         public boolean isThreadLocal() {
             return false;
-        }
-
-        private static long roundTo4096(final long i) {
-            return (i + 0xfff) & ~0xfff;
         }
 
     }

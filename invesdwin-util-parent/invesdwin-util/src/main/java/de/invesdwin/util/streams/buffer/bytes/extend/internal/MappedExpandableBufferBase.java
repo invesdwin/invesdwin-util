@@ -55,6 +55,7 @@ import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.string.UniqueNameGenerator;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.file.IMemoryMappedFile;
 import de.invesdwin.util.streams.buffer.file.MemoryMappedFile;
@@ -68,12 +69,12 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
     /**
      * Maximum length to which the underlying buffer can grow.
      */
-    public static final int MAX_BUFFER_LENGTH = 1024 * 1024 * 1024;
+    public static final int MAX_BUFFER_LENGTH = 1024 * 1024 * 1024; // 1 GB
 
     /**
      * Initial capacity of the buffer from which it will expand.
      */
-    public static final int INITIAL_CAPACITY = 128;
+    public static final int INITIAL_CAPACITY = 4096;
 
     private static final sun.misc.Unsafe UNSAFE = Reflections.getUnsafe();
 
@@ -98,12 +99,12 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
             this.deleteOnClose = deleteOnClose;
             try {
                 Files.forceMkdirParent(file);
-                mappedFile = new MemoryMappedFile(file, 0, initialCapacity, false, true);
+                mappedFile = new MemoryMappedFile(file, 0, IMemoryMappedFile.roundTo4096(initialCapacity), false, true);
             } catch (final IOException e) {
                 throw new UncheckedIOException(e);
             }
             address = mappedFile.addressOffset();
-            capacity = initialCapacity;
+            capacity = Integers.checkedCast(mappedFile.capacity());
         }
 
         @Override
@@ -542,11 +543,6 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
      */
     @Override
     public byte getByte(final int index) {
-        boundsCheck0(index, SIZE_OF_BYTE);
-        return UNSAFE.getByte(null, finalizer.address + index);
-    }
-
-    private byte getByte0(final int index) {
         boundsCheck0(index, SIZE_OF_BYTE);
         return UNSAFE.getByte(null, finalizer.address + index);
     }
@@ -1552,7 +1548,8 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
             final int newCapacity = calculateExpansion(currentCapacity, (int) resultingPosition);
             finalizer.mappedFile.close();
             try {
-                finalizer.mappedFile = new MemoryMappedFile(finalizer.file, 0, newCapacity, false, true);
+                finalizer.mappedFile = new MemoryMappedFile(finalizer.file, 0,
+                        IMemoryMappedFile.roundTo4096(newCapacity), false, true);
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
@@ -1561,7 +1558,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
             //            getBytes(0, newBuffer, 0, finalizer.capacity);
 
             finalizer.address = finalizer.mappedFile.addressOffset();
-            finalizer.capacity = newCapacity;
+            finalizer.capacity = Integers.checkedCast(finalizer.mappedFile.capacity());
         }
     }
 
