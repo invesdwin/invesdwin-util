@@ -64,6 +64,11 @@ public class MemoryMappedFile implements IMemoryMappedFile {
     }
 
     @Override
+    public Object getRefCountLock() {
+        return refCount;
+    }
+
+    @Override
     public int getRefCount() {
         return refCount.get();
     }

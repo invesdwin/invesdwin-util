@@ -12,6 +12,8 @@ public interface IMemoryMappedFile extends Closeable {
 
     File getFile();
 
+    Object getRefCountLock();
+
     int getRefCount();
 
     boolean incrementRefCount();

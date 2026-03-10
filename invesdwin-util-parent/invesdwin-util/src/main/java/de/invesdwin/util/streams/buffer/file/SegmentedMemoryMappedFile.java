@@ -109,17 +109,31 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
     }
 
     @Override
+    public Object getRefCountLock() {
+        return list;
+    }
+
+    @Override
     public int getRefCount() {
+        if (list.isEmpty()) {
+            return 0;
+        }
         return list.get(0).getRefCount();
     }
 
     @Override
     public boolean incrementRefCount() {
+        if (list.isEmpty()) {
+            return false;
+        }
         return list.get(0).incrementRefCount();
     }
 
     @Override
     public void decrementRefCount() {
+        if (list.isEmpty()) {
+            return;
+        }
         list.get(0).decrementRefCount();
     }
 
