@@ -46,6 +46,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.agrona.AsciiNumberFormatException;
 import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
+import org.agrona.IoUtil;
 import org.agrona.LangUtil;
 import org.agrona.MutableDirectBuffer;
 
@@ -74,7 +75,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
     /**
      * Initial capacity of the buffer from which it will expand.
      */
-    public static final int INITIAL_CAPACITY = 4096;
+    public static final int INITIAL_CAPACITY = IoUtil.BLOCK_SIZE;
 
     private static final sun.misc.Unsafe UNSAFE = Reflections.getUnsafe();
 
@@ -99,7 +100,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
             this.deleteOnClose = deleteOnClose;
             try {
                 Files.forceMkdirParent(file);
-                mappedFile = new MemoryMappedFile(file, 0, IMemoryMappedFile.roundTo4096(initialCapacity), false, true);
+                mappedFile = new MemoryMappedFile(file, 0, IMemoryMappedFile.roundToBlockSize(initialCapacity), false, true);
             } catch (final IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -1549,7 +1550,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
             finalizer.mappedFile.close();
             try {
                 finalizer.mappedFile = new MemoryMappedFile(finalizer.file, 0,
-                        IMemoryMappedFile.roundTo4096(newCapacity), false, true);
+                        IMemoryMappedFile.roundToBlockSize(newCapacity), false, true);
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }

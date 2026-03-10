@@ -51,15 +51,18 @@ public interface IMemoryMappedFile extends Closeable {
         return OperatingSystem.isWindows() && length >= SegmentedMemoryMappedFile.WINDOWS_MAX_LENGTH_PER_SEGMENT_MAPPED;
     }
 
-    static long roundTo4096(final long length, final boolean readOnly) {
+    static long roundToBlockSize(final long length, final boolean readOnly) {
         if (readOnly) {
             return length;
         } else {
-            return roundTo4096(length);
+            return roundToBlockSize(length);
         }
     }
 
-    static long roundTo4096(final long length) {
+    /**
+     * IoUtil.BLOCK_SIZE is 4096, so we round to the next multiple of 4096
+     */
+    static long roundToBlockSize(final long length) {
         return (length + 0xfff) & ~0xfff;
     }
 
