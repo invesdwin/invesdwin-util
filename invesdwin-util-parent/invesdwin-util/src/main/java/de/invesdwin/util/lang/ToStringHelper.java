@@ -120,8 +120,8 @@ public final class ToStringHelper {
 
     //CHECKSTYLE:OFF
     public ToStringHelper with(final Object... objs) {
-        //CHECKSTYLE:ON
-        for (final Object obj : objs) {
+        for (int i = 0; i < objs.length; i++) {
+            final Object obj = objs[i];
             with(obj);
         }
         return this;
@@ -129,8 +129,8 @@ public final class ToStringHelper {
 
     //CHECKSTYLE:OFF
     public ToStringHelper withOptional(final Object... objs) {
-        //CHECKSTYLE:ON
-        for (final Object obj : objs) {
+        for (int i = 0; i < objs.length; i++) {
+            final Object obj = objs[i];
             withOptional(obj);
         }
         return this;
