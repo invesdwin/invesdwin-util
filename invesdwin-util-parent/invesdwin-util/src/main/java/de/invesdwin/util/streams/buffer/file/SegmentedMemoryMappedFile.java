@@ -138,6 +138,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
         final int decremented = list.get(0).decrementRefCount();
         if (decremented <= 0 && markedForClose) {
             close();
+            markedForClose = false;
         }
         return decremented;
     }

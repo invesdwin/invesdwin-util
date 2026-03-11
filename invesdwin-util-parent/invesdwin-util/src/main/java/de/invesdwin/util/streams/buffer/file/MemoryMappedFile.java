@@ -88,6 +88,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
         final int decremented = refCount.decrementAndGet();
         if (decremented <= 0 && markedForClose) {
             close();
+            markedForClose = false;
         }
         return decremented;
     }
