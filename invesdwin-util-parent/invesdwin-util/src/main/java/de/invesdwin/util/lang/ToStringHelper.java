@@ -122,6 +122,15 @@ public final class ToStringHelper {
     public ToStringHelper with(final Object... objs) {
         //CHECKSTYLE:ON
         for (final Object obj : objs) {
+            with(obj);
+        }
+        return this;
+    }
+
+    //CHECKSTYLE:OFF
+    public ToStringHelper withOptional(final Object... objs) {
+        //CHECKSTYLE:ON
+        for (final Object obj : objs) {
             withOptional(obj);
         }
         return this;
