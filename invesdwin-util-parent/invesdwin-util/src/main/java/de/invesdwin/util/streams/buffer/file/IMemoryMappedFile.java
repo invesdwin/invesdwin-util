@@ -18,7 +18,9 @@ public interface IMemoryMappedFile extends Closeable {
 
     boolean incrementRefCount();
 
-    void decrementRefCount();
+    int decrementRefCount();
+
+    void markForClose();
 
     long addressOffset();
 

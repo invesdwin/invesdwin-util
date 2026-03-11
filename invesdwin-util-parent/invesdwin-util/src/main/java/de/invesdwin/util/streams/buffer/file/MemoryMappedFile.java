@@ -33,6 +33,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
     private final boolean closeAllowed;
     private final MemoryMappedFileFinalizer finalizer;
     private final AtomicInteger refCount = new AtomicInteger();
+    private boolean markedForClose;
 
     /**
      * Constructs a new memory mapped file.
@@ -83,8 +84,17 @@ public class MemoryMappedFile implements IMemoryMappedFile {
     }
 
     @Override
-    public void decrementRefCount() {
-        refCount.decrementAndGet();
+    public int decrementRefCount() {
+        final int decremented = refCount.decrementAndGet();
+        if (decremented <= 0 && markedForClose) {
+            close();
+        }
+        return decremented;
+    }
+
+    @Override
+    public void markForClose() {
+        markedForClose = true;
     }
 
     @Override

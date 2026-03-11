@@ -41,6 +41,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
     private final long offset;
     private final long length;
     private final boolean closeAllowed;
+    private boolean markedForClose;
 
     public SegmentedMemoryMappedFile(final boolean closeAllowed, final File file, final long offset, final long length,
             final boolean readOnly, final long segmentLength) throws IOException {
@@ -130,11 +131,20 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
     }
 
     @Override
-    public void decrementRefCount() {
+    public int decrementRefCount() {
         if (list.isEmpty()) {
-            return;
+            return 0;
         }
-        list.get(0).decrementRefCount();
+        final int decremented = list.get(0).decrementRefCount();
+        if (decremented <= 0 && markedForClose) {
+            close();
+        }
+        return decremented;
+    }
+
+    @Override
+    public void markForClose() {
+        markedForClose = true;
     }
 
     @Deprecated
