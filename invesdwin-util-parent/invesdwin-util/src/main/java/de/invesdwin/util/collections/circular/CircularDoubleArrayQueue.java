@@ -5,6 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.array.accessor.IDoubleArrayAccessor;
 import de.invesdwin.util.collections.queue.IDoubleQueue;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 
 /**
  * Similar to org.apache.commons.collections4.queue.CircularFifoQueue<E> or
@@ -116,11 +117,11 @@ public class CircularDoubleArrayQueue implements IDoubleQueue, IDoubleArrayAcces
 
     private int arrayIndexReverse(final int index) {
         if (index >= size) {
-            throw new IndexOutOfBoundsException(
-                    "index[" + index + "] should not be greater or equal to size[" + size + "]");
+            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be greater or equal to size[%s]",
+                    index, size);
         }
         if (index < 0) {
-            throw new IndexOutOfBoundsException("index[" + index + "] should not be negative");
+            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be negative", index);
         }
         final int idx = (endArrayIndex - index);
         if (idx < 0) {
@@ -133,11 +134,11 @@ public class CircularDoubleArrayQueue implements IDoubleQueue, IDoubleArrayAcces
 
     private int arrayIndex(final int index) {
         if (index >= size) {
-            throw new IndexOutOfBoundsException(
-                    "index[" + index + "] should not be greater or equal to size[" + size + "]");
+            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be greater or equal to size[%s]",
+                    index, size);
         }
         if (index < 0) {
-            throw new IndexOutOfBoundsException("index[" + index + "] should not be negative");
+            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be negative", index);
         }
         final int idx = (startArrayIndex + index) % capacity;
         return idx;

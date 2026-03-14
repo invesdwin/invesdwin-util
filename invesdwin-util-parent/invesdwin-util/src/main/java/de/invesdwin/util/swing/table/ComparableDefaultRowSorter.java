@@ -12,6 +12,7 @@ import javax.swing.SortOrder;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 
 /**
  * An implementation of <code>RowSorter</code> that provides sorting and filtering around a grid-based data model.
@@ -461,7 +462,7 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
                             + "sorter's row count. Most likely this is a wrong " + "sorter usage.");
                 }
             } else {
-                throw new IndexOutOfBoundsException("Invalid index");
+                throw FastIndexOutOfBoundsException.getInstance("Invalid index: %s", index);
             }
         }
         return index;
@@ -804,7 +805,7 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
         checkAgainstModel(firstRow, endRow);
         final int newModelRowCount = getModelWrapper().getRowCount();
         if (endRow >= newModelRowCount) {
-            throw new IndexOutOfBoundsException("Invalid range");
+            throw FastIndexOutOfBoundsException.getInstance("Invalid range: %s to %s", firstRow, endRow);
         }
         modelRowCount = newModelRowCount;
         if (shouldOptimizeChange(firstRow, endRow)) {
@@ -822,7 +823,7 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
     public void rowsDeleted(final int firstRow, final int endRow) {
         checkAgainstModel(firstRow, endRow);
         if (firstRow >= modelRowCount || endRow >= modelRowCount) {
-            throw new IndexOutOfBoundsException("Invalid range");
+            throw FastIndexOutOfBoundsException.getInstance("Invalid range: %s to %s", firstRow, endRow);
         }
         modelRowCount = getModelWrapper().getRowCount();
         if (shouldOptimizeChange(firstRow, endRow)) {
@@ -840,7 +841,7 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
     public void rowsUpdated(final int firstRow, final int endRow) {
         checkAgainstModel(firstRow, endRow);
         if (firstRow >= modelRowCount || endRow >= modelRowCount) {
-            throw new IndexOutOfBoundsException("Invalid range");
+            throw FastIndexOutOfBoundsException.getInstance("Invalid range: %s to %s", firstRow, endRow);
         }
         if (getSortsOnUpdates()) {
             if (shouldOptimizeChange(firstRow, endRow)) {
@@ -865,7 +866,7 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
 
     private void checkAgainstModel(final int firstRow, final int endRow) {
         if (firstRow > endRow || firstRow < 0 || endRow < 0 || firstRow > modelRowCount) {
-            throw new IndexOutOfBoundsException("Invalid range");
+            throw FastIndexOutOfBoundsException.getInstance("Invalid range: %s to %s", firstRow, endRow);
         }
     }
 
@@ -1164,7 +1165,7 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
 
     private void checkColumn(final int column) {
         if (column < 0 || column >= getModelWrapper().getColumnCount()) {
-            throw new IndexOutOfBoundsException("column beyond range of TableModel");
+            throw FastIndexOutOfBoundsException.getInstance("column beyond range of TableModel: %s", column);
         }
     }
 

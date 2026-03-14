@@ -10,7 +10,6 @@ import java.net.Socket;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Future;
@@ -40,9 +39,9 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.TimeValue;
 
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.future.Futures;
-import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.uri.Addresses;
 import de.invesdwin.util.lang.uri.URIs;
@@ -52,6 +51,7 @@ import de.invesdwin.util.lang.uri.header.BasicAuth;
 import de.invesdwin.util.lang.uri.header.Headers;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
+import de.invesdwin.util.streams.closeable.Closeables;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -234,7 +234,7 @@ public final class URIsConnectApacheAsync implements IURIsConnect {
             return this;
         }
         if (headers == null) {
-            headers = new HashMap<String, String>();
+            headers = ILockCollectionFactory.getInstance(false).newMap();
         }
         headers.put(key, value);
         return this;

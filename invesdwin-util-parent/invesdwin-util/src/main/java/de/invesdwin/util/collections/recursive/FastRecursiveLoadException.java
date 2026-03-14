@@ -8,7 +8,8 @@ import de.invesdwin.util.lang.string.description.TextDescription;
 @NotThreadSafe
 public final class FastRecursiveLoadException extends RecursiveLoadException {
 
-    private static final FastRecursiveLoadException INSTANCE = new FastRecursiveLoadException("recursive load");
+    private static final FastRecursiveLoadException INSTANCE = new FastRecursiveLoadException(
+            "recursive load (Throwables.setDebugStackTraceEnabled(true) for more details)");
 
     private static final long serialVersionUID = 1L;
 
@@ -22,7 +23,7 @@ public final class FastRecursiveLoadException extends RecursiveLoadException {
 
     @Override
     public synchronized Throwable fillInStackTrace() {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             return super.fillInStackTrace();
         } else {
             return this; // no stack trace for performance
@@ -30,7 +31,7 @@ public final class FastRecursiveLoadException extends RecursiveLoadException {
     }
 
     public static FastRecursiveLoadException getInstance(final String message) {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             return new FastRecursiveLoadException(message);
         } else {
             return INSTANCE;
@@ -38,7 +39,7 @@ public final class FastRecursiveLoadException extends RecursiveLoadException {
     }
 
     public static FastRecursiveLoadException getInstance(final String message, final Object arg) {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             return new FastRecursiveLoadException(TextDescription.format(message, arg));
         } else {
             return INSTANCE;
@@ -46,7 +47,7 @@ public final class FastRecursiveLoadException extends RecursiveLoadException {
     }
 
     public static FastRecursiveLoadException getInstance(final String message, final Object arg1, final Object arg2) {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             return new FastRecursiveLoadException(TextDescription.format(message, arg1, arg2));
         } else {
             return INSTANCE;
@@ -54,7 +55,7 @@ public final class FastRecursiveLoadException extends RecursiveLoadException {
     }
 
     public static FastRecursiveLoadException getInstance(final String message, final Object... args) {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             return new FastRecursiveLoadException(TextDescription.format(message, args));
         } else {
             return INSTANCE;
@@ -66,7 +67,7 @@ public final class FastRecursiveLoadException extends RecursiveLoadException {
     }
 
     public static FastRecursiveLoadException getInstance(final String message, final Throwable cause) {
-        if (Throwables.isDebugStackTraceEnabled()) {
+        if (isDebugStackTraceEnabled()) {
             final FastRecursiveLoadException timeout = new FastRecursiveLoadException(message);
             if (cause != null) {
                 timeout.initCause(cause);
@@ -75,5 +76,9 @@ public final class FastRecursiveLoadException extends RecursiveLoadException {
         } else {
             return INSTANCE;
         }
+    }
+
+    private static boolean isDebugStackTraceEnabled() {
+        return Throwables.isDebugStackTraceEnabled();
     }
 }

@@ -14,6 +14,7 @@ import javax.annotation.concurrent.Immutable;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.EmptyInputStream;
 import de.invesdwin.util.streams.EmptyOutputStream;
@@ -432,7 +433,7 @@ public final class EmptyMemoryBuffer implements ICloseableMemoryBuffer {
     }
 
     public static IndexOutOfBoundsException newEmptyException() {
-        return new IndexOutOfBoundsException("empty");
+        return FastIndexOutOfBoundsException.getInstance("empty");
     }
 
     @SuppressWarnings("unchecked")

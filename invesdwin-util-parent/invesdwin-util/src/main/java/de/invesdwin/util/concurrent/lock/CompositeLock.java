@@ -9,6 +9,9 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
+import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyLock;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
@@ -124,6 +127,18 @@ public class CompositeLock implements ILock {
             return new CompositeLock(validLocks.toArray(ILock.EMPTY_ARRAY));
             //CHECKSTYLE:ON
         }
+    }
+
+    //CHECKSTYLE:OFF
+    @Override
+    public ILock withStrategy(final ILockingStrategy strategy) {
+        //CHECKSTYLE:ON
+        return StrategyLock.maybeWrap(strategy, this);
+    }
+
+    @Override
+    public ILockingStrategy getStrategy() {
+        return DefaultLockingStrategy.INSTANCE;
     }
 
 }

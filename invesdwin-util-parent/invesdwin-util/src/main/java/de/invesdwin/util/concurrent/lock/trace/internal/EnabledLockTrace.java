@@ -2,11 +2,11 @@ package de.invesdwin.util.concurrent.lock.trace.internal;
 
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.caffeine.CaffeineLoadingCacheMapConfig;
@@ -20,22 +20,22 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public class EnabledLockTrace implements ILockTrace {
 
-    private final ALoadingCache<String, ConcurrentHashMap<String, LockTraceEntry>> lockName_threadName_stackTrace = new ALoadingCache<String, ConcurrentHashMap<String, LockTraceEntry>>() {
+    private final ALoadingCache<String, Map<String, LockTraceEntry>> lockName_threadName_stackTrace = new ALoadingCache<String, Map<String, LockTraceEntry>>() {
         @Override
-        protected ConcurrentHashMap<String, LockTraceEntry> loadValue(final String key) {
-            return new ConcurrentHashMap<>();
+        protected Map<String, LockTraceEntry> loadValue(final String key) {
+            return ILockCollectionFactory.getInstance(true).newConcurrentMap();
         }
 
         @Override
-        protected ILoadingCache<String, ConcurrentHashMap<String, LockTraceEntry>> newDelegate() {
+        protected ILoadingCache<String, Map<String, LockTraceEntry>> newDelegate() {
             final Integer maximumSize = getInitialMaximumSize();
-            final Function<String, ConcurrentHashMap<String, LockTraceEntry>> loadValue = new Function<String, ConcurrentHashMap<String, LockTraceEntry>>() {
+            final Function<String, Map<String, LockTraceEntry>> loadValue = new Function<String, Map<String, LockTraceEntry>>() {
                 @Override
-                public ConcurrentHashMap<String, LockTraceEntry> apply(final String key) {
+                public Map<String, LockTraceEntry> apply(final String key) {
                     return loadValue(key);
                 }
             };
-            return new CaffeineLoadingCache<String, ConcurrentHashMap<String, LockTraceEntry>>(loadValue, maximumSize) {
+            return new CaffeineLoadingCache<String, Map<String, LockTraceEntry>>(loadValue, maximumSize) {
                 @Override
                 protected CaffeineLoadingCacheMapConfig newConfig() {
                     return super.newConfig().setExpireAfterAccess(Duration.ONE_MINUTE);
@@ -72,7 +72,7 @@ public class EnabledLockTrace implements ILockTrace {
     @Override
     public boolean isLockedByThisThread(final String lockName) {
         final String threadName = Threads.getCurrentThreadName();
-        return lockName_threadName_stackTrace.get(lockName).contains(threadName);
+        return lockName_threadName_stackTrace.get(lockName).containsKey(threadName);
     }
 
     @Override
@@ -84,8 +84,7 @@ public class EnabledLockTrace implements ILockTrace {
         sb.append(Threads.getCurrentThreadName());
         sb.append("]\nThe following locks are currently being held:\n*****************************");
         int countLocks = 0;
-        for (final Entry<String, ConcurrentHashMap<String, LockTraceEntry>> e : lockName_threadName_stackTrace
-                .entrySet()) {
+        for (final Entry<String, Map<String, LockTraceEntry>> e : lockName_threadName_stackTrace.entrySet()) {
             for (final Entry<String, LockTraceEntry> ee : e.getValue().entrySet()) {
                 countLocks++;
                 final String stackTrace = Throwables.getFullStackTrace(ee.getValue());

@@ -1,6 +1,5 @@
 package de.invesdwin.util.collections.loadingcache.caffeine.internal;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -14,6 +13,8 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.Policy;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.google.common.collect.ImmutableMap;
+
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 
 /**
  * This is a workaround to make googles ComputingMap work with null values.
@@ -49,7 +50,7 @@ public class WrapperLoadingCache<K, V> implements LoadingCache<K, V> {
     @Override
     public ImmutableMap<K, V> getAllPresent(final Iterable<? extends K> keys) {
         final Map<K, V> allPresent = delegate.getAllPresent(keys);
-        final Map<K, V> nonnullAllPresent = new HashMap<K, V>();
+        final Map<K, V> nonnullAllPresent = ILockCollectionFactory.getInstance(false).newMap();
         for (final Entry<K, V> e : allPresent.entrySet()) {
             final V value = maybeGet(e.getKey(), e.getValue());
             if (value != null) {
@@ -66,7 +67,7 @@ public class WrapperLoadingCache<K, V> implements LoadingCache<K, V> {
 
     @Override
     public void putAll(final Map<? extends K, ? extends V> m) {
-        final Map<K, V> newMap = new HashMap<K, V>();
+        final Map<K, V> newMap = ILockCollectionFactory.getInstance(false).newMap();
         for (final Entry<? extends K, ? extends V> e : m.entrySet()) {
             final K key = e.getKey();
             final V value = e.getValue();
@@ -113,7 +114,7 @@ public class WrapperLoadingCache<K, V> implements LoadingCache<K, V> {
     @Override
     public ImmutableMap<K, V> getAll(final Iterable<? extends K> keys) {
         final Map<K, V> all = delegate.getAll(keys);
-        final Map<K, V> nonnullAll = new HashMap<K, V>();
+        final Map<K, V> nonnullAll = ILockCollectionFactory.getInstance(false).newMap();
         for (final Entry<K, V> e : all.entrySet()) {
             final V value = maybeGet(e.getKey(), e.getValue());
             if (value != null) {
@@ -127,7 +128,7 @@ public class WrapperLoadingCache<K, V> implements LoadingCache<K, V> {
     public Map<K, V> getAll(final Iterable<? extends K> keys,
             final Function<? super Set<? extends K>, ? extends Map<? extends K, ? extends V>> mappingFunction) {
         final Map<K, V> all = delegate.getAll(keys, mappingFunction);
-        final Map<K, V> nonnullAll = new HashMap<K, V>();
+        final Map<K, V> nonnullAll = ILockCollectionFactory.getInstance(false).newMap();
         for (final Entry<K, V> e : all.entrySet()) {
             final V value = maybeGet(e.getKey(), e.getValue());
             if (value != null) {

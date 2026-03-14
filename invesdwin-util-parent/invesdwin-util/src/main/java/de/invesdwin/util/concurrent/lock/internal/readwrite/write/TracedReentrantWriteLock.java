@@ -10,6 +10,9 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantWriteLock;
+import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.strategy.wrap.readwrite.write.StrategyReentrantWriteLock;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
@@ -142,6 +145,18 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
     @Override
     public String toString() {
         return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
+    }
+
+    @Override
+    public ILockingStrategy getStrategy() {
+        return DefaultLockingStrategy.INSTANCE;
+    }
+
+    //CHECKSTYLE:OFF
+    @Override
+    public IReentrantWriteLock withStrategy(final ILockingStrategy strategy) {
+        //CHECKSTYLE:ON
+        return StrategyReentrantWriteLock.maybeWrap(strategy, this);
     }
 
 }

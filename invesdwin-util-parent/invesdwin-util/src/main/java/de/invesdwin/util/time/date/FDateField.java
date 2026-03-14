@@ -2,7 +2,6 @@ package de.invesdwin.util.time.date;
 
 import java.time.temporal.ChronoField;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
@@ -10,6 +9,7 @@ import javax.annotation.concurrent.Immutable;
 import org.joda.time.DateTimeField;
 import org.joda.time.DateTimeFieldType;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.error.UnknownArgumentException;
 
 @Immutable
@@ -188,9 +188,11 @@ public enum FDateField {
 
     };
 
-    private static final Map<Integer, FDateField> CALENDAR_LOOKUP = new HashMap<Integer, FDateField>();
-    private static final Map<ChronoField, FDateField> JAVA_TIME_LOOKUP = new HashMap<ChronoField, FDateField>();
-    private static final Map<DateTimeFieldType, FDateField> JODA_TIME_LOOKUP = new HashMap<DateTimeFieldType, FDateField>();
+    private static final Map<Integer, FDateField> CALENDAR_LOOKUP = ILockCollectionFactory.getInstance(false).newMap();
+    private static final Map<ChronoField, FDateField> JAVA_TIME_LOOKUP = ILockCollectionFactory.getInstance(false)
+            .newMap();
+    private static final Map<DateTimeFieldType, FDateField> JODA_TIME_LOOKUP = ILockCollectionFactory.getInstance(false)
+            .newMap();
 
     static {
         for (final FDateField f : FDateField.values()) {

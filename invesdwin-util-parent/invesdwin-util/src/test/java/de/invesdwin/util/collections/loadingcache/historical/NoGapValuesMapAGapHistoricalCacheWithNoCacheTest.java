@@ -2,7 +2,6 @@ package de.invesdwin.util.collections.loadingcache.historical;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDateBuilder;
@@ -81,10 +81,10 @@ public class NoGapValuesMapAGapHistoricalCacheWithNoCacheTest extends ABaseHisto
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(2);
 
         //random order
-        for (final FDate entity : new HashSet<FDate>(entities)) {
+        for (final FDate entity : ILockCollectionFactory.getInstance(false).newSet(entities)) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(8);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(9);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(2);
 
         //simulate cache eviction
@@ -96,7 +96,7 @@ public class NoGapValuesMapAGapHistoricalCacheWithNoCacheTest extends ABaseHisto
         for (final FDate entity : entities) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(12);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(13);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(6);
     }
 
@@ -137,7 +137,7 @@ public class NoGapValuesMapAGapHistoricalCacheWithNoCacheTest extends ABaseHisto
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(2);
 
         //random order
-        for (final FDate entity : new HashSet<FDate>(entities)) {
+        for (final FDate entity : ILockCollectionFactory.getInstance(false).newSet(entities)) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
         Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(25);

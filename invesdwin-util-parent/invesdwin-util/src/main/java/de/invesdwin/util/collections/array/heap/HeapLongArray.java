@@ -96,7 +96,17 @@ public class HeapLongArray implements ILongArray {
         for (int i = 0; i < size(); i++) {
             buffer.putDouble(i * Long.BYTES, get(i));
         }
+        return getBufferLength();
+    }
+
+    @Override
+    public int getBufferLength() {
         return size() * Long.BYTES;
+    }
+
+    @Override
+    public void clear() {
+        Arrays.fill(values, 0L);
     }
 
 }

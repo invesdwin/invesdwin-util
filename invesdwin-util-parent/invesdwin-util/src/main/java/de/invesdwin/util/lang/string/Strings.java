@@ -1,12 +1,10 @@
 package de.invesdwin.util.lang.string;
 
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -15,7 +13,10 @@ import org.apache.commons.lang3.math.NumberUtils;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathStrings;
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.collections.factory.pool.set.ICloseableSet;
+import de.invesdwin.util.collections.factory.pool.set.PooledSet;
+import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.string.internal.AStringsStaticFacade;
@@ -24,6 +25,7 @@ import de.invesdwin.util.lang.string.internal.CommentRemover;
 import de.invesdwin.util.lang.string.internal.DefaultToStringStyle;
 import de.invesdwin.util.lang.string.internal.ExtendedReflectionToStringBuilder;
 import de.invesdwin.util.lang.string.internal.MultilineToStringStyle;
+import de.invesdwin.util.lang.string.internal.SplitByMaxLengthIterator;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.string.internal.AStringsStaticFacade", targets = {
@@ -42,7 +44,10 @@ public final class Strings extends AStringsStaticFacade {
     public static final String NULL_TEXT = "null";
     public static final String DEFAULT_MISSING_VALUE = null;
 
-    private static final Map<String, String> SYMBOL_ESCAPEDHTML = new HashMap<String, String>();
+    public static final String NEWLINE = "\n";
+    public static final char NEWLINE_CHAR = '\n';
+
+    private static final Map<String, String> SYMBOL_ESCAPEDHTML = ILockCollectionFactory.getInstance(false).newMap();
 
     private static final String[] AS_STRING_SPACES_SEARCH = new String[] { //
             "|", //
@@ -354,19 +359,20 @@ public final class Strings extends AStringsStaticFacade {
     }
 
     public static String removeDuplicateLines(final String s) {
-        final Set<String> set = new HashSet<>();
-        final String[] lines = Strings.splitPreserveAllTokens(s, "\n");
-        final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < lines.length; i++) {
-            final String line = lines[i];
-            if (set.add(line)) {
-                if (sb.length() > 0) {
-                    sb.append("\n");
+        try (ICloseableSet<String> duplicateFilter = PooledSet.getInstance()) {
+            final String[] lines = Strings.splitPreserveAllTokens(s, "\n");
+            final StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < lines.length; i++) {
+                final String line = lines[i];
+                if (duplicateFilter.add(line)) {
+                    if (sb.length() > 0) {
+                        sb.append("\n");
+                    }
+                    sb.append(line);
                 }
-                sb.append(line);
             }
+            return sb.toString();
         }
-        return sb.toString();
     }
 
     public static String replaceRange(final String s, final int startInclusive, final int endExclusive,
@@ -707,41 +713,29 @@ public final class Strings extends AStringsStaticFacade {
                 break;
             }
         }
-        if (changed) {
+        if (changed && sb != null) {
             return sb.toString();
         } else {
             return str;
         }
     }
 
-    public static List<String> splitByMaxLength(final String str, final int maxLength) {
-        return splitByMaxLength(str, maxLength, false);
+    public static ICloseableIterator<String> splitByMaxLength(final String str, final int maxLength) {
+        return SplitByMaxLengthIterator.splitByMaxLength(str, maxLength);
     }
 
-    public static List<String> splitByMaxLength(final String str, final int maxLength, final boolean once) {
-        if (maxLength <= 0 || str.length() <= maxLength) {
-            return Collections.singletonList(str);
-        }
-        final int whitespaceMaxLength = (int) (maxLength * 1.1D);
-        final int hardMaxLength = (int) (whitespaceMaxLength * 1.1D);
-        final List<String> chunks = new ArrayList<>();
-        final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < str.length(); i++) {
-            final char c = str.charAt(i);
-            sb.append(c);
-            if (once && !chunks.isEmpty()) {
-                continue;
-            }
-            if (sb.length() >= hardMaxLength || (sb.length() >= whitespaceMaxLength && Character.isWhitespace(c))
-                    || (sb.length() >= maxLength && c == '\n')) {
-                chunks.add(sb.toString());
-                sb.setLength(0);
-            }
-        }
-        if (sb.length() > 0) {
-            chunks.add(sb.toString());
-        }
-        return chunks;
+    public static ICloseableIterator<String> splitByMaxLength(final String str, final int maxLength,
+            final boolean once) {
+        return SplitByMaxLengthIterator.splitByMaxLength(str, maxLength, once);
+    }
+
+    public static ICloseableIterator<String> splitByMaxLength(final InputStream str, final int maxLength) {
+        return SplitByMaxLengthIterator.splitByMaxLength(str, maxLength);
+    }
+
+    public static ICloseableIterator<String> splitByMaxLength(final InputStream str, final int maxLength,
+            final boolean once) {
+        return SplitByMaxLengthIterator.splitByMaxLength(str, maxLength, once);
     }
 
     public static boolean isDecimal(final String str) {

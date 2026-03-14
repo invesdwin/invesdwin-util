@@ -1,11 +1,9 @@
 package de.invesdwin.util.collections.eviction;
 
-import java.util.LinkedHashMap;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public class JavaLeastRecentlyUsedMap<K, V> extends LinkedHashMap<K, V> implements IEvictionMap<K, V> {
+public class JavaLeastRecentlyUsedMap<K, V> extends java.util.LinkedHashMap<K, V> implements IEvictionMap<K, V> {
 
     private int maximumSize;
 

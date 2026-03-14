@@ -19,9 +19,10 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.concurrent.loop.ASpinWait;
+import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.error.FastEOFException;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.lang.string.Charsets;
@@ -39,6 +40,7 @@ import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedDirec
 import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedDirectExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.internal.array.ArrayExpandableByteBufferPool;
 import de.invesdwin.util.streams.buffer.bytes.internal.direct.DirectExpandableByteBufferPool;
+import de.invesdwin.util.streams.buffer.bytes.internal.mapped.MappedExpandableByteBufferPool;
 import de.invesdwin.util.time.duration.Duration;
 
 @Immutable
@@ -66,6 +68,7 @@ public final class ByteBuffers {
 
     public static final IObjectPool<ICloseableByteBuffer> EXPANDABLE_POOL = ArrayExpandableByteBufferPool.INSTANCE;
     public static final IObjectPool<ICloseableByteBuffer> DIRECT_EXPANDABLE_POOL = DirectExpandableByteBufferPool.INSTANCE;
+    public static final IObjectPool<ICloseableByteBuffer> MAPPED_EXPANDABLE_POOL = MappedExpandableByteBufferPool.INSTANCE;
 
     private static final ISliceInvoker SLICE_INVOKER;
 
@@ -621,8 +624,8 @@ public final class ByteBuffers {
     public static void ensureCapacity(final IByteBuffer buffer, final int desiredCapacity) {
         final int capacity = buffer.capacity();
         if (desiredCapacity > capacity) {
-            throw new IndexOutOfBoundsException(
-                    "desiredCapacity=" + desiredCapacity + " is beyond capacity=" + capacity);
+            throw FastIndexOutOfBoundsException.getInstance("desiredCapacity=%s is beyond capacity=%s", desiredCapacity,
+                    capacity);
         }
     }
 

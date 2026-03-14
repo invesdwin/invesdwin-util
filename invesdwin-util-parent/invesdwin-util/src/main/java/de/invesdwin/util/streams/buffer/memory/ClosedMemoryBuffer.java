@@ -14,6 +14,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.ClosedByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -51,7 +52,7 @@ public class ClosedMemoryBuffer implements ICloseableMemoryBuffer {
     }
 
     private IndexOutOfBoundsException newClosedException() {
-        return new IndexOutOfBoundsException("closed");
+        return FastIndexOutOfBoundsException.getInstance("closed");
     }
 
     @Override

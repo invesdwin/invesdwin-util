@@ -1,6 +1,5 @@
 package de.invesdwin.util.lang.uri.header;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -9,6 +8,7 @@ import javax.annotation.concurrent.Immutable;
 import org.apache.commons.codec.binary.Base64;
 
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.string.Strings;
 
 @Immutable
@@ -45,7 +45,7 @@ public final class Headers {
             return Collections.emptyMap();
         }
         final String[] entries = Strings.splitPreserveAllTokens(encoded, ENTRY_SEPARATOR);
-        final Map<String, String> headers = new LinkedHashMap<>();
+        final Map<String, String> headers = ILockCollectionFactory.getInstance(false).newLinkedMap();
         for (int i = 0; i < entries.length; i++) {
             final String entry = entries[i];
             final String[] keyValue = Strings.splitPreserveAllTokens(entry, KEY_VALUE_SEPARATOR);

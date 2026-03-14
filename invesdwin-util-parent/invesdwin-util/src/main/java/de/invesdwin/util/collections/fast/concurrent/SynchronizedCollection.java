@@ -152,11 +152,11 @@ public class SynchronizedCollection<E> implements Collection<E> {
 
     @Override
     public boolean equals(final Object object) {
+        if (object == this) {
+            return true;
+        }
         synchronized (lock) {
-            if (object == this) {
-                return true;
-            }
-            return object == this || getDelegate().equals(object);
+            return getDelegate().equals(object);
         }
     }
 

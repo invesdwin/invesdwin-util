@@ -214,4 +214,24 @@ public class LockedBitSet implements IBitSet {
         }
     }
 
+    @Override
+    public int getBufferLength() {
+        lock.lock();
+        try {
+            return delegate.getBufferLength();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void clear() {
+        lock.lock();
+        try {
+            delegate.clear();
+        } finally {
+            lock.unlock();
+        }
+    }
+
 }

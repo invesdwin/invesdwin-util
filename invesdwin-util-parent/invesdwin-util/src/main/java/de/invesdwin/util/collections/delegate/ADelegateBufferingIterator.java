@@ -142,6 +142,9 @@ public abstract class ADelegateBufferingIterator<E> implements IBufferingIterato
 
     @Override
     public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
         return getDelegate().equals(obj);
     }
 

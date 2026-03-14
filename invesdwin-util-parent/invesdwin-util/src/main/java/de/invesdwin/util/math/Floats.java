@@ -20,6 +20,8 @@ import de.invesdwin.util.math.internal.CheckedCastFloatsObj;
 @Immutable
 public final class Floats extends AFloatsStaticFacade {
 
+    public static final float[] EMPTY_ARRAY = new float[0];
+    public static final Float[] EMPTY_ARRAY_OBJ = new Float[0];
     public static final float DEFAULT_MISSING_VALUE = 0f;
     public static final Float DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
     public static final IComparator<Float> COMPARATOR = IComparator.getDefaultInstance();

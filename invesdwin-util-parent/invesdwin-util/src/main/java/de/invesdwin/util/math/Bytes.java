@@ -25,6 +25,7 @@ import de.invesdwin.util.math.internal.CheckedCastBytesObj;
 public final class Bytes extends ABytesStaticFacade {
 
     public static final byte[] EMPTY_ARRAY = new byte[0];
+    public static final Byte[] EMPTY_ARRAY_OBJ = new Byte[0];
 
     public static final byte DEFAULT_MISSING_VALUE = (byte) 0;
     public static final Byte DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;

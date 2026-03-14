@@ -6,18 +6,19 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Map;
 import java.util.function.Function;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.bean.tuple.Pair;
 import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.decimal.format.ImmutableDecimalFormat;
+import de.invesdwin.util.math.decimal.format.ImmutableDecimalFormatConfig;
 import de.invesdwin.util.math.decimal.internal.DecimalAggregate;
 import de.invesdwin.util.math.decimal.internal.DummyDecimalAggregate;
 import io.netty.util.concurrent.FastThreadLocal;
@@ -30,6 +31,7 @@ public class Decimal extends ADecimal<Decimal> {
             .getInstance(DEFAULT_DECIMAL_FORMAT_LOCALE);
     public static final String DEFAULT_DECIMAL_FORMAT_SYMBOLS_GROUPING_SEPARATOR_STR = String
             .valueOf(Decimal.DEFAULT_DECIMAL_FORMAT_SYMBOLS.getGroupingSeparator());
+    public static final int DEFAULT_DECIMAL_FORMAT_MULTIPLIER = 1;
     public static final int MONEY_PRECISION = 2;
     public static final String DEFAULT_DECIMAL_FORMAT = newDefaultDecimalFormat(MONEY_PRECISION);
     public static final String INTEGER_DECIMAL_FORMAT = "#,##0";
@@ -55,7 +57,9 @@ public class Decimal extends ADecimal<Decimal> {
     /*
      * Don't use Caffeine (java 11 only) here so that we stay compatible with Java 8 on this class for JDK upgrades.
      */
-    private static final ConcurrentMap<Pair<String, DecimalFormatSymbols>, FastThreadLocal<DecimalFormat>> DECIMAL_FORMAT = new ConcurrentHashMap<Pair<String, DecimalFormatSymbols>, FastThreadLocal<DecimalFormat>>();
+    private static final Map<ImmutableDecimalFormatConfig, FastThreadLocal<ImmutableDecimalFormat>> DECIMAL_FORMAT = ILockCollectionFactory
+            .getInstance(true)
+            .newConcurrentMap();
     public static final int BYTES = Double.BYTES;
 
     static {
@@ -330,28 +334,37 @@ public class Decimal extends ADecimal<Decimal> {
         return format;
     }
 
-    public static DecimalFormat newDecimalFormatInstance(final String format) {
+    public static ImmutableDecimalFormat newDecimalFormatInstance(final String format) {
         return newDecimalFormatInstance(format, Decimal.DEFAULT_DECIMAL_FORMAT_SYMBOLS);
     }
 
-    public static DecimalFormat newDecimalFormatInstance(final String format, final Locale locale) {
+    public static ImmutableDecimalFormat newDecimalFormatInstance(final String format, final Locale locale) {
         return newDecimalFormatInstance(format, DecimalFormatSymbols.getInstance(locale));
     }
 
-    public static DecimalFormat newDecimalFormatInstance(final String format, final DecimalFormatSymbols symbols) {
-        return DECIMAL_FORMAT.computeIfAbsent(Pair.of(format, symbols), Decimal::loadDecimalFormatInstance).get();
+    public static ImmutableDecimalFormat newDecimalFormatInstance(final String format, final int multiplier) {
+        return newDecimalFormatInstance(format, Decimal.DEFAULT_DECIMAL_FORMAT_SYMBOLS, multiplier);
     }
 
-    private static FastThreadLocal<DecimalFormat> loadDecimalFormatInstance(
-            final Pair<String, DecimalFormatSymbols> key) {
-        final String format = key.getFirst();
-        final DecimalFormatSymbols symbols = key.getSecond();
-        return new FastThreadLocal<DecimalFormat>() {
+    public static ImmutableDecimalFormat newDecimalFormatInstance(final String format,
+            final DecimalFormatSymbols symbols) {
+        return newDecimalFormatInstance(format, symbols, Decimal.DEFAULT_DECIMAL_FORMAT_MULTIPLIER);
+    }
+
+    public static ImmutableDecimalFormat newDecimalFormatInstance(final String format,
+            final DecimalFormatSymbols symbols, final int multiplier) {
+        return DECIMAL_FORMAT
+                .computeIfAbsent(new ImmutableDecimalFormatConfig(format, symbols, multiplier),
+                        Decimal::loadDecimalFormatInstance)
+                .get();
+    }
+
+    private static FastThreadLocal<ImmutableDecimalFormat> loadDecimalFormatInstance(
+            final ImmutableDecimalFormatConfig config) {
+        return new FastThreadLocal<ImmutableDecimalFormat>() {
             @Override
-            protected DecimalFormat initialValue() throws Exception {
-                final DecimalFormat formatter = new DecimalFormat(format, symbols);
-                formatter.setRoundingMode(ADecimal.DEFAULT_ROUNDING_MODE);
-                return formatter;
+            protected ImmutableDecimalFormat initialValue() throws Exception {
+                return new ImmutableDecimalFormat(config);
             }
         };
     }

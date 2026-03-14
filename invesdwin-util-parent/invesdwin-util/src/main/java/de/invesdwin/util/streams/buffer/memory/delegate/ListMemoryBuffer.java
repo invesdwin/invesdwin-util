@@ -23,6 +23,7 @@ import org.agrona.concurrent.UnsafeBuffer;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.array.IPrimitiveArrayId;
 import de.invesdwin.util.collections.delegate.ADelegateList;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.math.Integers;
@@ -83,15 +84,15 @@ public class ListMemoryBuffer implements IMemoryBuffer {
 
     private void ensureCapacity(final long index, final long length) {
         if (index < 0 || length < 0) {
-            throw new IndexOutOfBoundsException("negative value: index=" + index + " length=" + length);
+            throw FastIndexOutOfBoundsException.getInstance("negative value: index=%s length=%s", index, length);
         }
 
         final long resultingPosition = index + length;
         final long currentArrayLength = capacity();
         if (resultingPosition > currentArrayLength) {
             if (resultingPosition > ExpandableArrayBuffer.MAX_ARRAY_LENGTH) {
-                throw new IndexOutOfBoundsException("index=" + index + " length=" + length + " maxCapacity="
-                        + ExpandableArrayBuffer.MAX_ARRAY_LENGTH);
+                throw FastIndexOutOfBoundsException.getInstance("index=%s length=%s maxCapacity=%s", index, length,
+                        +ExpandableArrayBuffer.MAX_ARRAY_LENGTH);
             }
 
             ensureCapacity((int) resultingPosition);
@@ -191,7 +192,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -234,7 +235,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -298,7 +299,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -340,7 +341,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -362,7 +363,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 return buffer.getByte(index - position);
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -486,7 +487,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 return;
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -631,7 +632,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
 
     }
 
@@ -673,7 +674,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -747,7 +748,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                     }
                 }
             }
-            throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+            throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
         }
     }
 
@@ -792,7 +793,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                     }
                 }
             }
-            throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+            throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
         }
     }
 
@@ -842,7 +843,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                     }
                 }
             }
-            throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+            throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
         }
     }
 
@@ -884,7 +885,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -928,7 +929,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                     }
                 }
             }
-            throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+            throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
         }
     }
 
@@ -970,7 +971,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -1009,7 +1010,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -1048,7 +1049,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -1087,7 +1088,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -1126,7 +1127,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -1165,7 +1166,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -1204,7 +1205,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -1243,7 +1244,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -1282,7 +1283,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -1321,7 +1322,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -1360,7 +1361,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @Override
@@ -1397,7 +1398,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 }
             }
         }
-        throw new IndexOutOfBoundsException("index=" + index + " capacity=" + capacity());
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
 
     @SuppressWarnings("unchecked")

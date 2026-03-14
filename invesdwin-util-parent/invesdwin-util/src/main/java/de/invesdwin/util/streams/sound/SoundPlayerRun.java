@@ -10,8 +10,8 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 
-import de.invesdwin.util.lang.Closeables;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.streams.closeable.Closeables;
 
 @ThreadSafe
 public class SoundPlayerRun implements Closeable {

@@ -58,6 +58,9 @@ public class UnmodifiableSet<E> extends AUnmodifiableSet<E> {
 
     @Override
     public boolean equals(final Object o) {
+        if (o == this) {
+            return true;
+        }
         return getDelegate().equals(o);
     }
 

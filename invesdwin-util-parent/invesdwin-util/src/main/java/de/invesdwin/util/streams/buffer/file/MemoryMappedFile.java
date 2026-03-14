@@ -3,6 +3,7 @@ package de.invesdwin.util.streams.buffer.file;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.UncheckedIOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,6 +54,10 @@ public class MemoryMappedFile implements IMemoryMappedFile {
     @Override
     public File getFile() {
         return finalizer.file;
+    }
+
+    public java.nio.MappedByteBuffer getMappedByteBuffer() {
+        return finalizer.getMappedByteBuffer();
     }
 
     @Override
@@ -148,6 +153,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
     }
 
     private static final class MemoryMappedFileFinalizer extends AFinalizer {
+        private final boolean readOnly;
         private final File file;
         private final long offset;
         private final long length;
@@ -155,9 +161,11 @@ public class MemoryMappedFile implements IMemoryMappedFile {
         private final FileChannel channel;
         private final long address;
         private volatile boolean cleaned;
+        private java.nio.MappedByteBuffer mappedByteBuffer;
 
         private MemoryMappedFileFinalizer(final File file, final long offset, final long length, final boolean readOnly)
                 throws IOException {
+            this.readOnly = readOnly;
             this.file = file;
             this.offset = offset;
             if (readOnly) {
@@ -174,9 +182,37 @@ public class MemoryMappedFile implements IMemoryMappedFile {
             }
         }
 
+        public java.nio.MappedByteBuffer getMappedByteBuffer() {
+            if (mappedByteBuffer == null) {
+                synchronized (this) {
+                    if (mappedByteBuffer == null) {
+                        mappedByteBuffer = newMappedByteBuffer();
+                    }
+                }
+            }
+            return mappedByteBuffer;
+        }
+
+        private java.nio.MappedByteBuffer newMappedByteBuffer() {
+            try {
+                if (readOnly) {
+                    return channel.map(MapMode.READ_ONLY, this.offset, this.length);
+                } else {
+                    return channel.map(MapMode.READ_WRITE, this.offset, this.length);
+                }
+            } catch (final IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
         @Override
         protected void clean() {
             cleaned = true;
+            final java.nio.MappedByteBuffer mappedByteBufferCopy = mappedByteBuffer;
+            if (mappedByteBufferCopy != null) {
+                IoUtil.unmap(mappedByteBufferCopy);
+                mappedByteBuffer = null;
+            }
             IoUtil.unmap(channel, address, this.length);
             try {
                 channel.close();

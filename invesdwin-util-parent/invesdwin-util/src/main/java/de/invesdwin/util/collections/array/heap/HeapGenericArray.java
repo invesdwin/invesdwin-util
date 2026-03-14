@@ -102,4 +102,14 @@ public class HeapGenericArray<E> implements IGenericArray<E> {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public int getBufferLength() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clear() {
+        Arrays.fill(values, null);
+    }
+
 }

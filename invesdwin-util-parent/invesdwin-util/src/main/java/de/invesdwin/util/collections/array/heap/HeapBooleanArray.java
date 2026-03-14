@@ -104,4 +104,14 @@ public class HeapBooleanArray implements IBooleanArray {
         return delegate.getBuffer(buffer);
     }
 
+    @Override
+    public int getBufferLength() {
+        return 0;
+    }
+
+    @Override
+    public void clear() {
+        Arrays.fill(values, false);
+    }
+
 }

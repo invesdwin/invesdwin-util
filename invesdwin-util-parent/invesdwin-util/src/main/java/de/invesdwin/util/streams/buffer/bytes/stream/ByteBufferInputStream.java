@@ -6,6 +6,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.concurrent.UnsafeBuffer;
 
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -86,8 +87,8 @@ public class ByteBufferInputStream extends InputStream {
     private void boundsCheck0(final long index, final long length) {
         final long resultingPosition = index + length;
         if (index < 0 || length < 0 || resultingPosition > buffer.capacity()) {
-            throw new IndexOutOfBoundsException(
-                    "index=" + index + " length=" + length + " capacity=" + buffer.capacity());
+            throw FastIndexOutOfBoundsException.getInstance("index=%s length=%s capacity=%s", index, length,
+                    buffer.capacity());
         }
     }
 

@@ -1,21 +1,20 @@
 package de.invesdwin.util.collections.attributes;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.delegate.ADelegateMap;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 
 @ThreadSafe
 public class AttributesMap extends ADelegateMap<String, Object> implements IAttributesMap {
 
     @Override
     protected Map<String, Object> newDelegate() {
-        return Collections.synchronizedMap(new HashMap<String, Object>());
+        return ILockCollectionFactory.getInstance(true).newMap();
     }
 
     /**

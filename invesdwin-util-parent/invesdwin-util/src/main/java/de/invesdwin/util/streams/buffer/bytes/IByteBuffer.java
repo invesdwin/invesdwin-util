@@ -42,6 +42,11 @@ public interface IByteBuffer extends IByteBufferProvider, Cloneable, IPrimitiveA
 
     int capacity();
 
+    @Override
+    default int getBufferLength() {
+        return capacity();
+    }
+
     default int remaining(final int index) {
         return capacity() - index;
     }
@@ -519,6 +524,7 @@ public interface IByteBuffer extends IByteBufferProvider, Cloneable, IPrimitiveA
 
     IByteBuffer clone(int index, int length);
 
+    @Override
     default void clear() {
         clear(Bytes.ZERO);
     }

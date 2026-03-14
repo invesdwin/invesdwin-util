@@ -421,6 +421,14 @@ public class FDate
     public FDate addMaybeAsTimeUnit(final Duration duration) {
         final FTimeUnit timeUnit = FTimeUnit.valueOf(duration);
         if (timeUnit == null) {
+            for (final FTimeUnit potentialTimeUnit : FTimeUnit.values()) {
+                if (duration.isExactMultipleOfPeriod(potentialTimeUnit.durationValue())) {
+                    final int multiples = (int) duration.getNumMultipleOfPeriod(potentialTimeUnit.durationValue());
+                    if (multiples > 0) {
+                        return add(potentialTimeUnit, multiples);
+                    }
+                }
+            }
             return add(duration);
         } else {
             if (duration.isPositiveOrZero()) {

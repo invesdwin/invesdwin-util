@@ -37,4 +37,14 @@ public class LockedIterator<E> implements Iterator<E> {
         }
     }
 
+    @Override
+    public void remove() {
+        lock.lock();
+        try {
+            delegate.remove();
+        } finally {
+            lock.unlock();
+        }
+    }
+
 }

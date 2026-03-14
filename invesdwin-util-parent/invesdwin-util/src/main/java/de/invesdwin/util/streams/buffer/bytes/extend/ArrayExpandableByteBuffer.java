@@ -24,7 +24,7 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedExpandableArrayBufferBase;
+import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedArrayExpandableBufferBase;
 import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferInputStream;
 import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferOutputStream;
 import de.invesdwin.util.streams.buffer.bytes.stream.ExpandableByteBufferOutputStream;
@@ -35,7 +35,7 @@ import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer
  * Uninitialized can be default here since we don't have to register a cleaner anyway
  */
 @NotThreadSafe
-public class ArrayExpandableByteBuffer extends UninitializedExpandableArrayBufferBase implements IByteBuffer {
+public class ArrayExpandableByteBuffer extends UninitializedArrayExpandableBufferBase implements IByteBuffer {
 
     protected IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 

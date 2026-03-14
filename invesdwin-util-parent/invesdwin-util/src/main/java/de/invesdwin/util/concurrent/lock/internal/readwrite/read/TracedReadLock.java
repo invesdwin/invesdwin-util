@@ -11,6 +11,9 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
+import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyLock;
 import de.invesdwin.util.concurrent.reference.WeakThreadLocalReference;
 import de.invesdwin.util.lang.Objects;
 
@@ -133,6 +136,18 @@ public class TracedReadLock implements ILock {
     @Override
     public String toString() {
         return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
+    }
+
+    @Override
+    public ILockingStrategy getStrategy() {
+        return DefaultLockingStrategy.INSTANCE;
+    }
+
+    //CHECKSTYLE:OFF
+    @Override
+    public ILock withStrategy(final ILockingStrategy strategy) {
+        //CHECKSTYLE:ON
+        return StrategyLock.maybeWrap(strategy, this);
     }
 
 }

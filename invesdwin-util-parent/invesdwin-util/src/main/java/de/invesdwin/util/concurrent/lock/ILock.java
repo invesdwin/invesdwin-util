@@ -1,16 +1,26 @@
 package de.invesdwin.util.concurrent.lock;
 
-import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 import de.invesdwin.util.time.duration.Duration;
 
-public interface ILock extends Lock, Closeable {
+public interface ILock extends Lock, ICloseableLock {
 
     ILock[] EMPTY_ARRAY = new ILock[0];
 
     String getName();
+
+    default ICloseableLock locked() {
+        lock();
+        return this;
+    }
+
+    default ICloseableLock locked(final ILockingStrategy strategy) {
+        strategy.lock(this);
+        return this;
+    }
 
     boolean isLocked();
 
@@ -36,5 +46,9 @@ public interface ILock extends Lock, Closeable {
             throw new RuntimeException(e);
         }
     }
+
+    ILock withStrategy(ILockingStrategy strategy);
+
+    ILockingStrategy getStrategy();
 
 }
