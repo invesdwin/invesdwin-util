@@ -72,7 +72,7 @@ public class EnabledLockTrace implements ILockTrace {
     @Override
     public boolean isLockedByThisThread(final String lockName) {
         final String threadName = Threads.getCurrentThreadName();
-        return lockName_threadName_stackTrace.get(lockName).containsKey(threadName);
+        return lockName_threadName_stackTrace.get(lockName).get(threadName) != null;
     }
 
     @Override

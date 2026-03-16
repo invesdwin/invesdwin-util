@@ -70,7 +70,8 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
     }
 
     private void assertReadLockNotHeldByCurrentThread() {
-        if (Locks.getLockTrace().isLockedByThisThread(readLockName)) {
+        final int readHoldCount = parent.getReadHoldCount();
+        if (readHoldCount > 0 && Locks.getLockTrace().isLockedByThisThread(readLockName)) {
             throw Locks.getLockTrace()
                     .handleLockException(getName(),
                             new IllegalStateException("read lock [" + readLockName
