@@ -85,7 +85,7 @@ public class Decimal extends ADecimal<Decimal> {
     private final double value;
 
     public Decimal(final double value) {
-        this.value = Doubles.nanToZero(value);
+        this.value = Doubles.nonFiniteToZero(value);
     }
 
     public Decimal(final Number value) {
