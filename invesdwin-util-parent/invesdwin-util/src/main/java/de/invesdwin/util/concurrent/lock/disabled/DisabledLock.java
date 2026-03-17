@@ -10,11 +10,11 @@ import de.invesdwin.util.concurrent.lock.strategy.DisabledLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 
 @Immutable
-public final class DisabledLock implements ILock {
+public class DisabledLock implements ILock {
 
     public static final DisabledLock INSTANCE = new DisabledLock();
 
-    private DisabledLock() {}
+    protected DisabledLock() {}
 
     @Override
     public boolean isLocked() {

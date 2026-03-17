@@ -18,7 +18,7 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.lock.ILock;
-import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
+import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import de.invesdwin.util.concurrent.reference.lazy.ILazyReference;
 import de.invesdwin.util.lang.comparator.IComparator;
@@ -44,7 +44,7 @@ public interface ILockCollectionFactory {
 
     ILock newLock(String name);
 
-    IReadWriteLock newReadWriteLock(String name);
+    IReentrantReadWriteLock newReadWriteLock(String name);
 
     IBitSet newBitSet(int initialSize);
 

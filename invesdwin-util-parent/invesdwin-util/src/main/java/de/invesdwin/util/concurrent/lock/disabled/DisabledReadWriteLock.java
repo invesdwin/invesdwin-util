@@ -8,11 +8,11 @@ import de.invesdwin.util.concurrent.lock.strategy.DisabledLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 
 @Immutable
-public final class DisabledReadWriteLock implements IReadWriteLock {
+public class DisabledReadWriteLock implements IReadWriteLock {
 
     public static final DisabledReadWriteLock INSTANCE = new DisabledReadWriteLock();
 
-    private DisabledReadWriteLock() {}
+    protected DisabledReadWriteLock() {}
 
     @Override
     public String getName() {
