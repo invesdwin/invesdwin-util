@@ -3,7 +3,7 @@ package de.invesdwin.util.collections.iterable;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public final class DisabledCloseableIterable<E> implements IPeekingCloseableIterable<E> {
+public final class DisabledCloseableIterable<E> implements IPeekingCloseableIterable<E>, IReverseCloseableIterable<E> {
 
     @SuppressWarnings("rawtypes")
     private static final DisabledCloseableIterable INSTANCE = new DisabledCloseableIterable();
@@ -18,6 +18,11 @@ public final class DisabledCloseableIterable<E> implements IPeekingCloseableIter
     @SuppressWarnings("unchecked")
     public static <T> DisabledCloseableIterable<T> getInstance() {
         return INSTANCE;
+    }
+
+    @Override
+    public ICloseableIterator<E> reverseIterator() {
+        return DisabledCloseableIterator.getInstance();
     }
 
 }
