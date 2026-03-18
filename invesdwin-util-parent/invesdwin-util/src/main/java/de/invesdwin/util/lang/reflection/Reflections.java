@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Set;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
@@ -15,7 +14,10 @@ import org.burningwave.core.assembler.StaticComponentContainer;
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.norva.beanpath.BeanPathReflections;
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.collections.factory.pool.deque.ICloseableDeque;
+import de.invesdwin.util.collections.factory.pool.deque.PooledArrayDeque;
+import de.invesdwin.util.collections.factory.pool.set.ICloseableSet;
+import de.invesdwin.util.collections.factory.pool.set.identity.PooledIdentitySet;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.comparator.AComparator;
 import de.invesdwin.util.lang.comparator.IComparator;
@@ -63,7 +65,7 @@ public final class Reflections extends AReflectionsStaticFacade {
     @SuppressWarnings("rawtypes")
     public static final Class[] CLASS_EMPTY_ARRAY = BeanPathReflections.CLASS_EMPTY_ARRAY;
     public static final Field[] FIELD_EMPTY_ARRAY = BeanPathReflections.FIELD_EMPTY_ARRAY;
-    public static final Method[] METHOD_EMPTY_ARRAY = BeanPathReflections.METHOD_EMPTY_ARRAY; 
+    public static final Method[] METHOD_EMPTY_ARRAY = BeanPathReflections.METHOD_EMPTY_ARRAY;
 
     @GuardedBy("this.class")
     private static boolean modulesExported = false;
@@ -209,34 +211,49 @@ public final class Reflections extends AReflectionsStaticFacade {
         return null;
     }
 
-    public static void assertObjectNotReferenced(final Object obj, final Object in) {
+    public static void assertObjectNotReferenced(final Object obj, final Object in, final int maxRecursionCount) {
         if (obj == in) {
             return;
         }
-        final Set<Object> visitedIdentitySet = ILockCollectionFactory.getInstance(false).newIdentitySet();
-        visitedIdentitySet.add(obj);
-        assertObjectNotReferencedRecursive(obj, in, visitedIdentitySet);
-    }
 
-    private static void assertObjectNotReferencedRecursive(final Object obj, final Object in,
-            final Set<Object> visitedIdentitySet) {
-        final Class<?> inClass = in.getClass();
-        for (final Field field : inClass.getDeclaredFields()) {
-            if (field.getType().isPrimitive() || field.getType().getName().startsWith("java")) {
-                continue;
-            }
-            makeAccessible(field);
-            final Object parent = getField(field, in);
-            if (parent == null || parent == in) {
-                continue;
-            } else if (parent == obj) {
-                throw new IllegalArgumentException("[" + obj.getClass().getName() + ":" + obj
-                        + "] is reference leaked by [" + in.getClass().getName() + ":" + in + "]");
-            } else if (visitedIdentitySet.add(parent)) {
-                try {
-                    assertObjectNotReferencedRecursive(obj, parent, visitedIdentitySet);
-                } catch (final Throwable t) {
-                    throw new RuntimeException("Via parent [" + parent.getClass().getName() + ":" + parent + "]", t);
+        int recursionCount = 0;
+
+        try (ICloseableSet<Object> visitedIdentitySet = PooledIdentitySet.getInstance();
+                ICloseableDeque<Object> stack = PooledArrayDeque.getInstance()) {
+            // A stack to manage the objects we need to explore
+
+            visitedIdentitySet.add(in);
+            stack.push(in);
+
+            while (!stack.isEmpty()) {
+                final Object currentIn = stack.pop();
+                final Class<?> inClass = currentIn.getClass();
+
+                for (final Field field : inClass.getDeclaredFields()) {
+                    // Skip primitives and standard java classes
+                    if (field.getType().isPrimitive() || field.getType().getName().startsWith("java")) {
+                        continue;
+                    }
+
+                    makeAccessible(field);
+                    final Object fieldValue = getField(field, currentIn);
+
+                    // Basic cycle and null checks
+                    if (fieldValue == null || fieldValue == currentIn) {
+                        continue;
+                    }
+
+                    if (fieldValue == obj) {
+                        throw new IllegalArgumentException(
+                                "[" + obj.getClass().getName() + ":" + obj + "] is reference leaked by ["
+                                        + currentIn.getClass().getName() + ":" + currentIn + "]");
+                    }
+
+                    // If we haven't seen this object, add it to the stack to process its fields later
+                    if (recursionCount < maxRecursionCount && visitedIdentitySet.add(fieldValue)) {
+                        recursionCount++;
+                        stack.push(fieldValue);
+                    }
                 }
             }
         }
