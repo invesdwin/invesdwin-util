@@ -125,6 +125,6 @@ public class WrappedReentrantLock implements IReentrantLock {
     @SuppressWarnings("deprecation")
     @Override
     public ILockTrace getLockTrace() {
-        return Locks.getLockTrace();
+        return Locks.getDefaultLockTrace();
     }
 }

@@ -26,6 +26,8 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public class EnabledLockTrace implements ILockTrace {
 
+    public static final EnabledLockTrace INSTANCE = new EnabledLockTrace();
+
     private final ALoadingCache<String, Map<String, LockTraceEntry>> lockName_threadName_stackTrace = new ALoadingCache<String, Map<String, LockTraceEntry>>() {
         @Override
         protected Map<String, LockTraceEntry> loadValue(final String key) {
@@ -54,6 +56,8 @@ public class EnabledLockTrace implements ILockTrace {
             return true;
         }
     };
+
+    protected EnabledLockTrace() {}
 
     @Override
     public void locked(final String lockName) {
@@ -127,22 +131,22 @@ public class EnabledLockTrace implements ILockTrace {
     }
 
     @Override
-    public ILock maybeWrap(ILock lock) {
+    public ILock maybeWrap(final ILock lock) {
         return new de.invesdwin.util.concurrent.lock.internal.TracedLock(this, lock);
     }
 
     @Override
-    public IReentrantLock maybeWrap(IReentrantLock lock) {
+    public IReentrantLock maybeWrap(final IReentrantLock lock) {
         return new de.invesdwin.util.concurrent.lock.internal.TracedReentrantLock(this, lock);
     }
 
     @Override
-    public IReadWriteLock maybeWrap(IReadWriteLock lock) {
+    public IReadWriteLock maybeWrap(final IReadWriteLock lock) {
         return new de.invesdwin.util.concurrent.lock.internal.readwrite.TracedReadWriteLock(this, lock);
     }
 
     @Override
-    public IReentrantReadWriteLock maybeWrap(IReentrantReadWriteLock lock) {
+    public IReentrantReadWriteLock maybeWrap(final IReentrantReadWriteLock lock) {
         return new de.invesdwin.util.concurrent.lock.internal.readwrite.TracedReentrantReadWriteLock(this, lock);
     }
 

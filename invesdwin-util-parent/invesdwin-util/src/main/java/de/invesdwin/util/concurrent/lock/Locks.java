@@ -47,7 +47,7 @@ public final class Locks extends ALocksStaticFacade {
         }
     };
 
-    private static ILockTrace lockTrace = DisabledLockTrace.INSTANCE;
+    private static ILockTrace defaultLockTrace = DisabledLockTrace.INSTANCE;
     private static Duration lockWaitTimeout = null;
     private static boolean lockWaitTimeoutOnlyWriteLocks = false;
     private static ILockingStrategy lockingStrategy = DefaultLockingStrategy.INSTANCE;
@@ -126,7 +126,7 @@ public final class Locks extends ALocksStaticFacade {
     }
 
     private static ILock maybeWrapTrace(final String lockName, final Lock lock) {
-        return lockTrace.wrap(lockName, lock);
+        return defaultLockTrace.wrap(lockName, lock);
     }
 
     public static IReentrantLock maybeWrap(final String lockName, final ReentrantLock lock) {
@@ -156,7 +156,7 @@ public final class Locks extends ALocksStaticFacade {
     }
 
     private static IReentrantLock maybeWrapTrace(final String lockName, final ReentrantLock lock) {
-        return lockTrace.wrap(lockName, lock);
+        return defaultLockTrace.wrap(lockName, lock);
     }
 
     public static IReadWriteLock maybeWrap(final String lockName, final ReadWriteLock lock) {
@@ -189,7 +189,7 @@ public final class Locks extends ALocksStaticFacade {
     }
 
     private static IReadWriteLock maybeWrapTrace(final String lockName, final ReadWriteLock lock) {
-        return lockTrace.wrap(lockName, lock);
+        return defaultLockTrace.wrap(lockName, lock);
     }
 
     public static IReentrantReadWriteLock maybeWrap(final String lockName, final ReentrantReadWriteLock lock) {
@@ -219,29 +219,31 @@ public final class Locks extends ALocksStaticFacade {
     }
 
     private static IReentrantReadWriteLock maybeWrapTrace(final String lockName, final ReentrantReadWriteLock lock) {
-        return lockTrace.wrap(lockName, lock);
+        return defaultLockTrace.wrap(lockName, lock);
     }
 
     /**
      * WARNING: for internal use only, rather access via lock.getLockTrace()
      */
     @Deprecated
-    public static ILockTrace getLockTrace() {
-        return lockTrace;
+    public static ILockTrace getDefaultLockTrace() {
+        return defaultLockTrace;
+    }
+
+    public static void setDefaultLockTrace(final ILockTrace defaultLockTrace) {
+        Locks.defaultLockTrace = defaultLockTrace;
     }
 
     public static void setLockTraceEnabled(final boolean lockTraceEnabled) {
         if (lockTraceEnabled) {
-            if (!(Locks.lockTrace instanceof EnabledLockTrace)) {
-                Locks.lockTrace = new EnabledLockTrace();
-            }
+            Locks.defaultLockTrace = EnabledLockTrace.INSTANCE;
         } else {
-            Locks.lockTrace = DisabledLockTrace.INSTANCE;
+            Locks.defaultLockTrace = DisabledLockTrace.INSTANCE;
         }
     }
 
     public static boolean isLockTraceEnabled() {
-        return isLockTraceEnabled(lockTrace);
+        return isLockTraceEnabled(defaultLockTrace);
     }
 
     public static boolean isLockTraceEnabled(final ILockTrace lockTrace) {

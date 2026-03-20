@@ -72,7 +72,7 @@ public class DisabledLock implements ILock {
     @SuppressWarnings("deprecation")
     @Override
     public ILockTrace getLockTrace() {
-        return Locks.getLockTrace();
+        return Locks.getDefaultLockTrace();
     }
 
 }

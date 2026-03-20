@@ -120,7 +120,7 @@ public class WrappedWriteLock implements ILock {
     @SuppressWarnings("deprecation")
     @Override
     public ILockTrace getLockTrace() {
-        return Locks.getLockTrace();
+        return Locks.getDefaultLockTrace();
     }
 
 }
