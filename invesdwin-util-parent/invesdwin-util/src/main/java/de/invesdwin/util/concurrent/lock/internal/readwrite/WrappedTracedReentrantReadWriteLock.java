@@ -1,52 +1,48 @@
 package de.invesdwin.util.concurrent.lock.internal.readwrite;
 
 import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.concurrent.lock.ILock;
-import de.invesdwin.util.concurrent.lock.internal.readwrite.read.TimeoutReadLock;
-import de.invesdwin.util.concurrent.lock.internal.readwrite.write.TimeoutReentrantWriteLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.read.WrappedTracedReadLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.write.WrappedTracedReentrantWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
+import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.strategy.wrap.readwrite.StrategyReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
-public class TimeoutReentrantReadWriteLock implements IReentrantReadWriteLock {
+public class WrappedTracedReentrantReadWriteLock implements IReentrantReadWriteLock {
 
-    private final IReentrantReadWriteLock delegate;
-    private final Duration lockWaitTimeout;
-    private final boolean onlyWriteLock;
-    private final ILock readLock;
-    private final TimeoutReentrantWriteLock writeLock;
+    private final String name;
+    private final ReentrantReadWriteLock delegate;
+    private final WrappedTracedReadLock readLock;
+    private final WrappedTracedReentrantWriteLock writeLock;
 
-    public TimeoutReentrantReadWriteLock(final IReentrantReadWriteLock delegate, final Duration lockWaitTimeout,
-            final boolean onlyWriteLock) {
+    public WrappedTracedReentrantReadWriteLock(final ILockTrace lockTrace, final String name,
+            final ReentrantReadWriteLock delegate) {
+        this.name = name;
         this.delegate = delegate;
-        this.lockWaitTimeout = lockWaitTimeout;
-        this.onlyWriteLock = onlyWriteLock;
-        if (onlyWriteLock) {
-            this.readLock = delegate.readLock();
-        } else {
-            this.readLock = new TimeoutReadLock(delegate.readLock(), lockWaitTimeout);
-        }
-        this.writeLock = new TimeoutReentrantWriteLock(delegate.writeLock(), lockWaitTimeout);
+        this.readLock = new WrappedTracedReadLock(lockTrace, name + "_readLock", this, delegate.readLock());
+        this.writeLock = new WrappedTracedReentrantWriteLock(lockTrace, readLock.getName(), name + "_writeLock", delegate,
+                delegate.writeLock());
     }
 
     @Override
     public String getName() {
-        return delegate.getName();
+        return name;
     }
 
     @Override
-    public ILock readLock() {
+    public WrappedTracedReadLock readLock() {
         return readLock;
     }
 
     @Override
-    public TimeoutReentrantWriteLock writeLock() {
+    public WrappedTracedReentrantWriteLock writeLock() {
         return writeLock;
     }
 
@@ -107,28 +103,24 @@ public class TimeoutReentrantReadWriteLock implements IReentrantReadWriteLock {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .addValue(delegate)
-                .addValue(lockWaitTimeout)
-                .addValue(onlyWriteLock)
-                .toString();
+        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
     }
 
     @Override
     public ILockingStrategy getStrategy() {
-        return delegate.getStrategy();
+        return DefaultLockingStrategy.INSTANCE;
     }
 
     //CHECKSTYLE:OFF
     @Override
     public IReentrantReadWriteLock withStrategy(final ILockingStrategy strategy) {
         //CHECKSTYLE:ON
-        return new TimeoutReentrantReadWriteLock(delegate.withStrategy(strategy), lockWaitTimeout, onlyWriteLock);
+        return StrategyReentrantReadWriteLock.maybeWrap(strategy, this);
     }
 
     @Override
     public ILockTrace getLockTrace() {
-        return delegate.getLockTrace();
+        return writeLock.getLockTrace();
     }
 
 }

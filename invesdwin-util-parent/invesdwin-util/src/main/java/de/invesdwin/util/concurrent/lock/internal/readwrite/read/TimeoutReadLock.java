@@ -8,6 +8,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -33,8 +34,8 @@ public class TimeoutReadLock implements ILock {
     }
 
     @Override
-    public boolean isLockedByCurrentThread() {
-        return delegate.isLockedByCurrentThread();
+    public boolean isHeldByCurrentThread() {
+        return delegate.isHeldByCurrentThread();
     }
 
     @Override
@@ -82,6 +83,11 @@ public class TimeoutReadLock implements ILock {
     public ILock withStrategy(final ILockingStrategy strategy) {
         //CHECKSTYLE:ON
         return new TimeoutReadLock(delegate.withStrategy(strategy), lockWaitTimeout);
+    }
+
+    @Override
+    public ILockTrace getLockTrace() {
+        return delegate.getLockTrace();
     }
 
 }

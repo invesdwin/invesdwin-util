@@ -8,6 +8,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyLock;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 
 @Immutable
 public abstract class ASimpleLock implements ILock {
@@ -44,6 +45,12 @@ public abstract class ASimpleLock implements ILock {
     public ILock withStrategy(final ILockingStrategy strategy) {
         //CHECKSTYLE:ON
         return StrategyLock.maybeWrap(strategy, this);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public ILockTrace getLockTrace() {
+        return Locks.getLockTrace();
     }
 
 }

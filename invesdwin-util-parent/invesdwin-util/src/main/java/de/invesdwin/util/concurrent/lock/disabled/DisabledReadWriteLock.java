@@ -3,9 +3,11 @@ package de.invesdwin.util.concurrent.lock.disabled;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.lock.strategy.DisabledLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 
 @Immutable
 public class DisabledReadWriteLock implements IReadWriteLock {
@@ -49,6 +51,12 @@ public class DisabledReadWriteLock implements IReadWriteLock {
     @Override
     public ILockingStrategy getStrategy() {
         return DisabledLockingStrategy.INSTANCE;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public ILockTrace getLockTrace() {
+        return Locks.getLockTrace();
     }
 
 }

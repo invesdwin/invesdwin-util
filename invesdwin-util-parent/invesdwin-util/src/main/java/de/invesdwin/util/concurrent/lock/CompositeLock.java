@@ -12,6 +12,7 @@ import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
 import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyLock;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
@@ -53,9 +54,9 @@ public class CompositeLock implements ILock {
     }
 
     @Override
-    public boolean isLockedByCurrentThread() {
+    public boolean isHeldByCurrentThread() {
         for (int i = 0; i < locks.length; i++) {
-            if (locks[i].isLockedByCurrentThread()) {
+            if (locks[i].isHeldByCurrentThread()) {
                 return true;
             }
         }
@@ -139,6 +140,12 @@ public class CompositeLock implements ILock {
     @Override
     public ILockingStrategy getStrategy() {
         return DefaultLockingStrategy.INSTANCE;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public ILockTrace getLockTrace() {
+        return Locks.getLockTrace();
     }
 
 }

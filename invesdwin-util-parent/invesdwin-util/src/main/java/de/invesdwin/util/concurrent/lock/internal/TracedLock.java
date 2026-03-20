@@ -2,35 +2,32 @@ package de.invesdwin.util.concurrent.lock.internal;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.ILock;
-import de.invesdwin.util.concurrent.lock.Locks;
-import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
-import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyLock;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public final class TracedLock implements ILock {
 
-    private final String name;
-    private final Lock delegate;
+    private final ILockTrace lockTrace;
+    private final ILock delegate;
     private volatile Thread lockedThread;
     @GuardedBy("delegate")
     private int lockedThreadCount;
 
-    public TracedLock(final String name, final Lock delegate) {
-        this.name = name;
+    public TracedLock(final ILockTrace lockTrace, final ILock delegate) {
+        this.lockTrace = lockTrace;
         this.delegate = delegate;
     }
 
     @Override
     public String getName() {
-        return name;
+        return delegate.getName();
     }
 
     @Override
@@ -39,7 +36,7 @@ public final class TracedLock implements ILock {
     }
 
     @Override
-    public boolean isLockedByCurrentThread() {
+    public boolean isHeldByCurrentThread() {
         final Thread lockedThreadCopy = lockedThread;
         return lockedThreadCopy != null && lockedThreadCopy == Thread.currentThread();
     }
@@ -47,7 +44,7 @@ public final class TracedLock implements ILock {
     protected void onLocked() {
         if (lockedThreadCount == 0) {
             lockedThread = Thread.currentThread();
-            Locks.getLockTrace().locked(getName());
+            lockTrace.locked(getName());
         }
         lockedThreadCount++;
     }
@@ -56,7 +53,7 @@ public final class TracedLock implements ILock {
         lockedThreadCount--;
         if (lockedThreadCount == 0) {
             lockedThread = null;
-            Locks.getLockTrace().unlocked(getName());
+            lockTrace.unlocked(getName());
         }
     }
 
@@ -66,7 +63,7 @@ public final class TracedLock implements ILock {
             delegate.lock();
             onLocked();
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -78,7 +75,7 @@ public final class TracedLock implements ILock {
         } catch (final InterruptedException t) {
             throw t;
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -91,7 +88,7 @@ public final class TracedLock implements ILock {
             }
             return locked;
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -106,7 +103,7 @@ public final class TracedLock implements ILock {
         } catch (final InterruptedException t) {
             throw t;
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -116,7 +113,7 @@ public final class TracedLock implements ILock {
             onUnlock();
             delegate.unlock();
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -127,19 +124,24 @@ public final class TracedLock implements ILock {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
+        return Objects.toStringHelper(this).addValue(delegate).toString();
     }
 
     @Override
     public ILockingStrategy getStrategy() {
-        return DefaultLockingStrategy.INSTANCE;
+        return delegate.getStrategy();
     }
 
     //CHECKSTYLE:OFF
     @Override
     public ILock withStrategy(final ILockingStrategy strategy) {
         //CHECKSTYLE:ON
-        return StrategyLock.maybeWrap(strategy, this);
+        return new TracedLock(lockTrace, delegate.withStrategy(strategy));
+    }
+
+    @Override
+    public ILockTrace getLockTrace() {
+        return lockTrace;
     }
 
 }

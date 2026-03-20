@@ -1,7 +1,11 @@
-package de.invesdwin.util.concurrent.lock.trace.internal;
+package de.invesdwin.util.concurrent.lock.trace;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -12,8 +16,10 @@ import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.caffeine.CaffeineLoadingCacheMapConfig;
 import de.invesdwin.util.collections.loadingcache.map.CaffeineLoadingCache;
 import de.invesdwin.util.concurrent.Threads;
-import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
-import de.invesdwin.util.concurrent.lock.trace.LockTraceEntry;
+import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.IReentrantLock;
+import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
+import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -96,6 +102,48 @@ public class EnabledLockTrace implements ILockTrace {
             }
         }
         return new RuntimeException(sb.toString(), lockException);
+    }
+
+    @Override
+    public ILock wrap(final String lockName, final Lock lock) {
+        return new de.invesdwin.util.concurrent.lock.internal.WrappedTracedLock(this, lockName, lock);
+    }
+
+    @Override
+    public IReentrantLock wrap(final String lockName, final ReentrantLock lock) {
+        return new de.invesdwin.util.concurrent.lock.internal.WrappedTracedReentrantLock(this, lockName, lock);
+    }
+
+    @Override
+    public IReadWriteLock wrap(final String lockName, final ReadWriteLock lock) {
+        return new de.invesdwin.util.concurrent.lock.internal.readwrite.WrappedTracedReadWriteLock(this, lockName,
+                lock);
+    }
+
+    @Override
+    public IReentrantReadWriteLock wrap(final String lockName, final ReentrantReadWriteLock lock) {
+        return new de.invesdwin.util.concurrent.lock.internal.readwrite.WrappedTracedReentrantReadWriteLock(this,
+                lockName, lock);
+    }
+
+    @Override
+    public ILock maybeWrap(ILock lock) {
+        return new de.invesdwin.util.concurrent.lock.internal.TracedLock(this, lock);
+    }
+
+    @Override
+    public IReentrantLock maybeWrap(IReentrantLock lock) {
+        return new de.invesdwin.util.concurrent.lock.internal.TracedReentrantLock(this, lock);
+    }
+
+    @Override
+    public IReadWriteLock maybeWrap(IReadWriteLock lock) {
+        return new de.invesdwin.util.concurrent.lock.internal.readwrite.TracedReadWriteLock(this, lock);
+    }
+
+    @Override
+    public IReentrantReadWriteLock maybeWrap(IReentrantReadWriteLock lock) {
+        return new de.invesdwin.util.concurrent.lock.internal.readwrite.TracedReentrantReadWriteLock(this, lock);
     }
 
 }

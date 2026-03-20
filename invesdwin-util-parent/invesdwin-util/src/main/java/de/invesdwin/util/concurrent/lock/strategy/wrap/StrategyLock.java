@@ -8,6 +8,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
@@ -41,8 +42,8 @@ public final class StrategyLock implements ILock {
     }
 
     @Override
-    public boolean isLockedByCurrentThread() {
-        return delegate.isLockedByCurrentThread();
+    public boolean isHeldByCurrentThread() {
+        return delegate.isHeldByCurrentThread();
     }
 
     @Override
@@ -92,6 +93,11 @@ public final class StrategyLock implements ILock {
             return lock;
         }
         return new StrategyLock(strategy, lock);
+    }
+
+    @Override
+    public ILockTrace getLockTrace() {
+        return delegate.getLockTrace();
     }
 
 }

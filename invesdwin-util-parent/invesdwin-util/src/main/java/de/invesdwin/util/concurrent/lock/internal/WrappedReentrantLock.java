@@ -7,9 +7,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.IReentrantLock;
+import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyReentrantLock;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
@@ -64,7 +66,7 @@ public class WrappedReentrantLock implements IReentrantLock {
     }
 
     @Override
-    public boolean isLockedByCurrentThread() {
+    public boolean isHeldByCurrentThread() {
         return delegate.isHeldByCurrentThread();
     }
 
@@ -118,5 +120,11 @@ public class WrappedReentrantLock implements IReentrantLock {
     public IReentrantLock withStrategy(final ILockingStrategy strategy) {
         //CHECKSTYLE:ON
         return StrategyReentrantLock.maybeWrap(strategy, this);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public ILockTrace getLockTrace() {
+        return Locks.getLockTrace();
     }
 }

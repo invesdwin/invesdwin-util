@@ -2,42 +2,39 @@ package de.invesdwin.util.concurrent.lock.internal;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.IReentrantLock;
-import de.invesdwin.util.concurrent.lock.Locks;
-import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
-import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyReentrantLock;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public class TracedReentrantLock implements IReentrantLock {
 
-    private final String name;
-    private final ReentrantLock delegate;
+    private final ILockTrace lockTrace;
+    private final IReentrantLock delegate;
 
-    public TracedReentrantLock(final String name, final ReentrantLock delegate) {
-        this.name = name;
+    public TracedReentrantLock(final ILockTrace lockTrace, final IReentrantLock delegate) {
+        this.lockTrace = lockTrace;
         this.delegate = delegate;
     }
 
     @Override
     public String getName() {
-        return name;
+        return delegate.getName();
     }
 
     public void onLocked() {
         if (delegate.getHoldCount() == 1) {
-            Locks.getLockTrace().locked(getName());
+            lockTrace.locked(getName());
         }
     }
 
     protected void onUnlock() {
         if (delegate.getHoldCount() == 1) {
-            Locks.getLockTrace().unlocked(getName());
+            lockTrace.unlocked(getName());
         }
     }
 
@@ -47,7 +44,7 @@ public class TracedReentrantLock implements IReentrantLock {
             delegate.lock();
             onLocked();
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -59,7 +56,7 @@ public class TracedReentrantLock implements IReentrantLock {
         } catch (final InterruptedException t) {
             throw t;
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -72,7 +69,7 @@ public class TracedReentrantLock implements IReentrantLock {
             }
             return locked;
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -87,7 +84,7 @@ public class TracedReentrantLock implements IReentrantLock {
         } catch (final InterruptedException t) {
             throw t;
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -97,7 +94,7 @@ public class TracedReentrantLock implements IReentrantLock {
             onUnlock();
             delegate.unlock();
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -112,7 +109,7 @@ public class TracedReentrantLock implements IReentrantLock {
     }
 
     @Override
-    public boolean isLockedByCurrentThread() {
+    public boolean isHeldByCurrentThread() {
         return delegate.isHeldByCurrentThread();
     }
 
@@ -153,18 +150,23 @@ public class TracedReentrantLock implements IReentrantLock {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
+        return Objects.toStringHelper(this).addValue(delegate).toString();
     }
 
     @Override
     public ILockingStrategy getStrategy() {
-        return DefaultLockingStrategy.INSTANCE;
+        return delegate.getStrategy();
     }
 
     //CHECKSTYLE:OFF
     @Override
     public IReentrantLock withStrategy(final ILockingStrategy strategy) {
         //CHECKSTYLE:ON
-        return StrategyReentrantLock.maybeWrap(strategy, this);
+        return new TracedReentrantLock(lockTrace, delegate.withStrategy(strategy));
+    }
+
+    @Override
+    public ILockTrace getLockTrace() {
+        return lockTrace;
     }
 }

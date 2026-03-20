@@ -4,8 +4,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.concurrent.lock.internal.readwrite.read.WrappedReadLock;
-import de.invesdwin.util.concurrent.lock.internal.readwrite.write.WrappedWriteLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.read.WrappedTracedReadLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.write.WrappedTracedWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
@@ -14,18 +14,18 @@ import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
-public class WrappedReadWriteLock implements IReadWriteLock {
+public class WrappedTracedReadWriteLock implements IReadWriteLock {
 
     private final String name;
     private final ReadWriteLock delegate;
-    private final WrappedReadLock readLock;
-    private final WrappedWriteLock writeLock;
+    private final WrappedTracedReadLock readLock;
+    private final WrappedTracedWriteLock writeLock;
 
-    public WrappedReadWriteLock(final String name, final ReadWriteLock delegate) {
+    public WrappedTracedReadWriteLock(final ILockTrace lockTrace, final String name, final ReadWriteLock delegate) {
         this.name = name;
         this.delegate = delegate;
-        this.readLock = new WrappedReadLock(name + "_readLock", this, delegate.readLock());
-        this.writeLock = new WrappedWriteLock(name + "_writeLock", delegate.writeLock());
+        this.readLock = new WrappedTracedReadLock(lockTrace, name + "_readLock", this, delegate.readLock());
+        this.writeLock = new WrappedTracedWriteLock(lockTrace, readLock.getName(), name + "_writeLock", delegate.writeLock());
     }
 
     @Override
@@ -44,12 +44,12 @@ public class WrappedReadWriteLock implements IReadWriteLock {
     }
 
     @Override
-    public WrappedReadLock readLock() {
+    public WrappedTracedReadLock readLock() {
         return readLock;
     }
 
     @Override
-    public WrappedWriteLock writeLock() {
+    public WrappedTracedWriteLock writeLock() {
         return writeLock;
     }
 

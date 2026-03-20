@@ -16,6 +16,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyLock;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.time.Instant;
@@ -119,8 +120,8 @@ public class FileChannelLock implements Closeable, ILock {
     }
 
     @Override
-    public synchronized boolean isLockedByCurrentThread() {
-        return finalizer.locked && (finalizer.threadLock == null || finalizer.threadLock.isLockedByCurrentThread());
+    public synchronized boolean isHeldByCurrentThread() {
+        return finalizer.locked && (finalizer.threadLock == null || finalizer.threadLock.isHeldByCurrentThread());
     }
 
     @Override
@@ -242,6 +243,12 @@ public class FileChannelLock implements Closeable, ILock {
     @Override
     public ILockingStrategy getStrategy() {
         return DefaultLockingStrategy.INSTANCE;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public ILockTrace getLockTrace() {
+        return Locks.getLockTrace();
     }
 
 }

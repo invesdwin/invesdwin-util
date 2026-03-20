@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.time.duration.Duration;
 
 public interface ILock extends Lock, ICloseableLock {
@@ -24,7 +25,7 @@ public interface ILock extends Lock, ICloseableLock {
 
     boolean isLocked();
 
-    boolean isLockedByCurrentThread();
+    boolean isHeldByCurrentThread();
 
     @Override
     default void close() {
@@ -50,5 +51,7 @@ public interface ILock extends Lock, ICloseableLock {
     ILock withStrategy(ILockingStrategy strategy);
 
     ILockingStrategy getStrategy();
+
+    ILockTrace getLockTrace();
 
 }

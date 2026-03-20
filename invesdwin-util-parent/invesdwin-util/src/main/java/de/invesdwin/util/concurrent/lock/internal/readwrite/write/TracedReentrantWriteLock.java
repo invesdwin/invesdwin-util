@@ -2,38 +2,35 @@ package de.invesdwin.util.concurrent.lock.internal.readwrite.write;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.Threads;
-import de.invesdwin.util.concurrent.lock.Locks;
+import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantWriteLock;
-import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
-import de.invesdwin.util.concurrent.lock.strategy.wrap.readwrite.write.StrategyReentrantWriteLock;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public class TracedReentrantWriteLock implements IReentrantWriteLock {
 
+    private final ILockTrace lockTrace;
     private final String readLockName;
-    private final String name;
-    private final ReentrantReadWriteLock parent;
-    private final WriteLock delegate;
+    private final IReentrantReadWriteLock parent;
+    private final IReentrantWriteLock delegate;
 
-    public TracedReentrantWriteLock(final String readLockName, final String name, final ReentrantReadWriteLock parent,
-            final WriteLock delegate) {
-        this.readLockName = name;
-        this.name = name;
+    public TracedReentrantWriteLock(final ILockTrace lockTrace, final String readLockName,
+            final IReentrantReadWriteLock parent, final IReentrantWriteLock delegate) {
+        this.lockTrace = lockTrace;
+        this.readLockName = readLockName;
         this.parent = parent;
         this.delegate = delegate;
     }
 
     @Override
     public String getName() {
-        return name;
+        return delegate.getName();
     }
 
     @Override
@@ -42,19 +39,19 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
     }
 
     @Override
-    public boolean isLockedByCurrentThread() {
+    public boolean isHeldByCurrentThread() {
         return parent.isWriteLockedByCurrentThread();
     }
 
     protected void onLocked() {
         if (delegate.getHoldCount() == 1) {
-            Locks.getLockTrace().locked(getName());
+            lockTrace.locked(getName());
         }
     }
 
     protected void onUnlock() {
         if (delegate.getHoldCount() == 1) {
-            Locks.getLockTrace().unlocked(getName());
+            lockTrace.unlocked(getName());
         }
     }
 
@@ -65,18 +62,17 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
             delegate.lock();
             onLocked();
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
     private void assertReadLockNotHeldByCurrentThread() {
         final int readHoldCount = parent.getReadHoldCount();
-        if (readHoldCount > 0 && Locks.getLockTrace().isLockedByThisThread(readLockName)) {
-            throw Locks.getLockTrace()
-                    .handleLockException(getName(),
-                            new IllegalStateException("read lock [" + readLockName
-                                    + "] already held by current thread [" + Threads.getCurrentThreadName()
-                                    + "] while trying to acquire write lock [" + name + "]"));
+        if (readHoldCount > 0 && lockTrace.isLockedByThisThread(readLockName)) {
+            throw lockTrace.handleLockException(getName(),
+                    new IllegalStateException("read lock [" + readLockName + "] already held by current thread ["
+                            + Threads.getCurrentThreadName() + "] while trying to acquire write lock [" + getName()
+                            + "]"));
         }
     }
 
@@ -89,7 +85,7 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
         } catch (final InterruptedException t) {
             throw t;
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -103,7 +99,7 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
             }
             return locked;
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -119,7 +115,7 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
         } catch (final InterruptedException t) {
             throw t;
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -129,7 +125,7 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
             onUnlock();
             delegate.unlock();
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -145,19 +141,24 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
+        return Objects.toStringHelper(this).addValue(delegate).toString();
     }
 
     @Override
     public ILockingStrategy getStrategy() {
-        return DefaultLockingStrategy.INSTANCE;
+        return delegate.getStrategy();
     }
 
     //CHECKSTYLE:OFF
     @Override
     public IReentrantWriteLock withStrategy(final ILockingStrategy strategy) {
         //CHECKSTYLE:ON
-        return StrategyReentrantWriteLock.maybeWrap(strategy, this);
+        return new TracedReentrantWriteLock(lockTrace, readLockName, parent, delegate.withStrategy(strategy));
+    }
+
+    @Override
+    public ILockTrace getLockTrace() {
+        return lockTrace;
     }
 
 }

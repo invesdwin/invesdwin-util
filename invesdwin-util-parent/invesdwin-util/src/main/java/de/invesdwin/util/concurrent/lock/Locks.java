@@ -17,23 +17,15 @@ import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.concurrent.lock.internal.ALocksStaticFacade;
 import de.invesdwin.util.concurrent.lock.internal.TimeoutLock;
 import de.invesdwin.util.concurrent.lock.internal.TimeoutReentrantLock;
-import de.invesdwin.util.concurrent.lock.internal.TracedLock;
-import de.invesdwin.util.concurrent.lock.internal.TracedReentrantLock;
-import de.invesdwin.util.concurrent.lock.internal.WrappedLock;
-import de.invesdwin.util.concurrent.lock.internal.WrappedReentrantLock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.TimeoutReadWriteLock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.TimeoutReentrantReadWriteLock;
-import de.invesdwin.util.concurrent.lock.internal.readwrite.TracedReadWriteLock;
-import de.invesdwin.util.concurrent.lock.internal.readwrite.TracedReentrantReadWriteLock;
-import de.invesdwin.util.concurrent.lock.internal.readwrite.WrappedReadWriteLock;
-import de.invesdwin.util.concurrent.lock.internal.readwrite.WrappedReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.trace.DisabledLockTrace;
+import de.invesdwin.util.concurrent.lock.trace.EnabledLockTrace;
 import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
-import de.invesdwin.util.concurrent.lock.trace.internal.DisabledLockTrace;
-import de.invesdwin.util.concurrent.lock.trace.internal.EnabledLockTrace;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.string.UniqueNameGenerator;
 import de.invesdwin.util.time.duration.Duration;
@@ -134,11 +126,7 @@ public final class Locks extends ALocksStaticFacade {
     }
 
     private static ILock maybeWrapTrace(final String lockName, final Lock lock) {
-        if (isLockTraceEnabled()) {
-            return new TracedLock(lockName, lock);
-        } else {
-            return new WrappedLock(lockName, lock);
-        }
+        return lockTrace.wrap(lockName, lock);
     }
 
     public static IReentrantLock maybeWrap(final String lockName, final ReentrantLock lock) {
@@ -168,11 +156,7 @@ public final class Locks extends ALocksStaticFacade {
     }
 
     private static IReentrantLock maybeWrapTrace(final String lockName, final ReentrantLock lock) {
-        if (isLockTraceEnabled()) {
-            return new TracedReentrantLock(lockName, lock);
-        } else {
-            return new WrappedReentrantLock(lockName, lock);
-        }
+        return lockTrace.wrap(lockName, lock);
     }
 
     public static IReadWriteLock maybeWrap(final String lockName, final ReadWriteLock lock) {
@@ -205,11 +189,7 @@ public final class Locks extends ALocksStaticFacade {
     }
 
     private static IReadWriteLock maybeWrapTrace(final String lockName, final ReadWriteLock lock) {
-        if (isLockTraceEnabled()) {
-            return new TracedReadWriteLock(lockName, lock);
-        } else {
-            return new WrappedReadWriteLock(lockName, lock);
-        }
+        return lockTrace.wrap(lockName, lock);
     }
 
     public static IReentrantReadWriteLock maybeWrap(final String lockName, final ReentrantReadWriteLock lock) {
@@ -239,13 +219,13 @@ public final class Locks extends ALocksStaticFacade {
     }
 
     private static IReentrantReadWriteLock maybeWrapTrace(final String lockName, final ReentrantReadWriteLock lock) {
-        if (isLockTraceEnabled()) {
-            return new TracedReentrantReadWriteLock(lockName, lock);
-        } else {
-            return new WrappedReentrantReadWriteLock(lockName, lock);
-        }
+        return lockTrace.wrap(lockName, lock);
     }
 
+    /**
+     * WARNING: for internal use only, rather access via lock.getLockTrace()
+     */
+    @Deprecated
     public static ILockTrace getLockTrace() {
         return lockTrace;
     }
@@ -261,7 +241,11 @@ public final class Locks extends ALocksStaticFacade {
     }
 
     public static boolean isLockTraceEnabled() {
-        return Locks.lockTrace != DisabledLockTrace.INSTANCE;
+        return isLockTraceEnabled(lockTrace);
+    }
+
+    public static boolean isLockTraceEnabled(final ILockTrace lockTrace) {
+        return lockTrace != DisabledLockTrace.INSTANCE;
     }
 
     public static boolean isLockWaitTimeoutEnabled() {
@@ -302,7 +286,7 @@ public final class Locks extends ALocksStaticFacade {
             int tryCount = 0;
             while (!lock.tryLock(lockWaitTimeout.longValue(), lockWaitTimeout.getTimeUnit().timeUnitValue())) {
                 tryCount++;
-                LOG.catching(Locks.getLockTrace()
+                LOG.catching(lock.getLockTrace()
                         .handleLockException(lock.getName(), newLockTimeoutException(lockWaitTimeout, tryCount)));
             }
         } catch (final InterruptedException e) {

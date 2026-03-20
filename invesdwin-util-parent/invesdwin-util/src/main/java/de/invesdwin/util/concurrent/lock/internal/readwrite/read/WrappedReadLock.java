@@ -7,10 +7,12 @@ import java.util.concurrent.locks.Lock;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyLock;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
@@ -38,7 +40,7 @@ public class WrappedReadLock implements ILock {
     }
 
     @Override
-    public boolean isLockedByCurrentThread() {
+    public boolean isHeldByCurrentThread() {
         //intentionally gives the info of writelock because readlocks don't block among themselves
         return parent.isWriteLockedByCurrentThread();
     }
@@ -88,6 +90,12 @@ public class WrappedReadLock implements ILock {
     public ILock withStrategy(final ILockingStrategy strategy) {
         //CHECKSTYLE:ON
         return StrategyLock.maybeWrap(strategy, this);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public ILockTrace getLockTrace() {
+        return Locks.getLockTrace();
     }
 
 }

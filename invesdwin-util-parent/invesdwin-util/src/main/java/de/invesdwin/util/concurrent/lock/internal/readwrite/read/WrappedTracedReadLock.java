@@ -2,6 +2,7 @@ package de.invesdwin.util.concurrent.lock.internal.readwrite.read;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -9,17 +10,20 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
+import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyLock;
 import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.concurrent.reference.WeakThreadLocalReference;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
-public class TracedReadLock implements ILock {
+public class WrappedTracedReadLock implements ILock {
 
     private final ILockTrace lockTrace;
+    private final String name;
     private final IReadWriteLock parent;
-    private final ILock delegate;
+    private final Lock delegate;
     /**
      * we need to separate this info per thread because read locks can be held concurrently by multiple threads
      */
@@ -30,15 +34,17 @@ public class TracedReadLock implements ILock {
         }
     };
 
-    public TracedReadLock(final ILockTrace lockTrace, final IReadWriteLock parent, final ILock delegate) {
+    public WrappedTracedReadLock(final ILockTrace lockTrace, final String name, final IReadWriteLock parent,
+            final Lock delegate) {
         this.lockTrace = lockTrace;
+        this.name = name;
         this.parent = parent;
         this.delegate = delegate;
     }
 
     @Override
     public String getName() {
-        return delegate.getName();
+        return name;
     }
 
     @Override
@@ -132,19 +138,19 @@ public class TracedReadLock implements ILock {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).addValue(delegate).toString();
+        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
     }
 
     @Override
     public ILockingStrategy getStrategy() {
-        return delegate.getStrategy();
+        return DefaultLockingStrategy.INSTANCE;
     }
 
     //CHECKSTYLE:OFF
     @Override
     public ILock withStrategy(final ILockingStrategy strategy) {
         //CHECKSTYLE:ON
-        return new TracedReadLock(lockTrace, parent, delegate.withStrategy(strategy));
+        return StrategyLock.maybeWrap(strategy, this);
     }
 
     @Override

@@ -1,66 +1,63 @@
-package de.invesdwin.util.concurrent.lock.internal.readwrite.read;
+package de.invesdwin.util.concurrent.lock.internal;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.apache.commons.lang3.mutable.MutableInt;
-
 import de.invesdwin.util.concurrent.lock.ILock;
-import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
+import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyLock;
 import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
-import de.invesdwin.util.concurrent.reference.WeakThreadLocalReference;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
-public class TracedReadLock implements ILock {
+public final class WrappedTracedLock implements ILock {
 
     private final ILockTrace lockTrace;
-    private final IReadWriteLock parent;
-    private final ILock delegate;
-    /**
-     * we need to separate this info per thread because read locks can be held concurrently by multiple threads
-     */
-    private final WeakThreadLocalReference<MutableInt> lockedThreadCount = new WeakThreadLocalReference<MutableInt>() {
-        @Override
-        protected MutableInt initialValue() {
-            return new MutableInt();
-        }
-    };
+    private final String name;
+    private final Lock delegate;
+    private volatile Thread lockedThread;
+    @GuardedBy("delegate")
+    private int lockedThreadCount;
 
-    public TracedReadLock(final ILockTrace lockTrace, final IReadWriteLock parent, final ILock delegate) {
+    public WrappedTracedLock(final ILockTrace lockTrace, final String name, final Lock delegate) {
         this.lockTrace = lockTrace;
-        this.parent = parent;
+        this.name = name;
         this.delegate = delegate;
     }
 
     @Override
     public String getName() {
-        return delegate.getName();
+        return name;
     }
 
     @Override
     public boolean isLocked() {
-        //intentionally gives the info of writelock because readlocks don't block among themselves
-        return parent.isWriteLocked();
+        return lockedThread != null;
     }
 
     @Override
     public boolean isHeldByCurrentThread() {
-        //intentionally gives the info of writelock because readlocks don't block among themselves
-        return parent.isWriteLockedByCurrentThread();
+        final Thread lockedThreadCopy = lockedThread;
+        return lockedThreadCopy != null && lockedThreadCopy == Thread.currentThread();
     }
 
     protected void onLocked() {
-        if (lockedThreadCount.get().incrementAndGet() == 1) {
+        if (lockedThreadCount == 0) {
+            lockedThread = Thread.currentThread();
             lockTrace.locked(getName());
         }
+        lockedThreadCount++;
     }
 
     protected void onUnlock() {
-        if (lockedThreadCount.get().decrementAndGet() == 0) {
+        lockedThreadCount--;
+        if (lockedThreadCount == 0) {
+            lockedThread = null;
             lockTrace.unlocked(getName());
         }
     }
@@ -132,19 +129,19 @@ public class TracedReadLock implements ILock {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).addValue(delegate).toString();
+        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
     }
 
     @Override
     public ILockingStrategy getStrategy() {
-        return delegate.getStrategy();
+        return DefaultLockingStrategy.INSTANCE;
     }
 
     //CHECKSTYLE:OFF
     @Override
     public ILock withStrategy(final ILockingStrategy strategy) {
         //CHECKSTYLE:ON
-        return new TracedReadLock(lockTrace, parent, delegate.withStrategy(strategy));
+        return StrategyLock.maybeWrap(strategy, this);
     }
 
     @Override
