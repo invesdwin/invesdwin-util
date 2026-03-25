@@ -1,0 +1,112 @@
+package de.invesdwin.util.collections.array.primitive.heap;
+
+import javax.annotation.concurrent.NotThreadSafe;
+
+import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.array.primitive.ILongPrimitiveArray;
+import de.invesdwin.util.collections.array.primitive.slice.SliceDelegateLongPrimitiveArray;
+import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+
+@NotThreadSafe
+public class HeapLongPrimitiveArray implements ILongPrimitiveArray {
+
+    private final long[] values;
+
+    public HeapLongPrimitiveArray(final int size) {
+        this.values = new long[size];
+    }
+
+    public HeapLongPrimitiveArray(final long[] values) {
+        this.values = values;
+    }
+
+    @Override
+    public int getId() {
+        return System.identityHashCode(values);
+    }
+
+    @Override
+    public void set(final int index, final long value) {
+        values[index] = value;
+    }
+
+    @Override
+    public long get(final int index) {
+        return values[index];
+    }
+
+    @Override
+    public int size() {
+        return values.length;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    @Override
+    public ILongPrimitiveArray slice(final int fromIndex, final int length) {
+        return new SliceDelegateLongPrimitiveArray(this, fromIndex, length);
+    }
+
+    @Override
+    public long[] asArray() {
+        return values;
+    }
+
+    @Override
+    public long[] asArray(final int fromIndex, final int length) {
+        if (fromIndex == 0 && length == size()) {
+            return asArray();
+        } else {
+            return Arrays.copyOfRange(values, fromIndex, fromIndex + length);
+        }
+    }
+
+    @Override
+    public long[] asArrayCopy() {
+        return values.clone();
+    }
+
+    @Override
+    public long[] asArrayCopy(final int fromIndex, final int length) {
+        if (fromIndex == 0 && length == size()) {
+            return asArrayCopy();
+        } else {
+            return Arrays.copyOfRange(values, fromIndex, fromIndex + length);
+        }
+    }
+
+    @Override
+    public void getLongs(final int srcPos, final ILongPrimitiveArray dest, final int destPos, final int length) {
+        final HeapLongPrimitiveArray cDest = ((HeapLongPrimitiveArray) dest);
+        System.arraycopy(values, srcPos, cDest.values, destPos, length);
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
+    }
+
+    @Override
+    public int getBuffer(final IByteBuffer buffer) {
+        for (int i = 0; i < size(); i++) {
+            buffer.putDouble(i * Long.BYTES, get(i));
+        }
+        return getBufferLength();
+    }
+
+    @Override
+    public int getBufferLength() {
+        return size() * Long.BYTES;
+    }
+
+    @Override
+    public void clear() {
+        Arrays.fill(values, 0L);
+    }
+
+}

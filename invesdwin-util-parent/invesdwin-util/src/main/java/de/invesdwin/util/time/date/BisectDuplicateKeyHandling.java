@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.array.accessor.IGenericArrayAccessor;
+import de.invesdwin.util.collections.array.primitive.accessor.IGenericPrimitiveArrayAccessor;
 import de.invesdwin.util.lang.comparator.IComparator;
 
 @Immutable
@@ -27,7 +27,7 @@ public enum BisectDuplicateKeyHandling {
         }
 
         @Override
-        public <T> int apply(final Function<T, FDate> extractKey, final IGenericArrayAccessor<T> values,
+        public <T> int apply(final Function<T, FDate> extractKey, final IGenericPrimitiveArrayAccessor<T> values,
                 final int potentialIndex, final FDate potentialKey) {
             int adjPotentialLowIndex = potentialIndex;
             for (int i = potentialIndex - 1; i >= 0; i--) {
@@ -56,7 +56,7 @@ public enum BisectDuplicateKeyHandling {
         }
 
         @Override
-        public int apply(final IGenericArrayAccessor<? extends FDate> keys, final int potentialIndex,
+        public int apply(final IGenericPrimitiveArrayAccessor<? extends FDate> keys, final int potentialIndex,
                 final FDate potentialKey) {
             int adjPotentialLowIndex = potentialIndex;
             for (int i = potentialIndex - 1; i >= 0; i--) {
@@ -117,7 +117,7 @@ public enum BisectDuplicateKeyHandling {
         }
 
         @Override
-        public <T> int apply(final Function<T, FDate> extractKey, final IGenericArrayAccessor<T> values,
+        public <T> int apply(final Function<T, FDate> extractKey, final IGenericPrimitiveArrayAccessor<T> values,
                 final int potentialIndex, final FDate potentialKey) {
             int adjPotentialLowIndex = potentialIndex;
             for (int i = potentialIndex + 1; i < values.size(); i++) {
@@ -146,7 +146,7 @@ public enum BisectDuplicateKeyHandling {
         }
 
         @Override
-        public int apply(final IGenericArrayAccessor<? extends FDate> keys, final int potentialIndex,
+        public int apply(final IGenericPrimitiveArrayAccessor<? extends FDate> keys, final int potentialIndex,
                 final FDate potentialKey) {
             int adjPotentialLowIndex = potentialIndex;
             for (int i = potentialIndex + 1; i < keys.size(); i++) {
@@ -204,7 +204,7 @@ public enum BisectDuplicateKeyHandling {
         }
 
         @Override
-        public <T> int apply(final Function<T, FDate> extractKey, final IGenericArrayAccessor<T> values,
+        public <T> int apply(final Function<T, FDate> extractKey, final IGenericPrimitiveArrayAccessor<T> values,
                 final int potentialIndex, final FDate potentialKey) {
             return potentialIndex;
         }
@@ -215,7 +215,7 @@ public enum BisectDuplicateKeyHandling {
         }
 
         @Override
-        public int apply(final IGenericArrayAccessor<? extends FDate> keys, final int potentialIndex,
+        public int apply(final IGenericPrimitiveArrayAccessor<? extends FDate> keys, final int potentialIndex,
                 final FDate potentialKey) {
             return potentialIndex;
         }
@@ -230,12 +230,12 @@ public enum BisectDuplicateKeyHandling {
     public abstract <T> int apply(Function<T, FDate> extractKey, List<T> values, int potentialIndex,
             FDate potentialKey);
 
-    public abstract <T> int apply(Function<T, FDate> extractKey, IGenericArrayAccessor<T> values, int potentialIndex,
+    public abstract <T> int apply(Function<T, FDate> extractKey, IGenericPrimitiveArrayAccessor<T> values, int potentialIndex,
             FDate potentialKey);
 
     public abstract int apply(FDate[] keys, int potentialIndex, FDate potentialKey);
 
-    public abstract int apply(IGenericArrayAccessor<? extends FDate> keys, int potentialIndex, FDate potentialKey);
+    public abstract int apply(IGenericPrimitiveArrayAccessor<? extends FDate> keys, int potentialIndex, FDate potentialKey);
 
     public abstract <T> int apply(List<T> values, IComparator<T> comparator, int potentialIndex, T potentialKey);
 

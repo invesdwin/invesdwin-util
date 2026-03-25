@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.array.accessor.IGenericArrayAccessor;
+import de.invesdwin.util.collections.array.primitive.accessor.IGenericPrimitiveArrayAccessor;
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
@@ -627,7 +627,7 @@ public final class FDates {
         }
     }
 
-    public static int bisect(final IGenericArrayAccessor<? extends FDate> keys, final FDate skippingKeysAbove,
+    public static int bisect(final IGenericPrimitiveArrayAccessor<? extends FDate> keys, final FDate skippingKeysAbove,
             final BisectDuplicateKeyHandling duplicateKeyHandling) {
         if (keys.size() == 0) {
             return MISSING_INDEX;
@@ -729,7 +729,7 @@ public final class FDates {
         }
     }
 
-    public static <T> int bisect(final Function<T, FDate> extractKey, final IGenericArrayAccessor<T> values,
+    public static <T> int bisect(final Function<T, FDate> extractKey, final IGenericPrimitiveArrayAccessor<T> values,
             final FDate skippingKeysAbove, final BisectDuplicateKeyHandling duplicateKeyHandling) {
         if (values.size() == 0) {
             return MISSING_INDEX;

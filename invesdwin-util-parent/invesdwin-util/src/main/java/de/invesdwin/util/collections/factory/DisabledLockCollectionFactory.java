@@ -17,9 +17,9 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.Collections;
-import de.invesdwin.util.collections.bitset.IBitSet;
-import de.invesdwin.util.collections.bitset.JavaBitSet;
-import de.invesdwin.util.collections.bitset.RoaringBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.JavaPrimitiveBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.RoaringPrimitiveBitSet;
 import de.invesdwin.util.collections.fast.FastIterableDelegateList;
 import de.invesdwin.util.collections.fast.FastIterableDelegateMap;
 import de.invesdwin.util.collections.fast.FastIterableDelegateSet;
@@ -66,15 +66,15 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
-    public IBitSet newBitSet(final int initialSize) {
+    public IPrimitiveBitSet newBitSet(final int initialSize) {
         /*
          * java bitsets are about twice as fast as roaring bitsets, though roaring might be interesting to use with
          * larger sizes to stay in memory limits
          */
         if (initialSize > ROARING_BITMAP_THRESHOLD) {
-            return new RoaringBitSet(initialSize);
+            return new RoaringPrimitiveBitSet(initialSize);
         } else {
-            return new JavaBitSet(initialSize);
+            return new JavaPrimitiveBitSet(initialSize);
         }
     }
 

@@ -16,7 +16,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
-import de.invesdwin.util.collections.array.IPrimitiveArrayId;
+import de.invesdwin.util.collections.array.primitive.IPrimitiveArrayId;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;

@@ -15,7 +15,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.norva.beanpath.spi.IUnwrap;
-import de.invesdwin.util.collections.array.IPrimitiveArray;
+import de.invesdwin.util.collections.array.primitive.IPrimitiveArray;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.math.random.IRandomGenerator;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;

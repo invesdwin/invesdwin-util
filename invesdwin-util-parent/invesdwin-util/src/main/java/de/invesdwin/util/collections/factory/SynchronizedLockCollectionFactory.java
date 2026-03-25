@@ -20,8 +20,8 @@ import javax.annotation.concurrent.Immutable;
 import org.jctools.maps.NonBlockingHashMap;
 
 import de.invesdwin.util.collections.Collections;
-import de.invesdwin.util.collections.bitset.IBitSet;
-import de.invesdwin.util.collections.bitset.SynchronizedBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.concurrent.SynchronizedBitSet;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
@@ -86,7 +86,7 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
-    public IBitSet newBitSet(final int initialSize) {
+    public IPrimitiveBitSet newBitSet(final int initialSize) {
         return new SynchronizedBitSet(DisabledLockCollectionFactory.INSTANCE.newBitSet(initialSize));
     }
 

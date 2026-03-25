@@ -1,0 +1,110 @@
+package de.invesdwin.util.collections.array.primitive.buffer;
+
+import java.io.IOException;
+
+import javax.annotation.concurrent.NotThreadSafe;
+
+import de.invesdwin.util.collections.Arrays;
+import de.invesdwin.util.collections.array.primitive.IDoublePrimitiveArray;
+import de.invesdwin.util.collections.array.primitive.slice.SliceDelegateDoublePrimitiveArray;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
+import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+
+@NotThreadSafe
+public class BufferDoublePrimitiveArray implements IDoublePrimitiveArray {
+
+    private final IByteBuffer buffer;
+
+    public BufferDoublePrimitiveArray(final IByteBuffer buffer) {
+        this.buffer = buffer;
+    }
+
+    @Override
+    public int getId() {
+        return buffer.getId();
+    }
+
+    @Override
+    public void set(final int index, final double value) {
+        if (index < 0 || index >= size()) {
+            throw FastIndexOutOfBoundsException.getInstance("Index: %s, Size: %s", index + size());
+        }
+        buffer.putDouble(index * Double.BYTES, value);
+    }
+
+    @Override
+    public double get(final int index) {
+        if (index < 0 || index >= size()) {
+            throw FastIndexOutOfBoundsException.getInstance("Index: %s, Size: %s", index + size());
+        }
+        return buffer.getDouble(index * Double.BYTES);
+    }
+
+    @Override
+    public int size() {
+        return buffer.capacity() / Double.BYTES;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return buffer.isEmpty();
+    }
+
+    @Override
+    public IDoublePrimitiveArray slice(final int fromIndex, final int length) {
+        return new SliceDelegateDoublePrimitiveArray(this, fromIndex, length);
+    }
+
+    @Override
+    public double[] asArray() {
+        return asArrayCopy();
+    }
+
+    @Override
+    public double[] asArray(final int fromIndex, final int length) {
+        return asArrayCopy(fromIndex, length);
+    }
+
+    @Override
+    public double[] asArrayCopy() {
+        return asArrayCopy(0, size());
+    }
+
+    @Override
+    public double[] asArrayCopy(final int fromIndex, final int length) {
+        final double[] array = new double[length];
+        for (int i = fromIndex; i < length; i++) {
+            array[i] = get(i);
+        }
+        return array;
+    }
+
+    @Override
+    public void getDoubles(final int srcPos, final IDoublePrimitiveArray dest, final int destPos, final int length) {
+        final BufferDoublePrimitiveArray cDest = ((BufferDoublePrimitiveArray) dest);
+        buffer.getBytes(srcPos * Double.BYTES, cDest.buffer, destPos * Double.BYTES, length * Double.BYTES);
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(asArray(0, Integers.min(ByteBuffers.MAX_TO_STRING_COUNT, size())));
+    }
+
+    @Override
+    public int getBuffer(final IByteBuffer dst) throws IOException {
+        buffer.getBytes(0, dst, 0, buffer.capacity());
+        return buffer.capacity();
+    }
+
+    @Override
+    public int getBufferLength() {
+        return buffer.capacity();
+    }
+
+    @Override
+    public void clear() {
+        buffer.clear();
+    }
+}

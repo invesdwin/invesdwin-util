@@ -11,7 +11,7 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.collections.bitset.IBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.decimal.ADecimal;
 
@@ -227,8 +227,8 @@ public final class CheckedCastBooleans {
         } else if (value instanceof boolean[]) {
             final boolean[] cValue = (boolean[]) value;
             return checkedCastVector(cValue);
-        } else if (value instanceof IBitSet) {
-            final IBitSet cValue = (IBitSet) value;
+        } else if (value instanceof IPrimitiveBitSet) {
+            final IPrimitiveBitSet cValue = (IPrimitiveBitSet) value;
             return checkedCastVector(cValue);
         } else if (value instanceof BitSet) {
             final BitSet cValue = (BitSet) value;
@@ -340,7 +340,7 @@ public final class CheckedCastBooleans {
         return vector;
     }
 
-    public static boolean[] checkedCastVector(final IBitSet value) {
+    public static boolean[] checkedCastVector(final IPrimitiveBitSet value) {
         if (value == null) {
             return null;
         }

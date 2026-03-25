@@ -2,7 +2,7 @@ package de.invesdwin.util.collections.loadingcache.historical;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.circular.CircularGenericArrayQueue;
+import de.invesdwin.util.collections.array.primitive.circular.CircularGenericPrimitiveArrayQueue;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.time.date.BisectDuplicateKeyHandling;
 import de.invesdwin.util.time.date.FDate;
@@ -17,7 +17,7 @@ public abstract class ALatestValueByGapCache<V, P> {
     private static final int NEXT_INDEX = 3;
     private static final int NEXT_NEXT_INDEX = 4;
 
-    private final CircularGenericArrayQueue<V> values = new CircularGenericArrayQueue<>(5);
+    private final CircularGenericPrimitiveArrayQueue<V> values = new CircularGenericPrimitiveArrayQueue<>(5);
     private int prevResetIndex;
     private FDate lastHighestAllowedKey = FDates.MIN_DATE;
     private boolean queryActive = false;

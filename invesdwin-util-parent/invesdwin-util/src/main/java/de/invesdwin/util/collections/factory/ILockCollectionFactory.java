@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.collections.bitset.IBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
@@ -46,7 +46,7 @@ public interface ILockCollectionFactory {
 
     IReentrantReadWriteLock newReadWriteLock(String name);
 
-    IBitSet newBitSet(int initialSize);
+    IPrimitiveBitSet newBitSet(int initialSize);
 
     @SuppressWarnings("unchecked")
     <T> List<T> newArrayList(T... copyOf);
