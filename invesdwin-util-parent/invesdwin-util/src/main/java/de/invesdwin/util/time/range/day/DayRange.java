@@ -192,12 +192,7 @@ public class DayRange extends AValueObject implements IDayRangeData {
             if (args.length == 2) {
                 final FDayTime from = FDayTime.valueOf(args[0], false);
                 final FDayTime to = FDayTime.valueOf(args[1], false);
-                if (from.equals(to)) {
-                    //no session
-                    return null;
-                } else {
-                    return new DayRange(from, to);
-                }
+                return new DayRange(from, to);
             } else {
                 throw new IllegalArgumentException("Expecting two arguments for from and to (e.g. ["
                         + new DayRange(new FDayTime(new FDate().addDays(-1)), new FDayTime(new FDate())) + "])");
