@@ -2,12 +2,12 @@ package de.invesdwin.util.collections.array.primitive.empty;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.collections.array.primitive.IBooleanPrimtiveArray;
+import de.invesdwin.util.collections.array.primitive.IBooleanPrimitiveArray;
 import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
-public final class EmptyBooleanPrimitiveArray implements IBooleanPrimtiveArray {
+public final class EmptyBooleanPrimitiveArray implements IBooleanPrimitiveArray {
 
     public static final EmptyBooleanPrimitiveArray INSTANCE = new EmptyBooleanPrimitiveArray();
 
@@ -37,7 +37,7 @@ public final class EmptyBooleanPrimitiveArray implements IBooleanPrimtiveArray {
     }
 
     @Override
-    public IBooleanPrimtiveArray slice(final int fromIndex, final int length) {
+    public IBooleanPrimitiveArray slice(final int fromIndex, final int length) {
         return this;
     }
 
@@ -62,7 +62,7 @@ public final class EmptyBooleanPrimitiveArray implements IBooleanPrimtiveArray {
     }
 
     @Override
-    public void getBooleans(final int srcPos, final IBooleanPrimtiveArray dest, final int destPos, final int length) {
+    public void getBooleans(final int srcPos, final IBooleanPrimitiveArray dest, final int destPos, final int length) {
         //noop
     }
 

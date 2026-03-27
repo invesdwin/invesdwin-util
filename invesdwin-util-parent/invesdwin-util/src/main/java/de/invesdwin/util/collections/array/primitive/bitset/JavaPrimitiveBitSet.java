@@ -16,14 +16,15 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 @NotThreadSafe
 public class JavaPrimitiveBitSet implements IPrimitiveBitSet {
 
+    private static final int UNINITIALIZED_TRUE_COUNT = -1;
     private final BitSet bitSet;
     private final int size;
-    private int trueCount = 0;
+    private int trueCount;
 
     public JavaPrimitiveBitSet(final BitSet bitSet, final int size) {
         this.bitSet = bitSet;
         this.size = size;
-        this.trueCount = -1;
+        this.trueCount = UNINITIALIZED_TRUE_COUNT;
     }
 
     public JavaPrimitiveBitSet(final int expectedSize) {
@@ -43,19 +44,52 @@ public class JavaPrimitiveBitSet implements IPrimitiveBitSet {
 
     @Override
     public void add(final int index) {
-        bitSet.set(index);
-        trueCount++;
+        if (trueCount == UNINITIALIZED_TRUE_COUNT) {
+            bitSet.set(index);
+        } else {
+            if (!bitSet.get(index)) {
+                bitSet.set(index);
+                trueCount++;
+            }
+        }
     }
 
     @Override
     public void remove(final int index) {
-        bitSet.clear(index);
-        trueCount = -1;
+        if (trueCount == UNINITIALIZED_TRUE_COUNT) {
+            bitSet.clear(index);
+        } else {
+            if (bitSet.get(index)) {
+                bitSet.clear(index);
+                trueCount--;
+            }
+        }
     }
 
     @Override
     public boolean contains(final int index) {
         return bitSet.get(index);
+    }
+
+    @Override
+    public void flip(final int index) {
+        if (trueCount == UNINITIALIZED_TRUE_COUNT) {
+            bitSet.flip(index);
+        } else {
+            if (bitSet.get(index)) {
+                bitSet.clear(index);
+                trueCount--;
+            } else {
+                bitSet.set(index);
+                trueCount++;
+            }
+        }
+    }
+
+    @Override
+    public void flip(final int index, final int length) {
+        bitSet.flip(index, index + length);
+        trueCount = UNINITIALIZED_TRUE_COUNT;
     }
 
     @Override
@@ -69,58 +103,118 @@ public class JavaPrimitiveBitSet implements IPrimitiveBitSet {
 
     @Override
     public IPrimitiveBitSet and(final IPrimitiveBitSet... others) {
-        final BitSet combined = (BitSet) bitSet.clone();
+        if (others == null || others.length == 0) {
+            return this;
+        }
+        if (isEmpty()) {
+            return EmptyPrimitiveBitSet.INSTANCE;
+        }
         for (int i = 0; i < others.length; i++) {
             final IPrimitiveBitSet other = others[i];
-            if (other.isEmpty() || combined.isEmpty()) {
+            if (other.isEmpty()) {
                 return EmptyPrimitiveBitSet.INSTANCE;
             }
-            final JavaPrimitiveBitSet cOther = (JavaPrimitiveBitSet) other.unwrap();
-            combined.and(cOther.bitSet);
         }
-        return new JavaPrimitiveBitSet(combined, size);
+        final BitSet combined = (BitSet) bitSet.clone();
+        final JavaPrimitiveBitSet wrapped = new JavaPrimitiveBitSet(combined, size);
+        for (int i = 0; i < others.length; i++) {
+            final IPrimitiveBitSet other = others[i];
+            final IPrimitiveBitSet unwrapped = other.unwrap();
+            if (unwrapped instanceof JavaPrimitiveBitSet) {
+                final JavaPrimitiveBitSet cUnwrapped = (JavaPrimitiveBitSet) unwrapped;
+                BitSets.and(combined, cUnwrapped.bitSet);
+            } else {
+                BitSets.and(wrapped, other);
+            }
+            if (combined.isEmpty()) {
+                return EmptyPrimitiveBitSet.INSTANCE;
+            }
+        }
+        return wrapped;
     }
 
     @Override
-    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
-        final BitSet combined = (BitSet) bitSet.clone();
+    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet... others) {
+        if (others == null || others.length == 0) {
+            return this;
+        }
+        if (isEmpty()) {
+            return EmptyPrimitiveBitSet.INSTANCE;
+        }
         for (int i = 0; i < others.length; i++) {
             final IPrimitiveBitSet other = others[i];
-            if (other.isEmpty() || combined.isEmpty()) {
+            if (other.isEmpty()) {
                 return EmptyPrimitiveBitSet.INSTANCE;
             }
-            final JavaPrimitiveBitSet cOther = (JavaPrimitiveBitSet) other.unwrap();
-            BitSets.andRangeFast(combined, cOther.bitSet, fromInclusive, toExclusive);
         }
-        return new JavaPrimitiveBitSet(combined, size);
+        final BitSet combined = (BitSet) bitSet.clone();
+        final JavaPrimitiveBitSet wrapped = new JavaPrimitiveBitSet(combined, size);
+        for (int i = 0; i < others.length; i++) {
+            final IPrimitiveBitSet other = others[i];
+            final IPrimitiveBitSet unwrapped = other.unwrap();
+            if (unwrapped instanceof JavaPrimitiveBitSet) {
+                final JavaPrimitiveBitSet cUnwrapped = (JavaPrimitiveBitSet) unwrapped;
+                BitSets.andRange(combined, cUnwrapped.bitSet, fromInclusive, toExclusive);
+            } else {
+                BitSets.andRange(wrapped, other, fromInclusive, toExclusive);
+            }
+            if (combined.isEmpty()) {
+                return EmptyPrimitiveBitSet.INSTANCE;
+            }
+        }
+        return wrapped;
     }
 
     @Override
     public IPrimitiveBitSet or(final IPrimitiveBitSet... others) {
+        if (others == null || others.length == 0) {
+            return this;
+        }
         final BitSet combined = (BitSet) bitSet.clone();
+        final JavaPrimitiveBitSet wrapped = new JavaPrimitiveBitSet(combined, size);
         for (int i = 0; i < others.length; i++) {
             final IPrimitiveBitSet other = others[i];
-            if (other.isEmpty() || combined.isEmpty()) {
+            if (other.isEmpty()) {
                 continue;
             }
-            final JavaPrimitiveBitSet cOther = (JavaPrimitiveBitSet) other.unwrap();
-            combined.or(cOther.bitSet);
+            final IPrimitiveBitSet unwrapped = other.unwrap();
+            if (unwrapped instanceof JavaPrimitiveBitSet) {
+                final JavaPrimitiveBitSet cUnwrapped = (JavaPrimitiveBitSet) unwrapped;
+                BitSets.or(combined, cUnwrapped.bitSet);
+            } else {
+                BitSets.or(wrapped, other);
+            }
         }
-        return new JavaPrimitiveBitSet(combined, size);
+        if (combined.isEmpty()) {
+            return EmptyPrimitiveBitSet.INSTANCE;
+        }
+        return wrapped;
     }
 
     @Override
-    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet... others) {
+        if (others == null || others.length == 0) {
+            return this;
+        }
         final BitSet combined = (BitSet) bitSet.clone();
+        final JavaPrimitiveBitSet wrapped = new JavaPrimitiveBitSet(combined, size);
         for (int i = 0; i < others.length; i++) {
             final IPrimitiveBitSet other = others[i];
-            if (other.isEmpty() || combined.isEmpty()) {
+            if (other.isEmpty()) {
                 continue;
             }
-            final JavaPrimitiveBitSet cOther = (JavaPrimitiveBitSet) other.unwrap();
-            BitSets.orRangeFast(combined, cOther.bitSet, fromInclusive, toExclusive);
+            final IPrimitiveBitSet unwrapped = other.unwrap();
+            if (unwrapped instanceof JavaPrimitiveBitSet) {
+                final JavaPrimitiveBitSet cUnwrapped = (JavaPrimitiveBitSet) unwrapped;
+                BitSets.orRange(combined, cUnwrapped.bitSet, fromInclusive, toExclusive);
+            } else {
+                BitSets.orRange(wrapped, other, fromInclusive, toExclusive);
+            }
         }
-        return new JavaPrimitiveBitSet(combined, size);
+        if (combined.isEmpty()) {
+            return EmptyPrimitiveBitSet.INSTANCE;
+        }
+        return wrapped;
     }
 
     @Override
@@ -149,7 +243,7 @@ public class JavaPrimitiveBitSet implements IPrimitiveBitSet {
 
     @Override
     public int getTrueCount() {
-        if (trueCount == -1) {
+        if (trueCount == UNINITIALIZED_TRUE_COUNT) {
             trueCount = bitSet.cardinality();
         }
         return trueCount;
@@ -179,22 +273,23 @@ public class JavaPrimitiveBitSet implements IPrimitiveBitSet {
 
     @Override
     public void getBooleans(final int srcPos, final IPrimitiveBitSet dest, final int destPos, final int length) {
-        if (srcPos == destPos) {
-            dest.andRange(destPos, destPos + length, new IPrimitiveBitSet[] { this });
+        if (length == 0) {
+            return;
+        }
+
+        if (dest instanceof JavaPrimitiveBitSet && srcPos == destPos) {
+            // Fast path
+            final JavaPrimitiveBitSet javaDest = (JavaPrimitiveBitSet) dest;
+            javaDest.clear(destPos, length);
+            BitSets.orRange(javaDest.bitSet, bitSet, destPos, destPos + length);
         } else {
-            for (int i = 0; i < length; i++) {
-                final boolean contains = contains(srcPos + i);
-                if (contains) {
-                    dest.add(destPos + i);
-                } else {
-                    dest.remove(destPos + i);
-                }
-            }
+            // Generic path for other implementations
+            BitSets.getBooleans(this, srcPos, dest, destPos, length);
         }
     }
 
     @Override
-    public IPrimitiveBitSet unwrap() {
+    public JavaPrimitiveBitSet unwrap() {
         return this;
     }
 
@@ -208,7 +303,8 @@ public class JavaPrimitiveBitSet implements IPrimitiveBitSet {
             words = Arrays.copyOfRange(words, 0, wordsInUse);
         }
         final HeapLongPrimitiveArray delegate = new HeapLongPrimitiveArray(words);
-        return BufferBooleanPrimitiveArray.ARRAY_INDEX + delegate.getBuffer(buffer.sliceFrom(BufferBooleanPrimitiveArray.ARRAY_INDEX));
+        return BufferBooleanPrimitiveArray.ARRAY_INDEX
+                + delegate.getBuffer(buffer.sliceFrom(BufferBooleanPrimitiveArray.ARRAY_INDEX));
     }
 
     @SuppressWarnings("restriction")
@@ -222,6 +318,13 @@ public class JavaPrimitiveBitSet implements IPrimitiveBitSet {
     public void clear() {
         bitSet.clear();
         trueCount = 0;
+    }
+
+    @Override
+    public void clear(final int index, final int length) {
+        final int toIndexExclusive = index + length;
+        bitSet.clear(index, toIndexExclusive);
+        trueCount = UNINITIALIZED_TRUE_COUNT;
     }
 
 }

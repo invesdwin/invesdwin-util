@@ -6,9 +6,11 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.roaringbitmap.FastAggregation;
 import org.roaringbitmap.RoaringBitmap;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
+import de.invesdwin.util.collections.iterable.collection.ArrayCloseableIterator;
 import de.invesdwin.util.math.internal.ARoaringBitmapsStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastRoaringBitmaps;
 
@@ -49,6 +51,51 @@ public final class RoaringBitmaps extends ARoaringBitmapsStaticFacade {
             matrixAsList.add(vector);
         }
         return matrixAsList;
+    }
+
+    public static RoaringBitmap and(final RoaringBitmap[] bitmaps) {
+        return FastAggregation.and(bitmaps);
+    }
+
+    public static RoaringBitmap andRange(final RoaringBitmap[] bitmaps, final int fromInclusive,
+            final int toExclusive) {
+        return RoaringBitmap.and(new ArrayCloseableIterator<>(bitmaps), Integer.toUnsignedLong(fromInclusive),
+                Integer.toUnsignedLong(toExclusive));
+    }
+
+    public static RoaringBitmap andRange(final RoaringBitmap[] bitmaps, final long fromInclusive,
+            final long toExclusive) {
+        return RoaringBitmap.and(new ArrayCloseableIterator<>(bitmaps), fromInclusive, toExclusive);
+    }
+
+    public static RoaringBitmap or(final RoaringBitmap[] bitmaps) {
+        return FastAggregation.or(bitmaps);
+    }
+
+    public static RoaringBitmap orRange(final RoaringBitmap[] bitmaps, final int fromInclusive, final int toExclusive) {
+        return RoaringBitmap.or(new ArrayCloseableIterator<>(bitmaps), Integer.toUnsignedLong(fromInclusive),
+                Integer.toUnsignedLong(toExclusive));
+    }
+
+    public static RoaringBitmap orRange(final RoaringBitmap[] bitmaps, final long fromInclusive,
+            final long toExclusive) {
+        return RoaringBitmap.or(new ArrayCloseableIterator<>(bitmaps), fromInclusive, toExclusive);
+    }
+
+    public static void remove(final RoaringBitmap bitmap, final int fromInclusive, final int toExclusive) {
+        bitmap.remove(Integer.toUnsignedLong(fromInclusive), Integer.toUnsignedLong(toExclusive));
+    }
+
+    public static void remove(final RoaringBitmap bitmap, final long fromInclusive, final long toExclusive) {
+        bitmap.remove(fromInclusive, toExclusive);
+    }
+
+    public static void flip(final RoaringBitmap bitSet, final int fromInclusive, final int toExclusive) {
+        bitSet.flip(Integer.toUnsignedLong(fromInclusive), Integer.toUnsignedLong(toExclusive));
+    }
+
+    public static void flip(final RoaringBitmap bitSet, final long fromInclusive, final long toExclusive) {
+        bitSet.flip(fromInclusive, toExclusive);
     }
 
 }

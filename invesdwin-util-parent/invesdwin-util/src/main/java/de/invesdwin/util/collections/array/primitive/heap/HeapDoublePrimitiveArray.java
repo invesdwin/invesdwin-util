@@ -82,8 +82,14 @@ public class HeapDoublePrimitiveArray implements IDoublePrimitiveArray {
 
     @Override
     public void getDoubles(final int srcPos, final IDoublePrimitiveArray dest, final int destPos, final int length) {
-        final HeapDoublePrimitiveArray cDest = ((HeapDoublePrimitiveArray) dest);
-        System.arraycopy(values, srcPos, cDest.values, destPos, length);
+        if (dest instanceof HeapDoublePrimitiveArray) {
+            final HeapDoublePrimitiveArray cDest = ((HeapDoublePrimitiveArray) dest);
+            System.arraycopy(values, srcPos, cDest.values, destPos, length);
+        } else {
+            for (int i = 0; i < length; i++) {
+                dest.set(destPos + i, get(srcPos + i));
+            }
+        }
     }
 
     @Override

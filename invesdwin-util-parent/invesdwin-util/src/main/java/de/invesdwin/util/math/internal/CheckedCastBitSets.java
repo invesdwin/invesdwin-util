@@ -112,7 +112,7 @@ public final class CheckedCastBitSets {
                 return checkedCastVector(firstValue);
             }
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -125,7 +125,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -138,7 +138,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -175,7 +175,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.size());
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.size());
         for (int i = 0; i < value.size(); i++) {
             if (Booleans.checkedCast(value.get(i))) {
                 vector.add(i);
@@ -191,7 +191,7 @@ public final class CheckedCastBitSets {
             final List<?> cValue = (List<?>) value;
             return checkedCastVector(cValue);
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.size());
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.size());
         final Iterator<?> iterator = value.iterator();
         for (int i = 0; i < value.size(); i++) {
             if (Booleans.checkedCast(iterator.next())) {
@@ -205,7 +205,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -218,7 +218,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -231,7 +231,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -244,7 +244,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -257,7 +257,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -270,7 +270,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -283,7 +283,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -296,7 +296,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -309,7 +309,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -322,7 +322,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -335,7 +335,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -348,7 +348,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -361,7 +361,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -374,7 +374,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -387,7 +387,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -400,7 +400,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -413,7 +413,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);
@@ -426,7 +426,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length());
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length());
         for (int i = 0; i < value.length(); i++) {
             if (Booleans.checkedCast(value.charAt(i))) {
                 vector.add(i);
@@ -439,7 +439,7 @@ public final class CheckedCastBitSets {
         if (value == null) {
             return null;
         }
-        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newBitSet(value.length);
+        final IPrimitiveBitSet vector = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(value.length);
         for (int i = 0; i < value.length; i++) {
             if (Booleans.checkedCast(value[i])) {
                 vector.add(i);

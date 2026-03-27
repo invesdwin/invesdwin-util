@@ -82,8 +82,14 @@ public class HeapIntegerPrimitiveArray implements IIntegerPrimitiveArray {
 
     @Override
     public void getIntegers(final int srcPos, final IIntegerPrimitiveArray dest, final int destPos, final int length) {
-        final HeapIntegerPrimitiveArray cDest = ((HeapIntegerPrimitiveArray) dest);
-        System.arraycopy(values, srcPos, cDest.values, destPos, length);
+        if (dest instanceof HeapIntegerPrimitiveArray) {
+            final HeapIntegerPrimitiveArray cDest = ((HeapIntegerPrimitiveArray) dest);
+            System.arraycopy(values, srcPos, cDest.values, destPos, length);
+        } else {
+            for (int i = 0; i < length; i++) {
+                dest.set(destPos + i, get(srcPos + i));
+            }
+        }
     }
 
     @Override

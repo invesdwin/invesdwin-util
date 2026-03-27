@@ -1,12 +1,14 @@
 package de.invesdwin.util.collections.array.primitive.buffer;
 
 import java.io.IOException;
+import java.util.function.Function;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.collections.array.primitive.IBooleanPrimtiveArray;
+import de.invesdwin.util.collections.array.primitive.IBooleanPrimitiveArray;
 import de.invesdwin.util.collections.array.primitive.bitset.BitSetBooleanPrimitiveArray;
+import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
 import de.invesdwin.util.collections.array.primitive.bitset.LongArrayPrimitiveBitSet;
 import de.invesdwin.util.collections.array.primitive.bitset.LongArrayPrimitiveBitSetBase;
 import de.invesdwin.util.collections.array.primitive.slice.SliceDelegateBooleanPrimitiveArray;
@@ -16,7 +18,7 @@ import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
-public class BufferBooleanPrimitiveArray implements IBooleanPrimtiveArray {
+public class BufferBooleanPrimitiveArray implements IBooleanPrimitiveArray {
 
     public static final int LENGTH_INDEX = 0;
     public static final int LENGTH_SIZE = Integer.BYTES;
@@ -26,19 +28,24 @@ public class BufferBooleanPrimitiveArray implements IBooleanPrimtiveArray {
     private final IByteBuffer buffer;
     private final BitSetBooleanPrimitiveArray delegate;
 
-    public BufferBooleanPrimitiveArray(final IByteBuffer buffer) {
+    public BufferBooleanPrimitiveArray(final Function<LongArrayPrimitiveBitSet, IPrimitiveBitSet> delegateCopyFactory,
+            final IByteBuffer buffer) {
         this.buffer = buffer;
         final int expectedSize = buffer.getInt(LENGTH_INDEX);
-        final LongArrayPrimitiveBitSetBase bitSet = new LongArrayPrimitiveBitSetBase(new BufferLongPrimitiveArray(buffer.sliceFrom(ARRAY_INDEX)),
-                expectedSize);
-        this.delegate = new BitSetBooleanPrimitiveArray(new LongArrayPrimitiveBitSet(bitSet, expectedSize));
+        final LongArrayPrimitiveBitSetBase bitSet = new LongArrayPrimitiveBitSetBase(
+                new BufferLongPrimitiveArray(buffer.sliceFrom(ARRAY_INDEX)), expectedSize);
+        this.delegate = new BitSetBooleanPrimitiveArray(
+                new LongArrayPrimitiveBitSet(delegateCopyFactory, bitSet, expectedSize));
         assert buffer.getId() == delegate.getId();
     }
 
-    public BufferBooleanPrimitiveArray(final IByteBuffer buffer, final int expectedSize) {
+    public BufferBooleanPrimitiveArray(final Function<LongArrayPrimitiveBitSet, IPrimitiveBitSet> delegateCopyFactory,
+            final IByteBuffer buffer, final int expectedSize) {
         this.buffer = buffer;
-        final LongArrayPrimitiveBitSetBase bitSet = new LongArrayPrimitiveBitSetBase(new BufferLongPrimitiveArray(buffer), expectedSize);
-        this.delegate = new BitSetBooleanPrimitiveArray(new LongArrayPrimitiveBitSet(bitSet, expectedSize));
+        final LongArrayPrimitiveBitSetBase bitSet = new LongArrayPrimitiveBitSetBase(
+                new BufferLongPrimitiveArray(buffer), expectedSize);
+        this.delegate = new BitSetBooleanPrimitiveArray(
+                new LongArrayPrimitiveBitSet(delegateCopyFactory, bitSet, expectedSize));
     }
 
     @Override
@@ -77,7 +84,7 @@ public class BufferBooleanPrimitiveArray implements IBooleanPrimtiveArray {
     }
 
     @Override
-    public IBooleanPrimtiveArray slice(final int fromIndex, final int length) {
+    public IBooleanPrimitiveArray slice(final int fromIndex, final int length) {
         return new SliceDelegateBooleanPrimitiveArray(this, fromIndex, length);
     }
 
@@ -102,7 +109,7 @@ public class BufferBooleanPrimitiveArray implements IBooleanPrimtiveArray {
     }
 
     @Override
-    public void getBooleans(final int srcPos, final IBooleanPrimtiveArray dest, final int destPos, final int length) {
+    public void getBooleans(final int srcPos, final IBooleanPrimitiveArray dest, final int destPos, final int length) {
         delegate.getBooleans(srcPos, dest, destPos, length);
     }
 

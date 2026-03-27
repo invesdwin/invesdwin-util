@@ -17,6 +17,10 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.array.large.bitset.ILargeBitSet;
+import de.invesdwin.util.collections.array.large.bitset.JavaLargeBitSet;
+import de.invesdwin.util.collections.array.large.bitset.roaring.RoaringLargeBitSet;
+import de.invesdwin.util.collections.array.large.bitset.roaring.SegmentedRoaringLargeBitSet;
 import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
 import de.invesdwin.util.collections.array.primitive.bitset.JavaPrimitiveBitSet;
 import de.invesdwin.util.collections.array.primitive.bitset.RoaringPrimitiveBitSet;
@@ -38,6 +42,7 @@ import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import de.invesdwin.util.concurrent.reference.lazy.ILazyReference;
 import de.invesdwin.util.concurrent.reference.lazy.LazyReference;
 import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
@@ -66,7 +71,7 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
-    public IPrimitiveBitSet newBitSet(final int initialSize) {
+    public IPrimitiveBitSet newPrimitiveBitSet(final int initialSize) {
         /*
          * java bitsets are about twice as fast as roaring bitsets, though roaring might be interesting to use with
          * larger sizes to stay in memory limits
@@ -75,6 +80,23 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
             return new RoaringPrimitiveBitSet(initialSize);
         } else {
             return new JavaPrimitiveBitSet(initialSize);
+        }
+    }
+
+    @Override
+    public ILargeBitSet newLargeBitSet(final long initialSize) {
+        if (initialSize > RoaringLargeBitSet.MAX_SIZE) {
+            /*
+             * TODO: test which one is actually faster. Roaring64 implementations do not support range-based operations,
+             * which are used in some places. They might be slower than the segmented version, which does support them.
+             */
+            //return new Roaring64LargeNavigableBitSet(initialSize);
+            //return new Roaring64LargeBitSet(initialSize);
+            return new SegmentedRoaringLargeBitSet(initialSize);
+        } else if (initialSize > ROARING_BITMAP_THRESHOLD) {
+            return new RoaringLargeBitSet(initialSize);
+        } else {
+            return new JavaLargeBitSet(ByteBuffers.checkedCast(initialSize));
         }
     }
 

@@ -13,7 +13,7 @@ public class BooleanListPrimitiveBitSet implements IPrimitiveBitSet {
 
     private final BooleanList bitSet;
     private final int size;
-    private int trueCount = 0;
+    private int trueCount;
 
     public BooleanListPrimitiveBitSet(final int size) {
         this.bitSet = new BooleanArrayList(size);
@@ -30,15 +30,17 @@ public class BooleanListPrimitiveBitSet implements IPrimitiveBitSet {
         while (bitSet.size() <= index) {
             bitSet.add(false);
         }
-        bitSet.set(index, true);
-        trueCount++;
+        if (!bitSet.set(index, true)) {
+            trueCount++;
+        }
     }
 
     @Override
     public void remove(final int index) {
-        if (bitSet.size() < index) {
-            bitSet.set(index, false);
-            trueCount--;
+        if (bitSet.size() > index) {
+            if (bitSet.set(index, false)) {
+                trueCount--;
+            }
         }
     }
 
@@ -48,6 +50,26 @@ public class BooleanListPrimitiveBitSet implements IPrimitiveBitSet {
             return false;
         } else {
             return bitSet.getBoolean(index);
+        }
+    }
+
+    @Override
+    public void flip(final int index) {
+        if (bitSet.size() <= index) {
+            add(index);
+        } else {
+            if (bitSet.set(index, !bitSet.getBoolean(index))) {
+                trueCount--;
+            } else {
+                trueCount++;
+            }
+        }
+    }
+
+    @Override
+    public void flip(final int index, final int length) {
+        for (int i = index; i < index + length; i++) {
+            flip(i);
         }
     }
 
@@ -66,7 +88,7 @@ public class BooleanListPrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
-    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet... others) {
         throw new UnsupportedOperationException();
     }
 
@@ -76,7 +98,7 @@ public class BooleanListPrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
-    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet... others) {
         throw new UnsupportedOperationException();
     }
 
@@ -116,7 +138,7 @@ public class BooleanListPrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
-    public IPrimitiveBitSet unwrap() {
+    public BooleanListPrimitiveBitSet unwrap() {
         return this;
     }
 
@@ -134,6 +156,14 @@ public class BooleanListPrimitiveBitSet implements IPrimitiveBitSet {
     public void clear() {
         bitSet.clear();
         trueCount = 0;
+    }
+
+    @Override
+    public void clear(final int index, final int length) {
+        final int endIndex = index + length;
+        for (int i = index; i < endIndex; i++) {
+            remove(i);
+        }
     }
 
 }

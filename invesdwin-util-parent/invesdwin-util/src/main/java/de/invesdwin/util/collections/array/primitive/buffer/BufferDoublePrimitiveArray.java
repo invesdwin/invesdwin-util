@@ -75,16 +75,23 @@ public class BufferDoublePrimitiveArray implements IDoublePrimitiveArray {
     @Override
     public double[] asArrayCopy(final int fromIndex, final int length) {
         final double[] array = new double[length];
-        for (int i = fromIndex; i < length; i++) {
-            array[i] = get(i);
+        int j = 0;
+        for (int i = fromIndex; j < length; i++, j++) {
+            array[j] = get(i);
         }
         return array;
     }
 
     @Override
     public void getDoubles(final int srcPos, final IDoublePrimitiveArray dest, final int destPos, final int length) {
-        final BufferDoublePrimitiveArray cDest = ((BufferDoublePrimitiveArray) dest);
-        buffer.getBytes(srcPos * Double.BYTES, cDest.buffer, destPos * Double.BYTES, length * Double.BYTES);
+        if (dest instanceof BufferDoublePrimitiveArray) {
+            final BufferDoublePrimitiveArray cDest = ((BufferDoublePrimitiveArray) dest);
+            buffer.getBytes(srcPos * Double.BYTES, cDest.buffer, destPos * Double.BYTES, length * Double.BYTES);
+        } else {
+            for (int i = 0; i < length; i++) {
+                dest.set(destPos + i, get(srcPos + i));
+            }
+        }
     }
 
     @Override

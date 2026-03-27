@@ -50,7 +50,7 @@ public class BitSetsTest {
         final RoaringBitmap roaringBitmapAndFast = RoaringBitmap
                 .and(Arrays.asList(roaringBitmap, roaringBitmap2).iterator(), (long) 0, (long) bool.length);
         final BitSet bitSetAndFast = (BitSet) bitSet.clone();
-        BitSets.andRangeFast(bitSetAndFast, bitSet2, 0, bool.length);
+        BitSets.andRange(bitSetAndFast, bitSet2, 0, bool.length);
 
         //test contains with and working properly
         for (int i = 0; i < bool.length; i++) {
@@ -72,7 +72,7 @@ public class BitSetsTest {
         final RoaringBitmap roaringBitmapAndFastSub = RoaringBitmap
                 .and(Arrays.asList(roaringBitmap, roaringBitmap2).iterator(), startSub, (long) endSub + 1);
         final BitSet bitSetAndFastSub = (BitSet) bitSet.clone();
-        BitSets.andRangeFast(bitSetAndFastSub, bitSet2, startSub, endSub);
+        BitSets.andRange(bitSetAndFastSub, bitSet2, startSub, endSub);
 
         final BitSet bitSetAndFastSubGet = bitSet.get(startSub, endSub);
         for (int i = 0; i < endSub - startSub; i++) {
@@ -129,7 +129,7 @@ public class BitSetsTest {
         final RoaringBitmap roaringBitmapOrFast = RoaringBitmap
                 .or(Arrays.asList(roaringBitmap, roaringBitmap2).iterator(), (long) 0, (long) bool.length);
         final BitSet bitSetOrFast = (BitSet) bitSet.clone();
-        BitSets.orRangeFast(bitSetOrFast, bitSet2, 0, bool.length);
+        BitSets.orRange(bitSetOrFast, bitSet2, 0, bool.length);
 
         //test contains with or working properly
         for (int i = 0; i < bool.length; i++) {
@@ -151,7 +151,7 @@ public class BitSetsTest {
         final RoaringBitmap roaringBitmapOrFastSub = RoaringBitmap
                 .or(Arrays.asList(roaringBitmap, roaringBitmap2).iterator(), startSub, (long) endSub + 1);
         final BitSet bitSetOrFastSub = (BitSet) bitSet.clone();
-        BitSets.orRangeFast(bitSetOrFastSub, bitSet2, startSub, endSub);
+        BitSets.orRange(bitSetOrFastSub, bitSet2, startSub, endSub);
 
         final BitSet bitSetOrFastSubGet = bitSet.get(startSub, endSub);
         for (int i = 0; i < endSub - startSub; i++) {
@@ -213,7 +213,8 @@ public class BitSetsTest {
         final ISkippingPrimitiveIndexProvider bitSetNegatedSkipping = bitSetNegated.newSkippingIndexProvider();
         final ISkippingPrimitiveIndexProvider bitSetNegatedShallowSkipping = bitSetNegated.newSkippingIndexProvider();
 
-        final ISkippingPrimitiveIndexProvider roaringBitmapNegatedSkipping = roaringBitmapNegated.newSkippingIndexProvider();
+        final ISkippingPrimitiveIndexProvider roaringBitmapNegatedSkipping = roaringBitmapNegated
+                .newSkippingIndexProvider();
         final ISkippingPrimitiveIndexProvider roaringBitmapNegatedShallowSkipping = roaringBitmapNegatedShallow
                 .newSkippingIndexProvider();
         for (int i = 0; i < bool.length; i++) {

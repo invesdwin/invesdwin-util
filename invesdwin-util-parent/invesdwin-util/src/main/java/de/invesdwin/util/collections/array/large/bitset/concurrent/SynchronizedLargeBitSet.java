@@ -1,23 +1,25 @@
-package de.invesdwin.util.collections.array.primitive.bitset.concurrent;
+package de.invesdwin.util.collections.array.large.bitset.concurrent;
+
+import java.io.IOException;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
-import de.invesdwin.util.collections.array.primitive.bitset.skippingindex.ISkippingPrimitiveIndexProvider;
-import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.collections.array.large.bitset.ILargeBitSet;
+import de.invesdwin.util.collections.array.large.bitset.skippingindex.ISkippingLargeIndexProvider;
+import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
 @ThreadSafe
-public class SynchronizedBitSet implements IPrimitiveBitSet {
+public class SynchronizedLargeBitSet implements ILargeBitSet {
 
-    private final IPrimitiveBitSet delegate;
+    private final ILargeBitSet delegate;
     private final Object lock;
 
-    public SynchronizedBitSet(final IPrimitiveBitSet delegate) {
+    public SynchronizedLargeBitSet(final ILargeBitSet delegate) {
         this.delegate = delegate;
         this.lock = this;
     }
 
-    public SynchronizedBitSet(final IPrimitiveBitSet delegate, final Object lock) {
+    public SynchronizedLargeBitSet(final ILargeBitSet delegate, final Object lock) {
         this.delegate = delegate;
         this.lock = lock;
     }
@@ -28,77 +30,91 @@ public class SynchronizedBitSet implements IPrimitiveBitSet {
     }
 
     @Override
-    public void add(final int index) {
+    public void add(final long index) {
         synchronized (lock) {
             delegate.add(index);
         }
     }
 
     @Override
-    public void remove(final int index) {
+    public void remove(final long index) {
         synchronized (lock) {
             delegate.remove(index);
         }
     }
 
     @Override
-    public boolean contains(final int index) {
+    public boolean contains(final long index) {
         synchronized (lock) {
             return delegate.contains(index);
         }
     }
 
     @Override
-    public IPrimitiveBitSet optimize() {
+    public void flip(final long index) {
+        synchronized (lock) {
+            delegate.flip(index);
+        }
+    }
+
+    @Override
+    public void flip(final long index, final long length) {
+        synchronized (lock) {
+            delegate.flip(index, length);
+        }
+    }
+
+    @Override
+    public ILargeBitSet optimize() {
         synchronized (lock) {
             return delegate.optimize();
         }
     }
 
     @Override
-    public int getTrueCount() {
+    public long getTrueCount() {
         synchronized (lock) {
             return delegate.getTrueCount();
         }
     }
 
     @Override
-    public int size() {
+    public long size() {
         synchronized (lock) {
             return delegate.size();
         }
     }
 
     @Override
-    public IPrimitiveBitSet and(final IPrimitiveBitSet... others) {
+    public ILargeBitSet and(final ILargeBitSet... others) {
         synchronized (lock) {
             return delegate.and(others);
         }
     }
 
     @Override
-    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public ILargeBitSet andRange(final long fromInclusive, final long toExclusive, final ILargeBitSet... others) {
         synchronized (lock) {
             return delegate.andRange(fromInclusive, toExclusive, others);
         }
     }
 
     @Override
-    public IPrimitiveBitSet or(final IPrimitiveBitSet... others) {
+    public ILargeBitSet or(final ILargeBitSet... others) {
         synchronized (lock) {
             return delegate.or(others);
         }
     }
 
     @Override
-    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public ILargeBitSet orRange(final long fromInclusive, final long toExclusive, final ILargeBitSet... others) {
         synchronized (lock) {
             return delegate.orRange(fromInclusive, toExclusive, others);
         }
     }
 
     @Override
-    public IPrimitiveBitSet negate() {
+    public ILargeBitSet negate() {
         synchronized (lock) {
             return delegate.negate();
         }
@@ -108,9 +124,9 @@ public class SynchronizedBitSet implements IPrimitiveBitSet {
      * Since we still operate on the underlying bitset, we reuse the lock here.
      */
     @Override
-    public IPrimitiveBitSet negateShallow() {
+    public ILargeBitSet negateShallow() {
         synchronized (lock) {
-            return new SynchronizedBitSet(delegate.negateShallow(), lock);
+            return new SynchronizedLargeBitSet(delegate.negateShallow(), lock);
         }
     }
 
@@ -122,8 +138,8 @@ public class SynchronizedBitSet implements IPrimitiveBitSet {
     }
 
     @Override
-    public ISkippingPrimitiveIndexProvider newSkippingIndexProvider() {
-        final ISkippingPrimitiveIndexProvider f;
+    public ISkippingLargeIndexProvider newSkippingIndexProvider() {
+        final ISkippingLargeIndexProvider f;
         synchronized (lock) {
             f = delegate.newSkippingIndexProvider();
         }
@@ -138,33 +154,44 @@ public class SynchronizedBitSet implements IPrimitiveBitSet {
     }
 
     @Override
-    public void getBooleans(final int srcPos, final IPrimitiveBitSet dest, final int destPos, final int length) {
+    public void getBooleans(final long srcPos, final ILargeBitSet dest, final long destPos, final long length) {
         synchronized (lock) {
             delegate.getBooleans(srcPos, dest, destPos, length);
         }
     }
 
     @Override
-    public IPrimitiveBitSet unwrap() {
+    public ILargeBitSet unwrap() {
         synchronized (lock) {
             return delegate.unwrap();
         }
     }
 
     @Override
-    public int getBuffer(final IByteBuffer buffer) {
-        throw new UnsupportedOperationException();
+    public long getBuffer(final IMemoryBuffer buffer) throws IOException {
+        synchronized (lock) {
+            return delegate.getBuffer(buffer);
+        }
     }
 
     @Override
-    public int getBufferLength() {
-        throw new UnsupportedOperationException();
+    public long getBufferLength() {
+        synchronized (lock) {
+            return delegate.getBufferLength();
+        }
     }
 
     @Override
     public void clear() {
         synchronized (lock) {
             delegate.clear();
+        }
+    }
+
+    @Override
+    public void clear(final long index, final long length) {
+        synchronized (lock) {
+            delegate.clear(index, length);
         }
     }
 

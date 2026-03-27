@@ -87,9 +87,16 @@ public class HeapGenericPrimitiveArray<E> implements IGenericPrimitiveArray<E> {
     }
 
     @Override
-    public void getGenerics(final int srcPos, final IGenericPrimitiveArray<E> dest, final int destPos, final int length) {
-        final HeapGenericPrimitiveArray<E> cDest = ((HeapGenericPrimitiveArray<E>) dest);
-        System.arraycopy(values, srcPos, cDest.values, destPos, length);
+    public void getGenerics(final int srcPos, final IGenericPrimitiveArray<E> dest, final int destPos,
+            final int length) {
+        if (dest instanceof HeapGenericPrimitiveArray) {
+            final HeapGenericPrimitiveArray<E> cDest = ((HeapGenericPrimitiveArray<E>) dest);
+            System.arraycopy(values, srcPos, cDest.values, destPos, length);
+        } else {
+            for (int i = 0; i < length; i++) {
+                dest.set(destPos + i, get(srcPos + i));
+            }
+        }
     }
 
     @Override

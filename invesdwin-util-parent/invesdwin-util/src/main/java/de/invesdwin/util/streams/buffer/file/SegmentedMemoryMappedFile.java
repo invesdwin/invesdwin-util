@@ -9,9 +9,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
-import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.EmptyByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.ListByteBuffer;
@@ -212,7 +212,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                                 capacity = buffer.capacity();
                                 bufferPosition = 0;
                             }
-                            final int toCopy = Integers
+                            final int toCopy = ByteBuffers
                                     .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                             wrapper.getList().add(buffer.newByteBuffer(bufferPosition, toCopy));
                             remaining -= toCopy;
@@ -260,7 +260,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                                 capacity = buffer.capacity();
                                 bufferPosition = 0;
                             }
-                            final int toCopy = Integers
+                            final int toCopy = ByteBuffers
                                     .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                             wrapper.getList().add(buffer.newMemoryBuffer(bufferPosition, toCopy));
                             remaining -= toCopy;

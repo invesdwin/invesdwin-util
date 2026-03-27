@@ -75,16 +75,23 @@ public class BufferLongPrimitiveArray implements ILongPrimitiveArray {
     @Override
     public long[] asArrayCopy(final int fromIndex, final int length) {
         final long[] array = new long[length];
-        for (int i = fromIndex; i < length; i++) {
-            array[i] = get(i);
+        int j = 0;
+        for (int i = fromIndex; j < length; i++, j++) {
+            array[j] = get(i);
         }
         return array;
     }
 
     @Override
     public void getLongs(final int srcPos, final ILongPrimitiveArray dest, final int destPos, final int length) {
-        final BufferLongPrimitiveArray cDest = ((BufferLongPrimitiveArray) dest);
-        buffer.getBytes(srcPos * Long.BYTES, cDest.buffer, destPos * Long.BYTES, length * Long.BYTES);
+        if (dest instanceof BufferLongPrimitiveArray) {
+            final BufferLongPrimitiveArray cDest = ((BufferLongPrimitiveArray) dest);
+            buffer.getBytes(srcPos * Long.BYTES, cDest.buffer, destPos * Long.BYTES, length * Long.BYTES);
+        } else {
+            for (int i = 0; i < length; i++) {
+                dest.set(destPos + i, get(srcPos + i));
+            }
+        }
     }
 
     @Override

@@ -54,12 +54,22 @@ public final class NoSkippingFakePrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
+    public void flip(final int index) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void flip(final int index, final int length) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public IPrimitiveBitSet and(final IPrimitiveBitSet... others) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet... others) {
         throw new UnsupportedOperationException();
     }
 
@@ -69,7 +79,7 @@ public final class NoSkippingFakePrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
-    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet... others) {
         throw new UnsupportedOperationException();
     }
 
@@ -110,6 +120,11 @@ public final class NoSkippingFakePrimitiveBitSet implements IPrimitiveBitSet {
 
     @Override
     public void clear() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clear(final int index, final int length) {
         throw new UnsupportedOperationException();
     }
 }

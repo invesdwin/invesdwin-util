@@ -75,16 +75,23 @@ public class BufferIntegerPrimitiveArray implements IIntegerPrimitiveArray {
     @Override
     public int[] asArrayCopy(final int fromIndex, final int length) {
         final int[] array = new int[length];
-        for (int i = fromIndex; i < length; i++) {
-            array[i] = get(i);
+        int j = 0;
+        for (int i = fromIndex; j < length; i++, j++) {
+            array[j] = get(i);
         }
         return array;
     }
 
     @Override
     public void getIntegers(final int srcPos, final IIntegerPrimitiveArray dest, final int destPos, final int length) {
-        final BufferIntegerPrimitiveArray cDest = ((BufferIntegerPrimitiveArray) dest);
-        buffer.getBytes(srcPos * Integer.BYTES, cDest.buffer, destPos * Integer.BYTES, length * Integer.BYTES);
+        if (dest instanceof BufferIntegerPrimitiveArray) {
+            final BufferIntegerPrimitiveArray cDest = ((BufferIntegerPrimitiveArray) dest);
+            buffer.getBytes(srcPos * Integer.BYTES, cDest.buffer, destPos * Integer.BYTES, length * Integer.BYTES);
+        } else {
+            for (int i = 0; i < length; i++) {
+                dest.set(destPos + i, get(srcPos + i));
+            }
+        }
     }
 
     @Override

@@ -20,8 +20,10 @@ import javax.annotation.concurrent.Immutable;
 import org.jctools.maps.NonBlockingHashMap;
 
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.array.large.bitset.ILargeBitSet;
+import de.invesdwin.util.collections.array.large.bitset.concurrent.SynchronizedLargeBitSet;
 import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
-import de.invesdwin.util.collections.array.primitive.bitset.concurrent.SynchronizedBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.concurrent.SynchronizedPrimitiveBitSet;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
@@ -86,8 +88,13 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
-    public IPrimitiveBitSet newBitSet(final int initialSize) {
-        return new SynchronizedBitSet(DisabledLockCollectionFactory.INSTANCE.newBitSet(initialSize));
+    public IPrimitiveBitSet newPrimitiveBitSet(final int initialSize) {
+        return new SynchronizedPrimitiveBitSet(DisabledLockCollectionFactory.INSTANCE.newPrimitiveBitSet(initialSize));
+    }
+
+    @Override
+    public ILargeBitSet newLargeBitSet(final long initialSize) {
+        return new SynchronizedLargeBitSet(DisabledLockCollectionFactory.INSTANCE.newLargeBitSet(initialSize));
     }
 
     @Override

@@ -14,6 +14,10 @@ public interface IPrimitiveBitSet extends IPrimitiveArray {
 
     boolean contains(int index);
 
+    void flip(int index);
+
+    void flip(int index, int length);
+
     IPrimitiveBitSet optimize();
 
     IPrimitiveBitSet and(IPrimitiveBitSet... others);
@@ -22,7 +26,7 @@ public interface IPrimitiveBitSet extends IPrimitiveArray {
      * WARNING: The resulting bitset will not be accurate outside of the given range due to performance reasons. The
      * resulting values might be randomg outside of the range depending on the implementation. Indexes are preserved.
      */
-    IPrimitiveBitSet andRange(int fromInclusive, int toExclusive, IPrimitiveBitSet[] others);
+    IPrimitiveBitSet andRange(int fromInclusive, int toExclusive, IPrimitiveBitSet... others);
 
     IPrimitiveBitSet or(IPrimitiveBitSet... others);
 
@@ -30,7 +34,7 @@ public interface IPrimitiveBitSet extends IPrimitiveArray {
      * WARNING: The resulting bitset will not be accurate outside of the given range due to performance reasons. The
      * resulting values might be randomg outside of the range depending on the implementation. Indexes are preserved.
      */
-    IPrimitiveBitSet orRange(int fromInclusive, int toExclusive, IPrimitiveBitSet[] others);
+    IPrimitiveBitSet orRange(int fromInclusive, int toExclusive, IPrimitiveBitSet... others);
 
     /**
      * This creates a negated copy of the underlying bitset.
@@ -44,6 +48,7 @@ public interface IPrimitiveBitSet extends IPrimitiveArray {
 
     int getTrueCount();
 
+    @Override
     boolean isEmpty();
 
     ISkippingPrimitiveIndexProvider newSkippingIndexProvider();
@@ -51,6 +56,8 @@ public interface IPrimitiveBitSet extends IPrimitiveArray {
     IPrimitiveBitSet unwrap();
 
     void getBooleans(int srcPos, IPrimitiveBitSet dest, int destPos, int length);
+
+    void clear(int index, int length);
 
     @Override
     int getBuffer(IByteBuffer buffer) throws IOException;

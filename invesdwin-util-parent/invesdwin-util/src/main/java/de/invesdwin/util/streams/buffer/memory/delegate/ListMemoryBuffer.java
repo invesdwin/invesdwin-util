@@ -26,7 +26,6 @@ import de.invesdwin.util.collections.delegate.ADelegateList;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.math.Bytes;
-import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
@@ -999,7 +998,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                             capacity = buffer.capacity();
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final int toCopy = ByteBuffers
+                                .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                         buffer.putBytes(bufferPosition, src, srcPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1038,7 +1038,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                             capacity = buffer.capacity();
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final int toCopy = ByteBuffers
+                                .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                         buffer.putBytes(bufferPosition, srcBuffer, srcPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1077,7 +1078,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                             capacity = buffer.capacity();
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final int toCopy = ByteBuffers
+                                .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                         buffer.putBytes(bufferPosition, srcBuffer, srcPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1116,7 +1118,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                             capacity = buffer.capacity();
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final int toCopy = ByteBuffers
+                                .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                         buffer.putBytes(bufferPosition, srcBuffer, srcPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1194,7 +1197,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                             capacity = buffer.capacity();
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final int toCopy = ByteBuffers
+                                .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                         buffer.getBytes(bufferPosition, dst, dstPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1233,7 +1237,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                             capacity = buffer.capacity();
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final int toCopy = ByteBuffers
+                                .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                         buffer.getBytes(bufferPosition, dstBuffer, dstPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1272,7 +1277,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                             capacity = buffer.capacity();
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final int toCopy = ByteBuffers
+                                .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                         buffer.getBytes(bufferPosition, dstBuffer, dstPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1311,7 +1317,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                             capacity = buffer.capacity();
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final int toCopy = ByteBuffers
+                                .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                         buffer.getBytes(bufferPosition, dstBuffer, dstPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;

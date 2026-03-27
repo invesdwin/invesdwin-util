@@ -15,7 +15,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
 import de.invesdwin.norva.beanpath.spi.IUnwrap;
-import de.invesdwin.util.collections.array.primitive.IPrimitiveArrayId;
+import de.invesdwin.util.collections.array.large.ILargeArray;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -24,7 +24,7 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
  * Default ByteOrder is always BigEndian. Use Reverse-Suffixed methods to write/read in LittleEndian. Alternatively use
  * OrderedDelegateByteBuffer to switch the default byte order (though not recommeded).
  */
-public interface IMemoryBuffer extends IMemoryBufferProvider, IPrimitiveArrayId, IUnwrap {
+public interface IMemoryBuffer extends IMemoryBufferProvider, ILargeArray, IUnwrap {
 
     IMemoryBuffer ensureCapacity(long capacity);
 
@@ -35,6 +35,11 @@ public interface IMemoryBuffer extends IMemoryBufferProvider, IPrimitiveArrayId,
     long addressOffset();
 
     long capacity();
+
+    @Override
+    default long getBufferLength() {
+        return capacity();
+    }
 
     default long remaining(final long index) {
         return capacity() - index;
@@ -424,7 +429,7 @@ public interface IMemoryBuffer extends IMemoryBufferProvider, IPrimitiveArrayId,
     void putBytesTo(long index, ReadableByteChannel src, long length) throws IOException;
 
     @Override
-    default long writeBuffer(final IMemoryBuffer dst) {
+    default long getBuffer(final IMemoryBuffer dst) {
         final long length = capacity();
         getBytesTo(0, dst, length);
         return length;
@@ -435,6 +440,7 @@ public interface IMemoryBuffer extends IMemoryBufferProvider, IPrimitiveArrayId,
         return this;
     }
 
+    @Override
     default void clear() {
         clear(Bytes.ZERO);
     }
@@ -454,6 +460,16 @@ public interface IMemoryBuffer extends IMemoryBufferProvider, IPrimitiveArrayId,
     void clear(byte value, long index, long length);
 
     IMemoryBuffer clone(long index, int length);
+
+    @Override
+    default long size() {
+        return capacity();
+    }
+
+    @Override
+    default boolean isEmpty() {
+        return capacity() == 0;
+    }
 
     IMemoryBuffer asImmutableSlice();
 }

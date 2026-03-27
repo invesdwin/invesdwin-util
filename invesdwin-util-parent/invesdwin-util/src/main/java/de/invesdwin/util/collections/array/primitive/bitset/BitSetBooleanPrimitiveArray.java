@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.collections.array.primitive.IBooleanPrimtiveArray;
+import de.invesdwin.util.collections.array.primitive.IBooleanPrimitiveArray;
 import de.invesdwin.util.collections.array.primitive.slice.SliceDelegateBooleanPrimitiveArray;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.math.Booleans;
@@ -14,12 +14,12 @@ import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
-public class BitSetBooleanPrimitiveArray implements IBooleanPrimtiveArray {
+public class BitSetBooleanPrimitiveArray implements IBooleanPrimitiveArray {
 
     private final IPrimitiveBitSet bitSet;
 
     public BitSetBooleanPrimitiveArray(final int size) {
-        this.bitSet = ILockCollectionFactory.getInstance(false).newBitSet(size);
+        this.bitSet = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(size);
     }
 
     public BitSetBooleanPrimitiveArray(final IPrimitiveBitSet values) {
@@ -56,7 +56,7 @@ public class BitSetBooleanPrimitiveArray implements IBooleanPrimtiveArray {
     }
 
     @Override
-    public IBooleanPrimtiveArray slice(final int fromIndex, final int length) {
+    public IBooleanPrimitiveArray slice(final int fromIndex, final int length) {
         return new SliceDelegateBooleanPrimitiveArray(this, fromIndex, length);
     }
 
@@ -79,16 +79,23 @@ public class BitSetBooleanPrimitiveArray implements IBooleanPrimtiveArray {
     public boolean[] asArrayCopy(final int fromIndex, final int length) {
         final boolean[] vector = new boolean[length];
         final int limit = fromIndex + length;
-        for (int i = fromIndex; i < limit; i++) {
-            vector[i] = bitSet.contains(i);
+        int j = 0;
+        for (int i = fromIndex; i < limit; i++, j++) {
+            vector[j] = bitSet.contains(i);
         }
         return vector;
     }
 
     @Override
-    public void getBooleans(final int srcPos, final IBooleanPrimtiveArray dest, final int destPos, final int length) {
-        final BitSetBooleanPrimitiveArray cDest = ((BitSetBooleanPrimitiveArray) dest);
-        bitSet.getBooleans(srcPos, cDest.bitSet, destPos, length);
+    public void getBooleans(final int srcPos, final IBooleanPrimitiveArray dest, final int destPos, final int length) {
+        if (dest instanceof BitSetBooleanPrimitiveArray) {
+            final BitSetBooleanPrimitiveArray cDest = ((BitSetBooleanPrimitiveArray) dest);
+            bitSet.getBooleans(srcPos, cDest.bitSet, destPos, length);
+        } else {
+            for (int i = 0; i < length; i++) {
+                dest.set(destPos + i, bitSet.contains(srcPos + i));
+            }
+        }
     }
 
     @Override

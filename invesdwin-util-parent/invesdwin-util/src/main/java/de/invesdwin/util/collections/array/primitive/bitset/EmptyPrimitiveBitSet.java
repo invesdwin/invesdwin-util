@@ -31,6 +31,12 @@ public class EmptyPrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
+    public void flip(final int index) {}
+
+    @Override
+    public void flip(final int index, final int length) {}
+
+    @Override
     public IPrimitiveBitSet optimize() {
         return this;
     }
@@ -59,7 +65,7 @@ public class EmptyPrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
-    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet... others) {
         return INSTANCE;
     }
 
@@ -80,7 +86,7 @@ public class EmptyPrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
-    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet... others) {
         if (others.length == 0) {
             return INSTANCE;
         } else if (others.length == 1) {
@@ -121,7 +127,7 @@ public class EmptyPrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
-    public IPrimitiveBitSet unwrap() {
+    public EmptyPrimitiveBitSet unwrap() {
         return this;
     }
 
@@ -137,5 +143,8 @@ public class EmptyPrimitiveBitSet implements IPrimitiveBitSet {
 
     @Override
     public void clear() {}
+
+    @Override
+    public void clear(final int index, final int length) {}
 
 }

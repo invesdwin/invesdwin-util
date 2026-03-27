@@ -56,6 +56,16 @@ public final class ShiftedIndexDelegatePrimitiveBitSet implements IPrimitiveBitS
     }
 
     @Override
+    public void flip(final int index) {
+        delegate.flip(adjustIndex(index));
+    }
+
+    @Override
+    public void flip(final int index, final int length) {
+        delegate.flip(adjustIndex(index), length);
+    }
+
+    @Override
     public IPrimitiveBitSet optimize() {
         final IPrimitiveBitSet optimized = delegate.optimize();
         if (optimized == delegate) {
@@ -71,7 +81,7 @@ public final class ShiftedIndexDelegatePrimitiveBitSet implements IPrimitiveBitS
     }
 
     @Override
-    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet... others) {
         throw new UnsupportedOperationException("Indexes might get mangled");
     }
 
@@ -81,7 +91,7 @@ public final class ShiftedIndexDelegatePrimitiveBitSet implements IPrimitiveBitS
     }
 
     @Override
-    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet... others) {
         throw new UnsupportedOperationException("Indexes might get mangled");
     }
 
@@ -151,6 +161,11 @@ public final class ShiftedIndexDelegatePrimitiveBitSet implements IPrimitiveBitS
     @Override
     public void clear() {
         delegate.clear();
+    }
+
+    @Override
+    public void clear(final int index, final int length) {
+        delegate.clear(adjustIndex(index), length);
     }
 
 }

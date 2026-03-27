@@ -23,7 +23,6 @@ import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.uri.URIs;
-import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.OutputStreams;
@@ -717,13 +716,13 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
             if (wrapAdjustment == 0 && capacity() == byteBuffer.capacity()) {
                 return byteBuffer;
             } else {
-                return ByteBuffers.slice(byteBuffer, Integers.checkedCast(wrapAdjustment + index), length);
+                return ByteBuffers.slice(byteBuffer, ByteBuffers.checkedCast(wrapAdjustment + index), length);
             }
         }
         final byte[] array = byteArray();
         if (array != null) {
             final java.nio.ByteBuffer arrayBuffer = java.nio.ByteBuffer.wrap(array,
-                    Integers.checkedCast(wrapAdjustment + index), length);
+                    ByteBuffers.checkedCast(wrapAdjustment + index), length);
             return arrayBuffer;
         }
         final BytesStore store = delegate.bytesStore();

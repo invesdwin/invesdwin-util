@@ -20,7 +20,6 @@ import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.uri.URIs;
-import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.OutputStreams;
@@ -162,7 +161,7 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
     private UnsafeByteBuffer asUnsafeBuffer(final long index, final int length) {
         final byte[] byteArray = byteArray();
         if (byteArray != null) {
-            return new UnsafeByteBuffer(byteArray, Integers.checkedCast(index), length);
+            return new UnsafeByteBuffer(byteArray, ByteBuffers.checkedCast(index), length);
         } else {
             return new UnsafeByteBuffer(addressOffset() + wrapAdjustment() + index, length);
         }
@@ -613,18 +612,18 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
     public java.nio.ByteBuffer asNioByteBuffer() {
         final java.nio.ByteBuffer byteBuffer = byteBuffer();
         final long wrapAdjustment = wrapAdjustment();
-        final int intCapacity = Integers.checkedCastNoOverflow(capacity());
+        final int intCapacity = ByteBuffers.checkedCastNoOverflow(capacity());
         if (byteBuffer != null) {
             if (wrapAdjustment == 0 && capacity() == byteBuffer.capacity()) {
                 return byteBuffer;
             } else {
-                return ByteBuffers.slice(byteBuffer, Integers.checkedCast(wrapAdjustment), intCapacity);
+                return ByteBuffers.slice(byteBuffer, ByteBuffers.checkedCast(wrapAdjustment), intCapacity);
             }
         }
         final byte[] array = byteArray();
         if (array != null) {
             final java.nio.ByteBuffer arrayBuffer = java.nio.ByteBuffer.wrap(array,
-                    Integers.checkedCast(wrapAdjustment), intCapacity);
+                    ByteBuffers.checkedCast(wrapAdjustment), intCapacity);
             return arrayBuffer;
         }
         final long address = addressOffset();
@@ -635,7 +634,7 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
     public java.nio.ByteBuffer asNioByteBuffer(final long index, final int length) {
         if (index == 0) {
             final java.nio.ByteBuffer buffer = asNioByteBuffer();
-            final int intCapacity = Integers.checkedCastNoOverflow(capacity());
+            final int intCapacity = ByteBuffers.checkedCastNoOverflow(capacity());
             if (length == intCapacity) {
                 return buffer;
             } else {

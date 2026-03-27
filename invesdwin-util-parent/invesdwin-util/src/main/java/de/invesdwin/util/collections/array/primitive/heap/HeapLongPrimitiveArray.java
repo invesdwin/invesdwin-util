@@ -82,8 +82,14 @@ public class HeapLongPrimitiveArray implements ILongPrimitiveArray {
 
     @Override
     public void getLongs(final int srcPos, final ILongPrimitiveArray dest, final int destPos, final int length) {
-        final HeapLongPrimitiveArray cDest = ((HeapLongPrimitiveArray) dest);
-        System.arraycopy(values, srcPos, cDest.values, destPos, length);
+        if (dest instanceof HeapLongPrimitiveArray) {
+            final HeapLongPrimitiveArray cDest = ((HeapLongPrimitiveArray) dest);
+            System.arraycopy(values, srcPos, cDest.values, destPos, length);
+        } else {
+            for (int i = 0; i < length; i++) {
+                dest.set(destPos + i, get(srcPos + i));
+            }
+        }
     }
 
     @Override

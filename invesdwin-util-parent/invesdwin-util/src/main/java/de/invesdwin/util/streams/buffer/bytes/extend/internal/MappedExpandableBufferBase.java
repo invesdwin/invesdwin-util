@@ -56,7 +56,6 @@ import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.string.UniqueNameGenerator;
-import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.file.IMemoryMappedFile;
 import de.invesdwin.util.streams.buffer.file.MemoryMappedFile;
@@ -100,12 +99,13 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
             this.deleteOnClose = deleteOnClose;
             try {
                 Files.forceMkdirParent(file);
-                mappedFile = new MemoryMappedFile(file, 0, IMemoryMappedFile.roundToBlockSize(initialCapacity), false, true);
+                mappedFile = new MemoryMappedFile(file, 0, IMemoryMappedFile.roundToBlockSize(initialCapacity), false,
+                        true);
             } catch (final IOException e) {
                 throw new UncheckedIOException(e);
             }
             address = mappedFile.addressOffset();
-            capacity = Integers.checkedCast(mappedFile.capacity());
+            capacity = ByteBuffers.checkedCast(mappedFile.capacity());
         }
 
         @Override
@@ -287,7 +287,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -339,7 +339,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         UNSAFE.putLong(null, finalizer.address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -381,7 +381,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         return UNSAFE.getInt(null, finalizer.address + index);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -433,7 +433,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         UNSAFE.putDouble(null, finalizer.address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -485,7 +485,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         UNSAFE.putFloat(null, finalizer.address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -537,7 +537,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         UNSAFE.putShort(null, finalizer.address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -683,7 +683,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
                 length);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -735,7 +735,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         UNSAFE.putChar(null, finalizer.address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1047,7 +1047,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         return len;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1175,7 +1175,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         return bytes.length;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1462,7 +1462,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         return 0;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1559,7 +1559,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
             //            getBytes(0, newBuffer, 0, finalizer.capacity);
 
             finalizer.address = finalizer.mappedFile.addressOffset();
-            finalizer.capacity = Integers.checkedCast(finalizer.mappedFile.capacity());
+            finalizer.capacity = ByteBuffers.checkedCast(finalizer.mappedFile.capacity());
         }
     }
 

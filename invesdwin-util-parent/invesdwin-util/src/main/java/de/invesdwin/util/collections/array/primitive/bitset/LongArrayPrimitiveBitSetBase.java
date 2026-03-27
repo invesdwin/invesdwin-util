@@ -12,19 +12,21 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.array.primitive.ILongPrimitiveArray;
 import de.invesdwin.util.collections.array.primitive.IPrimitiveArrayId;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
+import de.invesdwin.util.math.BitSets;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 
 /**
  * Adapted from java.util.BitSet to use a custom ILongArray storage for off-heap and memory memory storage.
  */
 @NotThreadSafe
 public class LongArrayPrimitiveBitSetBase implements IPrimitiveArrayId {
-    private static final int MAX_INITIAL_CAPACITY = Integer.MAX_VALUE - 8;
-    private static final int ADDRESS_BITS_PER_WORD = 6;
-    private static final int BITS_PER_WORD = 1 << ADDRESS_BITS_PER_WORD;
+    private static final int MAX_INITIAL_CAPACITY = ByteBuffers.MAX_TO_STRING_COUNT;
+    private static final int ADDRESS_BITS_PER_WORD = BitSets.ADDRESS_BITS_PER_WORD;
+    private static final int BITS_PER_WORD = BitSets.BITS_PER_WORD;
 
     /* Used to shift left or right for a partial word mask */
-    private static final long WORD_MASK = 0xffffffffffffffffL;
+    private static final long WORD_MASK = BitSets.WORD_MASK;
 
     private final ILongPrimitiveArray words;
     private final int size;
@@ -53,7 +55,7 @@ public class LongArrayPrimitiveBitSetBase implements IPrimitiveArrayId {
         return words;
     }
 
-    private static int wordIndex(final int bitIndex) {
+    public static int wordIndex(final int bitIndex) {
         return bitIndex >> ADDRESS_BITS_PER_WORD;
     }
 
@@ -485,10 +487,12 @@ public class LongArrayPrimitiveBitSetBase implements IPrimitiveArrayId {
         final StringBuilder b = new StringBuilder(initialCapacity);
         b.append('{');
 
+        int count = 0;
         int i = nextSetBit(0);
         if (i != -1) {
             b.append(i);
-            while (true) {
+            count++;
+            OUTER: while (true) {
                 if (++i < 0) {
                     break;
                 }
@@ -499,7 +503,12 @@ public class LongArrayPrimitiveBitSetBase implements IPrimitiveArrayId {
                 }
                 final int endOfRun = nextClearBit(i);
                 do {
+                    if (count >= ByteBuffers.MAX_TO_STRING_COUNT) {
+                        b.append(", ...");
+                        break OUTER;
+                    }
                     b.append(", ").append(i);
+                    count++;
                 } while (++i != endOfRun);
             }
         }
@@ -680,7 +689,7 @@ public class LongArrayPrimitiveBitSetBase implements IPrimitiveArrayId {
 
     /************************** EXTENSIONS ***************************/
 
-    public void andRangeFast(final LongArrayPrimitiveBitSetBase other, final int fromInclusive, final int toExclusive) {
+    public void andRange(final LongArrayPrimitiveBitSetBase other, final int fromInclusive, final int toExclusive) {
         //        public void and(BitSet set) {
         //            if (this == set)
         //                return;
@@ -711,7 +720,7 @@ public class LongArrayPrimitiveBitSetBase implements IPrimitiveArrayId {
         }
     }
 
-    public void orRangeFast(final LongArrayPrimitiveBitSetBase other, final int fromInclusive, final int toExclusive) {
+    public void orRange(final LongArrayPrimitiveBitSetBase other, final int fromInclusive, final int toExclusive) {
         //        public void or(BitSet set) {
         //            if (this == set)
         //                return;
@@ -748,7 +757,7 @@ public class LongArrayPrimitiveBitSetBase implements IPrimitiveArrayId {
             //                             words, wordsInCommon,
             //                             wordsInUse - wordsInCommon);
             if (wordsInCommon < toWordExclusive) {
-                System.arraycopy(otherWords, wordsInCommon, words, wordsInCommon, words.size() - toWordExclusive);
+                otherWords.getLongs(wordsInCommon, otherWords, wordsInCommon, words.size() - toWordExclusive);
             }
             //skipping that method
 

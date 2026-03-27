@@ -2,7 +2,6 @@ package de.invesdwin.util.collections.array.primitive.bitset.delegate;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.array.primitive.bitset.ADelegatePrimitiveBitSet;
 import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
 
 @NotThreadSafe

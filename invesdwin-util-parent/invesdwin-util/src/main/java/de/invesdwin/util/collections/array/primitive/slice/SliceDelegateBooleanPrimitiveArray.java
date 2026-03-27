@@ -3,19 +3,19 @@ package de.invesdwin.util.collections.array.primitive.slice;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.collections.array.primitive.IBooleanPrimtiveArray;
+import de.invesdwin.util.collections.array.primitive.IBooleanPrimitiveArray;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
-public class SliceDelegateBooleanPrimitiveArray implements IBooleanPrimtiveArray {
+public class SliceDelegateBooleanPrimitiveArray implements IBooleanPrimitiveArray {
 
-    private final IBooleanPrimtiveArray delegate;
+    private final IBooleanPrimitiveArray delegate;
     private final int from;
     private final int length;
 
-    public SliceDelegateBooleanPrimitiveArray(final IBooleanPrimtiveArray delegate, final int from, final int length) {
+    public SliceDelegateBooleanPrimitiveArray(final IBooleanPrimitiveArray delegate, final int from, final int length) {
         this.delegate = delegate;
         this.from = from;
         this.length = length;
@@ -47,7 +47,7 @@ public class SliceDelegateBooleanPrimitiveArray implements IBooleanPrimtiveArray
     }
 
     @Override
-    public IBooleanPrimtiveArray slice(final int fromIndex, final int length) {
+    public IBooleanPrimitiveArray slice(final int fromIndex, final int length) {
         return delegate.slice(fromIndex + from, length);
     }
 
@@ -72,7 +72,7 @@ public class SliceDelegateBooleanPrimitiveArray implements IBooleanPrimtiveArray
     }
 
     @Override
-    public void getBooleans(final int srcPos, final IBooleanPrimtiveArray dest, final int destPos, final int length) {
+    public void getBooleans(final int srcPos, final IBooleanPrimitiveArray dest, final int destPos, final int length) {
         delegate.getBooleans(srcPos + from, dest, destPos, length);
     }
 

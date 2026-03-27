@@ -1434,4 +1434,32 @@ public final class ByteBuffers {
         buffer.ensureCapacity(newCapacity);
     }
 
+    /**
+     * WARNING: don't use this
+     */
+    @Deprecated
+    public static int checkedCast(final int index) {
+        return index;
+    }
+
+    public static int checkedCast(final long index) {
+        if (DirectBuffer.SHOULD_BOUNDS_CHECK) {
+            return Integers.checkedCast(index);
+        } else {
+            return (int) index;
+        }
+    }
+
+    public static int checkedCastNoOverflow(final long index) {
+        return Integers.checkedCastNoOverflow(index);
+    }
+
+    public static int checkedCastUnsigned(final long index) {
+        if (DirectBuffer.SHOULD_BOUNDS_CHECK) {
+            return com.google.common.primitives.UnsignedInts.checkedCast(index);
+        } else {
+            return (int) index;
+        }
+    }
+
 }

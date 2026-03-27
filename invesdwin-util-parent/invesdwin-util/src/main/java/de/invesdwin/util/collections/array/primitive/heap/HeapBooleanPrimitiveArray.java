@@ -5,15 +5,16 @@ import java.io.IOException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.collections.array.primitive.IBooleanPrimtiveArray;
+import de.invesdwin.util.collections.array.primitive.IBooleanPrimitiveArray;
 import de.invesdwin.util.collections.array.primitive.bitset.BitSetBooleanPrimitiveArray;
 import de.invesdwin.util.collections.array.primitive.slice.SliceDelegateBooleanPrimitiveArray;
+import de.invesdwin.util.math.BitSets;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @NotThreadSafe
-public class HeapBooleanPrimitiveArray implements IBooleanPrimtiveArray {
+public class HeapBooleanPrimitiveArray implements IBooleanPrimitiveArray {
 
     private final boolean[] values;
 
@@ -51,7 +52,7 @@ public class HeapBooleanPrimitiveArray implements IBooleanPrimtiveArray {
     }
 
     @Override
-    public IBooleanPrimtiveArray slice(final int fromIndex, final int length) {
+    public IBooleanPrimitiveArray slice(final int fromIndex, final int length) {
         return new SliceDelegateBooleanPrimitiveArray(this, fromIndex, length);
     }
 
@@ -84,9 +85,16 @@ public class HeapBooleanPrimitiveArray implements IBooleanPrimtiveArray {
     }
 
     @Override
-    public void getBooleans(final int srcPos, final IBooleanPrimtiveArray dest, final int destPos, final int length) {
-        final HeapBooleanPrimitiveArray cDest = ((HeapBooleanPrimitiveArray) dest);
-        System.arraycopy(values, srcPos, cDest.values, destPos, length);
+    public void getBooleans(final int srcPos, final IBooleanPrimitiveArray dest, final int destPos, final int length) {
+        if (dest instanceof BitSetBooleanPrimitiveArray) {
+            final HeapBooleanPrimitiveArray cDest = ((HeapBooleanPrimitiveArray) dest);
+            System.arraycopy(values, srcPos, cDest.values, destPos, length);
+            return;
+        } else {
+            for (int i = 0; i < length; i++) {
+                dest.set(destPos + i, values[srcPos + i]);
+            }
+        }
     }
 
     @Override
@@ -106,7 +114,7 @@ public class HeapBooleanPrimitiveArray implements IBooleanPrimtiveArray {
 
     @Override
     public int getBufferLength() {
-        return 0;
+        return (BitSets.wordIndex(size() - 1) + 1) * Long.BYTES;
     }
 
     @Override

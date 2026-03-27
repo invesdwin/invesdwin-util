@@ -4,6 +4,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
 import de.invesdwin.util.collections.array.primitive.bitset.skippingindex.ISkippingPrimitiveIndexProvider;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -35,6 +36,15 @@ public final class SliceDelegatePrimitiveBitSet implements IPrimitiveBitSet {
         return index + from;
     }
 
+    private void assertLength(final int index, final int length) {
+        final int remaining = this.length - index;
+        if (length > remaining) {
+            throw FastIndexOutOfBoundsException.getInstance(
+                    "Length [%s] exceeds remaining length [%s] at index [%s] and total length [%s]", length, remaining,
+                    index, this.length);
+        }
+    }
+
     private int unadjustIndex(final int index) {
         if (index >= ISkippingPrimitiveIndexProvider.END) {
             return index;
@@ -59,6 +69,17 @@ public final class SliceDelegatePrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
+    public void flip(final int index) {
+        delegate.flip(adjustIndex(index));
+    }
+
+    @Override
+    public void flip(final int index, final int length) {
+        assertLength(index, length);
+        delegate.flip(adjustIndex(index), length);
+    }
+
+    @Override
     public IPrimitiveBitSet optimize() {
         final IPrimitiveBitSet optimized = delegate.optimize();
         if (optimized == delegate) {
@@ -74,7 +95,7 @@ public final class SliceDelegatePrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
-    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet... others) {
         throw new UnsupportedOperationException("Indexes might get mangled");
     }
 
@@ -84,7 +105,7 @@ public final class SliceDelegatePrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
-    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet... others) {
         throw new UnsupportedOperationException("Indexes might get mangled");
     }
 
@@ -125,6 +146,7 @@ public final class SliceDelegatePrimitiveBitSet implements IPrimitiveBitSet {
 
     @Override
     public void getBooleans(final int srcPos, final IPrimitiveBitSet dest, final int destPos, final int length) {
+        assertLength(srcPos, length);
         delegate.getBooleans(srcPos + from, dest, destPos, length);
     }
 
@@ -153,7 +175,13 @@ public final class SliceDelegatePrimitiveBitSet implements IPrimitiveBitSet {
 
     @Override
     public void clear() {
-        throw new UnsupportedOperationException();
+        clear(from, length);
+    }
+
+    @Override
+    public void clear(final int index, final int length) {
+        assertLength(index, length);
+        delegate.clear(adjustIndex(index), length);
     }
 
 }

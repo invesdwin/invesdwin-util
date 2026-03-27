@@ -1,9 +1,10 @@
-package de.invesdwin.util.collections.array.primitive.bitset;
+package de.invesdwin.util.collections.array.primitive.bitset.delegate;
 
 import java.io.IOException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
 import de.invesdwin.util.collections.array.primitive.bitset.skippingindex.ISkippingPrimitiveIndexProvider;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -35,6 +36,16 @@ public abstract class ADelegatePrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
+    public void flip(final int index) {
+        getDelegate().flip(index);
+    }
+
+    @Override
+    public void flip(final int index, final int length) {
+        getDelegate().flip(index, length);
+    }
+
+    @Override
     public IPrimitiveBitSet optimize() {
         return getDelegate().optimize();
     }
@@ -45,7 +56,7 @@ public abstract class ADelegatePrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
-    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet... others) {
         return getDelegate().andRange(fromInclusive, toExclusive, others);
     }
 
@@ -55,7 +66,7 @@ public abstract class ADelegatePrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
-    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet... others) {
         return getDelegate().orRange(fromInclusive, toExclusive, others);
     }
 
@@ -112,6 +123,11 @@ public abstract class ADelegatePrimitiveBitSet implements IPrimitiveBitSet {
     @Override
     public void clear() {
         getDelegate().clear();
+    }
+
+    @Override
+    public void clear(final int index, final int length) {
+        getDelegate().clear(index, length);
     }
 
 }

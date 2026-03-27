@@ -62,6 +62,26 @@ public class LockedPrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
+    public void flip(final int index) {
+        lock.lock();
+        try {
+            delegate.flip(index);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void flip(final int index, final int length) {
+        lock.lock();
+        try {
+            delegate.flip(index, length);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
     public IPrimitiveBitSet optimize() {
         lock.lock();
         try {
@@ -102,7 +122,7 @@ public class LockedPrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
-    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public IPrimitiveBitSet andRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet... others) {
         lock.lock();
         try {
             return delegate.andRange(fromInclusive, toExclusive, others);
@@ -122,7 +142,7 @@ public class LockedPrimitiveBitSet implements IPrimitiveBitSet {
     }
 
     @Override
-    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet[] others) {
+    public IPrimitiveBitSet orRange(final int fromInclusive, final int toExclusive, final IPrimitiveBitSet... others) {
         lock.lock();
         try {
             return delegate.orRange(fromInclusive, toExclusive, others);
@@ -236,4 +256,13 @@ public class LockedPrimitiveBitSet implements IPrimitiveBitSet {
         }
     }
 
+    @Override
+    public void clear(final int index, final int length) {
+        lock.lock();
+        try {
+            delegate.clear(index, length);
+        } finally {
+            lock.unlock();
+        }
+    }
 }
