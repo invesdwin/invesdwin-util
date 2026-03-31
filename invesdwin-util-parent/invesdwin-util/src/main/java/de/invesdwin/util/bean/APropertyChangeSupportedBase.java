@@ -10,6 +10,8 @@ import java.util.Map;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.agrona.UnsafeApi;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.invesdwin.norva.beanpath.annotation.Hidden;
@@ -32,7 +34,6 @@ import jakarta.persistence.Transient;
  * @author Barend Garvelink
  * @since 1.0
  */
-@SuppressWarnings("restriction")
 @ThreadSafe
 public abstract class APropertyChangeSupportedBase {
 
@@ -41,9 +42,9 @@ public abstract class APropertyChangeSupportedBase {
 
     static {
         final Field mapField = Reflections.findField(PropertyChangeSupport.class, "map");
-        PROPERTYCHANGESUPPORT_MAP_FIELD_OFFSET = Reflections.getUnsafe().objectFieldOffset(mapField);
+        PROPERTYCHANGESUPPORT_MAP_FIELD_OFFSET = UnsafeApi.objectFieldOffset(mapField);
         final Field mapMapField = Reflections.findField(mapField.getType(), "map");
-        PROPERTYCHANGELISTENERMAP_MAP_FIELD_OFFSET = Reflections.getUnsafe().objectFieldOffset(mapMapField);
+        PROPERTYCHANGELISTENERMAP_MAP_FIELD_OFFSET = UnsafeApi.objectFieldOffset(mapMapField);
     }
 
     /**
@@ -204,10 +205,9 @@ public abstract class APropertyChangeSupportedBase {
     @SuppressWarnings("unchecked")
     private static void fireEvent(final PropertyChangeSupport ref, final String propertyName,
             final PropertyChangeEvent event) {
-        final Object map = Reflections.getUnsafe().getObject(ref, PROPERTYCHANGESUPPORT_MAP_FIELD_OFFSET);
-        final Map<String, PropertyChangeListener[]> mapMap = (Map<String, PropertyChangeListener[]>) Reflections
-                .getUnsafe()
-                .getObject(map, PROPERTYCHANGELISTENERMAP_MAP_FIELD_OFFSET);
+        final Object map = UnsafeApi.getReference(ref, PROPERTYCHANGESUPPORT_MAP_FIELD_OFFSET);
+        final Map<String, PropertyChangeListener[]> mapMap = (Map<String, PropertyChangeListener[]>) UnsafeApi
+                .getReference(map, PROPERTYCHANGELISTENERMAP_MAP_FIELD_OFFSET);
         if (mapMap == null) {
             return;
         }

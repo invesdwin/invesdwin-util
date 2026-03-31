@@ -4,12 +4,13 @@ import java.util.BitSet;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.agrona.UnsafeApi;
+
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.array.primitive.bitset.delegate.ShallowNegatedPrimitiveBitSet;
 import de.invesdwin.util.collections.array.primitive.bitset.skippingindex.ISkippingPrimitiveIndexProvider;
 import de.invesdwin.util.collections.array.primitive.buffer.BufferBooleanPrimitiveArray;
 import de.invesdwin.util.collections.array.primitive.heap.HeapLongPrimitiveArray;
-import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.BitSets;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -293,12 +294,11 @@ public class JavaPrimitiveBitSet implements IPrimitiveBitSet {
         return this;
     }
 
-    @SuppressWarnings("restriction")
     @Override
     public int getBuffer(final IByteBuffer buffer) {
         buffer.putInt(BufferBooleanPrimitiveArray.LENGTH_INDEX, size);
-        long[] words = (long[]) Reflections.getUnsafe().getObject(bitSet, BitSets.BITSET_WORDS_OFFSET);
-        final int wordsInUse = (int) Reflections.getUnsafe().getObject(bitSet, BitSets.BITSET_WORDS_IN_USE_OFFSET);
+        long[] words = (long[]) UnsafeApi.getReference(bitSet, BitSets.BITSET_WORDS_OFFSET);
+        final int wordsInUse = (int) UnsafeApi.getReference(bitSet, BitSets.BITSET_WORDS_IN_USE_OFFSET);
         if (words.length > wordsInUse) {
             words = Arrays.copyOfRange(words, 0, wordsInUse);
         }
@@ -307,10 +307,9 @@ public class JavaPrimitiveBitSet implements IPrimitiveBitSet {
                 + delegate.getBuffer(buffer.sliceFrom(BufferBooleanPrimitiveArray.ARRAY_INDEX));
     }
 
-    @SuppressWarnings("restriction")
     @Override
     public int getBufferLength() {
-        final int wordsInUse = (int) Reflections.getUnsafe().getObject(bitSet, BitSets.BITSET_WORDS_IN_USE_OFFSET);
+        final int wordsInUse = (int) UnsafeApi.getReference(bitSet, BitSets.BITSET_WORDS_IN_USE_OFFSET);
         return BufferBooleanPrimitiveArray.ARRAY_INDEX + Long.BYTES * wordsInUse;
     }
 

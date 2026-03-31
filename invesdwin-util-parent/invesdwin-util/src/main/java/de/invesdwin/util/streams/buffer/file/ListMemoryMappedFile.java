@@ -27,7 +27,7 @@ import de.invesdwin.util.streams.buffer.memory.delegate.ListMemoryBuffer;
  * https://mapdb.org/blog/mmap_files_alloc_and_jvm_crash/
  */
 @NotThreadSafe
-public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
+public class ListMemoryMappedFile implements IMemoryMappedFile {
 
     /**
      * This is the maximum size we can memory-map per segment on windows on files that are larger than 4 gb. Though this
@@ -43,7 +43,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
     private final boolean closeAllowed;
     private boolean markedForClose;
 
-    public SegmentedMemoryMappedFile(final boolean closeAllowed, final File file, final long offset, final long length,
+    public ListMemoryMappedFile(final boolean closeAllowed, final File file, final long offset, final long length,
             final boolean readOnly, final long segmentLength) throws IOException {
         this.closeAllowed = closeAllowed;
         this.offset = offset;
@@ -51,11 +51,11 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
         this.list = initList(file, readOnly, segmentLength);
     }
 
-    public SegmentedMemoryMappedFile(final boolean closeAllowed, final IMemoryMappedFile... list) {
+    public ListMemoryMappedFile(final boolean closeAllowed, final IMemoryMappedFile... list) {
         this(closeAllowed, Arrays.asList(list));
     }
 
-    public SegmentedMemoryMappedFile(final boolean closeAllowed, final List<IMemoryMappedFile> list) {
+    public ListMemoryMappedFile(final boolean closeAllowed, final List<IMemoryMappedFile> list) {
         this.closeAllowed = closeAllowed;
         this.offset = 0;
         this.length = calculateLength(list);

@@ -44,15 +44,15 @@ public interface IMemoryMappedFile extends Closeable {
     static IMemoryMappedFile map(final File file, final long index, final long length, final boolean readOnly,
             final boolean closeAllowed) throws IOException {
         if (isSegmentSizeExceeded(length)) {
-            return new SegmentedMemoryMappedFile(closeAllowed, file, index, length, readOnly,
-                    SegmentedMemoryMappedFile.WINDOWS_MAX_LENGTH_PER_SEGMENT_MAPPED);
+            return new ListMemoryMappedFile(closeAllowed, file, index, length, readOnly,
+                    ListMemoryMappedFile.WINDOWS_MAX_LENGTH_PER_SEGMENT_MAPPED);
         } else {
             return new MemoryMappedFile(file, index, length, readOnly, closeAllowed);
         }
     }
 
     static boolean isSegmentSizeExceeded(final long length) {
-        return OperatingSystem.isWindows() && length >= SegmentedMemoryMappedFile.WINDOWS_MAX_LENGTH_PER_SEGMENT_MAPPED;
+        return OperatingSystem.isWindows() && length >= ListMemoryMappedFile.WINDOWS_MAX_LENGTH_PER_SEGMENT_MAPPED;
     }
 
     static long roundToBlockSize(final long length, final boolean readOnly) {

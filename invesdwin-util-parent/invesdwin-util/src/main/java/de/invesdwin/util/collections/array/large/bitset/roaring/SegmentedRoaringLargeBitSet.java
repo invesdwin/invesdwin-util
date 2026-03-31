@@ -1,13 +1,12 @@
 package de.invesdwin.util.collections.array.large.bitset.roaring;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.roaringbitmap.RoaringBitmap;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.array.large.bitset.EmptyLargeBitSet;
 import de.invesdwin.util.collections.array.large.bitset.ILargeBitSet;
 import de.invesdwin.util.collections.array.large.bitset.delegate.ShallowNegatedLargeBitSet;
@@ -20,9 +19,8 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
 
     public static final long SEGMENT_SIZE = RoaringLargeBitSet.MAX_SIZE;
 
-    private final List<RoaringLargeBitSet> segments;
+    private final RoaringLargeBitSet[] segments;
     private final long size;
-    private final int segmentCount;
 
     public SegmentedRoaringLargeBitSet(final long size) {
         if (size <= RoaringLargeBitSet.MAX_SIZE) {
@@ -30,19 +28,18 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
                     "Use RoaringLargeBitSet directly for sizes <= " + RoaringLargeBitSet.MAX_SIZE);
         }
         this.size = size;
-        this.segmentCount = (int) ((size + SEGMENT_SIZE - 1) / SEGMENT_SIZE);
-        this.segments = new ArrayList<>(segmentCount);
+        final int segmentCount = (int) ((size + SEGMENT_SIZE - 1) / SEGMENT_SIZE);
+        this.segments = new RoaringLargeBitSet[segmentCount];
 
         for (int i = 0; i < segmentCount; i++) {
             final long segmentSize = Math.min(SEGMENT_SIZE, size - (i * SEGMENT_SIZE));
-            segments.add(new RoaringLargeBitSet(segmentSize));
+            segments[i] = new RoaringLargeBitSet(segmentSize);
         }
     }
 
-    private SegmentedRoaringLargeBitSet(final List<RoaringLargeBitSet> segments, final long size) {
+    private SegmentedRoaringLargeBitSet(final RoaringLargeBitSet[] segments, final long size) {
         this.segments = segments;
         this.size = size;
-        this.segmentCount = segments.size();
     }
 
     private int getSegmentIndex(final long index) {
@@ -62,28 +59,28 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
     public void add(final long index) {
         final int segmentIndex = getSegmentIndex(index);
         final long segmentOffset = getSegmentOffset(index);
-        segments.get(segmentIndex).add(segmentOffset);
+        segments[segmentIndex].add(segmentOffset);
     }
 
     @Override
     public void remove(final long index) {
         final int segmentIndex = getSegmentIndex(index);
         final long segmentOffset = getSegmentOffset(index);
-        segments.get(segmentIndex).remove(segmentOffset);
+        segments[segmentIndex].remove(segmentOffset);
     }
 
     @Override
     public boolean contains(final long index) {
         final int segmentIndex = getSegmentIndex(index);
         final long segmentOffset = getSegmentOffset(index);
-        return segments.get(segmentIndex).contains(segmentOffset);
+        return segments[segmentIndex].contains(segmentOffset);
     }
 
     @Override
     public void flip(final long index) {
         final int segmentIndex = getSegmentIndex(index);
         final long segmentOffset = getSegmentOffset(index);
-        segments.get(segmentIndex).flip(segmentOffset);
+        segments[segmentIndex].flip(segmentOffset);
     }
 
     @Override
@@ -97,26 +94,20 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
             final long segmentEnd = Math.min((segmentIndex + 1) * SEGMENT_SIZE, endIndex);
             final long clearLength = segmentEnd - currentIndex;
 
-            segments.get(segmentIndex).flip(segmentOffset, clearLength);
+            segments[segmentIndex].flip(segmentOffset, clearLength);
             currentIndex = segmentEnd;
         }
     }
 
     @Override
     public ILargeBitSet optimize() {
-        boolean allEmpty = true;
-        final List<RoaringLargeBitSet> optimizedSegments = new ArrayList<>(segmentCount);
+        final boolean allEmpty = true;
+        final RoaringLargeBitSet[] optimizedSegments = new RoaringLargeBitSet[segments.length];
 
-        for (int i = 0; i < segments.size(); i++) {
-            final RoaringLargeBitSet segment = segments.get(i);
+        for (int i = 0; i < segments.length; i++) {
+            final RoaringLargeBitSet segment = segments[i];
             final ILargeBitSet optimized = segment.optimize();
-            if (optimized instanceof RoaringLargeBitSet) {
-                optimizedSegments.add((RoaringLargeBitSet) optimized);
-                final RoaringLargeBitSet cOptimized = (RoaringLargeBitSet) optimized;
-                if (!cOptimized.isEmpty()) {
-                    allEmpty = false;
-                }
-            }
+            optimizedSegments[i] = toResultSegment(optimized);
         }
 
         if (allEmpty) {
@@ -124,6 +115,24 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
         }
 
         return new SegmentedRoaringLargeBitSet(optimizedSegments, size);
+    }
+
+    private RoaringLargeBitSet toResultSegment(final ILargeBitSet segment) {
+        if (segment instanceof RoaringLargeBitSet) {
+            final RoaringLargeBitSet cSegment = (RoaringLargeBitSet) segment;
+            return cSegment;
+        } else {
+            Assertions.checkTrue(segment.isEmpty());
+            return new RoaringLargeBitSet(segment.size());
+        }
+    }
+
+    private void assertSameSize(final ILargeBitSet other) {
+        if (other.size() != size) {
+            throw new IllegalArgumentException("Cannot combine " + SegmentedRoaringLargeBitSet.class.getSimpleName()
+                    + " with an " + ILargeBitSet.class.getSimpleName() + " of different size [" + other.size()
+                    + "] than this [" + size + "]");
+        }
     }
 
     @Override
@@ -138,32 +147,30 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
 
         for (int i = 0; i < others.length; i++) {
             final ILargeBitSet other = others[i];
+            assertSameSize(other);
             if (other.isEmpty()) {
                 return EmptyLargeBitSet.INSTANCE;
             }
         }
 
         // Create result segments
-        final List<RoaringLargeBitSet> resultSegments = newResultSegments();
+        final RoaringLargeBitSet[] resultSegments = newResultSegments();
         final SegmentedRoaringLargeBitSet wrapped = new SegmentedRoaringLargeBitSet(resultSegments, size);
 
         for (int j = 0; j < others.length; j++) {
             final ILargeBitSet other = others[j];
             if (other instanceof SegmentedRoaringLargeBitSet) {
                 final SegmentedRoaringLargeBitSet segmentedOther = (SegmentedRoaringLargeBitSet) other;
-                for (int i = 0; i < Math.min(segmentCount, segmentedOther.segmentCount); i++) {
-                    resultSegments.get(i).and(segmentedOther.segments.get(i));
-                }
-                // Clear segments that don't exist in other
-                for (int i = segmentedOther.segmentCount; i < segmentCount; i++) {
-                    resultSegments.get(i).clear();
+                for (int i = 0; i < segments.length; i++) {
+                    final ILargeBitSet resultSegment = resultSegments[i].and(segmentedOther.segments[i]);
+                    resultSegments[i] = toResultSegment(resultSegment);
                 }
             } else {
                 // Use BitSets.andFast for non-segmented others
-                for (int i = 0; i < segmentCount; i++) {
+                for (int i = 0; i < segments.length; i++) {
                     final long segmentStart = i * SEGMENT_SIZE;
                     final long segmentEnd = Math.min(segmentStart + SEGMENT_SIZE, size);
-                    BitSets.andRange(resultSegments.get(i), other, segmentStart, segmentEnd);
+                    BitSets.andRange(resultSegments[i], other, segmentStart, segmentEnd);
                 }
             }
             if (wrapped.isEmpty()) {
@@ -174,25 +181,25 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
         return wrapped;
     }
 
-    private List<RoaringLargeBitSet> newResultSegments() {
-        final List<RoaringLargeBitSet> resultSegments = new ArrayList<>(segmentCount);
-        for (int i = 0; i < segmentCount; i++) {
-            final RoaringLargeBitSet segment = segments.get(i);
+    private RoaringLargeBitSet[] newResultSegments() {
+        final RoaringLargeBitSet[] resultSegments = new RoaringLargeBitSet[segments.length];
+        for (int i = 0; i < segments.length; i++) {
+            final RoaringLargeBitSet segment = segments[i];
             final RoaringBitmap bitSet = segment.getBitSet().clone();
-            resultSegments.add(new RoaringLargeBitSet(bitSet, segment.size()));
+            resultSegments[i] = new RoaringLargeBitSet(bitSet, segment.size());
         }
         return resultSegments;
     }
 
-    private List<RoaringLargeBitSet> newResultSegments(final int firstSegment, final int lastSegment) {
-        final List<RoaringLargeBitSet> resultSegments = new ArrayList<>(segmentCount);
-        for (int i = 0; i < segmentCount; i++) {
-            final RoaringLargeBitSet segment = segments.get(i);
+    private RoaringLargeBitSet[] newResultSegments(final int firstSegment, final int lastSegment) {
+        final RoaringLargeBitSet[] resultSegments = new RoaringLargeBitSet[segments.length];
+        for (int i = 0; i < segments.length; i++) {
+            final RoaringLargeBitSet segment = segments[i];
             if (firstSegment <= i && i <= lastSegment) {
                 final RoaringBitmap bitSet = segment.getBitSet().clone();
-                resultSegments.add(new RoaringLargeBitSet(bitSet, segment.size()));
+                resultSegments[i] = new RoaringLargeBitSet(bitSet, segment.size());
             } else {
-                resultSegments.add(new RoaringLargeBitSet(segment.size()));
+                resultSegments[i] = new RoaringLargeBitSet(segment.size());
             }
         }
         return resultSegments;
@@ -214,6 +221,7 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
 
         for (int i = 0; i < others.length; i++) {
             final ILargeBitSet other = others[i];
+            assertSameSize(other);
             if (other.isEmpty()) {
                 return EmptyLargeBitSet.INSTANCE;
             }
@@ -222,7 +230,7 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
         // Create result segments
         final int firstSegment = getSegmentIndex(fromInclusive);
         final int lastSegment = getSegmentIndex(toExclusive - 1);
-        final List<RoaringLargeBitSet> resultSegments = newResultSegments(firstSegment, lastSegment);
+        final RoaringLargeBitSet[] resultSegments = newResultSegments(firstSegment, lastSegment);
         final SegmentedRoaringLargeBitSet wrapped = new SegmentedRoaringLargeBitSet(resultSegments, size);
         //remove values outside of range
         wrapped.clear(0, fromInclusive);
@@ -232,32 +240,22 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
             final ILargeBitSet other = others[j];
             if (other instanceof SegmentedRoaringLargeBitSet) {
                 final SegmentedRoaringLargeBitSet segmentedOther = (SegmentedRoaringLargeBitSet) other;
-                for (int i = firstSegment; i <= lastSegment && i < segmentedOther.segmentCount; i++) {
+                for (int i = firstSegment; i <= lastSegment; i++) {
                     final long segmentStart = i * SEGMENT_SIZE;
                     final long rangeStart = Math.max(fromInclusive, segmentStart);
                     final long rangeEnd = Math.min(toExclusive, segmentStart + SEGMENT_SIZE);
 
                     if (rangeStart < rangeEnd) {
-                        resultSegments.get(i)
-                                .andRange(rangeStart - segmentStart, rangeEnd - segmentStart,
-                                        segmentedOther.segments.get(i));
-                    }
-                }
-                // Clear segments that don't exist in other
-                for (int i = segmentedOther.segmentCount; i <= lastSegment; i++) {
-                    final long segmentStart = i * SEGMENT_SIZE;
-                    final long rangeStart = Math.max(fromInclusive, segmentStart);
-                    final long rangeEnd = Math.min(toExclusive, segmentStart + SEGMENT_SIZE);
-
-                    if (rangeStart < rangeEnd) {
-                        resultSegments.get(i).clear(rangeStart - segmentStart, rangeEnd - rangeStart);
+                        final ILargeBitSet resultSegment = resultSegments[i].andRange(rangeStart - segmentStart,
+                                rangeEnd - segmentStart, segmentedOther.segments[i]);
+                        resultSegments[i] = toResultSegment(resultSegment);
                     }
                 }
             } else {
                 // Use BitSets.andRangeFast for non-segmented others
                 for (int i = firstSegment; i <= lastSegment; i++) {
                     final long segmentStart = i * SEGMENT_SIZE;
-                    BitSets.andRange(resultSegments.get(i), other, Math.max(fromInclusive, segmentStart),
+                    BitSets.andRange(resultSegments[i], other, Math.max(fromInclusive, segmentStart),
                             Math.min(toExclusive, segmentStart + SEGMENT_SIZE));
                 }
             }
@@ -274,28 +272,29 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
         if (others == null || others.length == 0) {
             return this;
         }
+        
+        for (int i = 0; i < others.length; i++) {
+            final ILargeBitSet other = others[i];
+            assertSameSize(other);
+        }
 
         // Create result segments (copy of this)
-        final List<RoaringLargeBitSet> resultSegments = newResultSegments();
+        final RoaringLargeBitSet[] resultSegments = newResultSegments();
 
         for (int j = 0; j < others.length; j++) {
             final ILargeBitSet other = others[j];
             if (other instanceof SegmentedRoaringLargeBitSet) {
                 final SegmentedRoaringLargeBitSet segmentedOther = (SegmentedRoaringLargeBitSet) other;
-                for (int i = 0; i < Math.min(segmentCount, segmentedOther.segmentCount); i++) {
-                    resultSegments.get(i).or(segmentedOther.segments.get(i));
-                }
-                // Add segments that don't exist in this
-                for (int i = segmentCount; i < segmentedOther.segmentCount; i++) {
-                    resultSegments.add(new RoaringLargeBitSet(segmentedOther.segments.get(i).getBitSet().clone(),
-                            Math.min(SEGMENT_SIZE, segmentedOther.size - (i * SEGMENT_SIZE))));
+                for (int i = 0; i < segments.length; i++) {
+                    final ILargeBitSet resultSegment = resultSegments[i].or(segmentedOther.segments[i]);
+                    resultSegments[i] = toResultSegment(resultSegment);
                 }
             } else {
                 // Use BitSets.orFast for non-segmented others
-                for (int i = 0; i < segmentCount; i++) {
+                for (int i = 0; i < segments.length; i++) {
                     final long segmentStart = i * SEGMENT_SIZE;
                     final long segmentEnd = Math.min(segmentStart + SEGMENT_SIZE, size);
-                    BitSets.orRange(resultSegments.get(i), other, segmentStart, segmentEnd);
+                    BitSets.orRange(resultSegments[i], other, segmentStart, segmentEnd);
                 }
             }
         }
@@ -312,11 +311,16 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
         if (others == null || others.length == 0) {
             return this;
         }
+        
+        for (int i = 0; i < others.length; i++) {
+            final ILargeBitSet other = others[i];
+            assertSameSize(other);
+        }
 
         // Create result segments (copy of this)
         final int firstSegment = getSegmentIndex(fromInclusive);
         final int lastSegment = getSegmentIndex(toExclusive - 1);
-        final List<RoaringLargeBitSet> resultSegments = newResultSegments(firstSegment, lastSegment);
+        final RoaringLargeBitSet[] resultSegments = newResultSegments(firstSegment, lastSegment);
         final SegmentedRoaringLargeBitSet wrapped = new SegmentedRoaringLargeBitSet(resultSegments, size);
         //remove values outside of range
         wrapped.clear(0, fromInclusive);
@@ -327,22 +331,22 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
             if (other instanceof SegmentedRoaringLargeBitSet) {
                 final SegmentedRoaringLargeBitSet segmentedOther = (SegmentedRoaringLargeBitSet) other;
 
-                for (int i = firstSegment; i <= lastSegment && i < segmentedOther.segmentCount; i++) {
+                for (int i = firstSegment; i <= lastSegment; i++) {
                     final long segmentStart = i * SEGMENT_SIZE;
                     final long rangeStart = Math.max(fromInclusive, segmentStart);
                     final long rangeEnd = Math.min(toExclusive, segmentStart + SEGMENT_SIZE);
 
                     if (rangeStart < rangeEnd) {
-                        resultSegments.get(i)
-                                .orRange(rangeStart - segmentStart, rangeEnd - segmentStart,
-                                        segmentedOther.segments.get(i));
+                        final ILargeBitSet resultSegment = resultSegments[i].orRange(rangeStart - segmentStart,
+                                rangeEnd - segmentStart, segmentedOther.segments[i]);
+                        resultSegments[i] = toResultSegment(resultSegment);
                     }
                 }
             } else {
                 // Use BitSets.orRangeFast for non-segmented others
                 for (int i = firstSegment; i <= lastSegment; i++) {
                     final long segmentStart = i * SEGMENT_SIZE;
-                    BitSets.orRange(resultSegments.get(i), other, Math.max(fromInclusive, segmentStart),
+                    BitSets.orRange(resultSegments[i], other, Math.max(fromInclusive, segmentStart),
                             Math.min(toExclusive, segmentStart + SEGMENT_SIZE));
                 }
             }
@@ -353,10 +357,10 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
 
     @Override
     public ILargeBitSet negate() {
-        final List<RoaringLargeBitSet> negatedSegments = new ArrayList<>(segmentCount);
-        for (int i = 0; i < segments.size(); i++) {
-            final RoaringLargeBitSet segment = segments.get(i);
-            negatedSegments.add((RoaringLargeBitSet) segment.negate());
+        final RoaringLargeBitSet[] negatedSegments = new RoaringLargeBitSet[segments.length];
+        for (int i = 0; i < segments.length; i++) {
+            final RoaringLargeBitSet segment = segments[i];
+            negatedSegments[i] = segment.negate();
         }
         return new SegmentedRoaringLargeBitSet(negatedSegments, size);
     }
@@ -369,8 +373,8 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
     @Override
     public long getTrueCount() {
         long count = 0;
-        for (int i = 0; i < segments.size(); i++) {
-            final RoaringLargeBitSet segment = segments.get(i);
+        for (int i = 0; i < segments.length; i++) {
+            final RoaringLargeBitSet segment = segments[i];
             count += segment.getTrueCount();
         }
         return count;
@@ -383,8 +387,8 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
 
     @Override
     public boolean isEmpty() {
-        for (int i = 0; i < segments.size(); i++) {
-            final RoaringLargeBitSet segment = segments.get(i);
+        for (int i = 0; i < segments.length; i++) {
+            final RoaringLargeBitSet segment = segments[i];
             if (!segment.isEmpty()) {
                 return false;
             }
@@ -423,9 +427,8 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
                 final long destRemainingInSegment = Math.min(destSegmentEnd - currentDestPos, remainingLength);
                 final long copyLength = Math.min(srcRemainingInSegment, destRemainingInSegment);
 
-                segments.get(currentSrcSegment)
-                        .getBooleans(currentSrcOffset, segmentedDest.segments.get(currentDestSegment),
-                                currentDestOffset, copyLength);
+                segments[currentSrcSegment].getBooleans(currentSrcOffset, segmentedDest.segments[currentDestSegment],
+                        currentDestOffset, copyLength);
 
                 currentSrcPos += copyLength;
                 currentDestPos += copyLength;
@@ -443,8 +446,7 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
                 final long srcSegmentEnd = (currentSrcSegment + 1) * SEGMENT_SIZE;
                 final long srcRemainingInSegment = Math.min(srcSegmentEnd - currentSrcPos, remainingLength);
 
-                segments.get(currentSrcSegment)
-                        .getBooleans(currentSrcOffset, dest, currentDestPos, srcRemainingInSegment);
+                segments[currentSrcSegment].getBooleans(currentSrcOffset, dest, currentDestPos, srcRemainingInSegment);
 
                 currentSrcPos += srcRemainingInSegment;
                 currentDestPos += srcRemainingInSegment;
@@ -455,8 +457,8 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
 
     @Override
     public void clear() {
-        for (int i = 0; i < segments.size(); i++) {
-            final RoaringLargeBitSet segment = segments.get(i);
+        for (int i = 0; i < segments.length; i++) {
+            final RoaringLargeBitSet segment = segments[i];
             segment.clear();
         }
     }
@@ -472,7 +474,7 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
             final long segmentEnd = Math.min((segmentIndex + 1) * SEGMENT_SIZE, endIndex);
             final long clearLength = segmentEnd - currentIndex;
 
-            segments.get(segmentIndex).clear(segmentOffset, clearLength);
+            segments[segmentIndex].clear(segmentOffset, clearLength);
             currentIndex = segmentEnd;
         }
     }
@@ -498,8 +500,8 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
         }
 
         private void advanceToNextSegment() {
-            while (currentSegment < segmentCount) {
-                currentProvider = segments.get(currentSegment).newSkippingIndexProvider();
+            while (currentSegment < segments.length) {
+                currentProvider = segments[currentSegment].newSkippingIndexProvider();
                 final long nextInSegment = currentProvider.next(0);
                 if (nextInSegment != ISkippingLargeIndexProvider.END) {
                     currentPosition = currentSegment * SEGMENT_SIZE + nextInSegment;

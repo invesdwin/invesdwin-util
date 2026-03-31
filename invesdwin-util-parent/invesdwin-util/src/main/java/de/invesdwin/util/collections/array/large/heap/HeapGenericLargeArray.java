@@ -12,6 +12,8 @@ import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 @NotThreadSafe
 public class HeapGenericLargeArray<E> implements IGenericLargeArray<E> {
 
+    public static final int MAX_SIZE = Integer.MAX_VALUE;
+
     private final E[] values;
 
     @SuppressWarnings("unchecked")

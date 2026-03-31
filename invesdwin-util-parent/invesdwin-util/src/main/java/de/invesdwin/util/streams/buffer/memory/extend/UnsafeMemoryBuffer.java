@@ -20,6 +20,7 @@ import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.uri.URIs;
+import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.OutputStreams;
@@ -29,19 +30,20 @@ import de.invesdwin.util.streams.buffer.bytes.UninitializedDirectByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.delegate.MemoryDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.ArrayExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
+import de.invesdwin.util.streams.buffer.memory.ICloseableMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.MemoryBuffers;
-import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.FixedMutableSlicedDelegateMemoryBufferFactory;
-import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IMutableSlicedDelegateMemoryBufferFactory;
+import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.FixedMutableSlicedDelegateCloseableMemoryBufferFactory;
+import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IMutableSlicedDelegateCloseableMemoryBufferFactory;
 import de.invesdwin.util.streams.buffer.memory.extend.internal.UnsafeMemoryBase;
 import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferInputStream;
 import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferOutputStream;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
-public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffer {
+public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements ICloseableMemoryBuffer {
 
-    private IMutableSlicedDelegateMemoryBufferFactory mutableSliceFactory;
+    private IMutableSlicedDelegateCloseableMemoryBufferFactory mutableSliceFactory;
 
     public UnsafeMemoryBuffer() {
         super();
@@ -181,20 +183,20 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
         return MemoryBuffers.asByteArrayCopyGet(this, index, length);
     }
 
-    private IMutableSlicedDelegateMemoryBufferFactory getMutableSliceFactory() {
+    private IMutableSlicedDelegateCloseableMemoryBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
-            mutableSliceFactory = new FixedMutableSlicedDelegateMemoryBufferFactory(this);
+            mutableSliceFactory = new FixedMutableSlicedDelegateCloseableMemoryBufferFactory(this);
         }
         return mutableSliceFactory;
     }
 
     @Override
-    public IMemoryBuffer sliceFrom(final long index) {
+    public ICloseableMemoryBuffer sliceFrom(final long index) {
         return getMutableSliceFactory().sliceFrom(index);
     }
 
     @Override
-    public IMemoryBuffer slice(final long index, final long length) {
+    public ICloseableMemoryBuffer slice(final long index, final long length) {
         return getMutableSliceFactory().slice(index, length);
     }
 
@@ -657,7 +659,7 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
     }
 
     @Override
-    public IMemoryBuffer ensureCapacity(final long desiredCapacity) {
+    public ICloseableMemoryBuffer ensureCapacity(final long desiredCapacity) {
         if (desiredCapacity > capacity()) {
             checkLimit(desiredCapacity);
         }
@@ -670,8 +672,13 @@ public class UnsafeMemoryBuffer extends UnsafeMemoryBase implements IMemoryBuffe
     }
 
     @Override
-    public IMemoryBuffer asImmutableSlice() {
+    public ICloseableMemoryBuffer asImmutableSlice() {
         return this;
+    }
+
+    @Override
+    public void close() {
+        wrap(Bytes.EMPTY_ARRAY);
     }
 
 }

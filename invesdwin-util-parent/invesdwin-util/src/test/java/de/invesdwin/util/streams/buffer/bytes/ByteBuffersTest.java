@@ -97,16 +97,17 @@ public class ByteBuffersTest {
         final net.openhft.chronicle.bytes.VanillaBytes direct = net.openhft.chronicle.bytes.Bytes
                 .allocateDirect(ByteBuffers.allocateByteArray(BUFFER_SIZE));
         direct.writePosition(0);
-        testBufferOrdered(new ChronicleDelegateByteBuffer(direct));
+        testBufferOrdered(new ChronicleDelegateByteBuffer(direct, false));
         testBufferOrdered(new ChronicleDelegateByteBuffer(
-                BytesStore.wrap(ByteBuffers.allocateByteArray(BUFFER_SIZE)).bytesForWrite()));
+                BytesStore.wrap(ByteBuffers.allocateByteArray(BUFFER_SIZE)).bytesForWrite(), true));
         testBufferOrdered(new ChronicleDelegateByteBuffer(
-                BytesStore.wrap(java.nio.ByteBuffer.allocate(BUFFER_SIZE)).bytesForWrite()));
+                BytesStore.wrap(java.nio.ByteBuffer.allocate(BUFFER_SIZE)).bytesForWrite(), true));
         testBufferOrdered(new ChronicleDelegateByteBuffer(
-                BytesStore.wrap(java.nio.ByteBuffer.allocateDirect(BUFFER_SIZE)).bytesForWrite()));
-        testBufferOrdered(new ChronicleDelegateByteBuffer(net.openhft.chronicle.bytes.Bytes.elasticByteBuffer()));
+                BytesStore.wrap(java.nio.ByteBuffer.allocateDirect(BUFFER_SIZE)).bytesForWrite(), true));
+        testBufferOrdered(new ChronicleDelegateByteBuffer(net.openhft.chronicle.bytes.Bytes.elasticByteBuffer(), true));
         testBufferOrdered(
-                new ChronicleDelegateByteBuffer(net.openhft.chronicle.bytes.Bytes.allocateDirect(BUFFER_SIZE)));
+                new ChronicleDelegateByteBuffer(net.openhft.chronicle.bytes.Bytes.allocateDirect(BUFFER_SIZE), true));
+        direct.releaseLast();
     }
 
     @Test

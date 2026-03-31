@@ -19,7 +19,7 @@ public final class OSAccessor {
 
     static {
         MEMORY_MAPPED = Reflections.staticField("memoryMapped").ofType(AtomicLong.class).in(OS.class).get();
-        UNMAPP0_MH = Reflections.staticField("UNMAPP0_MH").ofType(MethodHandle.class).in(OS.class).get();
+        UNMAPP0_MH = Reflections.staticMethod("getUnmapp0Mh").withReturnType(MethodHandle.class).in(OS.class).invoke();
     }
 
     private OSAccessor() {}

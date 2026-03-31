@@ -24,9 +24,10 @@ import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
+import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateCloseableByteBufferFactory;
+import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateCloseableByteBufferFactory;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferInputStream;
 import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferOutputStream;
@@ -36,9 +37,9 @@ import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
-public class DirectExpandableByteBuffer extends DirectExpandableByteBufferBase implements IByteBuffer {
+public class DirectExpandableByteBuffer extends DirectExpandableByteBufferBase implements ICloseableByteBuffer {
 
-    protected IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
+    protected IMutableSlicedDelegateCloseableByteBufferFactory mutableSliceFactory;
 
     public DirectExpandableByteBuffer() {
         super();
@@ -203,20 +204,20 @@ public class DirectExpandableByteBuffer extends DirectExpandableByteBufferBase i
         return new ByteDelegateMemoryBuffer(this).newSlice(index, length);
     }
 
-    protected IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
+    protected IMutableSlicedDelegateCloseableByteBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
-            mutableSliceFactory = new ExpandableMutableSlicedDelegateByteBufferFactory(this);
+            mutableSliceFactory = new ExpandableMutableSlicedDelegateCloseableByteBufferFactory(this);
         }
         return mutableSliceFactory;
     }
 
     @Override
-    public IByteBuffer sliceFrom(final int index) {
+    public ICloseableByteBuffer sliceFrom(final int index) {
         return getMutableSliceFactory().sliceFrom(index);
     }
 
     @Override
-    public IByteBuffer slice(final int index, final int length) {
+    public ICloseableByteBuffer slice(final int index, final int length) {
         return getMutableSliceFactory().slice(index, length);
     }
 
@@ -635,7 +636,7 @@ public class DirectExpandableByteBuffer extends DirectExpandableByteBufferBase i
     }
 
     @Override
-    public IByteBuffer ensureCapacity(final int desiredCapacity) {
+    public ICloseableByteBuffer ensureCapacity(final int desiredCapacity) {
         if (desiredCapacity > capacity()) {
             //we need this workaround to prevent growth when capacity matches on the last bit
             checkLimit(desiredCapacity - BitUtil.SIZE_OF_BYTE);
@@ -644,7 +645,7 @@ public class DirectExpandableByteBuffer extends DirectExpandableByteBufferBase i
     }
 
     @Override
-    public IByteBuffer asImmutableSlice() {
+    public ICloseableByteBuffer asImmutableSlice() {
         return this;
     }
 

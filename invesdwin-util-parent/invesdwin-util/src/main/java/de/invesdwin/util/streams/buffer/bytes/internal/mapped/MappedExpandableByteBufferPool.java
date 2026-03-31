@@ -17,4 +17,12 @@ public final class MappedExpandableByteBufferPool extends AAgronaObjectPool<IClo
         return new PooledMappedExpandableByteBuffer();
     }
 
+    @Override
+    public void invalidateObject(final ICloseableByteBuffer element) {
+        if (element instanceof PooledMappedExpandableByteBuffer) {
+            final PooledMappedExpandableByteBuffer cElement = (PooledMappedExpandableByteBuffer) element;
+            cElement.superClose();
+        }
+    }
+
 }

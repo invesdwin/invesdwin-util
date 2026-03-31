@@ -12,6 +12,8 @@ import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 @NotThreadSafe
 public class HeapLongLargeArray implements ILongLargeArray {
 
+    public static final int MAX_SIZE = Integer.MAX_VALUE;
+
     private final long[] values;
 
     public HeapLongLargeArray(final int size) {
@@ -101,7 +103,7 @@ public class HeapLongLargeArray implements ILongLargeArray {
     @Override
     public long getBuffer(final IMemoryBuffer buffer) {
         for (int i = 0; i < size(); i++) {
-            buffer.putDouble(i * Long.BYTES, get(i));
+            buffer.putLong(i, get(i));
         }
         return getBufferLength();
     }

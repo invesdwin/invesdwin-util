@@ -4,12 +4,13 @@ import java.util.BitSet;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.agrona.UnsafeApi;
+
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.array.large.bitset.delegate.ShallowNegatedLargeBitSet;
 import de.invesdwin.util.collections.array.large.bitset.skippingindex.ISkippingLargeIndexProvider;
 import de.invesdwin.util.collections.array.large.buffer.BufferBooleanLargeArray;
 import de.invesdwin.util.collections.array.large.heap.HeapLongLargeArray;
-import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.BitSets;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
@@ -296,12 +297,11 @@ public class JavaLargeBitSet implements ILargeBitSet {
         return this;
     }
 
-    @SuppressWarnings("restriction")
     @Override
     public long getBuffer(final IMemoryBuffer buffer) {
         buffer.putLong(BufferBooleanLargeArray.LENGTH_INDEX, size);
-        long[] words = (long[]) Reflections.getUnsafe().getObject(bitSet, BitSets.BITSET_WORDS_OFFSET);
-        final int wordsInUse = (int) Reflections.getUnsafe().getObject(bitSet, BitSets.BITSET_WORDS_IN_USE_OFFSET);
+        long[] words = (long[]) UnsafeApi.getReference(bitSet, BitSets.BITSET_WORDS_OFFSET);
+        final int wordsInUse = (int) UnsafeApi.getReference(bitSet, BitSets.BITSET_WORDS_IN_USE_OFFSET);
         if (words.length > wordsInUse) {
             words = Arrays.copyOfRange(words, 0, wordsInUse);
         }
@@ -310,10 +310,9 @@ public class JavaLargeBitSet implements ILargeBitSet {
                 + delegate.getBuffer(buffer.sliceFrom(BufferBooleanLargeArray.ARRAY_INDEX));
     }
 
-    @SuppressWarnings("restriction")
     @Override
     public long getBufferLength() {
-        final int wordsInUse = (int) Reflections.getUnsafe().getObject(bitSet, BitSets.BITSET_WORDS_IN_USE_OFFSET);
+        final int wordsInUse = (int) UnsafeApi.getReference(bitSet, BitSets.BITSET_WORDS_IN_USE_OFFSET);
         return BufferBooleanLargeArray.ARRAY_INDEX + Long.BYTES * wordsInUse;
     }
 

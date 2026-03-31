@@ -372,7 +372,7 @@ public class RoaringLargeBitSet implements ILargeBitSet {
     }
 
     @Override
-    public ILargeBitSet negate() {
+    public RoaringLargeBitSet negate() {
         final RoaringBitmap negated = bitSet.clone();
         negated.flip(0L, size);
         return new RoaringLargeBitSet(negated, size);

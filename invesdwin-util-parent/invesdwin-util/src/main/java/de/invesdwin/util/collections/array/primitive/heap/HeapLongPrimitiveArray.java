@@ -100,7 +100,7 @@ public class HeapLongPrimitiveArray implements ILongPrimitiveArray {
     @Override
     public int getBuffer(final IByteBuffer buffer) {
         for (int i = 0; i < size(); i++) {
-            buffer.putDouble(i * Long.BYTES, get(i));
+            buffer.putDouble(i, get(i));
         }
         return getBufferLength();
     }

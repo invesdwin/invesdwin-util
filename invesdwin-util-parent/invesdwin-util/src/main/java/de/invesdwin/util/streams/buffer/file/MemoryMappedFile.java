@@ -18,6 +18,7 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.extend.UnsafeMemoryBuffer;
+import net.openhft.chronicle.core.OSAccessor;
 
 /**
  * Class for direct access to a memory mapped file.
@@ -192,12 +193,12 @@ public class MemoryMappedFile implements IMemoryMappedFile {
             if (readOnly) {
                 this.raf = new RandomAccessFile(this.file, "r");
                 this.channel = raf.getChannel();
-                this.address = IoUtil.map(channel, MapMode.READ_ONLY, this.offset, this.length);
+                this.address = OSAccessor.mapUnaligned(channel, MapMode.READ_ONLY, this.offset, this.length);
             } else {
                 this.raf = new RandomAccessFile(this.file, "rw");
                 raf.setLength(this.length);
                 this.channel = raf.getChannel();
-                this.address = IoUtil.map(channel, MapMode.READ_WRITE, this.offset, this.length);
+                this.address = OSAccessor.mapUnaligned(channel, MapMode.READ_WRITE, this.offset, this.length);
             }
         }
 
@@ -232,8 +233,8 @@ public class MemoryMappedFile implements IMemoryMappedFile {
                 IoUtil.unmap(mappedByteBufferCopy);
                 mappedByteBuffer = null;
             }
-            IoUtil.unmap(channel, address, this.length);
             try {
+                OSAccessor.unmapUnaligned(address, this.length);
                 channel.close();
                 raf.close();
             } catch (final IOException e) {

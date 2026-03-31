@@ -4,10 +4,8 @@ import javax.annotation.concurrent.Immutable;
 
 import org.agrona.BitUtil;
 import org.agrona.BufferUtil;
+import org.agrona.UnsafeApi;
 
-import de.invesdwin.util.lang.reflection.Reflections;
-
-@SuppressWarnings("restriction")
 @Immutable
 public final class UninitializedDirectByteBuffers {
 
@@ -16,9 +14,9 @@ public final class UninitializedDirectByteBuffers {
 
     static {
         try {
-            BYTE_BUFFER_CAPACITY_FIELD_OFFSET = Reflections.getUnsafe()
+            BYTE_BUFFER_CAPACITY_FIELD_OFFSET = UnsafeApi
                     .objectFieldOffset(java.nio.Buffer.class.getDeclaredField("capacity"));
-            BYTE_BUFFER_LIMIT_FIELD_OFFSET = Reflections.getUnsafe()
+            BYTE_BUFFER_LIMIT_FIELD_OFFSET = UnsafeApi
                     .objectFieldOffset(java.nio.Buffer.class.getDeclaredField("limit"));
         } catch (final Throwable e) {
             throw new RuntimeException(e);
@@ -35,15 +33,14 @@ public final class UninitializedDirectByteBuffers {
     /**
      * Might return null if this is unsupported.
      */
-    @SuppressWarnings("restriction")
     public static java.nio.ByteBuffer asDirectByteBufferNoCleaner(final long address, final int length) {
         if (io.netty.util.internal.PlatformDependent.hasDirectBufferNoCleanerConstructor()) {
             return io.netty.util.internal.PlatformDependent.directBuffer(address, length);
         } else {
             final java.nio.ByteBuffer bb = java.nio.ByteBuffer.allocateDirect(0);
-            Reflections.getUnsafe().putLong(bb, BufferUtil.BYTE_BUFFER_ADDRESS_FIELD_OFFSET, address);
-            Reflections.getUnsafe().putInt(bb, BYTE_BUFFER_CAPACITY_FIELD_OFFSET, length);
-            Reflections.getUnsafe().putInt(bb, BYTE_BUFFER_LIMIT_FIELD_OFFSET, length);
+            UnsafeApi.putLong(bb, BufferUtil.BYTE_BUFFER_ADDRESS_FIELD_OFFSET, address);
+            UnsafeApi.putInt(bb, BYTE_BUFFER_CAPACITY_FIELD_OFFSET, length);
+            UnsafeApi.putInt(bb, BYTE_BUFFER_LIMIT_FIELD_OFFSET, length);
             return bb;
         }
     }
@@ -60,7 +57,6 @@ public final class UninitializedDirectByteBuffers {
         }
     }
 
-    @SuppressWarnings("restriction")
     public static java.nio.ByteBuffer reallocateDirectByteBufferNoCleaner(final java.nio.ByteBuffer buffer,
             final int newCapacity) {
         if (io.netty.util.internal.PlatformDependent.useDirectBufferNoCleaner()) {
@@ -73,7 +69,7 @@ public final class UninitializedDirectByteBuffers {
             final long address = BufferUtil.address(buffer);
             final java.nio.ByteBuffer newBuffer = java.nio.ByteBuffer.allocateDirect(newCapacity);
             final long newAddress = BufferUtil.address(newBuffer);
-            Reflections.getUnsafe().copyMemory(address, newAddress, newCapacity);
+            UnsafeApi.copyMemory(address, newAddress, newCapacity);
             BufferUtil.free(buffer); //release old buffer
             return newBuffer;
         }

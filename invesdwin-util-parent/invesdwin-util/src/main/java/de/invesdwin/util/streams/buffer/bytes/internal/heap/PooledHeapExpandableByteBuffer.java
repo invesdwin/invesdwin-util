@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams.buffer.bytes.internal.array;
+package de.invesdwin.util.streams.buffer.bytes.internal.heap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -8,9 +8,9 @@ import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMu
 import de.invesdwin.util.streams.buffer.bytes.extend.ArrayExpandableByteBuffer;
 
 @NotThreadSafe
-class PooledArrayExpandableByteBuffer extends ArrayExpandableByteBuffer implements ICloseableByteBuffer {
+class PooledHeapExpandableByteBuffer extends ArrayExpandableByteBuffer implements ICloseableByteBuffer {
 
-    PooledArrayExpandableByteBuffer() {}
+    PooledHeapExpandableByteBuffer() {}
 
     @Override
     protected IMutableSlicedDelegateCloseableByteBufferFactory getMutableSliceFactory() {
@@ -38,7 +38,7 @@ class PooledArrayExpandableByteBuffer extends ArrayExpandableByteBuffer implemen
 
     @Override
     public void close() {
-        ArrayExpandableByteBufferPool.INSTANCE.returnObject(this);
+        HeapExpandableByteBufferPool.INSTANCE.returnObject(this);
     }
 
     @Override

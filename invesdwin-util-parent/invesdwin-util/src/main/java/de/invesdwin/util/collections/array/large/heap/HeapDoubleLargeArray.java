@@ -12,6 +12,8 @@ import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 @NotThreadSafe
 public class HeapDoubleLargeArray implements IDoubleLargeArray {
 
+    public static final int MAX_SIZE = Integer.MAX_VALUE;
+
     private final double[] values;
 
     public HeapDoubleLargeArray(final int size) {
@@ -101,7 +103,7 @@ public class HeapDoubleLargeArray implements IDoubleLargeArray {
     @Override
     public long getBuffer(final IMemoryBuffer buffer) {
         for (long i = 0; i < size(); i++) {
-            buffer.putDouble(i * Double.BYTES, get(i));
+            buffer.putDouble(i, get(i));
         }
         return getBufferLength();
     }

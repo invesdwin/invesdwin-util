@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.agrona.UnsafeApi;
+
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.array.large.bitset.ILargeBitSet;
@@ -20,7 +22,6 @@ import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.internal.ABitSetsStaticFacade;
 import de.invesdwin.util.math.internal.CheckedCastBitSets;
 
-@SuppressWarnings("restriction")
 @StaticFacadeDefinition(name = "de.invesdwin.util.math.internal.ABitSetsStaticFacade", targets = {
         CheckedCastBitSets.class })
 @Immutable
@@ -38,31 +39,29 @@ public final class BitSets extends ABitSetsStaticFacade {
     static {
         try {
             final Field bitSetAddressBitsPerWordField = BitSet.class.getDeclaredField("ADDRESS_BITS_PER_WORD");
-            final long bitSetAddressBitsPerWordFieldOffset = Reflections.getUnsafe()
-                    .staticFieldOffset(bitSetAddressBitsPerWordField);
-            ADDRESS_BITS_PER_WORD = Reflections.getUnsafe().getInt(BitSet.class, bitSetAddressBitsPerWordFieldOffset);
+            final long bitSetAddressBitsPerWordFieldOffset = UnsafeApi.staticFieldOffset(bitSetAddressBitsPerWordField);
+            ADDRESS_BITS_PER_WORD = UnsafeApi.getInt(BitSet.class, bitSetAddressBitsPerWordFieldOffset);
 
             final Field bitSetBitsPerWordField = BitSet.class.getDeclaredField("BITS_PER_WORD");
-            final long bitSetBitsPerWordFieldOffset = Reflections.getUnsafe().staticFieldOffset(bitSetBitsPerWordField);
-            BITS_PER_WORD = Reflections.getUnsafe().getInt(BitSet.class, bitSetBitsPerWordFieldOffset);
+            final long bitSetBitsPerWordFieldOffset = UnsafeApi.staticFieldOffset(bitSetBitsPerWordField);
+            BITS_PER_WORD = UnsafeApi.getInt(BitSet.class, bitSetBitsPerWordFieldOffset);
 
             final Field bitSetBitIndexMaskField = BitSet.class.getDeclaredField("BIT_INDEX_MASK");
-            final long bitSetBitIndexMaskFieldOffset = Reflections.getUnsafe()
-                    .staticFieldOffset(bitSetBitIndexMaskField);
-            BIT_INDEX_MASK = Reflections.getUnsafe().getInt(BitSet.class, bitSetBitIndexMaskFieldOffset);
+            final long bitSetBitIndexMaskFieldOffset = UnsafeApi.staticFieldOffset(bitSetBitIndexMaskField);
+            BIT_INDEX_MASK = UnsafeApi.getInt(BitSet.class, bitSetBitIndexMaskFieldOffset);
 
             final Field bitSetWordMaskField = BitSet.class.getDeclaredField("WORD_MASK");
-            final long bitSetWordMaskFieldOffset = Reflections.getUnsafe().staticFieldOffset(bitSetWordMaskField);
-            WORD_MASK = Reflections.getUnsafe().getInt(BitSet.class, bitSetWordMaskFieldOffset);
+            final long bitSetWordMaskFieldOffset = UnsafeApi.staticFieldOffset(bitSetWordMaskField);
+            WORD_MASK = UnsafeApi.getInt(BitSet.class, bitSetWordMaskFieldOffset);
 
             final Field bitSetWordsField = Reflections.findField(BitSet.class, "words");
-            BITSET_WORDS_OFFSET = Reflections.getUnsafe().objectFieldOffset(bitSetWordsField);
+            BITSET_WORDS_OFFSET = UnsafeApi.objectFieldOffset(bitSetWordsField);
 
             final Field bitSetWordsInUseField = Reflections.findField(BitSet.class, "wordsInUse");
-            BITSET_WORDS_IN_USE_OFFSET = Reflections.getUnsafe().objectFieldOffset(bitSetWordsInUseField);
+            BITSET_WORDS_IN_USE_OFFSET = UnsafeApi.objectFieldOffset(bitSetWordsInUseField);
 
             final Field bitSetSizeIsStickyField = Reflections.findField(BitSet.class, "sizeIsSticky");
-            BITSET_SIZE_IS_STICKY_OFFSET = Reflections.getUnsafe().objectFieldOffset(bitSetSizeIsStickyField);
+            BITSET_SIZE_IS_STICKY_OFFSET = UnsafeApi.objectFieldOffset(bitSetSizeIsStickyField);
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
@@ -116,17 +115,17 @@ public final class BitSets extends ABitSetsStaticFacade {
         }
         //
         try {
-            final int thisWordsInUse = Reflections.getUnsafe().getInt(combinedInto, BITSET_WORDS_IN_USE_OFFSET);
-            final long[] thisWords = (long[]) Reflections.getUnsafe().getObject(combinedInto, BITSET_WORDS_OFFSET);
-            final int otherWordsInUse = Reflections.getUnsafe().getInt(other, BITSET_WORDS_IN_USE_OFFSET);
-            final long[] otherWords = (long[]) Reflections.getUnsafe().getObject(other, BITSET_WORDS_OFFSET);
+            final int thisWordsInUse = UnsafeApi.getInt(combinedInto, BITSET_WORDS_IN_USE_OFFSET);
+            final long[] thisWords = (long[]) UnsafeApi.getReference(combinedInto, BITSET_WORDS_OFFSET);
+            final int otherWordsInUse = UnsafeApi.getInt(other, BITSET_WORDS_IN_USE_OFFSET);
+            final long[] otherWords = (long[]) UnsafeApi.getReference(other, BITSET_WORDS_OFFSET);
             //            while (wordsInUse > set.wordsInUse)
             //                words[--wordsInUse] = 0;
             final int toWordExclusive = Integers.min(thisWordsInUse, wordIndex(toExclusive) + 1, otherWordsInUse);
 
             final int fromWord = wordIndex(fromInclusive);
             if (toWordExclusive != thisWordsInUse) {
-                Reflections.getUnsafe().putInt(combinedInto, BITSET_WORDS_IN_USE_OFFSET, toWordExclusive);
+                UnsafeApi.putInt(combinedInto, BITSET_WORDS_IN_USE_OFFSET, toWordExclusive);
             }
             //
             //            // Perform logical AND on words in common
@@ -160,9 +159,9 @@ public final class BitSets extends ABitSetsStaticFacade {
             return;
         }
         try {
-            int thisWordsInUse = Reflections.getUnsafe().getInt(combinedInto, BITSET_WORDS_IN_USE_OFFSET);
-            final int otherWordsInUse = Reflections.getUnsafe().getInt(other, BITSET_WORDS_IN_USE_OFFSET);
-            final long[] otherWords = (long[]) Reflections.getUnsafe().getObject(other, BITSET_WORDS_OFFSET);
+            int thisWordsInUse = UnsafeApi.getInt(combinedInto, BITSET_WORDS_IN_USE_OFFSET);
+            final int otherWordsInUse = UnsafeApi.getInt(other, BITSET_WORDS_IN_USE_OFFSET);
+            final long[] otherWords = (long[]) UnsafeApi.getReference(other, BITSET_WORDS_OFFSET);
             //        int wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
             final int wordsInCommon = Math.min(thisWordsInUse, otherWordsInUse);
 
@@ -172,10 +171,10 @@ public final class BitSets extends ABitSetsStaticFacade {
             //        }
             if (thisWordsInUse < otherWordsInUse) {
                 ensureCapacity(combinedInto, otherWordsInUse);
-                Reflections.getUnsafe().putInt(combinedInto, BITSET_WORDS_IN_USE_OFFSET, otherWordsInUse);
+                UnsafeApi.putInt(combinedInto, BITSET_WORDS_IN_USE_OFFSET, otherWordsInUse);
                 thisWordsInUse = otherWordsInUse;
             }
-            final long[] thisWords = (long[]) Reflections.getUnsafe().getObject(combinedInto, BITSET_WORDS_OFFSET);
+            final long[] thisWords = (long[]) UnsafeApi.getReference(combinedInto, BITSET_WORDS_OFFSET);
 
             // Perform logical OR on words in common
             //        for (int i = 0; i < wordsInCommon; i++)
@@ -197,7 +196,7 @@ public final class BitSets extends ABitSetsStaticFacade {
                 System.arraycopy(otherWords, wordsInCommon, thisWords, wordsInCommon, thisWordsInUse - toWordExclusive);
             }
             if (toWordExclusive != thisWordsInUse) {
-                Reflections.getUnsafe().putInt(combinedInto, BITSET_WORDS_IN_USE_OFFSET, toWordExclusive);
+                UnsafeApi.putInt(combinedInto, BITSET_WORDS_IN_USE_OFFSET, toWordExclusive);
             }
 
             //         recalculateWordsInUse() is unnecessary
@@ -221,7 +220,7 @@ public final class BitSets extends ABitSetsStaticFacade {
     }
 
     private static void recalculateWordsInUse(final BitSet bitSet, final long[] words) {
-        final int prevWordsInUse = Reflections.getUnsafe().getInt(bitSet, BITSET_WORDS_IN_USE_OFFSET);
+        final int prevWordsInUse = UnsafeApi.getInt(bitSet, BITSET_WORDS_IN_USE_OFFSET);
 
         // Traverse the bitset until a used word is found
         int i;
@@ -232,17 +231,17 @@ public final class BitSets extends ABitSetsStaticFacade {
         }
 
         final int newWordsInUse = i + 1; // The new logical size
-        Reflections.getUnsafe().putInt(bitSet, BITSET_WORDS_IN_USE_OFFSET, newWordsInUse);
+        UnsafeApi.putInt(bitSet, BITSET_WORDS_IN_USE_OFFSET, newWordsInUse);
     }
 
     private static void ensureCapacity(final BitSet bitSet, final int wordsRequired) {
-        final long[] words = (long[]) Reflections.getUnsafe().getObject(bitSet, BITSET_WORDS_OFFSET);
+        final long[] words = (long[]) UnsafeApi.getReference(bitSet, BITSET_WORDS_OFFSET);
         if (words.length < wordsRequired) {
             // Allocate larger of doubled size or required size
             final int request = Math.max(2 * words.length, wordsRequired);
             final long[] newWords = Arrays.copyOf(words, request);
-            Reflections.getUnsafe().putObject(bitSet, BITSET_WORDS_OFFSET, newWords);
-            Reflections.getUnsafe().putBoolean(bitSet, BITSET_SIZE_IS_STICKY_OFFSET, false);
+            UnsafeApi.putReference(bitSet, BITSET_WORDS_OFFSET, newWords);
+            UnsafeApi.putBoolean(bitSet, BITSET_SIZE_IS_STICKY_OFFSET, false);
         }
     }
 

@@ -10,6 +10,7 @@ import java.util.Spliterator;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.agrona.UnsafeApi;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
@@ -24,7 +25,6 @@ import de.invesdwin.util.collections.loadingcache.historical.query.index.Indexed
 import de.invesdwin.util.collections.loadingcache.historical.query.index.QueryCoreIndex;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.FilterDuplicateKeysList;
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.HistoricalCacheAssertValue;
-import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.time.date.FDate;
 
 @ThreadSafe
@@ -230,8 +230,8 @@ public abstract class ACachedResultHistoricalCacheQueryCore<V> extends ACachedEn
         @Override
         public ICloseableIterator<IHistoricalEntry<_V>> iterator() {
             try {
-                final Object[] array = (Object[]) Reflections.getUnsafe()
-                        .getObject(list, ArrayListCloseableIterable.ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
+                final Object[] array = (Object[]) UnsafeApi.getReference(list,
+                        ArrayListCloseableIterable.ARRAYLIST_ELEMENTDATA_FIELD_OFFSET);
                 return new ArrayCloseableIterator(array, offset + modIncrementIndex.intValue(), size);
             } catch (final Throwable e) {
                 throw new RuntimeException(e);

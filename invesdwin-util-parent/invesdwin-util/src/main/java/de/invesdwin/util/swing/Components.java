@@ -26,6 +26,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.text.DefaultCaret;
 import javax.swing.text.JTextComponent;
 
+import org.agrona.UnsafeApi;
+
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.lang.string.Strings;
@@ -34,7 +36,6 @@ import de.invesdwin.util.swing.text.Hotkey;
 import de.invesdwin.util.swing.text.KeyGrabberTextField;
 import de.invesdwin.util.swing.text.ToolTipFormatter;
 
-@SuppressWarnings("restriction")
 @Immutable
 public final class Components {
 
@@ -51,10 +52,10 @@ public final class Components {
 
     static {
         final Field minSizeField = Reflections.findField(Component.class, "minSize");
-        COMPONENT_MINSIZE_FIELD_OFFSET = Reflections.getUnsafe().objectFieldOffset(minSizeField);
+        COMPONENT_MINSIZE_FIELD_OFFSET = UnsafeApi.objectFieldOffset(minSizeField);
 
         final Field minSizeSetField = Reflections.findField(Component.class, "minSizeSet");
-        COMPONENT_MINSIZESET_FIELD_OFFSET = Reflections.getUnsafe().objectFieldOffset(minSizeSetField);
+        COMPONENT_MINSIZESET_FIELD_OFFSET = UnsafeApi.objectFieldOffset(minSizeSetField);
     }
 
     private Components() {}
@@ -381,8 +382,8 @@ public final class Components {
     }
 
     public static void setMinimumSizeWithoutNotify(final Component component, final Dimension minimumSize) {
-        Reflections.getUnsafe().putObject(component, COMPONENT_MINSIZE_FIELD_OFFSET, minimumSize);
-        Reflections.getUnsafe().putBoolean(component, COMPONENT_MINSIZESET_FIELD_OFFSET, minimumSize != null);
+        UnsafeApi.putReference(component, COMPONENT_MINSIZE_FIELD_OFFSET, minimumSize);
+        UnsafeApi.putBoolean(component, COMPONENT_MINSIZESET_FIELD_OFFSET, minimumSize != null);
     }
 
     public static void setSelectionStart(final JTextComponent component, final int selectionStart) {

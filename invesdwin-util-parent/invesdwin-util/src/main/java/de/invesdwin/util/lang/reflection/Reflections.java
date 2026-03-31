@@ -8,7 +8,7 @@ import java.lang.reflect.Modifier;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
 
-import org.agrona.UnsafeAccess;
+import org.agrona.UnsafeApi;
 import org.burningwave.core.assembler.StaticComponentContainer;
 
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
@@ -259,13 +259,6 @@ public final class Reflections extends AReflectionsStaticFacade {
         }
     }
 
-    @SuppressWarnings("restriction")
-    public static sun.misc.Unsafe getUnsafe() {
-        //CHECKSTYLE:OFF
-        return UnsafeAccess.UNSAFE;
-        //CHECKSTYLE:ON
-    }
-
     public static String getClassSimpleNameNonBlank(final Class<?> clazz) {
         Class<?> curClazz = clazz;
         String className = null;
@@ -302,10 +295,10 @@ public final class Reflections extends AReflectionsStaticFacade {
     /**
      * https://stackoverflow.com/a/62434122
      */
-    @SuppressWarnings({ "unchecked", "restriction" })
+    @SuppressWarnings({ "unchecked" })
     public static <T> T unsafeClone(final T object) {
         try {
-            final T instance = (T) getUnsafe().allocateInstance(object.getClass());
+            final T instance = (T) UnsafeApi.allocateInstance(object.getClass());
             Class<?> clazz = object.getClass();
             while (!clazz.equals(Object.class)) {
                 for (final Field field : clazz.getDeclaredFields()) {

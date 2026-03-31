@@ -31,8 +31,6 @@ import static org.agrona.BufferUtil.NULL_BYTES;
 import static org.agrona.BufferUtil.address;
 import static org.agrona.BufferUtil.array;
 import static org.agrona.BufferUtil.arrayOffset;
-import static org.agrona.UnsafeAccess.MEMSET_HACK_REQUIRED;
-import static org.agrona.UnsafeAccess.MEMSET_HACK_THRESHOLD;
 import static org.agrona.collections.ArrayUtil.EMPTY_BYTE_ARRAY;
 
 import java.io.IOException;
@@ -45,10 +43,9 @@ import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
 import org.agrona.LangUtil;
 import org.agrona.MutableDirectBuffer;
-import org.agrona.SystemUtil;
+import org.agrona.UnsafeApi;
 
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
-import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
@@ -66,7 +63,6 @@ import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
  * <b>Note:</b> The wrap methods on this class are not thread safe. Concurrent access should only happen after a
  * successful wrap.
  */
-@SuppressWarnings("restriction")
 @NotThreadSafe
 public class UnsafeMemoryBase {
     /**
@@ -86,10 +82,7 @@ public class UnsafeMemoryBase {
      *
      * @see #DISABLE_BOUNDS_CHECKS_PROP_NAME
      */
-    public static final boolean SHOULD_BOUNDS_CHECK = !"true"
-            .equals(SystemUtil.getProperty(DISABLE_BOUNDS_CHECKS_PROP_NAME));
-
-    private static final sun.misc.Unsafe UNSAFE = Reflections.getUnsafe();
+    public static final boolean SHOULD_BOUNDS_CHECK = DirectBuffer.SHOULD_BOUNDS_CHECK;
 
     private long addressOffset;
     private long capacity;
@@ -347,12 +340,25 @@ public class UnsafeMemoryBase {
         }
 
         final long offset = addressOffset + index;
-        if (MEMSET_HACK_REQUIRED && length > MEMSET_HACK_THRESHOLD && 0 == (offset & 1)) {
-            // This horrible filth is to encourage the JVM to call memset() when address is even.
-            UNSAFE.putByte(byteArray, offset, value);
-            UNSAFE.setMemory(byteArray, offset + 1, length - 1, value);
+
+        if (length < 100) {
+            int i = 0;
+            final long end = (length & ~7);
+            //CHECKSTYLE:OFF
+            final long mask = ((((long) value) << 56) | (((long) value & 0xff) << 48) | (((long) value & 0xff) << 40)
+                    | (((long) value & 0xff) << 32) | (((long) value & 0xff) << 24) | (((long) value & 0xff) << 16)
+                    | (((long) value & 0xff) << 8) | (((long) value & 0xff)));
+
+            for (; i < end; i += 8) {
+                UnsafeApi.putLong(null, offset + i, mask);
+            }
+
+            for (; i < length; i++) {
+                UnsafeApi.putByte(null, offset + i, value);
+            }
+            //CHECKSTYLE:ON
         } else {
-            UNSAFE.setMemory(byteArray, offset, length, value);
+            UnsafeApi.setMemory(null, offset, length, value);
         }
     }
 
@@ -377,14 +383,14 @@ public class UnsafeMemoryBase {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     public long getLong(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
             boundsCheck0(index, SIZE_OF_LONG);
         }
 
-        long bits = UNSAFE.getLong(byteArray, addressOffset + index);
+        long bits = UnsafeApi.getLong(byteArray, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
             bits = Long.reverseBytes(bits);
         }
@@ -402,7 +408,7 @@ public class UnsafeMemoryBase {
             bits = Long.reverseBytes(bits);
         }
 
-        UNSAFE.putLong(byteArray, addressOffset + index, bits);
+        UnsafeApi.putLong(byteArray, addressOffset + index, bits);
     }
 
     public long getLong(final long index) {
@@ -410,7 +416,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_LONG);
         }
 
-        return UNSAFE.getLong(byteArray, addressOffset + index);
+        return UnsafeApi.getLong(byteArray, addressOffset + index);
     }
 
     public void putLong(final long index, final long value) {
@@ -418,7 +424,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_LONG);
         }
 
-        UNSAFE.putLong(byteArray, addressOffset + index, value);
+        UnsafeApi.putLong(byteArray, addressOffset + index, value);
     }
 
     public long getLongVolatile(final long index) {
@@ -426,7 +432,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_LONG);
         }
 
-        return UNSAFE.getLongVolatile(byteArray, addressOffset + index);
+        return UnsafeApi.getLongVolatile(byteArray, addressOffset + index);
     }
 
     public void putLongVolatile(final long index, final long value) {
@@ -434,7 +440,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_LONG);
         }
 
-        UNSAFE.putLongVolatile(byteArray, addressOffset + index, value);
+        UnsafeApi.putLongVolatile(byteArray, addressOffset + index, value);
     }
 
     public void putLongOrdered(final long index, final long value) {
@@ -442,7 +448,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_LONG);
         }
 
-        UNSAFE.putOrderedLong(byteArray, addressOffset + index, value);
+        UnsafeApi.putLongRelease(byteArray, addressOffset + index, value);
     }
 
     public long addLongOrdered(final long index, final long increment) {
@@ -452,8 +458,8 @@ public class UnsafeMemoryBase {
 
         final long offset = addressOffset + index;
         final byte[] byteArray = this.byteArray;
-        final long value = UNSAFE.getLong(byteArray, offset);
-        UNSAFE.putOrderedLong(byteArray, offset, value + increment);
+        final long value = UnsafeApi.getLong(byteArray, offset);
+        UnsafeApi.putLongRelease(byteArray, offset, value + increment);
 
         return value;
     }
@@ -463,7 +469,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_LONG);
         }
 
-        return UNSAFE.compareAndSwapLong(byteArray, addressOffset + index, expectedValue, updateValue);
+        return UnsafeApi.compareAndSetLong(byteArray, addressOffset + index, expectedValue, updateValue);
     }
 
     public long getAndSetLong(final long index, final long value) {
@@ -471,7 +477,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_LONG);
         }
 
-        return UNSAFE.getAndSetLong(byteArray, addressOffset + index, value);
+        return UnsafeApi.getAndSetLong(byteArray, addressOffset + index, value);
     }
 
     public long getAndAddLong(final long index, final long delta) {
@@ -479,17 +485,17 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_LONG);
         }
 
-        return UNSAFE.getAndAddLong(byteArray, addressOffset + index, delta);
+        return UnsafeApi.getAndAddLong(byteArray, addressOffset + index, delta);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     public int getInt(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
             boundsCheck0(index, SIZE_OF_INT);
         }
 
-        int bits = UNSAFE.getInt(byteArray, addressOffset + index);
+        int bits = UnsafeApi.getInt(byteArray, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
             bits = Integer.reverseBytes(bits);
         }
@@ -507,7 +513,7 @@ public class UnsafeMemoryBase {
             bits = Integer.reverseBytes(bits);
         }
 
-        UNSAFE.putInt(byteArray, addressOffset + index, bits);
+        UnsafeApi.putInt(byteArray, addressOffset + index, bits);
     }
 
     public int getInt(final long index) {
@@ -515,7 +521,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_INT);
         }
 
-        return UNSAFE.getInt(byteArray, addressOffset + index);
+        return UnsafeApi.getInt(byteArray, addressOffset + index);
     }
 
     public void putInt(final long index, final int value) {
@@ -523,7 +529,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_INT);
         }
 
-        UNSAFE.putInt(byteArray, addressOffset + index, value);
+        UnsafeApi.putInt(byteArray, addressOffset + index, value);
     }
 
     public int getIntVolatile(final long index) {
@@ -531,7 +537,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_INT);
         }
 
-        return UNSAFE.getIntVolatile(byteArray, addressOffset + index);
+        return UnsafeApi.getIntVolatile(byteArray, addressOffset + index);
     }
 
     public void putIntVolatile(final long index, final int value) {
@@ -539,7 +545,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_INT);
         }
 
-        UNSAFE.putIntVolatile(byteArray, addressOffset + index, value);
+        UnsafeApi.putIntVolatile(byteArray, addressOffset + index, value);
     }
 
     public void putIntOrdered(final long index, final int value) {
@@ -547,7 +553,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_INT);
         }
 
-        UNSAFE.putOrderedInt(byteArray, addressOffset + index, value);
+        UnsafeApi.putIntRelease(byteArray, addressOffset + index, value);
     }
 
     public int addIntOrdered(final long index, final int increment) {
@@ -557,8 +563,8 @@ public class UnsafeMemoryBase {
 
         final long offset = addressOffset + index;
         final byte[] byteArray = this.byteArray;
-        final int value = UNSAFE.getInt(byteArray, offset);
-        UNSAFE.putOrderedInt(byteArray, offset, value + increment);
+        final int value = UnsafeApi.getInt(byteArray, offset);
+        UnsafeApi.getAndAddIntRelease(byteArray, offset, value + increment);
 
         return value;
     }
@@ -568,7 +574,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_INT);
         }
 
-        return UNSAFE.compareAndSwapInt(byteArray, addressOffset + index, expectedValue, updateValue);
+        return UnsafeApi.compareAndSetInt(byteArray, addressOffset + index, expectedValue, updateValue);
     }
 
     public int getAndSetInt(final long index, final int value) {
@@ -576,7 +582,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_INT);
         }
 
-        return UNSAFE.getAndSetInt(byteArray, addressOffset + index, value);
+        return UnsafeApi.getAndSetInt(byteArray, addressOffset + index, value);
     }
 
     public int getAndAddInt(final long index, final int delta) {
@@ -584,10 +590,10 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_INT);
         }
 
-        return UNSAFE.getAndAddInt(byteArray, addressOffset + index, delta);
+        return UnsafeApi.getAndAddInt(byteArray, addressOffset + index, delta);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     public double getDouble(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -595,10 +601,10 @@ public class UnsafeMemoryBase {
         }
 
         if (NATIVE_BYTE_ORDER != byteOrder) {
-            final long bits = UNSAFE.getLong(byteArray, addressOffset + index);
+            final long bits = UnsafeApi.getLong(byteArray, addressOffset + index);
             return Double.longBitsToDouble(Long.reverseBytes(bits));
         } else {
-            return UNSAFE.getDouble(byteArray, addressOffset + index);
+            return UnsafeApi.getDouble(byteArray, addressOffset + index);
         }
     }
 
@@ -609,9 +615,9 @@ public class UnsafeMemoryBase {
 
         if (NATIVE_BYTE_ORDER != byteOrder) {
             final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
-            UNSAFE.putLong(byteArray, addressOffset + index, bits);
+            UnsafeApi.putLong(byteArray, addressOffset + index, bits);
         } else {
-            UNSAFE.putDouble(byteArray, addressOffset + index, value);
+            UnsafeApi.putDouble(byteArray, addressOffset + index, value);
         }
     }
 
@@ -620,7 +626,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_DOUBLE);
         }
 
-        return UNSAFE.getDouble(byteArray, addressOffset + index);
+        return UnsafeApi.getDouble(byteArray, addressOffset + index);
     }
 
     public void putDouble(final long index, final double value) {
@@ -628,10 +634,10 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_DOUBLE);
         }
 
-        UNSAFE.putDouble(byteArray, addressOffset + index, value);
+        UnsafeApi.putDouble(byteArray, addressOffset + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     public float getFloat(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -639,10 +645,10 @@ public class UnsafeMemoryBase {
         }
 
         if (NATIVE_BYTE_ORDER != byteOrder) {
-            final int bits = UNSAFE.getInt(byteArray, addressOffset + index);
+            final int bits = UnsafeApi.getInt(byteArray, addressOffset + index);
             return Float.intBitsToFloat(Integer.reverseBytes(bits));
         } else {
-            return UNSAFE.getFloat(byteArray, addressOffset + index);
+            return UnsafeApi.getFloat(byteArray, addressOffset + index);
         }
     }
 
@@ -653,9 +659,9 @@ public class UnsafeMemoryBase {
 
         if (NATIVE_BYTE_ORDER != byteOrder) {
             final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
-            UNSAFE.putInt(byteArray, addressOffset + index, bits);
+            UnsafeApi.putInt(byteArray, addressOffset + index, bits);
         } else {
-            UNSAFE.putFloat(byteArray, addressOffset + index, value);
+            UnsafeApi.putFloat(byteArray, addressOffset + index, value);
         }
     }
 
@@ -664,7 +670,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_FLOAT);
         }
 
-        return UNSAFE.getFloat(byteArray, addressOffset + index);
+        return UnsafeApi.getFloat(byteArray, addressOffset + index);
     }
 
     public void putFloat(final long index, final float value) {
@@ -672,17 +678,17 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_FLOAT);
         }
 
-        UNSAFE.putFloat(byteArray, addressOffset + index, value);
+        UnsafeApi.putFloat(byteArray, addressOffset + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     public short getShort(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
             boundsCheck0(index, SIZE_OF_SHORT);
         }
 
-        short bits = UNSAFE.getShort(byteArray, addressOffset + index);
+        short bits = UnsafeApi.getShort(byteArray, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
             bits = Short.reverseBytes(bits);
         }
@@ -700,7 +706,7 @@ public class UnsafeMemoryBase {
             bits = Short.reverseBytes(bits);
         }
 
-        UNSAFE.putShort(byteArray, addressOffset + index, bits);
+        UnsafeApi.putShort(byteArray, addressOffset + index, bits);
     }
 
     public short getShort(final long index) {
@@ -708,7 +714,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_SHORT);
         }
 
-        return UNSAFE.getShort(byteArray, addressOffset + index);
+        return UnsafeApi.getShort(byteArray, addressOffset + index);
     }
 
     public void putShort(final long index, final short value) {
@@ -716,7 +722,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_SHORT);
         }
 
-        UNSAFE.putShort(byteArray, addressOffset + index, value);
+        UnsafeApi.putShort(byteArray, addressOffset + index, value);
     }
 
     public short getShortVolatile(final long index) {
@@ -724,7 +730,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_SHORT);
         }
 
-        return UNSAFE.getShortVolatile(byteArray, addressOffset + index);
+        return UnsafeApi.getShortVolatile(byteArray, addressOffset + index);
     }
 
     public void putShortVolatile(final long index, final short value) {
@@ -732,17 +738,17 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_SHORT);
         }
 
-        UNSAFE.putShortVolatile(byteArray, addressOffset + index, value);
+        UnsafeApi.putShortVolatile(byteArray, addressOffset + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     public byte getByte(final long index) {
         if (SHOULD_BOUNDS_CHECK) {
             boundsCheck(index);
         }
 
-        return UNSAFE.getByte(byteArray, addressOffset + index);
+        return UnsafeApi.getByte(byteArray, addressOffset + index);
     }
 
     public void putByte(final long index, final byte value) {
@@ -750,7 +756,7 @@ public class UnsafeMemoryBase {
             boundsCheck(index);
         }
 
-        UNSAFE.putByte(byteArray, addressOffset + index, value);
+        UnsafeApi.putByte(byteArray, addressOffset + index, value);
     }
 
     public byte getByteVolatile(final long index) {
@@ -758,7 +764,7 @@ public class UnsafeMemoryBase {
             boundsCheck(index);
         }
 
-        return UNSAFE.getByteVolatile(byteArray, addressOffset + index);
+        return UnsafeApi.getByteVolatile(byteArray, addressOffset + index);
     }
 
     public void putByteVolatile(final long index, final byte value) {
@@ -766,7 +772,7 @@ public class UnsafeMemoryBase {
             boundsCheck(index);
         }
 
-        UNSAFE.putByteVolatile(byteArray, addressOffset + index, value);
+        UnsafeApi.putByteVolatile(byteArray, addressOffset + index, value);
     }
 
     public void getBytes(final long index, final byte[] dst) {
@@ -774,7 +780,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, dst.length);
         }
 
-        UNSAFE.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET, dst.length);
+        UnsafeApi.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET, dst.length);
     }
 
     public void getBytes(final long index, final byte[] dst, final int offset, final int length) {
@@ -783,7 +789,7 @@ public class UnsafeMemoryBase {
             BufferUtil.boundsCheck(dst, offset, length);
         }
 
-        UNSAFE.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET + offset, length);
+        UnsafeApi.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET + offset, length);
     }
 
     public void getBytes(final long index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {
@@ -797,7 +803,7 @@ public class UnsafeMemoryBase {
             srcBuffer.boundsCheck(srcIndex, length);
         }
 
-        UNSAFE.copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, dstBuffer.byteArray(),
+        UnsafeApi.copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, dstBuffer.byteArray(),
                 dstBuffer.addressOffset() + dstIndex, length);
     }
 
@@ -823,7 +829,7 @@ public class UnsafeMemoryBase {
             dstBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(dstBuffer);
         }
 
-        UNSAFE.copyMemory(byteArray, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, length);
+        UnsafeApi.copyMemory(byteArray, addressOffset + index, dstByteArray, dstBaseOffset + dstOffset, length);
     }
 
     public void putBytes(final long index, final byte[] src) {
@@ -831,7 +837,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, src.length);
         }
 
-        UNSAFE.copyMemory(src, ARRAY_BASE_OFFSET, byteArray, addressOffset + index, src.length);
+        UnsafeApi.copyMemory(src, ARRAY_BASE_OFFSET, byteArray, addressOffset + index, src.length);
     }
 
     public void putBytes(final long index, final byte[] src, final int offset, final int length) {
@@ -840,7 +846,7 @@ public class UnsafeMemoryBase {
             BufferUtil.boundsCheck(src, offset, length);
         }
 
-        UNSAFE.copyMemory(src, ARRAY_BASE_OFFSET + offset, byteArray, addressOffset + index, length);
+        UnsafeApi.copyMemory(src, ARRAY_BASE_OFFSET + offset, byteArray, addressOffset + index, length);
     }
 
     public void putBytes(final long index, final java.nio.ByteBuffer srcBuffer, final int length) {
@@ -865,7 +871,7 @@ public class UnsafeMemoryBase {
             srcBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(srcBuffer);
         }
 
-        UNSAFE.copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, addressOffset + index, length);
+        UnsafeApi.copyMemory(srcByteArray, srcBaseOffset + srcIndex, byteArray, addressOffset + index, length);
     }
 
     public void putBytes(final long index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
@@ -874,18 +880,18 @@ public class UnsafeMemoryBase {
             srcBuffer.boundsCheck(srcIndex, length);
         }
 
-        UNSAFE.copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, byteArray, addressOffset + index,
-                length);
+        UnsafeApi.copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, byteArray,
+                addressOffset + index, length);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     public char getChar(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
             boundsCheck0(index, SIZE_OF_CHAR);
         }
 
-        char bits = UNSAFE.getChar(byteArray, addressOffset + index);
+        char bits = UnsafeApi.getChar(byteArray, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
             bits = (char) Short.reverseBytes((short) bits);
         }
@@ -903,7 +909,7 @@ public class UnsafeMemoryBase {
             bits = (char) Short.reverseBytes((short) bits);
         }
 
-        UNSAFE.putChar(byteArray, addressOffset + index, bits);
+        UnsafeApi.putChar(byteArray, addressOffset + index, bits);
     }
 
     public char getChar(final long index) {
@@ -911,7 +917,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_CHAR);
         }
 
-        return UNSAFE.getChar(byteArray, addressOffset + index);
+        return UnsafeApi.getChar(byteArray, addressOffset + index);
     }
 
     public void putChar(final long index, final char value) {
@@ -919,7 +925,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_CHAR);
         }
 
-        UNSAFE.putChar(byteArray, addressOffset + index, value);
+        UnsafeApi.putChar(byteArray, addressOffset + index, value);
     }
 
     public char getCharVolatile(final long index) {
@@ -927,7 +933,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_CHAR);
         }
 
-        return UNSAFE.getCharVolatile(byteArray, addressOffset + index);
+        return UnsafeApi.getCharVolatile(byteArray, addressOffset + index);
     }
 
     public void putCharVolatile(final long index, final char value) {
@@ -935,17 +941,17 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, SIZE_OF_CHAR);
         }
 
-        UNSAFE.putCharVolatile(byteArray, addressOffset + index, value);
+        UnsafeApi.putCharVolatile(byteArray, addressOffset + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     public String getStringAscii(final long index) {
         if (SHOULD_BOUNDS_CHECK) {
             boundsCheck0(index, DirectBuffer.STR_HEADER_LEN);
         }
 
-        final int length = UNSAFE.getInt(byteArray, addressOffset + index);
+        final int length = UnsafeApi.getInt(byteArray, addressOffset + index);
 
         return getStringAscii(index, length);
     }
@@ -953,7 +959,7 @@ public class UnsafeMemoryBase {
     public int getStringAscii(final long index, final Appendable appendable) {
         boundsCheck0(index, DirectBuffer.STR_HEADER_LEN);
 
-        final int length = UNSAFE.getInt(byteArray, addressOffset + index);
+        final int length = UnsafeApi.getInt(byteArray, addressOffset + index);
 
         return getStringAscii(index, length, appendable);
     }
@@ -963,7 +969,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, DirectBuffer.STR_HEADER_LEN);
         }
 
-        int bits = UNSAFE.getInt(byteArray, addressOffset + index);
+        int bits = UnsafeApi.getInt(byteArray, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
             bits = Integer.reverseBytes(bits);
         }
@@ -976,7 +982,7 @@ public class UnsafeMemoryBase {
     public int getStringAscii(final long index, final Appendable appendable, final ByteOrder byteOrder) {
         boundsCheck0(index, DirectBuffer.STR_HEADER_LEN);
 
-        int bits = UNSAFE.getInt(byteArray, addressOffset + index);
+        int bits = UnsafeApi.getInt(byteArray, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
             bits = Integer.reverseBytes(bits);
         }
@@ -992,7 +998,7 @@ public class UnsafeMemoryBase {
         }
 
         final byte[] dst = new byte[length];
-        UNSAFE.copyMemory(byteArray, addressOffset + index + DirectBuffer.STR_HEADER_LEN, dst, ARRAY_BASE_OFFSET,
+        UnsafeApi.copyMemory(byteArray, addressOffset + index + DirectBuffer.STR_HEADER_LEN, dst, ARRAY_BASE_OFFSET,
                 length);
 
         return new String(dst, US_ASCII);
@@ -1006,7 +1012,7 @@ public class UnsafeMemoryBase {
         try {
             for (long i = index + DirectBuffer.STR_HEADER_LEN,
                     limit = index + DirectBuffer.STR_HEADER_LEN + length; i < limit; i++) {
-                final char c = (char) UNSAFE.getByte(byteArray, addressOffset + i);
+                final char c = (char) UnsafeApi.getByte(byteArray, addressOffset + i);
                 appendable.append(c > 127 ? '?' : c);
             }
         } catch (final IOException ex) {
@@ -1023,7 +1029,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, length + DirectBuffer.STR_HEADER_LEN);
         }
 
-        UNSAFE.putInt(byteArray, addressOffset + index, length);
+        UnsafeApi.putInt(byteArray, addressOffset + index, length);
 
         for (int i = 0; i < length; i++) {
             char c = value.charAt(i);
@@ -1031,7 +1037,7 @@ public class UnsafeMemoryBase {
                 c = '?';
             }
 
-            UNSAFE.putByte(byteArray, addressOffset + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
+            UnsafeApi.putByte(byteArray, addressOffset + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
         }
 
         return DirectBuffer.STR_HEADER_LEN + length;
@@ -1044,7 +1050,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, length + DirectBuffer.STR_HEADER_LEN);
         }
 
-        UNSAFE.putInt(byteArray, addressOffset + index, length);
+        UnsafeApi.putInt(byteArray, addressOffset + index, length);
 
         for (int i = 0; i < length; i++) {
             char c = value.charAt(i);
@@ -1052,7 +1058,7 @@ public class UnsafeMemoryBase {
                 c = '?';
             }
 
-            UNSAFE.putByte(byteArray, addressOffset + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
+            UnsafeApi.putByte(byteArray, addressOffset + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
         }
 
         return DirectBuffer.STR_HEADER_LEN + length;
@@ -1070,7 +1076,7 @@ public class UnsafeMemoryBase {
             bits = Integer.reverseBytes(bits);
         }
 
-        UNSAFE.putInt(byteArray, addressOffset + index, bits);
+        UnsafeApi.putInt(byteArray, addressOffset + index, bits);
 
         for (int i = 0; i < length; i++) {
             char c = value.charAt(i);
@@ -1078,7 +1084,7 @@ public class UnsafeMemoryBase {
                 c = '?';
             }
 
-            UNSAFE.putByte(byteArray, addressOffset + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
+            UnsafeApi.putByte(byteArray, addressOffset + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
         }
 
         return DirectBuffer.STR_HEADER_LEN + length;
@@ -1096,7 +1102,7 @@ public class UnsafeMemoryBase {
             bits = Integer.reverseBytes(bits);
         }
 
-        UNSAFE.putInt(byteArray, addressOffset + index, bits);
+        UnsafeApi.putInt(byteArray, addressOffset + index, bits);
 
         for (int i = 0; i < length; i++) {
             char c = value.charAt(i);
@@ -1104,7 +1110,7 @@ public class UnsafeMemoryBase {
                 c = '?';
             }
 
-            UNSAFE.putByte(byteArray, addressOffset + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
+            UnsafeApi.putByte(byteArray, addressOffset + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
         }
 
         return DirectBuffer.STR_HEADER_LEN + length;
@@ -1116,7 +1122,7 @@ public class UnsafeMemoryBase {
         }
 
         final byte[] dst = new byte[length];
-        UNSAFE.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET, length);
+        UnsafeApi.copyMemory(byteArray, addressOffset + index, dst, ARRAY_BASE_OFFSET, length);
 
         return new String(dst, US_ASCII);
     }
@@ -1128,7 +1134,7 @@ public class UnsafeMemoryBase {
 
         try {
             for (long i = index, limit = index + length; i < limit; i++) {
-                final char c = (char) UNSAFE.getByte(byteArray, addressOffset + i);
+                final char c = (char) UnsafeApi.getByte(byteArray, addressOffset + i);
                 appendable.append(c > 127 ? '?' : c);
             }
         } catch (final IOException ex) {
@@ -1151,7 +1157,7 @@ public class UnsafeMemoryBase {
                 c = '?';
             }
 
-            UNSAFE.putByte(byteArray, addressOffset + index + i, (byte) c);
+            UnsafeApi.putByte(byteArray, addressOffset + index + i, (byte) c);
         }
 
         return length;
@@ -1170,7 +1176,7 @@ public class UnsafeMemoryBase {
                 c = '?';
             }
 
-            UNSAFE.putByte(byteArray, addressOffset + index + i, (byte) c);
+            UnsafeApi.putByte(byteArray, addressOffset + index + i, (byte) c);
         }
 
         return length;
@@ -1190,7 +1196,7 @@ public class UnsafeMemoryBase {
                 c = '?';
             }
 
-            UNSAFE.putByte(byteArray, addressOffset + index + i, (byte) c);
+            UnsafeApi.putByte(byteArray, addressOffset + index + i, (byte) c);
         }
 
         return len;
@@ -1210,20 +1216,20 @@ public class UnsafeMemoryBase {
                 c = '?';
             }
 
-            UNSAFE.putByte(byteArray, addressOffset + index + i, (byte) c);
+            UnsafeApi.putByte(byteArray, addressOffset + index + i, (byte) c);
         }
 
         return len;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     public String getStringUtf8(final long index) {
         if (SHOULD_BOUNDS_CHECK) {
             boundsCheck0(index, DirectBuffer.STR_HEADER_LEN);
         }
 
-        final int length = UNSAFE.getInt(byteArray, addressOffset + index);
+        final int length = UnsafeApi.getInt(byteArray, addressOffset + index);
 
         return getStringUtf8(index, length);
     }
@@ -1233,7 +1239,7 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, DirectBuffer.STR_HEADER_LEN);
         }
 
-        int bits = UNSAFE.getInt(byteArray, addressOffset + index);
+        int bits = UnsafeApi.getInt(byteArray, addressOffset + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
             bits = Integer.reverseBytes(bits);
         }
@@ -1249,7 +1255,7 @@ public class UnsafeMemoryBase {
         }
 
         final byte[] stringInBytes = new byte[length];
-        UNSAFE.copyMemory(byteArray, addressOffset + index + DirectBuffer.STR_HEADER_LEN, stringInBytes,
+        UnsafeApi.copyMemory(byteArray, addressOffset + index + DirectBuffer.STR_HEADER_LEN, stringInBytes,
                 ARRAY_BASE_OFFSET, length);
 
         return new String(stringInBytes, UTF_8);
@@ -1273,8 +1279,8 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, DirectBuffer.STR_HEADER_LEN + bytes.length);
         }
 
-        UNSAFE.putInt(byteArray, addressOffset + index, bytes.length);
-        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index + DirectBuffer.STR_HEADER_LEN,
+        UnsafeApi.putInt(byteArray, addressOffset + index, bytes.length);
+        UnsafeApi.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index + DirectBuffer.STR_HEADER_LEN,
                 bytes.length);
 
         return DirectBuffer.STR_HEADER_LEN + bytes.length;
@@ -1296,8 +1302,8 @@ public class UnsafeMemoryBase {
             bits = Integer.reverseBytes(bits);
         }
 
-        UNSAFE.putInt(byteArray, addressOffset + index, bits);
-        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index + DirectBuffer.STR_HEADER_LEN,
+        UnsafeApi.putInt(byteArray, addressOffset + index, bits);
+        UnsafeApi.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index + DirectBuffer.STR_HEADER_LEN,
                 bytes.length);
 
         return DirectBuffer.STR_HEADER_LEN + bytes.length;
@@ -1309,7 +1315,7 @@ public class UnsafeMemoryBase {
         }
 
         final byte[] stringInBytes = new byte[length];
-        UNSAFE.copyMemory(byteArray, addressOffset + index, stringInBytes, ARRAY_BASE_OFFSET, length);
+        UnsafeApi.copyMemory(byteArray, addressOffset + index, stringInBytes, ARRAY_BASE_OFFSET, length);
 
         return new String(stringInBytes, UTF_8);
     }
@@ -1320,12 +1326,12 @@ public class UnsafeMemoryBase {
             boundsCheck0(index, bytes.length);
         }
 
-        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index, bytes.length);
+        UnsafeApi.copyMemory(bytes, ARRAY_BASE_OFFSET, byteArray, addressOffset + index, bytes.length);
 
         return bytes.length;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     public int parseNaturalIntAscii(final long index, final int length) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -1372,7 +1378,7 @@ public class UnsafeMemoryBase {
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final boolean negative = MINUS_SIGN == UNSAFE.getByte(byteArray, addressOffset + index);
+        final boolean negative = MINUS_SIGN == UnsafeApi.getByte(byteArray, addressOffset + index);
         long i = index;
         if (negative) {
             i++;
@@ -1403,7 +1409,7 @@ public class UnsafeMemoryBase {
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final boolean negative = MINUS_SIGN == UNSAFE.getByte(byteArray, addressOffset + index);
+        final boolean negative = MINUS_SIGN == UnsafeApi.getByte(byteArray, addressOffset + index);
         long i = index;
         if (negative) {
             i++;
@@ -1447,7 +1453,7 @@ public class UnsafeMemoryBase {
                 boundsCheck0(index, length);
             }
 
-            UNSAFE.putByte(dest, offset, MINUS_SIGN);
+            UnsafeApi.putByte(dest, offset, MINUS_SIGN);
             offset++;
         } else {
             digitCount = digitCount(quotient);
@@ -1548,7 +1554,7 @@ public class UnsafeMemoryBase {
                 boundsCheck0(index, length);
             }
 
-            UNSAFE.putByte(dest, offset, MINUS_SIGN);
+            UnsafeApi.putByte(dest, offset, MINUS_SIGN);
             offset++;
         } else {
             digitCount = digitCount(quotient);
@@ -1574,7 +1580,7 @@ public class UnsafeMemoryBase {
         return addressOffset - offset;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1601,7 +1607,7 @@ public class UnsafeMemoryBase {
         final long thatOffset = that.addressOffset;
 
         for (long i = 0, length = capacity; i < length; i++) {
-            if (UNSAFE.getByte(thisByteArray, thisOffset + i) != UNSAFE.getByte(thatByteArray, thatOffset + i)) {
+            if (UnsafeApi.getByte(thisByteArray, thisOffset + i) != UnsafeApi.getByte(thatByteArray, thatOffset + i)) {
                 return false;
             }
         }
@@ -1619,7 +1625,7 @@ public class UnsafeMemoryBase {
         final byte[] byteArray = this.byteArray;
         final long addressOffset = this.addressOffset;
         for (long i = 0, length = capacity; i < length; i++) {
-            hashCode = 31 * hashCode + UNSAFE.getByte(byteArray, addressOffset + i);
+            hashCode = 31 * hashCode + UnsafeApi.getByte(byteArray, addressOffset + i);
         }
 
         return hashCode;
@@ -1634,8 +1640,8 @@ public class UnsafeMemoryBase {
         final long thatOffset = that.addressOffset();
 
         for (long i = 0, length = Math.min(thisCapacity, thatCapacity); i < length; i++) {
-            final int cmp = Byte.compare(UNSAFE.getByte(thisByteArray, thisOffset + i),
-                    UNSAFE.getByte(thatByteArray, thatOffset + i));
+            final int cmp = Byte.compare(UnsafeApi.getByte(thisByteArray, thisOffset + i),
+                    UnsafeApi.getByte(thatByteArray, thatOffset + i));
 
             if (0 != cmp) {
                 return cmp;
@@ -1678,7 +1684,7 @@ public class UnsafeMemoryBase {
         final byte[] src = byteArray;
         long i = startIndex;
         int tally = 0, quartet;
-        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = UNSAFE.getInt(src, offset + i))) {
+        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = UnsafeApi.getInt(src, offset + i))) {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
                 quartet = Integer.reverseBytes(quartet);
             }
@@ -1688,7 +1694,7 @@ public class UnsafeMemoryBase {
         }
 
         byte digit;
-        while (i < end && isDigit(digit = UNSAFE.getByte(src, offset + i))) {
+        while (i < end && isDigit(digit = UnsafeApi.getByte(src, offset + i))) {
             tally = (tally * 10) + (digit - 0x30);
             i++;
         }
@@ -1710,7 +1716,7 @@ public class UnsafeMemoryBase {
         final byte[] src = byteArray;
         long i = startIndex;
         long tally = 0;
-        long octet = UNSAFE.getLong(src, offset + i);
+        long octet = UnsafeApi.getLong(src, offset + i);
         if (isEightDigitAsciiEncodedNumber(octet)) {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
                 octet = Long.reverseBytes(octet);
@@ -1719,7 +1725,7 @@ public class UnsafeMemoryBase {
             i += 8;
 
             byte digit;
-            while (i < end && isDigit(digit = UNSAFE.getByte(src, offset + i))) {
+            while (i < end && isDigit(digit = UnsafeApi.getByte(src, offset + i))) {
                 tally = (tally * 10L) + (digit - 0x30);
                 i++;
             }
@@ -1745,7 +1751,7 @@ public class UnsafeMemoryBase {
         final byte[] src = byteArray;
         long i = startIndex;
         long tally = 0, octet;
-        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = UNSAFE.getLong(src, offset + i))) {
+        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = UnsafeApi.getLong(src, offset + i))) {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
                 octet = Long.reverseBytes(octet);
             }
@@ -1755,7 +1761,7 @@ public class UnsafeMemoryBase {
         }
 
         int quartet;
-        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = UNSAFE.getInt(src, offset + i))) {
+        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = UnsafeApi.getInt(src, offset + i))) {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
                 quartet = Integer.reverseBytes(quartet);
             }
@@ -1765,7 +1771,7 @@ public class UnsafeMemoryBase {
         }
 
         byte digit;
-        while (i < end && isDigit(digit = UNSAFE.getByte(src, offset + i))) {
+        while (i < end && isDigit(digit = UnsafeApi.getByte(src, offset + i))) {
             tally = (tally * 10) + (digit - 0x30);
             i++;
         }
@@ -1789,7 +1795,7 @@ public class UnsafeMemoryBase {
         int k = 0;
         boolean checkOverflow = true;
         long tally = 0, octet;
-        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = UNSAFE.getLong(src, offset + i))) {
+        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = UnsafeApi.getLong(src, offset + i))) {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
                 octet = Long.reverseBytes(octet);
             }
@@ -1809,7 +1815,7 @@ public class UnsafeMemoryBase {
 
         byte digit;
         int lastDigits = 0;
-        while (i < end && isDigit(digit = UNSAFE.getByte(src, offset + i))) {
+        while (i < end && isDigit(digit = UnsafeApi.getByte(src, offset + i))) {
             lastDigits = (lastDigits * 10) + (digit - 0x30);
             i++;
         }
@@ -1860,25 +1866,25 @@ public class UnsafeMemoryBase {
 
             i -= 4;
 
-            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[p1]);
-            UNSAFE.putByte(dest, offset + i + 1, ASCII_DIGITS[p1 + 1]);
-            UNSAFE.putByte(dest, offset + i + 2, ASCII_DIGITS[p2]);
-            UNSAFE.putByte(dest, offset + i + 3, ASCII_DIGITS[p2 + 1]);
+            UnsafeApi.putByte(dest, offset + i, ASCII_DIGITS[p1]);
+            UnsafeApi.putByte(dest, offset + i + 1, ASCII_DIGITS[p1 + 1]);
+            UnsafeApi.putByte(dest, offset + i + 2, ASCII_DIGITS[p2]);
+            UnsafeApi.putByte(dest, offset + i + 3, ASCII_DIGITS[p2 + 1]);
         }
 
         if (quotient >= 100) {
             final int position = (quotient % 100) << 1;
             quotient /= 100;
-            UNSAFE.putByte(dest, offset + i - 1, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(dest, offset + i - 2, ASCII_DIGITS[position]);
+            UnsafeApi.putByte(dest, offset + i - 1, ASCII_DIGITS[position + 1]);
+            UnsafeApi.putByte(dest, offset + i - 2, ASCII_DIGITS[position]);
         }
 
         if (quotient >= 10) {
             final int position = quotient << 1;
-            UNSAFE.putByte(dest, offset + 1, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(dest, offset, ASCII_DIGITS[position]);
+            UnsafeApi.putByte(dest, offset + 1, ASCII_DIGITS[position + 1]);
+            UnsafeApi.putByte(dest, offset, ASCII_DIGITS[position]);
         } else {
-            UNSAFE.putByte(dest, offset, (byte) (ZERO + quotient));
+            UnsafeApi.putByte(dest, offset, (byte) (ZERO + quotient));
         }
     }
 
@@ -1900,14 +1906,14 @@ public class UnsafeMemoryBase {
 
             i -= 8;
 
-            UNSAFE.putByte(dest, offset + i, ASCII_DIGITS[u1]);
-            UNSAFE.putByte(dest, offset + i + 1, ASCII_DIGITS[u1 + 1]);
-            UNSAFE.putByte(dest, offset + i + 2, ASCII_DIGITS[u2]);
-            UNSAFE.putByte(dest, offset + i + 3, ASCII_DIGITS[u2 + 1]);
-            UNSAFE.putByte(dest, offset + i + 4, ASCII_DIGITS[l1]);
-            UNSAFE.putByte(dest, offset + i + 5, ASCII_DIGITS[l1 + 1]);
-            UNSAFE.putByte(dest, offset + i + 6, ASCII_DIGITS[l2]);
-            UNSAFE.putByte(dest, offset + i + 7, ASCII_DIGITS[l2 + 1]);
+            UnsafeApi.putByte(dest, offset + i, ASCII_DIGITS[u1]);
+            UnsafeApi.putByte(dest, offset + i + 1, ASCII_DIGITS[u1 + 1]);
+            UnsafeApi.putByte(dest, offset + i + 2, ASCII_DIGITS[u2]);
+            UnsafeApi.putByte(dest, offset + i + 3, ASCII_DIGITS[u2 + 1]);
+            UnsafeApi.putByte(dest, offset + i + 4, ASCII_DIGITS[l1]);
+            UnsafeApi.putByte(dest, offset + i + 5, ASCII_DIGITS[l1 + 1]);
+            UnsafeApi.putByte(dest, offset + i + 6, ASCII_DIGITS[l2]);
+            UnsafeApi.putByte(dest, offset + i + 7, ASCII_DIGITS[l2 + 1]);
         }
 
         putPositiveIntAscii(dest, offset, (int) quotient, i);

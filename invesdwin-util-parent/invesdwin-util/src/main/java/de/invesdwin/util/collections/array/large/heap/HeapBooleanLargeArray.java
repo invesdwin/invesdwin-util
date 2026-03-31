@@ -16,6 +16,8 @@ import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 @NotThreadSafe
 public class HeapBooleanLargeArray implements IBooleanLargeArray {
 
+    public static final int MAX_SIZE = Integer.MAX_VALUE;
+
     private final boolean[] values;
 
     public HeapBooleanLargeArray(final int size) {
@@ -104,7 +106,6 @@ public class HeapBooleanLargeArray implements IBooleanLargeArray {
 
     @Override
     public long getBuffer(final IMemoryBuffer buffer) throws IOException {
-        //always save as long array
         final BitSetBooleanLargeArray delegate = new BitSetBooleanLargeArray(size());
         for (long i = 0; i < size(); i++) {
             delegate.set(i, get(i));
