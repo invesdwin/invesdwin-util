@@ -17,12 +17,12 @@ import org.agrona.MutableDirectBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
 @Immutable
-public class FakeAllocatorBuffer implements IByteBuffer {
+public class FakeAllocatorByteBuffer implements IByteBuffer {
 
     private final int id;
     private final int capacity;
 
-    public FakeAllocatorBuffer(final int id, final int capacity) {
+    public FakeAllocatorByteBuffer(final int id, final int capacity) {
         this.id = id;
         if (capacity < 0) {
             throw new IllegalArgumentException("capacity must be non-negative: " + capacity);
@@ -326,7 +326,7 @@ public class FakeAllocatorBuffer implements IByteBuffer {
         if (index == 0) {
             return this;
         } else {
-            return new FakeAllocatorBuffer(id, capacity - index);
+            return new FakeAllocatorByteBuffer(id, capacity - index);
         }
     }
 
@@ -335,7 +335,7 @@ public class FakeAllocatorBuffer implements IByteBuffer {
         if (index == 0 && length == capacity) {
             return this;
         } else {
-            return new FakeAllocatorBuffer(id, length);
+            return new FakeAllocatorByteBuffer(id, length);
         }
     }
 
@@ -422,7 +422,7 @@ public class FakeAllocatorBuffer implements IByteBuffer {
         if (index == 0 && length == capacity) {
             return this;
         } else {
-            return new FakeAllocatorBuffer(id, length);
+            return new FakeAllocatorByteBuffer(id, length);
         }
     }
 
