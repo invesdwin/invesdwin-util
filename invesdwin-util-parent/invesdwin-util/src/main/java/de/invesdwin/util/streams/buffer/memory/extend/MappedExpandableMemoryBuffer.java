@@ -11,6 +11,7 @@ import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.string.UniqueNameGenerator;
 import de.invesdwin.util.streams.buffer.memory.delegate.ChronicleDelegateMemoryBuffer;
+import net.openhft.chronicle.core.OS;
 
 /**
  * Registers a cleaner to free memory
@@ -34,13 +35,14 @@ public class MappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer 
         private final boolean deleteOnClose;
         private net.openhft.chronicle.bytes.MappedBytes mappedBytes;
 
-        private MappedExpandableMemoryBufferFinalizer(final File file, final long chunkSize,
-                final boolean deleteOnClose) {
+        private MappedExpandableMemoryBufferFinalizer(final long chunkSize, final File file,
+                final boolean deleteOnClose, final long overlapSize, final boolean readOnly) {
             this.file = file;
             this.deleteOnClose = deleteOnClose;
             try {
                 Files.forceMkdirParent(file);
-                mappedBytes = net.openhft.chronicle.bytes.MappedBytes.mappedBytes(file, chunkSize);
+                mappedBytes = net.openhft.chronicle.bytes.MappedBytes.mappedBytes(file, chunkSize, overlapSize,
+                        readOnly);
             } catch (final IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -72,6 +74,8 @@ public class MappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer 
 
     private final MappedExpandableMemoryBufferFinalizer finalizer;
 
+    private final boolean closeAllowed;
+
     public MappedExpandableMemoryBuffer() {
         this(DEFAULT_CHUNK_SIZE, MappedExpandableMemoryBuffer.class.getSimpleName());
     }
@@ -90,9 +94,16 @@ public class MappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer 
     }
 
     public MappedExpandableMemoryBuffer(final long chunkSize, final File file, final boolean deleteOnClose) {
+        this(chunkSize, file, deleteOnClose, OS.pageSize(), false, true);
+    }
+
+    public MappedExpandableMemoryBuffer(final long chunkSize, final File file, final boolean deleteOnClose,
+            final long overlapSize, final boolean readOnly, final boolean closeAllowed) {
         super(null, false);
-        this.finalizer = new MappedExpandableMemoryBufferFinalizer(file, chunkSize, deleteOnClose);
+        this.finalizer = new MappedExpandableMemoryBufferFinalizer(chunkSize, file, deleteOnClose, overlapSize,
+                readOnly);
         this.finalizer.register(this);
+        this.closeAllowed = closeAllowed;
     }
 
     @Override
@@ -102,8 +113,10 @@ public class MappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer 
 
     @Override
     public void close() {
-        setDelegate(null);
-        finalizer.close();
+        if (closeAllowed) {
+            setDelegate(null);
+            finalizer.close();
+        }
     }
 
 }
