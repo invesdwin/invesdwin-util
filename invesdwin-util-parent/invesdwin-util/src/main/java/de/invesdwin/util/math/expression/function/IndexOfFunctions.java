@@ -154,7 +154,7 @@ public final class IndexOfFunctions {
 
                     @Override
                     public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -165,7 +165,7 @@ public final class IndexOfFunctions {
                         return key -> {
                             final int count = countF.evaluateInteger(key);
                             for (int i = count - 1; i >= 0; i--) {
-                                final int curKey;
+                                final long curKey;
                                 if (count == 0) {
                                     curKey = key;
                                 } else {
@@ -343,7 +343,7 @@ public final class IndexOfFunctions {
 
                     @Override
                     public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -353,7 +353,7 @@ public final class IndexOfFunctions {
                         final IEvaluateBooleanKey conditionF = condition.newEvaluateBooleanKey();
                         return key -> {
                             final int count = countF.evaluateInteger(key);
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final boolean result = conditionF.evaluateBoolean(curKey);
                                 if (result) {
@@ -566,7 +566,7 @@ public final class IndexOfFunctions {
 
                     @Override
                     public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -591,7 +591,7 @@ public final class IndexOfFunctions {
                                 return lastIndexOf.evaluateInteger(key);
                             } else {
                                 final int count = countF.evaluateInteger(key);
-                                int curKey = key;
+                                long curKey = key;
                                 int lastStepIndexOf = 0;
                                 STEP: for (int step = 0; step < steps; step++) {
                                     for (int i = 1; i <= count; i++) {
@@ -834,7 +834,7 @@ public final class IndexOfFunctions {
 
                     @Override
                     public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -859,7 +859,7 @@ public final class IndexOfFunctions {
                                 return lastIndexOf.evaluateInteger(key);
                             } else {
                                 final int count = countF.evaluateInteger(key);
-                                int curKey = key;
+                                long curKey = key;
                                 int lastStepIndexOf = 0;
                                 boolean found = false;
                                 STEP: for (int step = 0; step < steps; step++) {

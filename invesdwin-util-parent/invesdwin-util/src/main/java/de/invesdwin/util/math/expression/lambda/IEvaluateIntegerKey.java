@@ -6,6 +6,6 @@ public interface IEvaluateIntegerKey {
     /**
      * Double.NaN is interpreted as 0.
      */
-    int evaluateInteger(int key);
+    int evaluateInteger(long key);
 
 }

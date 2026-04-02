@@ -21,7 +21,7 @@ import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.array.primitive.IPrimitiveArrayId;
+import de.invesdwin.util.collections.array.base.IBaseArrayId;
 import de.invesdwin.util.collections.delegate.ADelegateList;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.Throwables;
@@ -61,7 +61,7 @@ public class ListByteBuffer implements IByteBuffer {
 
     @Override
     public int getId() {
-        return IPrimitiveArrayId.newId(list);
+        return IBaseArrayId.newId(list);
     }
 
     protected List<IByteBuffer> newList() {

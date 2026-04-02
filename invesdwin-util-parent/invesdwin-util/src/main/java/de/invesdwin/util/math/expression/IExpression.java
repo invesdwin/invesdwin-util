@@ -26,12 +26,12 @@ public interface IExpression extends IParsedExpressionProvider {
     IEvaluateDoubleFDate newEvaluateDoubleFDate();
 
     /**
-     * evaluates the expression using the current int key
+     * evaluates the expression using the current long key
      */
     IEvaluateDoubleKey newEvaluateDoubleKey();
 
     /**
-     * evaluates the expression using the current available time/int key
+     * evaluates the expression using the current available time/long key
      */
     IEvaluateDouble newEvaluateDouble();
 

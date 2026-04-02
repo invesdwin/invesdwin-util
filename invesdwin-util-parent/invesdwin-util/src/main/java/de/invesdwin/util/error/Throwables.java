@@ -260,4 +260,8 @@ public final class Throwables extends AThrowablesStaticFacade {
         return FastIndexOutOfBoundsException.getInstance("Index out of range: %s", index);
     }
 
+    public static IndexOutOfBoundsException newIndexOutOfBoundsException(final long index) {
+        return FastIndexOutOfBoundsException.getInstance("Index out of range: %s", index);
+    }
+
 }

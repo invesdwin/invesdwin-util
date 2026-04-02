@@ -6,7 +6,7 @@ import de.invesdwin.util.time.date.IFDateProvider;
 public interface IEvaluateGenericFDate<E> {
 
     /**
-     * evaluates the expression using the current time key
+     * evaluates the expression using the given time key
      */
     E evaluateGeneric(IFDateProvider key);
 

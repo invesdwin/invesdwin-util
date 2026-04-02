@@ -16,7 +16,7 @@ public class ThrowingEvaluateDoubleKey implements IEvaluateDoubleKey {
     }
 
     @Override
-    public double evaluateDouble(final int key) {
+    public double evaluateDouble(final long key) {
         throw Throwables.propagate(throwable);
     }
 

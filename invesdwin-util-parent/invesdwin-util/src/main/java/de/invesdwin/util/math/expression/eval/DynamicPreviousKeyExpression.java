@@ -72,7 +72,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
             } else if (index == 0D) {
                 return expressionF.evaluateDouble(key);
             } else {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, (int) index);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, (int) index);
                 return prevF.evaluateDouble(previousKey);
             }
         };
@@ -80,7 +80,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateDouble newEvaluateDouble() {
-        throw new UnsupportedOperationException("use time or int key instead");
+        throw new UnsupportedOperationException("use time or long key instead");
     }
 
     @Override
@@ -113,7 +113,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
             } else if (index == 0D) {
                 return expressionF.evaluateInteger(key);
             } else {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, (int) index);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, (int) index);
                 return prevF.evaluateInteger(previousKey);
             }
         };
@@ -121,7 +121,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateInteger newEvaluateInteger() {
-        throw new UnsupportedOperationException("use time or int key instead");
+        throw new UnsupportedOperationException("use time or long key instead");
     }
 
     @Override
@@ -154,7 +154,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
             } else if (index == 0D) {
                 return expressionF.evaluateBooleanNullable(key);
             } else {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, (int) index);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, (int) index);
                 return prevF.evaluateBooleanNullable(previousKey);
             }
         };
@@ -162,7 +162,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
-        throw new UnsupportedOperationException("use time or int key instead");
+        throw new UnsupportedOperationException("use time or long key instead");
     }
 
     @Override
@@ -195,7 +195,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
             } else if (index == 0D) {
                 return expressionF.evaluateBoolean(key);
             } else {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, (int) index);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, (int) index);
                 return prevF.evaluateBoolean(previousKey);
             }
         };
@@ -203,7 +203,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateBoolean newEvaluateBoolean() {
-        throw new UnsupportedOperationException("use time or int key instead");
+        throw new UnsupportedOperationException("use time or long key instead");
     }
 
     @Override
@@ -236,7 +236,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
             } else if (index == 0D) {
                 return expressionF.evaluateGeneric(key);
             } else {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, (int) index);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, (int) index);
                 return prevF.evaluateGeneric(previousKey);
             }
         };
@@ -244,7 +244,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateGeneric<String> newEvaluateFalseReason() {
-        throw new UnsupportedOperationException("use time or int key instead");
+        throw new UnsupportedOperationException("use time or long key instead");
     }
 
     @Override
@@ -277,7 +277,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
             } else if (index == 0D) {
                 return expressionF.evaluateGeneric(key);
             } else {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, (int) index);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, (int) index);
                 return prevF.evaluateGeneric(previousKey);
             }
         };
@@ -285,7 +285,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateGeneric<String> newEvaluateTrueReason() {
-        throw new UnsupportedOperationException("use time or int key instead");
+        throw new UnsupportedOperationException("use time or long key instead");
     }
 
     @Override
@@ -318,7 +318,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
             } else if (index == 0D) {
                 return expressionF.evaluateGeneric(key);
             } else {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, (int) index);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, (int) index);
                 return prevF.evaluateGeneric(previousKey);
             }
         };
@@ -326,7 +326,7 @@ public class DynamicPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateGeneric<String> newEvaluateNullReason() {
-        throw new UnsupportedOperationException("use time or int key instead");
+        throw new UnsupportedOperationException("use time or long key instead");
     }
 
     @Override

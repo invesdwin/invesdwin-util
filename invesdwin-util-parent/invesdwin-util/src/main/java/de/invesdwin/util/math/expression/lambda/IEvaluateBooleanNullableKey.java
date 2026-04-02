@@ -6,6 +6,6 @@ public interface IEvaluateBooleanNullableKey {
     /**
      * Double.NaN is interpreted as null.
      */
-    Boolean evaluateBooleanNullable(int key);
+    Boolean evaluateBooleanNullable(long key);
 
 }

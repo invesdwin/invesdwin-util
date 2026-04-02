@@ -12,7 +12,23 @@ public interface IDoubleLargeArray extends ILargeArray, IDoubleLargeArrayAccesso
 
     IDoubleLargeArray slice(long fromIndex, long length);
 
+    /**
+     * WARNING: this operation will fail for very large arrays that exceed the maximum array size of the JVM. Use with
+     * caution.
+     */
+    default double[] asArray() {
+        return asArray(0, ByteBuffers.checkedCast(size()));
+    }
+
     double[] asArray(long fromIndex, int length);
+
+    /**
+     * WARNING: this operation will fail for very large arrays that exceed the maximum array size of the JVM. Use with
+     * caution.
+     */
+    default double[] asArrayCopy() {
+        return asArrayCopy(0, ByteBuffers.checkedCast(size()));
+    }
 
     double[] asArrayCopy(long fromIndex, int length);
 

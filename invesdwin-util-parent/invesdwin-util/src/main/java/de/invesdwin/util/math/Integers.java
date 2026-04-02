@@ -562,4 +562,8 @@ public final class Integers extends AIntegersStaticFacade {
         return maxExclusive - 1;
     }
 
+    public static int round(final double value) {
+        return checkedCast(Longs.round(value));
+    }
+
 }

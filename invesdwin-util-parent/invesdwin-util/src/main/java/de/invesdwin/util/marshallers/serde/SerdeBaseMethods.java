@@ -6,6 +6,7 @@ import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
+import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
 @Immutable
 public final class SerdeBaseMethods {
@@ -45,6 +46,17 @@ public final class SerdeBaseMethods {
         final byte[] bytes = serde.toBytes(obj);
         buffer.putBytes(0, bytes);
         return bytes.length;
+    }
+
+    public static <O> int toBuffer(final ISerde<O> serde, final IMemoryBuffer buffer, final O obj) {
+        final int size = ByteBuffers.checkedCast(buffer.size());
+        return serde.toBuffer(buffer.asByteBuffer(0, size), obj);
+    }
+
+    public static <O> O fromBuffer(final ISerde<O> serde, final IMemoryBuffer buffer) {
+        final int size = ByteBuffers.checkedCast(buffer.size());
+        final IByteBuffer byteBuffer = buffer.asByteBuffer(0, size);
+        return serde.fromBuffer(byteBuffer);
     }
 
 }

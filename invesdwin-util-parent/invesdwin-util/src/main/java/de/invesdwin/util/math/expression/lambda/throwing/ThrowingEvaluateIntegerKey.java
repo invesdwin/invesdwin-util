@@ -16,7 +16,7 @@ public class ThrowingEvaluateIntegerKey implements IEvaluateIntegerKey {
     }
 
     @Override
-    public int evaluateInteger(final int key) {
+    public int evaluateInteger(final long key) {
         throw Throwables.propagate(throwable);
     }
 

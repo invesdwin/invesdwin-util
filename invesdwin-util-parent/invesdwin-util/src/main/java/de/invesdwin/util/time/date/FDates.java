@@ -8,6 +8,7 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.collections.array.large.accessor.IGenericLargeArrayAccessor;
 import de.invesdwin.util.collections.array.primitive.accessor.IGenericPrimitiveArrayAccessor;
 import de.invesdwin.util.collections.iterable.EmptyCloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
@@ -672,6 +673,57 @@ public final class FDates {
         if (loKey.isAfterNotNullSafe(skippingKeysAbove)) {
             //no duplicate key handling needed because this is the last value before the actual requested key
             final int index = lo - 1;
+            return index;
+        } else {
+            return duplicateKeyHandling.apply(keys, lo, loKey);
+        }
+    }
+
+    public static long bisect(final IGenericLargeArrayAccessor<? extends FDate> keys, final FDate skippingKeysAbove,
+            final BisectDuplicateKeyHandling duplicateKeyHandling) {
+        if (keys.size() == 0) {
+            return MISSING_INDEX;
+        }
+        long lo = 0;
+        final FDate firstKey = keys.get(lo);
+        if (firstKey.compareToNotNullSafe(skippingKeysAbove) >= 0) {
+            return duplicateKeyHandling.apply(keys, lo, firstKey);
+        }
+        long hi = keys.size();
+        final long lastIndex = hi - 1;
+        final FDate lastKey = keys.get(lastIndex);
+        if (lastKey.compareToNotNullSafe(skippingKeysAbove) <= 0) {
+            return duplicateKeyHandling.apply(keys, lastIndex, lastKey);
+        }
+        while (lo < hi) {
+            // same as (low+high)/2
+            final long mid = (lo + hi) >>> 1;
+            //if (x < list.get(mid)) {
+            final FDate midKey = keys.get(mid);
+            final int compareTo = midKey.compareToNotNullSafe(skippingKeysAbove);
+            switch (compareTo) {
+            case MISSING_INDEX:
+                lo = mid + 1;
+                break;
+            case 0:
+                return duplicateKeyHandling.apply(keys, mid, midKey);
+            case 1:
+                hi = mid;
+                break;
+            default:
+                throw UnknownArgumentException.newInstance(Integer.class, compareTo);
+            }
+        }
+        if (lo <= 0) {
+            return 0;
+        }
+        if (lo >= keys.size()) {
+            lo = lo - 1;
+        }
+        final FDate loKey = keys.get(lo);
+        if (loKey.isAfterNotNullSafe(skippingKeysAbove)) {
+            //no duplicate key handling needed because this is the last value before the actual requested key
+            final long index = lo - 1;
             return index;
         } else {
             return duplicateKeyHandling.apply(keys, lo, loKey);

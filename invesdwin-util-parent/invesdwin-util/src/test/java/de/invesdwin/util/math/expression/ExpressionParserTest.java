@@ -87,7 +87,7 @@ public class ExpressionParserTest {
                 return new IPreviousKeyFunction() {
 
                     @Override
-                    public int getPreviousKey(final int key, final int index) {
+                    public long getPreviousKey(final long key, final int index) {
                         return key - index;
                     }
 
@@ -110,7 +110,7 @@ public class ExpressionParserTest {
                 return new IPreviousKeyFunction() {
 
                     @Override
-                    public int getPreviousKey(final int key, final int index) {
+                    public long getPreviousKey(final long key, final int index) {
                         return key - index;
                     }
 
@@ -1325,7 +1325,7 @@ public class ExpressionParserTest {
                 return new IPreviousKeyFunction() {
 
                     @Override
-                    public int getPreviousKey(final int key, final int index) {
+                    public long getPreviousKey(final long key, final int index) {
                         return key - index;
                     }
 
@@ -1356,7 +1356,7 @@ public class ExpressionParserTest {
                 return new IPreviousKeyFunction() {
 
                     @Override
-                    public int getPreviousKey(final int key, final int index) {
+                    public long getPreviousKey(final long key, final int index) {
                         return key - index;
                     }
 
@@ -1386,7 +1386,7 @@ public class ExpressionParserTest {
                 return new IPreviousKeyFunction() {
 
                     @Override
-                    public int getPreviousKey(final int key, final int index) {
+                    public long getPreviousKey(final long key, final int index) {
                         return key - index;
                     }
 
@@ -1409,7 +1409,7 @@ public class ExpressionParserTest {
                 return new IPreviousKeyFunction() {
 
                     @Override
-                    public int getPreviousKey(final int key, final int index) {
+                    public long getPreviousKey(final long key, final int index) {
                         return key - index;
                     }
 

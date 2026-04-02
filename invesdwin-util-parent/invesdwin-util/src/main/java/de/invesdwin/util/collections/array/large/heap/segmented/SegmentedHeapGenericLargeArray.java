@@ -36,6 +36,11 @@ public class SegmentedHeapGenericLargeArray<E> implements IGenericLargeArray<E> 
         }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public SegmentedHeapGenericLargeArray(final E[] emptyArray, final long size) {
+        this((Class) emptyArray.getClass().getComponentType(), size);
+    }
+
     private int getSegmentIndex(final long index) {
         return (int) (index / SEGMENT_SIZE);
     }

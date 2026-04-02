@@ -82,9 +82,9 @@ public class DoubleCrossesBelowOperation extends DoubleBinaryOperation {
             final double rightValue0 = rightF.evaluateDouble(key);
             //left is below right
             if (Doubles.isLessThan(leftValue0, rightValue0)) {
-                final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
+                final long leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
                 final double leftValue1 = prevLeftF.evaluateDouble(leftPreviousKey);
-                final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
+                final long rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
                 final double rightValue1 = prevRightF.evaluateDouble(rightPreviousKey);
                 //previous left is above or equal to previous right
                 if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
@@ -143,9 +143,9 @@ public class DoubleCrossesBelowOperation extends DoubleBinaryOperation {
             final double rightValue0 = rightF.evaluateDouble(key);
             //left is below right
             if (Doubles.isLessThan(leftValue0, rightValue0)) {
-                final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
+                final long leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
                 final double leftValue1 = prevLeftF.evaluateDouble(leftPreviousKey);
-                final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
+                final long rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
                 final double rightValue1 = prevRightF.evaluateDouble(rightPreviousKey);
                 //previous left is above or equal to previous right
                 if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
@@ -204,9 +204,9 @@ public class DoubleCrossesBelowOperation extends DoubleBinaryOperation {
             final double rightValue0 = rightF.evaluateDouble(key);
             //left is below right
             if (Doubles.isLessThan(leftValue0, rightValue0)) {
-                final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
+                final long leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
                 final double leftValue1 = prevLeftF.evaluateDouble(leftPreviousKey);
-                final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
+                final long rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
                 final double rightValue1 = prevRightF.evaluateDouble(rightPreviousKey);
                 //previous left is above or equal to previous right
                 if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {
@@ -265,9 +265,9 @@ public class DoubleCrossesBelowOperation extends DoubleBinaryOperation {
             final double rightValue0 = rightF.evaluateDouble(key);
             //left is below right
             if (Doubles.isLessThan(leftValue0, rightValue0)) {
-                final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
+                final long leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
                 final double leftValue1 = prevLeftF.evaluateDouble(leftPreviousKey);
-                final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
+                final long rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
                 final double rightValue1 = prevRightF.evaluateDouble(rightPreviousKey);
                 //previous left is above or equal to previous right
                 if (Doubles.isGreaterThanOrEqualTo(leftValue1, rightValue1)) {

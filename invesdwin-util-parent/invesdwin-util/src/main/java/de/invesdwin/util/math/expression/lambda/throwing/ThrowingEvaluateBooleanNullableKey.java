@@ -16,7 +16,7 @@ public class ThrowingEvaluateBooleanNullableKey implements IEvaluateBooleanNulla
     }
 
     @Override
-    public Boolean evaluateBooleanNullable(final int key) {
+    public Boolean evaluateBooleanNullable(final long key) {
         throw Throwables.propagate(throwable);
     }
 

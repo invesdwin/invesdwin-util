@@ -9,8 +9,8 @@ import java.util.stream.StreamSupport;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.array.large.ILargeArrayId;
 import de.invesdwin.util.collections.array.large.ILongLargeArray;
-import de.invesdwin.util.collections.array.primitive.IPrimitiveArrayId;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.math.BitSets;
 import de.invesdwin.util.math.Longs;
@@ -20,7 +20,7 @@ import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
  * Adapted from java.util.BitSet to use a custom ILongArray storage for off-heap and memory memory storage.
  */
 @NotThreadSafe
-public class LongArrayLargeBitSetBase implements IPrimitiveArrayId {
+public class LongArrayLargeBitSetBase implements ILargeArrayId {
     private static final int MAX_INITIAL_CAPACITY = ByteBuffers.MAX_TO_STRING_COUNT;
     private static final int ADDRESS_BITS_PER_WORD = BitSets.ADDRESS_BITS_PER_WORD;
     private static final int BITS_PER_WORD = BitSets.BITS_PER_WORD;

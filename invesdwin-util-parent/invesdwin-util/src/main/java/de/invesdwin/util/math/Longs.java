@@ -357,4 +357,8 @@ public final class Longs extends ALongsStaticFacade {
         return (int) combined;
     }
 
+    public static long round(final double value) {
+        return Math.round(value);
+    }
+
 }

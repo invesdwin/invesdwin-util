@@ -16,7 +16,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
-import de.invesdwin.util.collections.array.primitive.IPrimitiveArrayId;
+import de.invesdwin.util.collections.array.base.IBaseArrayId;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
@@ -44,8 +44,8 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public int getId() {
-        if (delegate instanceof IPrimitiveArrayId) {
-            final IPrimitiveArrayId cDelegate = (IPrimitiveArrayId) delegate;
+        if (delegate instanceof IBaseArrayId) {
+            final IBaseArrayId cDelegate = (IBaseArrayId) delegate;
             return cDelegate.getId();
         } else {
             return System.identityHashCode(delegate);

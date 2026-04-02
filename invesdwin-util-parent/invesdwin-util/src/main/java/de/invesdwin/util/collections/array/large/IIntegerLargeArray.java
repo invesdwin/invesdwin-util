@@ -12,7 +12,23 @@ public interface IIntegerLargeArray extends ILargeArray, IIntegerLargeArrayAcces
 
     IIntegerLargeArray slice(long fromIndex, long length);
 
+    /**
+     * WARNING: this operation will fail for very large arrays that exceed the maximum array size of the JVM. Use with
+     * caution.
+     */
+    default int[] asArray() {
+        return asArray(0, ByteBuffers.checkedCast(size()));
+    }
+
     int[] asArray(long fromIndex, int length);
+
+    /**
+     * WARNING: this operation will fail for very large arrays that exceed the maximum array size of the JVM. Use with
+     * caution.
+     */
+    default int[] asArrayCopy() {
+        return asArrayCopy(0, ByteBuffers.checkedCast(size()));
+    }
 
     int[] asArrayCopy(long fromIndex, int length);
 
