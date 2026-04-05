@@ -93,7 +93,7 @@ public final class MathFunctions {
     public static final ADoubleFunction SINH = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.sinh(a);
+            return Doubles.sinh(a);
         }
 
         @Override
@@ -238,7 +238,7 @@ public final class MathFunctions {
     public static final ADoubleFunction COSH = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.cosh(a);
+            return Doubles.cosh(a);
         }
 
         @Override
@@ -2023,8 +2023,7 @@ public final class MathFunctions {
 
     };
 
-    private MathFunctions() {
-    }
+    private MathFunctions() {}
 
     public static ADoubleFunction newRandomFunction(final String expressionName) {
         return new ADoubleFunction() {

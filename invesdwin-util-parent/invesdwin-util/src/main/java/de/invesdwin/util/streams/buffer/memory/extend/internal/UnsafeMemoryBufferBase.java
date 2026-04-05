@@ -46,6 +46,8 @@ import org.agrona.MutableDirectBuffer;
 import org.agrona.UnsafeApi;
 
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
+import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
@@ -53,9 +55,9 @@ import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
  * Supports regular, byte ordered, and atomic (memory ordered) access to an underlying buffer. The buffer can be a
  * byte[], one of the various ByteBuffer implementations, or an off Java heap memory address.
  * <p>
- * {@link ByteOrder} of a wrapped buffer is not applied to the {@link UnsafeMemoryBase}. {@link UnsafeMemoryBase}s are
- * effectively stateless and can be used concurrently, the wrapping methods are an exception. To control
- * {@link ByteOrder} use the appropriate method with the {@link ByteOrder} overload.
+ * {@link ByteOrder} of a wrapped buffer is not applied to the {@link UnsafeMemoryBufferBase}.
+ * {@link UnsafeMemoryBufferBase}s are effectively stateless and can be used concurrently, the wrapping methods are an
+ * exception. To control {@link ByteOrder} use the appropriate method with the {@link ByteOrder} overload.
  * <p>
  * <b>Note:</b> This class has a natural ordering that is inconsistent with equals. Types may be different but equal on
  * buffer contents.
@@ -64,7 +66,7 @@ import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
  * successful wrap.
  */
 @NotThreadSafe
-public class UnsafeMemoryBase {
+public class UnsafeMemoryBufferBase {
     /**
      * Buffer alignment to ensure atomic word accesses.
      */
@@ -92,7 +94,7 @@ public class UnsafeMemoryBase {
     /**
      * Empty constructor for a reusable wrapper buffer.
      */
-    public UnsafeMemoryBase() {
+    public UnsafeMemoryBufferBase() {
         wrap(EMPTY_BYTE_ARRAY);
     }
 
@@ -102,7 +104,7 @@ public class UnsafeMemoryBase {
      * @param buffer
      *            to which the view is attached.
      */
-    public UnsafeMemoryBase(final byte[] buffer) {
+    public UnsafeMemoryBufferBase(final byte[] buffer) {
         wrap(buffer);
     }
 
@@ -116,7 +118,7 @@ public class UnsafeMemoryBase {
      * @param length
      *            of the buffer to be included.
      */
-    public UnsafeMemoryBase(final byte[] buffer, final int offset, final int length) {
+    public UnsafeMemoryBufferBase(final byte[] buffer, final int offset, final int length) {
         wrap(buffer, offset, length);
     }
 
@@ -126,7 +128,7 @@ public class UnsafeMemoryBase {
      * @param buffer
      *            to which the view is attached.
      */
-    public UnsafeMemoryBase(final java.nio.ByteBuffer buffer) {
+    public UnsafeMemoryBufferBase(final java.nio.ByteBuffer buffer) {
         wrap(buffer);
     }
 
@@ -140,7 +142,7 @@ public class UnsafeMemoryBase {
      * @param length
      *            of the buffer to be included.
      */
-    public UnsafeMemoryBase(final java.nio.ByteBuffer buffer, final long offset, final long length) {
+    public UnsafeMemoryBufferBase(final java.nio.ByteBuffer buffer, final long offset, final long length) {
         wrap(buffer, offset, length);
     }
 
@@ -150,7 +152,7 @@ public class UnsafeMemoryBase {
      * @param buffer
      *            to which the view is attached.
      */
-    public UnsafeMemoryBase(final DirectBuffer buffer) {
+    public UnsafeMemoryBufferBase(final DirectBuffer buffer) {
         wrap(buffer);
     }
 
@@ -164,15 +166,15 @@ public class UnsafeMemoryBase {
      * @param length
      *            of the buffer to be included.
      */
-    public UnsafeMemoryBase(final DirectBuffer buffer, final long offset, final long length) {
+    public UnsafeMemoryBufferBase(final DirectBuffer buffer, final long offset, final long length) {
         wrap(buffer, offset, length);
     }
 
-    public UnsafeMemoryBase(final IMemoryBuffer buffer, final long offset, final long length) {
+    public UnsafeMemoryBufferBase(final IMemoryBuffer buffer, final long offset, final long length) {
         wrap(buffer, offset, length);
     }
 
-    public UnsafeMemoryBase(final UnsafeMemoryBase buffer, final long offset, final long length) {
+    public UnsafeMemoryBufferBase(final UnsafeMemoryBufferBase buffer, final long offset, final long length) {
         wrap(buffer, offset, length);
     }
 
@@ -184,7 +186,7 @@ public class UnsafeMemoryBase {
      * @param length
      *            of the buffer from the given address
      */
-    public UnsafeMemoryBase(final long address, final long length) {
+    public UnsafeMemoryBufferBase(final long address, final long length) {
         wrap(address, length);
     }
 
@@ -283,8 +285,8 @@ public class UnsafeMemoryBase {
     }
 
     public void wrap(final IMemoryBuffer buffer, final long offset, final long length) {
-        if (buffer instanceof UnsafeMemoryBase) {
-            final UnsafeMemoryBase cBuffer = (UnsafeMemoryBase) buffer;
+        if (buffer instanceof UnsafeMemoryBufferBase) {
+            final UnsafeMemoryBufferBase cBuffer = (UnsafeMemoryBufferBase) buffer;
             wrap(cBuffer, offset, length);
         } else {
             if (SHOULD_BOUNDS_CHECK) {
@@ -296,7 +298,7 @@ public class UnsafeMemoryBase {
         }
     }
 
-    public void wrap(final UnsafeMemoryBase buffer, final long offset, final long length) {
+    public void wrap(final UnsafeMemoryBufferBase buffer, final long offset, final long length) {
         if (SHOULD_BOUNDS_CHECK) {
             boundsCheckWrap(offset, length, buffer.capacity());
         }
@@ -383,7 +385,7 @@ public class UnsafeMemoryBase {
         }
     }
 
-    ////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
 
     public long getLong(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -488,7 +490,7 @@ public class UnsafeMemoryBase {
         return UnsafeApi.getAndAddLong(byteArray, addressOffset + index, delta);
     }
 
-    ////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
 
     public int getInt(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -593,7 +595,7 @@ public class UnsafeMemoryBase {
         return UnsafeApi.getAndAddInt(byteArray, addressOffset + index, delta);
     }
 
-    ////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
 
     public double getDouble(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -637,7 +639,7 @@ public class UnsafeMemoryBase {
         UnsafeApi.putDouble(byteArray, addressOffset + index, value);
     }
 
-    ////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
 
     public float getFloat(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -681,7 +683,7 @@ public class UnsafeMemoryBase {
         UnsafeApi.putFloat(byteArray, addressOffset + index, value);
     }
 
-    ////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
 
     public short getShort(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -741,7 +743,7 @@ public class UnsafeMemoryBase {
         UnsafeApi.putShortVolatile(byteArray, addressOffset + index, value);
     }
 
-    ////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
 
     public byte getByte(final long index) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -797,7 +799,7 @@ public class UnsafeMemoryBase {
     }
 
     private static void putBytesExplicit(final MutableDirectBuffer dstBuffer, final int dstIndex,
-            final UnsafeMemoryBase srcBuffer, final long srcIndex, final int length) {
+            final UnsafeMemoryBufferBase srcBuffer, final long srcIndex, final int length) {
         if (SHOULD_BOUNDS_CHECK) {
             dstBuffer.boundsCheck(dstIndex, length);
             srcBuffer.boundsCheck(srcIndex, length);
@@ -884,7 +886,7 @@ public class UnsafeMemoryBase {
                 addressOffset + index, length);
     }
 
-    ////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
 
     public char getChar(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -944,7 +946,7 @@ public class UnsafeMemoryBase {
         UnsafeApi.putCharVolatile(byteArray, addressOffset + index, value);
     }
 
-    ////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
 
     public String getStringAscii(final long index) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -1184,7 +1186,7 @@ public class UnsafeMemoryBase {
 
     public int putStringWithoutLengthAscii(final long index, final String value, final int valueOffset,
             final int length) {
-        final int len = value != null ? Math.min(value.length() - valueOffset, length) : 0;
+        final int len = value != null ? Integers.min(value.length() - valueOffset, length) : 0;
 
         if (SHOULD_BOUNDS_CHECK) {
             boundsCheck0(index, len);
@@ -1204,7 +1206,7 @@ public class UnsafeMemoryBase {
 
     public int putStringWithoutLengthAscii(final long index, final CharSequence value, final int valueOffset,
             final int length) {
-        final int len = value != null ? Math.min(value.length() - valueOffset, length) : 0;
+        final int len = value != null ? Integers.min(value.length() - valueOffset, length) : 0;
 
         if (SHOULD_BOUNDS_CHECK) {
             boundsCheck0(index, len);
@@ -1222,7 +1224,7 @@ public class UnsafeMemoryBase {
         return len;
     }
 
-    ////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
 
     public String getStringUtf8(final long index) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -1331,7 +1333,7 @@ public class UnsafeMemoryBase {
         return bytes.length;
     }
 
-    ////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
 
     public int parseNaturalIntAscii(final long index, final int length) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -1580,7 +1582,7 @@ public class UnsafeMemoryBase {
         return addressOffset - offset;
     }
 
-    ////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1595,7 +1597,7 @@ public class UnsafeMemoryBase {
             return false;
         }
 
-        final UnsafeMemoryBase that = (UnsafeMemoryBase) obj;
+        final UnsafeMemoryBufferBase that = (UnsafeMemoryBufferBase) obj;
 
         if (capacity != that.capacity) {
             return false;
@@ -1631,7 +1633,7 @@ public class UnsafeMemoryBase {
         return hashCode;
     }
 
-    public int compareTo(final UnsafeMemoryBase that) {
+    public int compareTo(final UnsafeMemoryBufferBase that) {
         final long thisCapacity = this.capacity;
         final long thatCapacity = that.capacity();
         final byte[] thisByteArray = this.byteArray;
@@ -1639,7 +1641,7 @@ public class UnsafeMemoryBase {
         final long thisOffset = this.addressOffset;
         final long thatOffset = that.addressOffset();
 
-        for (long i = 0, length = Math.min(thisCapacity, thatCapacity); i < length; i++) {
+        for (long i = 0, length = Longs.min(thisCapacity, thatCapacity); i < length; i++) {
             final int cmp = Byte.compare(UnsafeApi.getByte(thisByteArray, thisOffset + i),
                     UnsafeApi.getByte(thatByteArray, thatOffset + i));
 

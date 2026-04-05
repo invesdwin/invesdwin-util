@@ -382,7 +382,7 @@ public final class FDateMillis {
      */
     public static int getWeekNumberOfMonth(final long millis) {
         final int weekday = getWeekday(millis);
-        return (int) (Math.ceil((getDay(millis) - weekday) / 7.0)) + 1;
+        return Integers.ceil((getDay(millis) - weekday) / 7.0) + 1;
     }
 
     public static long truncate(final long millis, final FDateField field, final FTimeZone timeZone) {

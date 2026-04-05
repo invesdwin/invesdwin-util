@@ -7,6 +7,7 @@ import de.invesdwin.util.collections.array.large.IIntegerLargeArray;
 import de.invesdwin.util.collections.array.large.bitset.roaring.RoaringLargeBitSet;
 import de.invesdwin.util.collections.array.large.heap.HeapIntegerLargeArray;
 import de.invesdwin.util.collections.array.large.slice.SliceDelegateIntegerLargeArray;
+import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
@@ -28,7 +29,7 @@ public class SegmentedHeapIntegerLargeArray implements IIntegerLargeArray {
         this.segmentCount = (int) ((size + SEGMENT_SIZE - 1) / SEGMENT_SIZE);
         this.segments = new int[segmentCount][];
         for (int i = 0; i < segmentCount; i++) {
-            final long segmentSize = Math.min(SEGMENT_SIZE, size - (i * SEGMENT_SIZE));
+            final long segmentSize = Longs.min(SEGMENT_SIZE, size - (i * SEGMENT_SIZE));
             segments[i] = new int[ByteBuffers.checkedCast(segmentSize)];
         }
     }

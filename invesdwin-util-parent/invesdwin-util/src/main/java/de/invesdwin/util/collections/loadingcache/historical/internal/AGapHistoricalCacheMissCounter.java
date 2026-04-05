@@ -4,6 +4,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.loadingcache.historical.AGapHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.stream.doubl.DoubleStreamAvg;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
@@ -37,7 +38,7 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
             }
             successiveCacheEvictions++;
         } else {
-            maxSuccessiveCacheEvictions = Math.max(maxSuccessiveCacheEvictions, successiveCacheEvictions);
+            maxSuccessiveCacheEvictions = Integers.max(maxSuccessiveCacheEvictions, successiveCacheEvictions);
             if (successiveCacheEvictions >= MAX_SUCCESSIVE_CACHE_EVICTIONS) {
                 maybeReoptimize();
             }

@@ -17,6 +17,7 @@ import org.agrona.MutableDirectBuffer;
 import de.invesdwin.norva.beanpath.spi.IUnwrap;
 import de.invesdwin.util.collections.array.primitive.IPrimitiveArray;
 import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.random.IRandomGenerator;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
@@ -573,7 +574,7 @@ public interface IByteBuffer extends IByteBufferProvider, Cloneable, IPrimitiveA
     default void clear(final IRandomGenerator random, final int index, final int length) {
         int i = length, n = 0;
         while (i != 0) {
-            n = Math.min(i, Long.BYTES);
+            n = Integers.min(i, Long.BYTES);
             for (long bits = random.nextLong(); n-- != 0; bits >>= Long.BYTES) {
                 putByte(--i + index, (byte) bits);
             }

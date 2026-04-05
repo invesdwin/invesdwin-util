@@ -47,6 +47,7 @@ import org.agrona.UnsafeApi;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 
 /**
@@ -200,7 +201,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    /////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -252,7 +253,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         UnsafeApi.putLong(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -304,7 +305,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         UnsafeApi.putInt(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -356,7 +357,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         UnsafeApi.putDouble(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -408,7 +409,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         UnsafeApi.putFloat(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -460,7 +461,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         UnsafeApi.putShort(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -599,7 +600,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
                 ARRAY_BASE_OFFSET + index, length);
     }
 
-    /////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -651,7 +652,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         UnsafeApi.putChar(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -917,7 +918,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
     @Override
     public int putStringWithoutLengthAscii(final int index, final String value, final int valueOffset,
             final int length) {
-        final int len = value != null ? Math.min(value.length() - valueOffset, length) : 0;
+        final int len = value != null ? Integers.min(value.length() - valueOffset, length) : 0;
 
         ensureCapacity(index, len);
 
@@ -939,7 +940,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
     @Override
     public int putStringWithoutLengthAscii(final int index, final CharSequence value, final int valueOffset,
             final int length) {
-        final int len = value != null ? Math.min(value.length() - valueOffset, length) : 0;
+        final int len = value != null ? Integers.min(value.length() - valueOffset, length) : 0;
 
         ensureCapacity(index, len);
 
@@ -1076,7 +1077,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         return bytes.length;
     }
 
-    /////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1352,7 +1353,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         return 0;
     }
 
-    /////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1392,7 +1393,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         final long thisOffset = this.addressOffset();
         final long thatOffset = that.addressOffset();
 
-        for (int i = 0, length = Math.min(thisCapacity, thatCapacity); i < length; i++) {
+        for (int i = 0, length = Integers.min(thisCapacity, thatCapacity); i < length; i++) {
             final int cmp = Byte.compare(UnsafeApi.getByte(thisByteArray, thisOffset + i),
                     UnsafeApi.getByte(thatByteArray, thatOffset + i));
 
@@ -1436,7 +1437,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
     }
 
     private int calculateExpansion(final int currentLength, final long requiredLength) {
-        long value = Math.max(currentLength, INITIAL_CAPACITY);
+        long value = Integers.max(currentLength, INITIAL_CAPACITY);
 
         while (value < requiredLength) {
             value = value + (value >> 1);

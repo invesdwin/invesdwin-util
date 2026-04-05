@@ -54,6 +54,7 @@ import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.string.UniqueNameGenerator;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.file.IMemoryMappedFile;
 import de.invesdwin.util.streams.buffer.file.MemoryMappedFile;
@@ -295,7 +296,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -347,7 +348,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         UnsafeApi.putLong(null, finalizer.address + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -389,7 +390,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         return UnsafeApi.getInt(null, finalizer.address + index);
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -441,7 +442,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         UnsafeApi.putDouble(null, finalizer.address + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -493,7 +494,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         UnsafeApi.putFloat(null, finalizer.address + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -545,7 +546,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         UnsafeApi.putShort(null, finalizer.address + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -691,7 +692,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
                 finalizer.address + index, length);
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -743,7 +744,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         UnsafeApi.putChar(null, finalizer.address + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1017,7 +1018,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
     @Override
     public int putStringWithoutLengthAscii(final int index, final String value, final int valueOffset,
             final int length) {
-        final int len = value != null ? Math.min(value.length() - valueOffset, length) : 0;
+        final int len = value != null ? Integers.min(value.length() - valueOffset, length) : 0;
 
         ensureCapacity(index, len);
 
@@ -1039,7 +1040,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
     @Override
     public int putStringWithoutLengthAscii(final int index, final CharSequence value, final int valueOffset,
             final int length) {
-        final int len = value != null ? Math.min(value.length() - valueOffset, length) : 0;
+        final int len = value != null ? Integers.min(value.length() - valueOffset, length) : 0;
 
         ensureCapacity(index, len);
 
@@ -1055,7 +1056,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         return len;
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1184,7 +1185,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         return bytes.length;
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1471,7 +1472,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         return 0;
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1517,7 +1518,7 @@ public class MappedExpandableBufferBase implements MutableDirectBuffer, Closeabl
         final long thisOffset = this.addressOffset();
         final long thatOffset = that.addressOffset();
 
-        for (int i = 0, length = Math.min(thisCapacity, thatCapacity); i < length; i++) {
+        for (int i = 0, length = Integers.min(thisCapacity, thatCapacity); i < length; i++) {
             final int cmp = Byte.compare(UnsafeApi.getByte(null, thisOffset + i),
                     UnsafeApi.getByte(thatByteArray, thatOffset + i));
 

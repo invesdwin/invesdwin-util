@@ -98,16 +98,22 @@ public final class Integers extends AIntegersStaticFacade {
         } else if (second == null) {
             return first;
         } else {
+            //CHECKSTYLE:OFF
             return Math.max(first, second);
+            //CHECKSTYLE:ON
         }
     }
 
     public static int max(final int first, final int second) {
+        //CHECKSTYLE:OFF
         return Math.max(first, second);
+        //CHECKSTYLE:ON
     }
 
     public static int min(final int first, final int second) {
+        //CHECKSTYLE:OFF
         return Math.min(first, second);
+        //CHECKSTYLE:ON
     }
 
     public static int min(final int first, final Integer second) {
@@ -132,7 +138,9 @@ public final class Integers extends AIntegersStaticFacade {
         } else if (second == null) {
             return first;
         } else {
+            //CHECKSTYLE:OFF
             return Math.min(first, second);
+            //CHECKSTYLE:ON
         }
     }
 
@@ -391,7 +399,9 @@ public final class Integers extends AIntegersStaticFacade {
     }
 
     public static int abs(final int value) {
+        //CHECKSTYLE:OFF
         return Math.abs(value);
+        //CHECKSTYLE:ON
     }
 
     public static Boolean toBooleanNullable(final int value) {
@@ -564,6 +574,24 @@ public final class Integers extends AIntegersStaticFacade {
 
     public static int round(final double value) {
         return checkedCast(Longs.round(value));
+    }
+
+    public static int round(final float value) {
+        //CHECKSTYLE:OFF
+        return Math.round(value);
+        //CHECKSTYLE:ON
+    }
+
+    public static int ceil(final double value) {
+        //CHECKSTYLE:OFF
+        return (int) Math.ceil(value);
+        //CHECKSTYLE:ON
+    }
+
+    public static int floor(final double value) {
+        //CHECKSTYLE:OFF
+        return (int) Math.floor(value);
+        //CHECKSTYLE:ON
     }
 
 }

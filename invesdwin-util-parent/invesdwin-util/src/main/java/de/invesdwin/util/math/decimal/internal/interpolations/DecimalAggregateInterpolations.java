@@ -264,11 +264,11 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
             if (value > 0) {
                 return 0d;
             } else {
-                return Math.max(minValue, value * PUNISH_NEGATIVE_EDGE_FACTOR);
+                return Doubles.max(minValue, value * PUNISH_NEGATIVE_EDGE_FACTOR);
             }
         } else {
             if (value > 0) {
-                return Math.min(maxValue, value * PUNISH_NEGATIVE_EDGE_FACTOR);
+                return Doubles.min(maxValue, value * PUNISH_NEGATIVE_EDGE_FACTOR);
             } else {
                 return 0;
             }
@@ -319,7 +319,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
         final boolean isHigherBetter = config.isHigherBetter();
         final boolean isPunishEdges = config.isPunishEdges() && values.size() >= 5;
         final List<E> robustValues = new ArrayList<>(values.size());
-        final int countNeighbours = Math.max(MIN_NEIGHTBOURS_COUNT, values.size() / config.getMaxSegments());
+        final int countNeighbours = Integers.max(MIN_NEIGHTBOURS_COUNT, values.size() / config.getMaxSegments());
         final double standardDeviation;
         if (isPunishEdges) {
             standardDeviation = new DecimalAggregate<E>(values, converter).sampleStandardDeviation().getDefaultValue();
@@ -342,7 +342,7 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
 
             final double curValueDouble = curValue;
 
-            final int maxNeighbourWeight = Math.max(prevValues.size(), nextValues.size());
+            final int maxNeighbourWeight = Integers.max(prevValues.size(), nextValues.size());
             final int curValueWeight = maxNeighbourWeight + 1;
 
             double valuesSum = 0D;
@@ -427,9 +427,9 @@ public class DecimalAggregateInterpolations<E extends ADecimal<E>> implements ID
 
     private double pessimistic(final boolean isHigherBetter, final double value1, final double value2) {
         if (isHigherBetter) {
-            return Math.min(value1, value2);
+            return Doubles.min(value1, value2);
         } else {
-            return Math.max(value1, value2);
+            return Doubles.max(value1, value2);
         }
     }
 

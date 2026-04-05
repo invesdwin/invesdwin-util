@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.lang.reflection.Reflections;
+import de.invesdwin.util.math.Longs;
 
 @Immutable
 public final class OSAccessor {
@@ -31,10 +32,10 @@ public final class OSAccessor {
                     "Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
         }
         final long address = OS.map0(fileChannel, OS.imodeFor(mode), start, size);
-        final long threshold = Math.min(64 * size, 32L << 40);
+        final long threshold = Longs.min(64 * size, 32L << 40);
         if (OS.isLinux() && (address > 0 && address < threshold) && Jvm.is64bit()) {
             final double ratio = (double) threshold / address;
-            final long durationMs = Math.max(5000, (long) (250 * ratio * ratio * ratio));
+            final long durationMs = Longs.max(5000, (long) (250 * ratio * ratio * ratio));
             //CHECKSTYLE:OFF
             LOG.warn("Running low on virtual memory, pausing {} ms, address: {}", durationMs,
                     Long.toUnsignedString(address, 16));

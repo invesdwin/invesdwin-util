@@ -425,12 +425,12 @@ public class Duration extends Number implements Comparable<Object> {
      */
     public Duration add(final long duration, final FTimeUnit timeUnit) {
         final long comparableDuration = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
-        return new Duration(Math.addExact(nanosValue(), comparableDuration), FTimeUnit.NANOSECONDS);
+        return new Duration(Longs.addExact(nanosValue(), comparableDuration), FTimeUnit.NANOSECONDS);
     }
 
     public Duration subtract(final long duration, final FTimeUnit timeUnit) {
         final long comparableDuration = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
-        return new Duration(Math.subtractExact(nanosValue(), comparableDuration), FTimeUnit.NANOSECONDS);
+        return new Duration(Longs.subtractExact(nanosValue(), comparableDuration), FTimeUnit.NANOSECONDS);
     }
 
     public Duration divide(final Number dividend) {

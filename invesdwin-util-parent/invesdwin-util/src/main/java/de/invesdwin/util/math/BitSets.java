@@ -162,8 +162,8 @@ public final class BitSets extends ABitSetsStaticFacade {
             int thisWordsInUse = UnsafeApi.getInt(combinedInto, BITSET_WORDS_IN_USE_OFFSET);
             final int otherWordsInUse = UnsafeApi.getInt(other, BITSET_WORDS_IN_USE_OFFSET);
             final long[] otherWords = (long[]) UnsafeApi.getReference(other, BITSET_WORDS_OFFSET);
-            //        int wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
-            final int wordsInCommon = Math.min(thisWordsInUse, otherWordsInUse);
+            //        int wordsInCommon = Integers.min(wordsInUse, set.wordsInUse);
+            final int wordsInCommon = Integers.min(thisWordsInUse, otherWordsInUse);
 
             //        if (wordsInUse < set.wordsInUse) {
             //            ensureCapacity(set.wordsInUse);
@@ -238,7 +238,7 @@ public final class BitSets extends ABitSetsStaticFacade {
         final long[] words = (long[]) UnsafeApi.getReference(bitSet, BITSET_WORDS_OFFSET);
         if (words.length < wordsRequired) {
             // Allocate larger of doubled size or required size
-            final int request = Math.max(2 * words.length, wordsRequired);
+            final int request = Integers.max(2 * words.length, wordsRequired);
             final long[] newWords = Arrays.copyOf(words, request);
             UnsafeApi.putReference(bitSet, BITSET_WORDS_OFFSET, newWords);
             UnsafeApi.putBoolean(bitSet, BITSET_SIZE_IS_STICKY_OFFSET, false);
@@ -311,7 +311,7 @@ public final class BitSets extends ABitSetsStaticFacade {
         while (curCombined != ISkippingPrimitiveIndexProvider.END && curOther != ISkippingPrimitiveIndexProvider.END
                 && curCombined < toExclusive && curOther < toExclusive) {
             if (curCombined < curOther) {
-                final int clearEnd = Math.min(curOther, toExclusive);
+                final int clearEnd = Integers.min(curOther, toExclusive);
                 combinedInto.clear(curCombined, clearEnd - curCombined);
                 curCombined = skipCombined.next(clearEnd);
             } else if (curCombined > curOther) {
@@ -393,7 +393,7 @@ public final class BitSets extends ABitSetsStaticFacade {
         while (curCombined != ISkippingLargeIndexProvider.END && curOther != ISkippingLargeIndexProvider.END
                 && curCombined < toExclusive && curOther < toExclusive) {
             if (curCombined < curOther) {
-                final long clearEnd = Math.min(curOther, toExclusive);
+                final long clearEnd = Longs.min(curOther, toExclusive);
                 combinedInto.clear(curCombined, clearEnd - curCombined);
                 curCombined = skipCombined.next(clearEnd);
             } else if (curCombined > curOther) {

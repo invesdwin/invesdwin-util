@@ -731,13 +731,13 @@ public final class ByteBuffers {
 
     public static byte[] copyOf(final byte[] original, final int newLength) {
         final byte[] copy = allocateByteArray(newLength);
-        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
+        System.arraycopy(original, 0, copy, 0, Integers.min(original.length, newLength));
         return copy;
     }
 
     public static byte[] copy(final byte[] original, final int from, final int newLength) {
         final byte[] copy = allocateByteArray(newLength);
-        System.arraycopy(original, from, copy, 0, Math.min(original.length, newLength));
+        System.arraycopy(original, from, copy, 0, Integers.min(original.length, newLength));
         return copy;
     }
 

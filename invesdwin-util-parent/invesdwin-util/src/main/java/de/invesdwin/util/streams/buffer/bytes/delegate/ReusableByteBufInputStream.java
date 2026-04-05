@@ -10,6 +10,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.lang.string.Strings;
+import de.invesdwin.util.math.Integers;
 import io.netty.buffer.ByteBuf;
 
 @NotThreadSafe
@@ -61,7 +62,7 @@ public class ReusableByteBufInputStream extends InputStream implements DataInput
             return -1;
         }
 
-        final int readLen = Math.min(available, len);
+        final int readLen = Integers.min(available, len);
         buffer.readBytes(b, off, readLen);
         return readLen;
     }
@@ -200,7 +201,7 @@ public class ReusableByteBufInputStream extends InputStream implements DataInput
 
     @Override
     public int skipBytes(final int n) throws IOException {
-        final int nBytes = Math.min(available(), n);
+        final int nBytes = Integers.min(available(), n);
         buffer.skipBytes(nBytes);
         return nBytes;
     }

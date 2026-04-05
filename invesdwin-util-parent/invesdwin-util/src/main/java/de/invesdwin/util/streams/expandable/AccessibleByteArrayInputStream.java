@@ -15,6 +15,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.jspecify.annotations.Nullable;
 
 import de.invesdwin.util.collections.primitive.util.DirectByteArrayAccess;
+import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.closeable.ISafeCloseable;
 import it.unimi.dsi.fastutil.io.MeasurableStream;
 import it.unimi.dsi.fastutil.io.RepositionableStream;
@@ -42,7 +44,7 @@ public class AccessibleByteArrayInputStream extends java.io.ByteArrayInputStream
         this.offset = offset;
         pos = 0;
         mark = 0;
-        count = Math.min(maxLength, array.length - offset);// offset|0..pos..length|...array.length
+        count = Integers.min(maxLength, array.length - offset);// offset|0..pos..length|...array.length
     }//new
 
     public AccessibleByteArrayInputStream(final byte[] array) {
@@ -64,7 +66,7 @@ public class AccessibleByteArrayInputStream extends java.io.ByteArrayInputStream
         this.offset = offset;
         pos = 0;
         mark = 0;
-        count = Math.min(maxLength, array.length - offset);
+        count = Integers.min(maxLength, array.length - offset);
     }
 
     /** The first valid entry. aka {@link #position()} */
@@ -92,11 +94,11 @@ public class AccessibleByteArrayInputStream extends java.io.ByteArrayInputStream
 
     @Override
     public void position(final long newPosition) {
-        pos = (int) Math.min(newPosition, limit());
+        pos = (int) Longs.min(newPosition, limit());
     }
 
     public void readerIndex(final int newReaderIndex) {
-        pos = Math.min(newReaderIndex, limit());
+        pos = Integers.min(newReaderIndex, limit());
     }
 
     /** The number of valid bytes in {@link #array} starting from {@link #offset}. */
@@ -110,7 +112,7 @@ public class AccessibleByteArrayInputStream extends java.io.ByteArrayInputStream
     }
 
     public void limit(@PositiveOrZero final int maxLength) {
-        count = Math.min(maxLength, array().length - offset);
+        count = Integers.min(maxLength, array().length - offset);
     }
 
     /** Closing a fast byte array input stream has no effect. */
@@ -154,7 +156,7 @@ public class AccessibleByteArrayInputStream extends java.io.ByteArrayInputStream
         if (this.count <= this.pos) {
             return length == 0 ? 0 : -1;
         }
-        final int n = Math.min(length, this.count - this.pos);
+        final int n = Integers.min(length, this.count - this.pos);
         System.arraycopy(buf, this.offset + this.pos, b, fromOffset, n);
         pos += n;
         return n;
@@ -172,7 +174,7 @@ public class AccessibleByteArrayInputStream extends java.io.ByteArrayInputStream
 
     @Override
     public byte[] readNBytes(final int len) {
-        final int n = Math.min(len, available());
+        final int n = Integers.min(len, available());
         final byte[] result = new byte[n];
         read(result);
         return result;
@@ -361,7 +363,7 @@ public class AccessibleByteArrayInputStream extends java.io.ByteArrayInputStream
     /// @see BAOS#writeBytes(String)
     /// @see java.nio.charset.StandardCharsets#ISO_8859_1
     public String readLatin1String(@PositiveOrZero final int strLen) {
-        final int strLenMin = Math.min(strLen, available());
+        final int strLenMin = Integers.min(strLen, available());
         @SuppressWarnings("deprecation")
         final String s = new String(buf, 0, pos, strLenMin);
         pos += strLenMin;
@@ -371,7 +373,7 @@ public class AccessibleByteArrayInputStream extends java.io.ByteArrayInputStream
     /// @see java.nio.charset.StandardCharsets#UTF_16BE
     /// @see BAOS#writeChars
     public String readUTF16String(@PositiveOrZero final int strLen) {
-        final int byteLen = Math.min(strLen << 1, available());//*2
+        final int byteLen = Integers.min(strLen << 1, available());//*2
         final String s = new String(buf, pos, byteLen, UTF_16BE);
         pos += byteLen;
         return s;

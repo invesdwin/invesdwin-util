@@ -9,6 +9,8 @@ import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularMatrixException;
 import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 
+import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.statistics.MacKinnonP.RegressionMethod;
 
 /**
@@ -41,7 +43,7 @@ public class AugmentedDickeyFuller {
      */
     public AugmentedDickeyFuller(final double[] ts) {
         this.ts = ts;
-        this.lag = (int) Math.floor(Math.cbrt((ts.length - 1)));
+        this.lag = Integers.floor(Doubles.cbrt(ts.length - 1));
         computeADFStatistics();
     }
 

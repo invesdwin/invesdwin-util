@@ -361,7 +361,7 @@ public class LongArrayPrimitiveBitSetBase implements IPrimitiveArrayId {
     }
 
     public boolean intersects(final LongArrayPrimitiveBitSetBase set) {
-        for (int i = Math.min(words.size(), set.words.size()) - 1; i >= 0; i--) {
+        for (int i = Integers.min(words.size(), set.words.size()) - 1; i >= 0; i--) {
             if ((words.get(i) & set.words.get(i)) != 0) {
                 return true;
             }
@@ -398,7 +398,7 @@ public class LongArrayPrimitiveBitSetBase implements IPrimitiveArrayId {
             return;
         }
 
-        final int wordsInCommon = Math.min(words.size(), set.words.size());
+        final int wordsInCommon = Integers.min(words.size(), set.words.size());
 
         if (words.size() < set.words.size()) {
             ensureCapacity(set.words.size());
@@ -416,7 +416,7 @@ public class LongArrayPrimitiveBitSetBase implements IPrimitiveArrayId {
     }
 
     public void xor(final LongArrayPrimitiveBitSetBase set) {
-        final int wordsInCommon = Math.min(words.size(), set.words.size());
+        final int wordsInCommon = Integers.min(words.size(), set.words.size());
 
         if (words.size() < set.words.size()) {
             ensureCapacity(set.words.size());
@@ -435,7 +435,7 @@ public class LongArrayPrimitiveBitSetBase implements IPrimitiveArrayId {
 
     public void andNot(final LongArrayPrimitiveBitSetBase set) {
         // Perform logical (a & !b) on words in common
-        for (int i = Math.min(words.size(), set.words.size()) - 1; i >= 0; i--) {
+        for (int i = Integers.min(words.size(), set.words.size()) - 1; i >= 0; i--) {
             words.set(i, words.get(i) & ~set.words.get(i));
         }
     }
@@ -730,8 +730,8 @@ public class LongArrayPrimitiveBitSetBase implements IPrimitiveArrayId {
         try {
             final int otherWordsInUse = other.words.size();
             final ILongPrimitiveArray otherWords = other.words;
-            //        int wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
-            final int wordsInCommon = Math.min(words.size(), otherWordsInUse);
+            //        int wordsInCommon = Integers.min(wordsInUse, set.wordsInUse);
+            final int wordsInCommon = Integers.min(words.size(), otherWordsInUse);
 
             //        if (wordsInUse < set.wordsInUse) {
             //            ensureCapacity(set.wordsInUse);

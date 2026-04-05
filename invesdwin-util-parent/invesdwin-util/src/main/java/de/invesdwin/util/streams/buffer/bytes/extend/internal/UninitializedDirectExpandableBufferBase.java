@@ -48,6 +48,7 @@ import org.agrona.UnsafeApi;
 
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.UninitializedDirectByteBuffers;
 
@@ -259,7 +260,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -311,7 +312,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         UnsafeApi.putLong(null, finalizer.address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -353,7 +354,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         return UnsafeApi.getInt(null, finalizer.address + index);
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -405,7 +406,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         UnsafeApi.putDouble(null, finalizer.address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -457,7 +458,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         UnsafeApi.putFloat(null, finalizer.address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -509,7 +510,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         UnsafeApi.putShort(null, finalizer.address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -660,7 +661,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
                 finalizer.address + index, length);
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -712,7 +713,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         UnsafeApi.putChar(null, finalizer.address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -986,7 +987,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     @Override
     public int putStringWithoutLengthAscii(final int index, final String value, final int valueOffset,
             final int length) {
-        final int len = value != null ? Math.min(value.length() - valueOffset, length) : 0;
+        final int len = value != null ? Integers.min(value.length() - valueOffset, length) : 0;
 
         ensureCapacity(index, len);
 
@@ -1008,7 +1009,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     @Override
     public int putStringWithoutLengthAscii(final int index, final CharSequence value, final int valueOffset,
             final int length) {
-        final int len = value != null ? Math.min(value.length() - valueOffset, length) : 0;
+        final int len = value != null ? Integers.min(value.length() - valueOffset, length) : 0;
 
         ensureCapacity(index, len);
 
@@ -1024,7 +1025,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         return len;
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1153,7 +1154,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         return bytes.length;
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1440,7 +1441,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         return 0;
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1486,7 +1487,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         final long thisOffset = this.addressOffset();
         final long thatOffset = that.addressOffset();
 
-        for (int i = 0, length = Math.min(thisCapacity, thatCapacity); i < length; i++) {
+        for (int i = 0, length = Integers.min(thisCapacity, thatCapacity); i < length; i++) {
             final int cmp = Byte.compare(UnsafeApi.getByte(null, thisOffset + i),
                     UnsafeApi.getByte(thatByteArray, thatOffset + i));
 

@@ -103,7 +103,9 @@ public final class Floats extends AFloatsStaticFacade {
         } else if (second == null) {
             return first;
         } else {
+            //CHECKSTYLE:OFF
             return Math.max(first, second);
+            //CHECKSTYLE:ON
         }
     }
 
@@ -111,7 +113,9 @@ public final class Floats extends AFloatsStaticFacade {
         if (second == null) {
             return first;
         } else {
+            //CHECKSTYLE:OFF
             return Math.max(first, second);
+            //CHECKSTYLE:ON
         }
     }
 
@@ -119,12 +123,16 @@ public final class Floats extends AFloatsStaticFacade {
         if (first == null) {
             return second;
         } else {
+            //CHECKSTYLE:OFF
             return Math.max(first, second);
+            //CHECKSTYLE:ON
         }
     }
 
     public static float max(final float first, final float second) {
+        //CHECKSTYLE:OFF
         return Math.max(first, second);
+        //CHECKSTYLE:ON
     }
 
     public static Float minNullable(final Float... values) {
@@ -151,7 +159,9 @@ public final class Floats extends AFloatsStaticFacade {
         } else if (second == null) {
             return first;
         } else {
+            //CHECKSTYLE:OFF
             return Math.min(first, second);
+            //CHECKSTYLE:ON
         }
     }
 
@@ -159,7 +169,9 @@ public final class Floats extends AFloatsStaticFacade {
         if (second == null) {
             return first;
         } else {
+            //CHECKSTYLE:OFF
             return Math.min(first, second);
+            //CHECKSTYLE:ON
         }
     }
 
@@ -167,12 +179,16 @@ public final class Floats extends AFloatsStaticFacade {
         if (first == null) {
             return second;
         } else {
+            //CHECKSTYLE:OFF
             return Math.min(first, second);
+            //CHECKSTYLE:ON
         }
     }
 
     public static float min(final float first, final float second) {
+        //CHECKSTYLE:OFF
         return Math.min(first, second);
+        //CHECKSTYLE:ON
     }
 
     public static Float between(final Float value, final Float minInclusive, final Float maxInclusive) {
@@ -267,7 +283,9 @@ public final class Floats extends AFloatsStaticFacade {
     }
 
     public static float abs(final float value) {
+        //CHECKSTYLE:OFF
         return Math.abs(value);
+        //CHECKSTYLE:ON
     }
 
     public static int compare(final Float a, final Float b) {

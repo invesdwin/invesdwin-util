@@ -75,7 +75,7 @@ public class RunningMedian {
         if (sortedList.size() == 1) {
             return sortedList.get(0);
         }
-        final int percentileIndex = (int) Math.ceil(sortedList.size() * percentileRate);
+        final int percentileIndex = Integers.ceil(sortedList.size() * percentileRate);
         final Double percentile = sortedList.get(Integers.max(0, percentileIndex - 1));
         return percentile;
     }

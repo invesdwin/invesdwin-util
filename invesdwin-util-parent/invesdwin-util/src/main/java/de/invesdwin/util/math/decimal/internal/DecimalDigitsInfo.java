@@ -100,7 +100,7 @@ public class DecimalDigitsInfo {
         if (indexOfDecimalPoint != -1) {
             digits = s.length() - 1;
         } else {
-            digits = Math.max(1, s.length());
+            digits = Integers.max(1, s.length());
         }
         return digits;
     }
@@ -111,7 +111,7 @@ public class DecimalDigitsInfo {
         if (indexOfDecimalPoint != -1) {
             digits = indexOfDecimalPoint;
         } else {
-            digits = Math.max(1, s.length());
+            digits = Integers.max(1, s.length());
         }
         return digits;
     }

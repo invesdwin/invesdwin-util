@@ -37,7 +37,7 @@ public class DoubleStreamProduct implements IDoubleStreamAlgorithm, ISerializabl
         if (count == 0) {
             return 0D;
         }
-        final double result = Math.exp(logSum);
+        final double result = Doubles.exp(logSum);
         if (result == 0D) {
             return 0D;
         }

@@ -30,6 +30,7 @@ import de.invesdwin.util.collections.primitive.util.BucketHashUtil;
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
 import de.invesdwin.util.concurrent.lock.padded.PaddedCloseableReentrantLock;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.math.Integers;
 import it.unimi.dsi.fastutil.objects.Object2ObjectFunction;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectCollection;
@@ -68,7 +69,7 @@ public class StripedNonBlockingIdentityHashMap<K, V> extends AbstractMap<K, V>
         assert concurrencyLevel > 0 : "Stripes must be positive, but " + concurrencyLevel;
         assert concurrencyLevel < 100_000_000 : "Too many stripes: " + concurrencyLevel;
         this.lockingStrategy = config.getLockingStrategy();
-        m = new NonBlockingIdentityHashMap<K, V>(Math.max(config.getInitialCapacity(), concurrencyLevel));
+        m = new NonBlockingIdentityHashMap<K, V>(Integers.max(config.getInitialCapacity(), concurrencyLevel));
         s = new PaddedCloseableReentrantLock[concurrencyLevel];
         for (int i = 0; i < concurrencyLevel; i++) {
             s[i] = new PaddedCloseableReentrantLock();

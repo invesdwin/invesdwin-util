@@ -60,7 +60,7 @@ public class DoubleStreamRelativeDetrending {
         final double logCurProfit = Doubles.log(y / fromY);
         final double logMinusProfit = logAvgChangeYperX * changeInX;
         final double logDetrendedProfit = logCurProfit - logMinusProfit;
-        final double detrendedY = fromY * Math.exp(logDetrendedProfit);
+        final double detrendedY = fromY * Doubles.exp(logDetrendedProfit);
         return detrendedY;
     }
 

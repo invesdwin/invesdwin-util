@@ -7,6 +7,7 @@ import javax.swing.AbstractSpinnerModel;
 
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.math.Integers;
 
 @NotThreadSafe
 public class JSpinnerComparableChoiceModel extends AbstractSpinnerModel {
@@ -94,8 +95,8 @@ public class JSpinnerComparableChoiceModel extends AbstractSpinnerModel {
                  */
                 final int index = Collections.binarySearch(choice, selection);
                 // outOfBounds ? end of the list, we don't change the date
-                final boolean outOfBounds = (Math.abs(index + 1)) >= choice.size();
-                return outOfBounds ? selection : choice.get(Math.abs(index + 1));
+                final boolean outOfBounds = (Integers.abs(index + 1)) >= choice.size();
+                return outOfBounds ? selection : choice.get(Integers.abs(index + 1));
             } else if (indexOf == choice.size() - 1) {
                 //end of the list, we don't change the date
                 return selection;
@@ -122,8 +123,8 @@ public class JSpinnerComparableChoiceModel extends AbstractSpinnerModel {
                  */
                 final int index = Collections.binarySearch(choice, selection);
                 // outOfBounds ? end of the list, we don't change the date
-                final boolean outOfBounds = (Math.abs(index) - 2) < 0;
-                return outOfBounds ? selection : choice.get(Math.abs(index) - 2);
+                final boolean outOfBounds = (Integers.abs(index) - 2) < 0;
+                return outOfBounds ? selection : choice.get(Integers.abs(index) - 2);
             } else if (indexOf == 0) {
                 //end of the list, we don't change the date
                 return selection;

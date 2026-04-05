@@ -361,7 +361,7 @@ public class LongArrayLargeBitSetBase implements ILargeArrayId {
     }
 
     public boolean intersects(final LongArrayLargeBitSetBase set) {
-        for (long i = Math.min(words.size(), set.words.size()) - 1; i >= 0; i--) {
+        for (long i = Longs.min(words.size(), set.words.size()) - 1; i >= 0; i--) {
             if ((words.get(i) & set.words.get(i)) != 0) {
                 return true;
             }
@@ -398,7 +398,7 @@ public class LongArrayLargeBitSetBase implements ILargeArrayId {
             return;
         }
 
-        final long wordsInCommon = Math.min(words.size(), set.words.size());
+        final long wordsInCommon = Longs.min(words.size(), set.words.size());
 
         if (words.size() < set.words.size()) {
             ensureCapacity(set.words.size());
@@ -416,7 +416,7 @@ public class LongArrayLargeBitSetBase implements ILargeArrayId {
     }
 
     public void xor(final LongArrayLargeBitSetBase set) {
-        final long wordsInCommon = Math.min(words.size(), set.words.size());
+        final long wordsInCommon = Longs.min(words.size(), set.words.size());
 
         if (words.size() < set.words.size()) {
             ensureCapacity(set.words.size());
@@ -435,7 +435,7 @@ public class LongArrayLargeBitSetBase implements ILargeArrayId {
 
     public void andNot(final LongArrayLargeBitSetBase set) {
         // Perform logical (a & !b) on words in common
-        for (long i = Math.min(words.size(), set.words.size()) - 1; i >= 0; i--) {
+        for (long i = Longs.min(words.size(), set.words.size()) - 1; i >= 0; i--) {
             words.set(i, words.get(i) & ~set.words.get(i));
         }
     }
@@ -731,8 +731,8 @@ public class LongArrayLargeBitSetBase implements ILargeArrayId {
         try {
             final long otherWordsInUse = other.words.size();
             final ILongLargeArray otherWords = other.words;
-            //        long wordsInCommon = Math.min(wordsInUse, set.wordsInUse);
-            final long wordsInCommon = Math.min(words.size(), otherWordsInUse);
+            //        long wordsInCommon = Longs.min(wordsInUse, set.wordsInUse);
+            final long wordsInCommon = Longs.min(words.size(), otherWordsInUse);
 
             //        if (wordsInUse < set.wordsInUse) {
             //            ensureCapacity(set.wordsInUse);

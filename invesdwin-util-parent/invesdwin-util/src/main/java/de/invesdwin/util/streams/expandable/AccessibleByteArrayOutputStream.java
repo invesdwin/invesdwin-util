@@ -11,6 +11,8 @@ import java.util.UUID;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.primitive.util.DirectByteArrayAccess;
+import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.closeable.ISafeCloseable;
 import it.unimi.dsi.fastutil.io.MeasurableStream;
 import it.unimi.dsi.fastutil.io.RepositionableStream;
@@ -83,7 +85,7 @@ public class AccessibleByteArrayOutputStream extends java.io.ByteArrayOutputStre
     public AccessibleByteArrayOutputStream(final byte[] a, @PositiveOrZero final int length) {
         super(0);
         buf = a;
-        count = Math.min(length, a.length);
+        count = Integers.min(length, a.length);
     }//new
 
     public AccessibleByteArrayOutputStream(final java.io.ByteArrayOutputStream baos) {
@@ -150,11 +152,11 @@ public class AccessibleByteArrayOutputStream extends java.io.ByteArrayOutputStre
 
     @Override
     public void position(@PositiveOrZero final long newPosition) {
-        position = (int) Math.min(newPosition, buf.length);
+        position = (int) Longs.min(newPosition, buf.length);
     }
 
     public void writerIndex(@PositiveOrZero final int newPosition) {
-        position = Math.min(newPosition, buf.length);
+        position = Integers.min(newPosition, buf.length);
     }
 
     @Override
@@ -192,7 +194,7 @@ public class AccessibleByteArrayOutputStream extends java.io.ByteArrayOutputStre
     public void resize(@PositiveOrZero final int targetCapacity) {
         //Assert.isTrue(targetCapacity >= count, "New capacity must not be smaller than current size");
         final byte[] resizedBuffer = new byte[targetCapacity];
-        count = Math.min(this.count, targetCapacity);
+        count = Integers.min(this.count, targetCapacity);
         System.arraycopy(buf, 0, resizedBuffer, 0, count);
         buf = resizedBuffer;
     }
@@ -205,8 +207,8 @@ public class AccessibleByteArrayOutputStream extends java.io.ByteArrayOutputStre
     /// @see org.springframework.util.ResizableByteArrayOutputStream#grow(int)
     public void grow(@Positive final int len) {
         if (position + len > buf.length) {
-            final int newLength = (int) Math.max(
-                    Math.min((long) buf.length + (buf.length >> 1), it.unimi.dsi.fastutil.Arrays.MAX_ARRAY_SIZE),
+            final int newLength = (int) Longs.max(
+                    Longs.min((long) buf.length + (buf.length >> 1), it.unimi.dsi.fastutil.Arrays.MAX_ARRAY_SIZE),
                     position + len);
             final byte[] resizedBuffer = new byte[newLength];
             System.arraycopy(buf, 0, resizedBuffer, 0, count);

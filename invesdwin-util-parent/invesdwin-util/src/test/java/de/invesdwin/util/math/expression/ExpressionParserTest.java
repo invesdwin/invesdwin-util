@@ -7,6 +7,7 @@ import org.opentest4j.AssertionFailedError;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.Characters;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.operation.Op;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
@@ -1278,7 +1279,7 @@ public class ExpressionParserTest {
         final ExpressionParser expressionParser = new ExpressionParser("-PI");
         final IExpression parsed = expressionParser.parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
-        Assertions.checkEquals(-Math.PI, evaluateDouble);
+        Assertions.checkEquals(-Doubles.PI, evaluateDouble);
     }
 
     @Test

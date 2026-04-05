@@ -11,6 +11,7 @@ import de.invesdwin.util.collections.array.large.bitset.roaring.RoaringLargeBitS
 import de.invesdwin.util.collections.array.large.heap.HeapBooleanLargeArray;
 import de.invesdwin.util.collections.array.large.slice.SliceDelegateBooleanLargeArray;
 import de.invesdwin.util.math.BitSets;
+import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
@@ -32,7 +33,7 @@ public class SegmentedHeapBooleanLargeArray implements IBooleanLargeArray {
         this.segmentCount = (int) ((size + SEGMENT_SIZE - 1) / SEGMENT_SIZE);
         this.segments = new boolean[segmentCount][];
         for (int i = 0; i < segmentCount; i++) {
-            final long segmentSize = Math.min(SEGMENT_SIZE, size - (i * SEGMENT_SIZE));
+            final long segmentSize = Longs.min(SEGMENT_SIZE, size - (i * SEGMENT_SIZE));
             segments[i] = new boolean[ByteBuffers.checkedCast(segmentSize)];
         }
     }

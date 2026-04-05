@@ -13,6 +13,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.Decimal;
 
 @NotThreadSafe
@@ -52,7 +53,7 @@ public class SpinnerDecimalEditor extends DefaultEditor {
         try {
             final String maxString = formatter.valueToString(model.getMinimum());
             final String minString = formatter.valueToString(model.getMaximum());
-            ftf.setColumns(Math.max(maxString.length(), minString.length()));
+            ftf.setColumns(Integers.max(maxString.length(), minString.length()));
         } catch (final ParseException e) {
             // TBD should throw a chained error here
         }

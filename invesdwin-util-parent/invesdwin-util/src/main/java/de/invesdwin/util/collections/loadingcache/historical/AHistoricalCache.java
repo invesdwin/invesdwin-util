@@ -55,6 +55,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.core
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.filter.FilteringHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.lang.string.description.TextDescription;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
@@ -160,7 +161,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     @Override
     public final void increaseMaximumSize(final int maximumSize, final String reason) {
         final Integer existingMaximumSize = this.maximumSize;
-        final int usedMaximumSize = Math.min(getMaximumSizeLimit(), maximumSize);
+        final int usedMaximumSize = Integers.min(getMaximumSizeLimit(), maximumSize);
         if (existingMaximumSize == null || existingMaximumSize < usedMaximumSize) {
             innerIncreaseMaximumSize(usedMaximumSize, reason);
         }
@@ -182,7 +183,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         this.maximumSize = maximumSize;
         for (final IHistoricalCacheIncreaseMaximumSizeListener l : increaseMaximumSizeListeners) {
             final Integer listenerMaximumSize = l.getMaximumSize();
-            final int listenerMaximumSizeLimited = Math.min(maximumSize, l.getMaximumSizeLimit());
+            final int listenerMaximumSizeLimited = Integers.min(maximumSize, l.getMaximumSizeLimit());
             if (listenerMaximumSize == null || listenerMaximumSize.intValue() < listenerMaximumSizeLimited) {
                 l.increaseMaximumSize(maximumSize, reason);
             }

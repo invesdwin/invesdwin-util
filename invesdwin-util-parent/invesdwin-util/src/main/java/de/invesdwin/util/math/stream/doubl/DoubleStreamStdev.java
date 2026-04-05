@@ -2,6 +2,8 @@ package de.invesdwin.util.math.stream.doubl;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.Doubles;
+
 @NotThreadSafe
 public class DoubleStreamStdev implements IDoubleStreamAlgorithm {
 
@@ -13,11 +15,11 @@ public class DoubleStreamStdev implements IDoubleStreamAlgorithm {
      */
     @Deprecated
     public double getStandardDeviation() {
-        return Math.sqrt(variance.getVariance());
+        return Doubles.sqrt(variance.getVariance());
     }
 
     public double getSampleStandardDeviation() {
-        return Math.sqrt(variance.getSampleVariance());
+        return Doubles.sqrt(variance.getSampleVariance());
     }
 
     public double getSampleVariance() {

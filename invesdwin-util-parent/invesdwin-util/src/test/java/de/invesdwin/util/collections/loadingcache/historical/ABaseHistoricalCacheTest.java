@@ -18,6 +18,7 @@ import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistori
 import de.invesdwin.util.collections.loadingcache.historical.key.APushingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.lang.reflection.Reflections;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDateBuilder;
 import de.invesdwin.util.time.date.FDates;
@@ -472,7 +473,7 @@ public abstract class ABaseHistoricalCacheTest {
         try {
             for (int i = 0; i < 100000; i++) {
                 final int keyIndex = RandomUtils.nextInt(0, entities.size());
-                final int shiftBackUnits = RandomUtils.nextInt(1, Math.max(1, keyIndex));
+                final int shiftBackUnits = RandomUtils.nextInt(1, Integers.max(1, keyIndex));
                 reproduce.add(Pair.of(keyIndex, shiftBackUnits));
                 final FDate key = entities.get(keyIndex);
                 final Collection<FDate> previousValues = asList(cache.query().getPreviousValues(key, shiftBackUnits));
@@ -516,7 +517,7 @@ public abstract class ABaseHistoricalCacheTest {
         try {
             for (int i = 0; i < 100000; i++) {
                 final int keyIndex = RandomUtils.nextInt(0, entities.size());
-                final int shiftBackUnits = RandomUtils.nextInt(1, Math.max(1, keyIndex));
+                final int shiftBackUnits = RandomUtils.nextInt(1, Integers.max(1, keyIndex));
                 reproduce.add(Pair.of(keyIndex, shiftBackUnits));
                 final List<FDate> expectedValues = entities.subList(keyIndex - shiftBackUnits + 1, keyIndex + 1);
                 final long size = cache.query()
@@ -590,7 +591,7 @@ public abstract class ABaseHistoricalCacheTest {
                 result = list;
             }
             if (returnMaxResults != null && !result.isEmpty()) {
-                result = result.subList(0, Math.min(result.size(), returnMaxResults));
+                result = result.subList(0, Integers.min(result.size(), returnMaxResults));
             }
             return new BufferingIterator<FDate>(result);
         }

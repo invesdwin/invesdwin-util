@@ -29,6 +29,7 @@ import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.string.description.TextDescription;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
@@ -225,7 +226,7 @@ public class TrailingHistoricalCacheQueryCore<V> extends ACachedEntriesHistorica
         }
 
         final int toIndex = cachedToIndex + 1;
-        final int fromIndex = Math.max(0, toIndex - unitsBack);
+        final int fromIndex = Integers.max(0, toIndex - unitsBack);
         final int size = toIndex - fromIndex;
         final int newUnitsBack = unitsBack - size;
 

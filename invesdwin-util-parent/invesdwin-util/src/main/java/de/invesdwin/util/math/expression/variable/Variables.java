@@ -2,12 +2,13 @@ package de.invesdwin.util.math.expression.variable;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.visitor.ExpressionProperties;
 
 @Immutable
 public final class Variables {
 
-    public static final IVariable PI = new ADoubleConstant(Math.PI) {
+    public static final IVariable PI = new ADoubleConstant(Doubles.PI) {
 
         @Override
         public String getExpressionName() {
@@ -22,7 +23,7 @@ public final class Variables {
         @Override
         public String getDescription() {
             return "The double value that is closer than any other to "
-                    + "<i>pi</i>, the ratio of the circumference of a circle to its diameter: " + Math.PI;
+                    + "<i>pi</i>, the ratio of the circumference of a circle to its diameter: " + Doubles.PI;
         }
 
         @Override
@@ -32,7 +33,7 @@ public final class Variables {
 
     };
 
-    public static final IVariable EULER = new ADoubleConstant(Math.E) {
+    public static final IVariable EULER = new ADoubleConstant(Doubles.E) {
 
         @Override
         public String getExpressionName() {
@@ -47,7 +48,7 @@ public final class Variables {
         @Override
         public String getDescription() {
             return "The double value that is closer than any other to "
-                    + "<i>e</i>, the base of the natural logarithms: " + Math.E;
+                    + "<i>e</i>, the base of the natural logarithms: " + Doubles.E;
         }
 
         @Override
@@ -163,7 +164,6 @@ public final class Variables {
 
     };
 
-    private Variables() {
-    }
+    private Variables() {}
 
 }

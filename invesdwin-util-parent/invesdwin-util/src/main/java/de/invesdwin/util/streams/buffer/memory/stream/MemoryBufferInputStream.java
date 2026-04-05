@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
@@ -154,7 +155,7 @@ public class MemoryBufferInputStream extends InputStream {
         int bytesRead = -1;
 
         if (position < this.length) {
-            bytesRead = Math.min(length, available());
+            bytesRead = Integers.min(length, available());
             buffer.getBytes(offset + position, dstBytes, dstOffset, bytesRead);
             position += bytesRead;
         }

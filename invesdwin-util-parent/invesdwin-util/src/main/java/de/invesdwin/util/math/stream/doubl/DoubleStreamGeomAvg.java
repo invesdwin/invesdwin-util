@@ -38,7 +38,7 @@ public class DoubleStreamGeomAvg implements IDoubleStreamAlgorithm {
         if (count == 0) {
             return 0D;
         } else {
-            final double result = Math.exp(logSum / count);
+            final double result = Doubles.exp(logSum / count);
             final double geomAvg = result - valueAdjustmentAddition;
             return geomAvg;
         }
