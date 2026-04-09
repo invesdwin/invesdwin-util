@@ -341,6 +341,7 @@ public class UnsafeMemoryBufferBase {
             boundsCheck0(index, length);
         }
 
+        final byte[] array = byteArray;
         final long offset = addressOffset + index;
 
         if (length < 100) {
@@ -352,15 +353,15 @@ public class UnsafeMemoryBufferBase {
                     | (((long) value & 0xff) << 8) | (((long) value & 0xff)));
 
             for (; i < end; i += 8) {
-                UnsafeApi.putLong(null, offset + i, mask);
+                UnsafeApi.putLong(array, offset + i, mask);
             }
 
             for (; i < length; i++) {
-                UnsafeApi.putByte(null, offset + i, value);
+                UnsafeApi.putByte(array, offset + i, value);
             }
             //CHECKSTYLE:ON
         } else {
-            UnsafeApi.setMemory(null, offset, length, value);
+            UnsafeApi.setMemory(array, offset, length, value);
         }
     }
 
@@ -385,7 +386,7 @@ public class UnsafeMemoryBufferBase {
         }
     }
 
-    /////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 
     public long getLong(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -490,7 +491,7 @@ public class UnsafeMemoryBufferBase {
         return UnsafeApi.getAndAddLong(byteArray, addressOffset + index, delta);
     }
 
-    /////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 
     public int getInt(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -595,7 +596,7 @@ public class UnsafeMemoryBufferBase {
         return UnsafeApi.getAndAddInt(byteArray, addressOffset + index, delta);
     }
 
-    /////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 
     public double getDouble(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -639,7 +640,7 @@ public class UnsafeMemoryBufferBase {
         UnsafeApi.putDouble(byteArray, addressOffset + index, value);
     }
 
-    /////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 
     public float getFloat(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -683,7 +684,7 @@ public class UnsafeMemoryBufferBase {
         UnsafeApi.putFloat(byteArray, addressOffset + index, value);
     }
 
-    /////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 
     public short getShort(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -743,7 +744,7 @@ public class UnsafeMemoryBufferBase {
         UnsafeApi.putShortVolatile(byteArray, addressOffset + index, value);
     }
 
-    /////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 
     public byte getByte(final long index) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -886,7 +887,7 @@ public class UnsafeMemoryBufferBase {
                 addressOffset + index, length);
     }
 
-    /////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 
     public char getChar(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -946,7 +947,7 @@ public class UnsafeMemoryBufferBase {
         UnsafeApi.putCharVolatile(byteArray, addressOffset + index, value);
     }
 
-    /////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 
     public String getStringAscii(final long index) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -1224,7 +1225,7 @@ public class UnsafeMemoryBufferBase {
         return len;
     }
 
-    /////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 
     public String getStringUtf8(final long index) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -1333,7 +1334,7 @@ public class UnsafeMemoryBufferBase {
         return bytes.length;
     }
 
-    /////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 
     public int parseNaturalIntAscii(final long index, final int length) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -1582,7 +1583,7 @@ public class UnsafeMemoryBufferBase {
         return addressOffset - offset;
     }
 
-    /////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}

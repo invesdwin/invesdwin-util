@@ -260,7 +260,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -312,7 +312,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         UnsafeApi.putLong(null, finalizer.address + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -354,7 +354,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         return UnsafeApi.getInt(null, finalizer.address + index);
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -406,7 +406,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         UnsafeApi.putDouble(null, finalizer.address + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -458,7 +458,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         UnsafeApi.putFloat(null, finalizer.address + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -510,7 +510,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         UnsafeApi.putShort(null, finalizer.address + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -661,7 +661,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
                 finalizer.address + index, length);
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -713,7 +713,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         UnsafeApi.putChar(null, finalizer.address + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1025,7 +1025,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         return len;
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1154,7 +1154,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         return bytes.length;
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1441,7 +1441,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         return 0;
     }
 
-    /////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}

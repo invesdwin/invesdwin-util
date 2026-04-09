@@ -174,7 +174,29 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
     @Override
     public void setMemory(final int index, final int length, final byte value) {
         ensureCapacity(index, length);
-        Arrays.fill(byteArray, index, index + length, value);
+
+        final byte[] array = byteArray;
+        final long offset = addressOffset() + index;
+
+        if (length < 100) {
+            int i = 0;
+            final long end = (length & ~7);
+            //CHECKSTYLE:OFF
+            final long mask = ((((long) value) << 56) | (((long) value & 0xff) << 48) | (((long) value & 0xff) << 40)
+                    | (((long) value & 0xff) << 32) | (((long) value & 0xff) << 24) | (((long) value & 0xff) << 16)
+                    | (((long) value & 0xff) << 8) | (((long) value & 0xff)));
+
+            for (; i < end; i += 8) {
+                UnsafeApi.putLong(array, offset + i, mask);
+            }
+
+            for (; i < length; i++) {
+                UnsafeApi.putByte(array, offset + i, value);
+            }
+            //CHECKSTYLE:ON
+        } else {
+            UnsafeApi.setMemory(array, offset, length, value);
+        }
     }
 
     /**
@@ -201,7 +223,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -253,7 +275,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         UnsafeApi.putLong(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -305,7 +327,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         UnsafeApi.putInt(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -357,7 +379,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         UnsafeApi.putDouble(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -409,7 +431,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         UnsafeApi.putFloat(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -461,7 +483,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         UnsafeApi.putShort(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -600,7 +622,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
                 ARRAY_BASE_OFFSET + index, length);
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -652,7 +674,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         UnsafeApi.putChar(byteArray, ARRAY_BASE_OFFSET + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1077,7 +1099,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         return bytes.length;
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1353,7 +1375,7 @@ public class ArrayExpandableBufferBase implements MutableDirectBuffer {
         return 0;
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}

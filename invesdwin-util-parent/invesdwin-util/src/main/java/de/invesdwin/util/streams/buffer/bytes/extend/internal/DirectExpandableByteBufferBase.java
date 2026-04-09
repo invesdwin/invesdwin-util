@@ -226,7 +226,7 @@ public class DirectExpandableByteBufferBase implements MutableDirectBuffer, ISaf
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -278,7 +278,7 @@ public class DirectExpandableByteBufferBase implements MutableDirectBuffer, ISaf
         UnsafeApi.putLong(null, address + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -320,7 +320,7 @@ public class DirectExpandableByteBufferBase implements MutableDirectBuffer, ISaf
         return UnsafeApi.getInt(null, address + index);
     }
 
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -372,7 +372,7 @@ public class DirectExpandableByteBufferBase implements MutableDirectBuffer, ISaf
         UnsafeApi.putDouble(null, address + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -424,7 +424,7 @@ public class DirectExpandableByteBufferBase implements MutableDirectBuffer, ISaf
         UnsafeApi.putFloat(null, address + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -476,7 +476,7 @@ public class DirectExpandableByteBufferBase implements MutableDirectBuffer, ISaf
         UnsafeApi.putShort(null, address + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -627,7 +627,7 @@ public class DirectExpandableByteBufferBase implements MutableDirectBuffer, ISaf
                 length);
     }
 
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -679,7 +679,7 @@ public class DirectExpandableByteBufferBase implements MutableDirectBuffer, ISaf
         UnsafeApi.putChar(null, address + index, value);
     }
 
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -991,7 +991,7 @@ public class DirectExpandableByteBufferBase implements MutableDirectBuffer, ISaf
         return len;
     }
 
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1119,7 +1119,7 @@ public class DirectExpandableByteBufferBase implements MutableDirectBuffer, ISaf
         return bytes.length;
     }
 
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1406,7 +1406,7 @@ public class DirectExpandableByteBufferBase implements MutableDirectBuffer, ISaf
         return 0;
     }
 
-    /////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
