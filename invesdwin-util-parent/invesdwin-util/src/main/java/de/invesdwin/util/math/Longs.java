@@ -367,13 +367,31 @@ public final class Longs extends ALongsStaticFacade {
 
     public static long ceil(final double value) {
         //CHECKSTYLE:OFF
+        return checkedCast(Math.ceil(value));
+        //CHECKSTYLE:ON
+    }
+
+    public static long floor(final double value) {
+        //CHECKSTYLE:OFF
+        return checkedCast(Math.floor(value));
+        //CHECKSTYLE:ON
+    }
+
+    public static long ceilUnchecked(final double value) {
+        //CHECKSTYLE:OFF
         return (long) Math.ceil(value);
+        //CHECKSTYLE:ON
+    }
+
+    public static long floorUnchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return (long) Math.floor(value);
         //CHECKSTYLE:ON
     }
 
     public static long pow(final double a, final double b) {
         //CHECKSTYLE:OFF
-        return (long) Math.pow(a, b);
+        return checkedCast(Math.pow(a, b));
         //CHECKSTYLE:ON
     }
 

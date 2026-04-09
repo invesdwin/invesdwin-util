@@ -421,17 +421,19 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static double pow(final double a, final double b) {
-        //CHECKSTYLE:OFF
-        final double pow = Math.pow(a, b);
-        //CHECKSTYLE:ON
+        final double pow = powUnchecked(a, b);
         if (Double.isNaN(pow) && a < 0D) {
             final double absA = abs(a);
-            //CHECKSTYLE:OFF
-            return -Math.pow(absA, b);
-            //CHECKSTYLE:ON
+            return -powUnchecked(absA, b);
         } else {
             return pow;
         }
+    }
+
+    public static double powUnchecked(final double a, final double b) {
+        //CHECKSTYLE:OFF
+        return Math.pow(a, b);
+        //CHECKSTYLE:ON
     }
 
     /**
@@ -443,10 +445,14 @@ public final class Doubles extends ADoublesStaticFacade {
         if (value <= 0D) {
             return 0D;
         } else {
-            //CHECKSTYLE:OFF
-            return Math.log(value);
-            //CHECKSTYLE:ON
+            return logUnchecked(value);
         }
+    }
+
+    public static double logUnchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return Math.log(value);
+        //CHECKSTYLE:ON
     }
 
     public static double exp(final double value) {
@@ -457,10 +463,14 @@ public final class Doubles extends ADoublesStaticFacade {
                 return 1D;
             }
         } else {
-            //CHECKSTYLE:OFF
-            return Math.exp(value);
-            //CHECKSTYLE:ON
+            return expUnchecked(value);
         }
+    }
+
+    public static double expUnchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return Math.exp(value);
+        //CHECKSTYLE:ON
     }
 
     /**
@@ -472,10 +482,14 @@ public final class Doubles extends ADoublesStaticFacade {
         if (value <= 0D) {
             return 0D;
         } else {
-            //CHECKSTYLE:OFF
-            return Math.log10(value);
-            //CHECKSTYLE:ON
+            return log10Unchecked(value);
         }
+    }
+
+    public static double log10Unchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return Math.log10(value);
+        //CHECKSTYLE:ON
     }
 
     public static double exp10(final double value) {
@@ -486,10 +500,14 @@ public final class Doubles extends ADoublesStaticFacade {
                 return 1D;
             }
         } else {
-            //CHECKSTYLE:OFF
-            return Math.pow(10D, value);
-            //CHECKSTYLE:ON
+            return exp10Unchecked(value);
         }
+    }
+
+    public static double exp10Unchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return Math.pow(10D, value);
+        //CHECKSTYLE:ON
     }
 
     public static double cos(final double value) {
@@ -513,14 +531,16 @@ public final class Doubles extends ADoublesStaticFacade {
      */
     public static double sqrt(final double value) {
         if (value < 0D) {
-            //CHECKSTYLE:OFF
-            return -Math.sqrt(value);
-            //CHECKSTYLE:ON
+            return -sqrtUnchecked(value);
         } else {
-            //CHECKSTYLE:OFF
-            return Math.sqrt(value);
-            //CHECKSTYLE:ON
+            return sqrtUnchecked(value);
         }
+    }
+
+    private static double sqrtUnchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return Math.sqrt(value);
+        //CHECKSTYLE:ON
     }
 
     public static double root(final double value, final double n) {
@@ -676,6 +696,10 @@ public final class Doubles extends ADoublesStaticFacade {
         } else if (isNaN(b)) {
             return a;
         }
+        return maxUnchecked(a, b);
+    }
+
+    public static double maxUnchecked(final double a, final double b) {
         //CHECKSTYLE:OFF
         return Math.max(a, b);
         //CHECKSTYLE:ON
@@ -687,6 +711,10 @@ public final class Doubles extends ADoublesStaticFacade {
         } else if (isNaN(b)) {
             return a;
         }
+        return minUnchecked(a, b);
+    }
+
+    public static double minUnchecked(final double a, final double b) {
         //CHECKSTYLE:OFF
         return Math.min(a, b);
         //CHECKSTYLE:ON

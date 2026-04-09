@@ -98,9 +98,7 @@ public final class Integers extends AIntegersStaticFacade {
         } else if (second == null) {
             return first;
         } else {
-            //CHECKSTYLE:OFF
-            return Math.max(first, second);
-            //CHECKSTYLE:ON
+            return max(first.intValue(), second.intValue());
         }
     }
 
@@ -138,9 +136,7 @@ public final class Integers extends AIntegersStaticFacade {
         } else if (second == null) {
             return first;
         } else {
-            //CHECKSTYLE:OFF
-            return Math.min(first, second);
-            //CHECKSTYLE:ON
+            return min(first.intValue(), second.intValue());
         }
     }
 
@@ -584,7 +580,13 @@ public final class Integers extends AIntegersStaticFacade {
 
     public static int ceil(final double value) {
         //CHECKSTYLE:OFF
-        return Integers.checkedCast(Math.ceil(value));
+        return Integers.checkedCast(Math.ceil((value)));
+        //CHECKSTYLE:ON
+    }
+
+    public static int ceilUnchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return (int) Math.ceil(value);
         //CHECKSTYLE:ON
     }
 
@@ -594,8 +596,18 @@ public final class Integers extends AIntegersStaticFacade {
         //CHECKSTYLE:ON
     }
 
+    public static int floorUnchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return (int) Math.floor(value);
+        //CHECKSTYLE:ON
+    }
+
     public static int sqrt(final double value) {
         return checkedCast(Doubles.sqrt(value));
+    }
+
+    public static int sqrtUnchecked(final double value) {
+        return (int) Doubles.sqrt(value);
     }
 
 }
