@@ -21,17 +21,18 @@ public final class RandomGeneratorBaseMethods {
     }
 
     public static float nextFloat(final IRandomGenerator thisObj, final float minInclusive, final float maxExclusive) {
-        float r = thisObj.nextFloat();
         if (minInclusive < maxExclusive) {
+            float r = thisObj.nextFloat();
             r = r * (maxExclusive - minInclusive) + minInclusive;
             if (r >= maxExclusive) { // may need to correct a rounding problem
                 r = Float.intBitsToFloat(Float.floatToIntBits(maxExclusive) - 1);
             }
+            return r;
         } else {
-            throw new IllegalArgumentException(
-                    "minInclusive [" + minInclusive + "] should be smaller than maxExclusive [" + maxExclusive + "]");
+            return minInclusive;
+            //            throw new IllegalArgumentException(
+            //                    "minInclusive [" + minInclusive + "] should be smaller than maxExclusive [" + maxExclusive + "]");
         }
-        return r;
     }
 
     public static double nextDouble(final IRandomGenerator thisObj, final double maxExclusive) {
@@ -46,22 +47,23 @@ public final class RandomGeneratorBaseMethods {
 
     public static double nextDouble(final IRandomGenerator thisObj, final double minInclusive,
             final double maxExclusive) {
-        double r = thisObj.nextDouble();
         if (minInclusive < maxExclusive) {
+            double r = thisObj.nextDouble();
             r = r * (maxExclusive - minInclusive) + minInclusive;
             if (r >= maxExclusive) { // may need to correct a rounding problem
                 r = Double.longBitsToDouble(Double.doubleToLongBits(maxExclusive) - 1);
             }
+            return r;
         } else {
-            throw new IllegalArgumentException(
-                    "minInclusive [" + minInclusive + "] should be smaller than maxExclusive [" + maxExclusive + "]");
+            return minInclusive;
+            //            throw new IllegalArgumentException(
+            //                    "minInclusive [" + minInclusive + "] should be smaller than maxExclusive [" + maxExclusive + "]");
         }
-        return r;
     }
 
     public static int nextInt(final IRandomGenerator thisObj, final int minInclusive, final int maxExclusive) {
-        int r = thisObj.nextInt();
         if (minInclusive < maxExclusive) {
+            int r = thisObj.nextInt();
             // It's not case (1).
             final int n = maxExclusive - minInclusive;
             final int m = n - 1;
@@ -82,11 +84,12 @@ public final class RandomGeneratorBaseMethods {
                     r = thisObj.nextInt();
                 }
             }
+            return r;
         } else {
-            throw new IllegalArgumentException(
-                    "minInclusive [" + minInclusive + "] should be smaller than maxExclusive [" + maxExclusive + "]");
+            return minInclusive;
+            //            throw new IllegalArgumentException(
+            //                    "minInclusive [" + minInclusive + "] should be smaller than maxExclusive [" + maxExclusive + "]");
         }
-        return r;
     }
 
     public static long nextLong(final IRandomGenerator thisObj, final long maxExclusive) {
@@ -113,8 +116,8 @@ public final class RandomGeneratorBaseMethods {
     }
 
     public static long nextLong(final IRandomGenerator thisObj, final long minInclusive, final long maxExclusive) {
-        long r = thisObj.nextLong();
         if (minInclusive < maxExclusive) {
+            long r = thisObj.nextLong();
             // It's not case (1).
             final long n = maxExclusive - minInclusive;
             final long m = n - 1;
@@ -142,11 +145,12 @@ public final class RandomGeneratorBaseMethods {
                     r = thisObj.nextLong();
                 }
             }
+            return r;
         } else {
-            throw new IllegalArgumentException(
-                    "minInclusive [" + minInclusive + "] should be smaller than maxExclusive [" + maxExclusive + "]");
+            return minInclusive;
+            //            throw new IllegalArgumentException(
+            //                    "minInclusive [" + minInclusive + "] should be smaller than maxExclusive [" + maxExclusive + "]");
         }
-        return r;
     }
 
 }
