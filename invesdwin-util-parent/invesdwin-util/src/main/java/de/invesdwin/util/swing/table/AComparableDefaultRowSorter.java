@@ -13,65 +13,16 @@ import javax.swing.SortOrder;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
+import de.invesdwin.util.math.Integers;
 
 /**
- * An implementation of <code>RowSorter</code> that provides sorting and filtering around a grid-based data model.
- * Beyond creating and installing a <code>RowSorter</code>, you very rarely need to interact with one directly. Refer to
- * {@link javax.swing.table.TableRowSorter TableRowSorter} for a concrete implementation of <code>RowSorter</code> for
- * <code>JTable</code>.
- * <p>
- * Sorting is done based on the current <code>SortKey</code>s, in order. If two objects are equal (the
- * <code>Comparator</code> for the column returns 0) the next <code>SortKey</code> is used. If no <code>SortKey</code>s
- * remain or the order is <code>UNSORTED</code>, then the order of the rows in the model is used.
- * <p>
- * Sorting of each column is done by way of a <code>Comparator</code> that you can specify using the
- * <code>setComparator</code> method. If a <code>Comparator</code> has not been specified, the <code>Comparator</code>
- * returned by <code>Collator.getInstance()</code> is used on the results of calling <code>toString</code> on the
- * underlying objects. The <code>Comparator</code> is never passed <code>null</code>. A <code>null</code> value is
- * treated as occurring before a non-<code>null</code> value, and two <code>null</code> values are considered equal.
- * <p>
- * If you specify a <code>Comparator</code> that casts its argument to a type other than that provided by the model, a
- * <code>ClassCastException</code> will be thrown when the data is sorted.
- * <p>
- * In addition to sorting, <code>DefaultRowSorter</code> provides the ability to filter rows. Filtering is done by way
- * of a <code>RowFilter</code> that is specified using the <code>setRowFilter</code> method. If no filter has been
- * specified all rows are included.
- * <p>
- * By default, rows are in unsorted order (the same as the model) and every column is sortable. The default
- * <code>Comparator</code>s are documented in the subclasses (for example, {@link javax.swing.table.TableRowSorter
- * TableRowSorter}).
- * <p>
- * If the underlying model structure changes (the <code>modelStructureChanged</code> method is invoked) the following
- * are reset to their default values: <code>Comparator</code>s by column, current sort order, and whether each column is
- * sortable. To find the default <code>Comparator</code>s, see the concrete implementation (for example,
- * {@link javax.swing.table.TableRowSorter TableRowSorter}). The default sort order is unsorted (the same as the model),
- * and columns are sortable by default.
- * <p>
- * <code>DefaultRowSorter</code> is an abstract class. Concrete subclasses must provide access to the underlying data by
- * invoking {@code setModelWrapper}. The {@code setModelWrapper} method <b>must</b> be invoked soon after the
- * constructor is called, ideally from within the subclass's constructor. Undefined behavior will result if you use a
- * {@code
- * DefaultRowSorter} without specifying a {@code ModelWrapper}.
- * <p>
- * <code>DefaultRowSorter</code> has two formal type parameters. The first type parameter corresponds to the class of
- * the model, for example <code>DefaultTableModel</code>. The second type parameter corresponds to the class of the
- * identifier passed to the <code>RowFilter</code>. Refer to <code>TableRowSorter</code> and <code>RowFilter</code> for
- * more details on the type parameters.
- *
- * @param <M>
- *            the type of the model
- * @param <I>
- *            the type of the identifier passed to the <code>RowFilter</code>
- * @see javax.swing.table.TableRowSorter
- * @see javax.swing.table.DefaultTableModel
- * @see java.text.Collator
- * @since 1.6
- *
+ * Adapted from javax.swing.DefaultRowSorter
  */
-//CHECKSTYLE:OFF
 @NotThreadSafe
-public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
+public abstract class AComparableDefaultRowSorter<M, I> extends RowSorter<M> {
     private static final SortKey[] SORTKEY_EMPTY_ARRAY = new SortKey[0];
+    // Whether to print warning about JDK-8160087
+    private static boolean warning8160087 = true;
 
     /**
      * Whether or not we resort on TableModelEvent.UPDATEs.
@@ -141,7 +92,7 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
     /**
      * Provides access to the data we're sorting/filtering.
      */
-    private ModelWrapper<M, I> modelWrapper;
+    private AModelWrapper<M, I> modelWrapper;
 
     /**
      * Size of the model. This is used to enforce error checking within the table changed notification methods (such as
@@ -149,13 +100,10 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
      */
     private int modelRowCount;
 
-    // Whether to print warning about JDK-8160087
-    private static boolean warning8160087 = true;
-
     /**
      * Creates an empty <code>DefaultRowSorter</code>.
      */
-    public ComparableDefaultRowSorter() {
+    public AComparableDefaultRowSorter() {
         sortKeys = Collections.emptyList();
         maxSortKeys = 3;
     }
@@ -168,11 +116,11 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
      * @throws IllegalArgumentException
      *             if {@code modelWrapper} is {@code null}
      */
-    protected final void setModelWrapper(final ModelWrapper<M, I> modelWrapper) {
+    protected final void setModelWrapper(final AModelWrapper<M, I> modelWrapper) {
         if (modelWrapper == null) {
             throw new IllegalArgumentException("modelWrapper most be non-null");
         }
-        final ModelWrapper<M, I> last = this.modelWrapper;
+        final AModelWrapper<M, I> last = this.modelWrapper;
         this.modelWrapper = modelWrapper;
         if (last != null) {
             modelStructureChanged();
@@ -188,7 +136,7 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
      *
      * @return the model wrapper responsible for providing the data that gets sorted and filtered
      */
-    protected final ModelWrapper<M, I> getModelWrapper() {
+    protected final AModelWrapper<M, I> getModelWrapper() {
         return modelWrapper;
     }
 
@@ -390,7 +338,7 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
         checkColumn(column);
         if (isSortable(column)) {
             List<SortKey> keys = new ArrayList<SortKey>(getSortKeys());
-            SortKey sortKey;
+            final SortKey sortKey;
             int sortIndex;
             for (sortIndex = keys.size() - 1; sortIndex >= 0; sortIndex--) {
                 if (keys.get(sortIndex).getColumn() == column) {
@@ -458,8 +406,10 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
                 // 8160087
                 if (warning8160087) {
                     warning8160087 = false;
+                    //CHECKSTYLE:OFF
                     System.err.println("WARNING: row index is bigger than "
                             + "sorter's row count. Most likely this is a wrong " + "sorter usage.");
+                    //CHECKSTYLE:ON
                 }
             } else {
                 throw FastIndexOutOfBoundsException.getInstance("Invalid index: %s", index);
@@ -611,7 +561,7 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
     private void createViewToModel(final int rowCount) {
         int recreateFrom = 0;
         if (viewToModel != null) {
-            recreateFrom = Math.min(rowCount, viewToModel.length);
+            recreateFrom = Integers.min(rowCount, viewToModel.length);
             if (viewToModel.length != rowCount) {
                 final Row[] oldViewToModel = viewToModel;
                 viewToModel = new Row[rowCount];
@@ -751,7 +701,7 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
             // When filtering this may differ from getModelWrapper().getRowCount()
             return viewToModel.length;
         }
-        return Math.max(getModelWrapper().getRowCount(), modelRowCount);
+        return Integers.max(getModelWrapper().getRowCount(), modelRowCount);
     }
 
     /**
@@ -1188,11 +1138,11 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
      * @see RowFilter
      * @see RowFilter.Entry
      */
-    protected abstract static class ModelWrapper<M, I> {
+    protected abstract static class AModelWrapper<M, I> {
         /**
          * Creates a new <code>ModelWrapper</code>.
          */
-        protected ModelWrapper() {}
+        protected AModelWrapper() {}
 
         /**
          * Returns the underlying model that this <code>Model</code> is wrapping.
@@ -1269,11 +1219,11 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
      * RowFilter.Entry implementation that delegates to the ModelWrapper. getFilterEntry(int) creates the single
      * instance of this that is passed to the Filter. Only call getFilterEntry(int) to get the instance.
      */
-    private class FilterEntry extends RowFilter.Entry<M, I> {
+    private final class FilterEntry extends RowFilter.Entry<M, I> {
         /**
          * The index into the model, set in getFilterEntry
          */
-        int modelIndex;
+        private int modelIndex;
 
         @Override
         public M getModel() {
@@ -1306,11 +1256,11 @@ public abstract class ComparableDefaultRowSorter<M, I> extends RowSorter<M> {
      * comparison.
      */
     // NOTE: this class is static so that it can be placed in an array
-    private static class Row implements Comparable<Row> {
-        private final ComparableDefaultRowSorter<?, ?> sorter;
-        int modelIndex;
+    private static final class Row implements Comparable<Row> {
+        private final AComparableDefaultRowSorter<?, ?> sorter;
+        private int modelIndex;
 
-        public Row(final ComparableDefaultRowSorter<?, ?> sorter, final int index) {
+        private Row(final AComparableDefaultRowSorter<?, ?> sorter, final int index) {
             this.sorter = sorter;
             modelIndex = index;
         }
