@@ -342,4 +342,10 @@ public final class Floats extends AFloatsStaticFacade {
     public static boolean isNullOrNaN(final Float value) {
         return value == null || isNaN(value);
     }
+
+    public static float round(final float a) {
+        //CHECKSTYLE:OFF
+        return Math.round(a);
+        //CHECKSTYLE:ON
+    }
 }

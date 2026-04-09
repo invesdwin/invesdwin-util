@@ -1768,4 +1768,58 @@ public final class Doubles extends ADoublesStaticFacade {
         //CHECKSTYLE:ON
     }
 
+    public static double tan(final double a) {
+        //CHECKSTYLE:OFF
+        return Math.tan(a);
+        //CHECKSTYLE:ON
+    }
+
+    public static double tanh(final double a) {
+        //CHECKSTYLE:OFF
+        return Math.tanh(a);
+        //CHECKSTYLE:ON
+    }
+
+    public static double asin(final double a) {
+        //CHECKSTYLE:OFF
+        return Math.asin(a);
+        //CHECKSTYLE:ON
+    }
+
+    public static double acos(final double a) {
+        //CHECKSTYLE:OFF
+        return Math.acos(a);
+        //CHECKSTYLE:ON
+    }
+
+    public static double atan(final double a) {
+        //CHECKSTYLE:OFF
+        return Math.atan(a);
+        //CHECKSTYLE:ON
+    }
+
+    public static double atan2(final double x, final double y) {
+        //CHECKSTYLE:OFF
+        return Math.atan2(x, y);
+        //CHECKSTYLE:ON
+    }
+
+    public static double signum(final double a) {
+        //CHECKSTYLE:OFF
+        return Math.signum(a);
+        //CHECKSTYLE:ON
+    }
+
+    public static double toDegrees(final double a) {
+        //CHECKSTYLE:OFF
+        return Math.toDegrees(a);
+        //CHECKSTYLE:ON
+    }
+
+    public static double ulp(final double d) {
+        //CHECKSTYLE:OFF
+        return Math.ulp(d);
+        //CHECKSTYLE:ON
+    }
+
 }

@@ -584,14 +584,18 @@ public final class Integers extends AIntegersStaticFacade {
 
     public static int ceil(final double value) {
         //CHECKSTYLE:OFF
-        return (int) Math.ceil(value);
+        return Integers.checkedCast(Math.ceil(value));
         //CHECKSTYLE:ON
     }
 
     public static int floor(final double value) {
         //CHECKSTYLE:OFF
-        return (int) Math.floor(value);
+        return Integers.checkedCast(Math.floor(value));
         //CHECKSTYLE:ON
+    }
+
+    public static int sqrt(final double value) {
+        return checkedCast(Doubles.sqrt(value));
     }
 
 }

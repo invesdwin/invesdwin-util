@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
@@ -19,6 +18,7 @@ import de.invesdwin.util.collections.loadingcache.historical.key.APushingHistori
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.random.PseudoRandomGenerator;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDateBuilder;
 import de.invesdwin.util.time.date.FDates;
@@ -470,10 +470,11 @@ public abstract class ABaseHistoricalCacheTest {
     @Test
     public final void testRandomizedPreviousValues() {
         final List<Pair<Integer, Integer>> reproduce = new ArrayList<Pair<Integer, Integer>>();
+        final PseudoRandomGenerator random = new PseudoRandomGenerator();
         try {
             for (int i = 0; i < 100000; i++) {
-                final int keyIndex = RandomUtils.nextInt(0, entities.size());
-                final int shiftBackUnits = RandomUtils.nextInt(1, Integers.max(1, keyIndex));
+                final int keyIndex = random.nextInt(0, entities.size());
+                final int shiftBackUnits = random.nextInt(1, Integers.max(1, keyIndex));
                 reproduce.add(Pair.of(keyIndex, shiftBackUnits));
                 final FDate key = entities.get(keyIndex);
                 final Collection<FDate> previousValues = asList(cache.query().getPreviousValues(key, shiftBackUnits));
@@ -514,10 +515,11 @@ public abstract class ABaseHistoricalCacheTest {
     @Test
     public final void testRandomizedSize() {
         final List<Pair<Integer, Integer>> reproduce = new ArrayList<Pair<Integer, Integer>>();
+        final PseudoRandomGenerator random = new PseudoRandomGenerator();
         try {
             for (int i = 0; i < 100000; i++) {
-                final int keyIndex = RandomUtils.nextInt(0, entities.size());
-                final int shiftBackUnits = RandomUtils.nextInt(1, Integers.max(1, keyIndex));
+                final int keyIndex = random.nextInt(0, entities.size());
+                final int shiftBackUnits = random.nextInt(1, Integers.max(1, keyIndex));
                 reproduce.add(Pair.of(keyIndex, shiftBackUnits));
                 final List<FDate> expectedValues = entities.subList(keyIndex - shiftBackUnits + 1, keyIndex + 1);
                 final long size = cache.query()
