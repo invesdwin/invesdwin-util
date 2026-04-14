@@ -20,6 +20,9 @@ import net.openhft.chronicle.core.OS;
 @NotThreadSafe
 public class MappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer {
 
+    /**
+     * 64 MB
+     */
     public static final long DEFAULT_CHUNK_SIZE = 64 * 1024 * 1024;
 
     private static final UniqueNameGenerator UNIQUE_NAME_GENERATOR = new UniqueNameGenerator() {
