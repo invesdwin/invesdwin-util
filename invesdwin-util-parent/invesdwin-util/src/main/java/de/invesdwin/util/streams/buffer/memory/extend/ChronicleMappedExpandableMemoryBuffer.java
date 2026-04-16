@@ -28,7 +28,7 @@ import net.openhft.chronicle.core.OS;
  *
  */
 @NotThreadSafe
-public class MappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer {
+public class ChronicleMappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer {
 
     /**
      * 64 MB
@@ -111,28 +111,28 @@ public class MappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer 
 
     private final boolean closeAllowed;
 
-    public MappedExpandableMemoryBuffer() {
-        this(DEFAULT_CHUNK_SIZE, MappedExpandableMemoryBuffer.class.getSimpleName());
+    public ChronicleMappedExpandableMemoryBuffer() {
+        this(DEFAULT_CHUNK_SIZE, ChronicleMappedExpandableMemoryBuffer.class.getSimpleName());
     }
 
-    public MappedExpandableMemoryBuffer(final long chunkSize) {
-        this(chunkSize, MappedExpandableMemoryBuffer.class.getSimpleName());
+    public ChronicleMappedExpandableMemoryBuffer(final long chunkSize) {
+        this(chunkSize, ChronicleMappedExpandableMemoryBuffer.class.getSimpleName());
     }
 
-    public MappedExpandableMemoryBuffer(final long chunkSize, final String name) {
-        this(chunkSize, new File(new File(Files.getTempDirectory(), MappedExpandableMemoryBuffer.class.getSimpleName()),
+    public ChronicleMappedExpandableMemoryBuffer(final long chunkSize, final String name) {
+        this(chunkSize, new File(new File(Files.getTempDirectory(), ChronicleMappedExpandableMemoryBuffer.class.getSimpleName()),
                 Files.normalizeFilename(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
     }
 
-    public MappedExpandableMemoryBuffer(final long chunkSize, final File file) {
+    public ChronicleMappedExpandableMemoryBuffer(final long chunkSize, final File file) {
         this(chunkSize, file, false);
     }
 
-    public MappedExpandableMemoryBuffer(final long chunkSize, final File file, final boolean deleteOnClose) {
+    public ChronicleMappedExpandableMemoryBuffer(final long chunkSize, final File file, final boolean deleteOnClose) {
         this(chunkSize, file, deleteOnClose, OS.pageSize(), false, true);
     }
 
-    public MappedExpandableMemoryBuffer(final long chunkSize, final File file, final boolean deleteOnClose,
+    public ChronicleMappedExpandableMemoryBuffer(final long chunkSize, final File file, final boolean deleteOnClose,
             final long overlapSize, final boolean readOnly, final boolean closeAllowed) {
         super(null, false);
         this.finalizer = new MappedExpandableMemoryBufferFinalizer(chunkSize, file, deleteOnClose, overlapSize,

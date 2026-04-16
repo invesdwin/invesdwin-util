@@ -13,7 +13,7 @@ import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.ChronicleDelegateMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.extend.DirectMemoryBuffer;
-import de.invesdwin.util.streams.buffer.memory.extend.MappedExpandableMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.extend.ChronicleMappedExpandableMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.extend.MappedMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.extend.UnsafeMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.internal.direct.DirectExpandableMemoryBufferPool;
@@ -145,11 +145,11 @@ public final class MemoryBuffers {
     }
 
     public static IMemoryBuffer allocateMappedExpandable() {
-        return new MappedExpandableMemoryBuffer();
+        return new ChronicleMappedExpandableMemoryBuffer();
     }
 
     public static IMemoryBuffer allocateMappedExpandable(final long initialLength) {
-        return new MappedExpandableMemoryBuffer(initialLength);
+        return new ChronicleMappedExpandableMemoryBuffer(initialLength);
     }
 
     public static IMemoryBuffer wrap(final long address, final long length) {
