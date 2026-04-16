@@ -6,7 +6,6 @@ import java.io.UncheckedIOException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.concurrent.reference.WeakThreadLocalReference;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.string.Strings;
@@ -24,7 +23,7 @@ import net.openhft.chronicle.core.OS;
  * Registers a cleaner to free memory
  * 
  * MappedBytes is normally not thread safe due to the chronicle buffer switching the storage chunk internally during
- * reads, though we use a threadLocal to avoid these issues (e.g. in ChronicleLargeMappedFileChunkStorage).
+ * reads.
  *
  */
 @NotThreadSafe
@@ -47,7 +46,7 @@ public class ChronicleMappedExpandableMemoryBuffer extends ChronicleDelegateMemo
         private final File file;
         private final boolean deleteOnClose;
         private CachedChunkedMappedFile mappedFile;
-        private final MappedBytesThreadLocalReference mappedBytesHolder;
+        private final net.openhft.chronicle.bytes.MappedBytes mappedBytes;
 
         private MappedExpandableMemoryBufferFinalizer(final long chunkSize, final File file,
                 final boolean deleteOnClose, final long overlapSize, final boolean readOnly) {
@@ -59,19 +58,18 @@ public class ChronicleMappedExpandableMemoryBuffer extends ChronicleDelegateMemo
             } catch (final IOException e) {
                 throw new UncheckedIOException(e);
             }
-            this.mappedBytesHolder = new MappedBytesThreadLocalReference(mappedFile);
+            this.mappedBytes = mappedFile.createBytesFor();
         }
 
         @Override
         protected void clean() {
-            final CachedChunkedMappedFile mappedBytesCopy = mappedFile;
-            if (mappedBytesCopy != null) {
-                mappedBytesCopy.close();
+            final CachedChunkedMappedFile mappedFileCopy = mappedFile;
+            if (mappedFileCopy != null) {
+                mappedFileCopy.close();
                 mappedFile = null;
                 if (deleteOnClose) {
                     Files.deleteQuietly(file);
                 }
-                mappedBytesHolder.remove();
             }
         }
 
@@ -85,24 +83,6 @@ public class ChronicleMappedExpandableMemoryBuffer extends ChronicleDelegateMemo
             return false;
         }
 
-    }
-
-    /**
-     * MappedBytes keeps a local field for the current chunk storage which would cause issues when being shared across
-     * threads for parallel reads.
-     */
-    private static final class MappedBytesThreadLocalReference
-            extends WeakThreadLocalReference<net.openhft.chronicle.bytes.MappedBytes> {
-        private final CachedChunkedMappedFile mappedFile;
-
-        private MappedBytesThreadLocalReference(final CachedChunkedMappedFile mappedFile) {
-            this.mappedFile = mappedFile;
-        }
-
-        @Override
-        protected net.openhft.chronicle.bytes.MappedBytes initialValue() {
-            return mappedFile.createBytesFor();
-        }
     }
 
     private final MappedExpandableMemoryBufferFinalizer finalizer;
@@ -143,7 +123,7 @@ public class ChronicleMappedExpandableMemoryBuffer extends ChronicleDelegateMemo
 
     @Override
     public net.openhft.chronicle.bytes.MappedBytes getDelegate() {
-        return finalizer.mappedBytesHolder.get();
+        return finalizer.mappedBytes;
     }
 
     @Override
@@ -220,17 +200,17 @@ public class ChronicleMappedExpandableMemoryBuffer extends ChronicleDelegateMemo
     private static final class IsolatedMappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer {
 
         private final CachedChunkedMappedFile mappedFile;
-        private final MappedBytesThreadLocalReference mappedBytesHolder;
+        private final net.openhft.chronicle.bytes.MappedBytes mappedBytes;
 
         private IsolatedMappedExpandableMemoryBuffer(final CachedChunkedMappedFile mappedFile) {
             super(null, false);
             this.mappedFile = mappedFile;
-            this.mappedBytesHolder = new MappedBytesThreadLocalReference(mappedFile);
+            this.mappedBytes = mappedFile.createBytesFor();
         }
 
         @Override
         public net.openhft.chronicle.bytes.MappedBytes getDelegate() {
-            return mappedBytesHolder.get();
+            return mappedBytes;
         }
 
         @Override
