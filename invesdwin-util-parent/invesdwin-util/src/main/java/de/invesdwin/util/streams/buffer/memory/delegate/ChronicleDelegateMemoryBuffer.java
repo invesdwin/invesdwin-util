@@ -45,6 +45,7 @@ import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferInputStream;
 import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferOutputStream;
 import de.invesdwin.util.time.duration.Duration;
 import net.openhft.chronicle.bytes.BytesStore;
+import net.openhft.chronicle.core.OS;
 
 @NotThreadSafe
 public class ChronicleDelegateMemoryBuffer implements ICloseableMemoryBuffer {
@@ -766,10 +767,18 @@ public class ChronicleDelegateMemoryBuffer implements ICloseableMemoryBuffer {
 
     @Override
     public void clear(final byte value, final long index, final long length) {
-        final long target = index + length;
-        for (long i = index; i < target; i++) {
-            getDelegate().writeByte(i, value);
+        final net.openhft.chronicle.bytes.Bytes<?> bytes = getDelegate();
+
+        final BytesStore<?, ?> store = bytes.bytesStore();
+        final long endInStore = store.capacity();
+        final long canWrite = Longs.min(length, endInStore - index);
+        if (canWrite != length) {
+            throw new IllegalStateException(
+                    "Unexpectedly cannot clear entire range in one go, this should not happen for chronicle-bytes!"
+                            + " Maybe there is a chunked storage used internally?");
         }
+        final long address = store.addressForWrite(index);
+        OS.memory().setMemory(address, canWrite, value);
     }
 
     @Override

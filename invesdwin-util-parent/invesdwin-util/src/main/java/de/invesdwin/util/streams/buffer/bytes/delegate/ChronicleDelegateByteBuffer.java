@@ -24,6 +24,7 @@ import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.uri.URIs;
+import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
@@ -43,6 +44,7 @@ import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.ChronicleDelegateMemoryBuffer;
 import de.invesdwin.util.time.duration.Duration;
 import net.openhft.chronicle.bytes.BytesStore;
+import net.openhft.chronicle.core.OS;
 
 @NotThreadSafe
 public class ChronicleDelegateByteBuffer implements ICloseableByteBuffer {
@@ -812,10 +814,18 @@ public class ChronicleDelegateByteBuffer implements ICloseableByteBuffer {
 
     @Override
     public void clear(final byte value, final int index, final int length) {
-        final int limit = index + length;
-        for (int i = index; i < limit; i++) {
-            getDelegate().writeByte(i, value);
+        final net.openhft.chronicle.bytes.Bytes<?> bytes = getDelegate();
+
+        final BytesStore<?, ?> store = bytes.bytesStore();
+        final long endInStore = store.capacity();
+        final long canWrite = Longs.min(length, endInStore - index);
+        if (canWrite != length) {
+            throw new IllegalStateException(
+                    "Unexpectedly cannot clear entire range in one go, this should not happen for chronicle-bytes!"
+                            + " Maybe there is a chunked storage used internally?");
         }
+        final long address = store.addressForWrite(index);
+        OS.memory().setMemory(address, canWrite, value);
     }
 
     @Override

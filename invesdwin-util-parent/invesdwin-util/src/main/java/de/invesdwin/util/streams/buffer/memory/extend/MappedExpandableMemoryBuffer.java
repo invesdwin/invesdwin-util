@@ -10,7 +10,10 @@ import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.string.UniqueNameGenerator;
+import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.memory.delegate.ChronicleDelegateMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.extend.internal.CachedChunkedMappedFile;
+import net.openhft.chronicle.bytes.MappedBytesStore;
 import net.openhft.chronicle.core.OS;
 
 /**
@@ -36,16 +39,17 @@ public class MappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer 
 
         private final File file;
         private final boolean deleteOnClose;
+        private final long chunkSize;
         private net.openhft.chronicle.bytes.MappedBytes mappedBytes;
 
         private MappedExpandableMemoryBufferFinalizer(final long chunkSize, final File file,
                 final boolean deleteOnClose, final long overlapSize, final boolean readOnly) {
             this.file = file;
             this.deleteOnClose = deleteOnClose;
+            this.chunkSize = chunkSize;
             try {
                 Files.forceMkdirParent(file);
-                mappedBytes = net.openhft.chronicle.bytes.MappedBytes.mappedBytes(file, chunkSize, overlapSize,
-                        readOnly);
+                mappedBytes = CachedChunkedMappedFile.mappedBytes(file, chunkSize, overlapSize, readOnly);
             } catch (final IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -110,7 +114,7 @@ public class MappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer 
     }
 
     @Override
-    public net.openhft.chronicle.bytes.Bytes<?> getDelegate() {
+    public net.openhft.chronicle.bytes.MappedBytes getDelegate() {
         return finalizer.mappedBytes;
     }
 
@@ -119,6 +123,39 @@ public class MappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer 
         if (closeAllowed) {
             setDelegate(null);
             finalizer.close();
+        }
+    }
+
+    @Override
+    public void clear(final byte value, final long index, final long length) {
+        final net.openhft.chronicle.bytes.MappedBytes bytes = getDelegate();
+
+        long currentPos = index;
+        long remaining = length;
+        final long endPos = currentPos + remaining;
+
+        final int startChunk = (int) (currentPos / finalizer.chunkSize);
+        final int endChunk = (int) (endPos / finalizer.chunkSize);
+
+        try {
+            for (int i = startChunk; i <= endChunk; i++) {
+
+                final MappedBytesStore store = bytes.mappedFile().acquireByteStore(bytes, currentPos);
+                final long endInStore = store.capacity(); // Usually the chunk size
+                final long canWrite = Longs.min(remaining, endInStore - currentPos);
+
+                final long address = store.addressForWrite(currentPos);
+                OS.memory().setMemory(address, canWrite, value);
+
+                remaining -= canWrite;
+                currentPos += canWrite;
+            }
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (remaining != 0) {
+            throw new IllegalStateException("Remaining should be 0 but is " + remaining);
         }
     }
 
