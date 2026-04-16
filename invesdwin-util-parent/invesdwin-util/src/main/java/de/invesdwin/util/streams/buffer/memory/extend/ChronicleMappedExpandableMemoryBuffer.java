@@ -46,7 +46,6 @@ public class ChronicleMappedExpandableMemoryBuffer extends ChronicleDelegateMemo
 
         private final File file;
         private final boolean deleteOnClose;
-        private final long chunkSize;
         private CachedChunkedMappedFile mappedFile;
         private final MappedBytesThreadLocalReference mappedBytesHolder;
 
@@ -54,7 +53,6 @@ public class ChronicleMappedExpandableMemoryBuffer extends ChronicleDelegateMemo
                 final boolean deleteOnClose, final long overlapSize, final boolean readOnly) {
             this.file = file;
             this.deleteOnClose = deleteOnClose;
-            this.chunkSize = chunkSize;
             try {
                 Files.forceMkdirParent(file);
                 mappedFile = CachedChunkedMappedFile.of(file, chunkSize, overlapSize, readOnly);
@@ -120,8 +118,10 @@ public class ChronicleMappedExpandableMemoryBuffer extends ChronicleDelegateMemo
     }
 
     public ChronicleMappedExpandableMemoryBuffer(final long chunkSize, final String name) {
-        this(chunkSize, new File(new File(Files.getTempDirectory(), ChronicleMappedExpandableMemoryBuffer.class.getSimpleName()),
-                Files.normalizeFilename(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
+        this(chunkSize,
+                new File(
+                        new File(Files.getTempDirectory(), ChronicleMappedExpandableMemoryBuffer.class.getSimpleName()),
+                        Files.normalizeFilename(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
     }
 
     public ChronicleMappedExpandableMemoryBuffer(final long chunkSize, final File file) {
@@ -157,13 +157,17 @@ public class ChronicleMappedExpandableMemoryBuffer extends ChronicleDelegateMemo
     @Override
     public void clear(final byte value, final long index, final long length) {
         final net.openhft.chronicle.bytes.MappedBytes bytes = getDelegate();
+        clear(value, index, length, bytes, finalizer.mappedFile.getChunkSize());
+    }
 
+    public static void clear(final byte value, final long index, final long length,
+            final net.openhft.chronicle.bytes.MappedBytes bytes, final long chunkSize) {
         long currentPos = index;
         long remaining = length;
         final long endPos = currentPos + remaining;
 
-        final int startChunk = (int) (currentPos / finalizer.chunkSize);
-        final int endChunk = (int) (endPos / finalizer.chunkSize);
+        final int startChunk = (int) (currentPos / chunkSize);
+        final int endChunk = (int) (endPos / chunkSize);
 
         try {
             for (int i = startChunk; i <= endChunk; i++) {
@@ -213,18 +217,26 @@ public class ChronicleMappedExpandableMemoryBuffer extends ChronicleDelegateMemo
      * Make sure anywhere the buffer can be shared across other threads as a new slice, a separate threadLocal is used
      * so that the store does not have to be switched as often internally.
      */
-    private final class IsolatedMappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer {
+    private static final class IsolatedMappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer {
 
+        private final CachedChunkedMappedFile mappedFile;
         private final MappedBytesThreadLocalReference mappedBytesHolder;
 
         private IsolatedMappedExpandableMemoryBuffer(final CachedChunkedMappedFile mappedFile) {
             super(null, false);
+            this.mappedFile = mappedFile;
             this.mappedBytesHolder = new MappedBytesThreadLocalReference(mappedFile);
         }
 
         @Override
-        public net.openhft.chronicle.bytes.Bytes<?> getDelegate() {
+        public net.openhft.chronicle.bytes.MappedBytes getDelegate() {
             return mappedBytesHolder.get();
+        }
+
+        @Override
+        public void clear(final byte value, final long index, final long length) {
+            final net.openhft.chronicle.bytes.MappedBytes bytes = getDelegate();
+            ChronicleMappedExpandableMemoryBuffer.clear(value, index, length, bytes, mappedFile.getChunkSize());
         }
     }
 

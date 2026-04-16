@@ -41,6 +41,10 @@ public class CachedChunkedMappedFile extends net.openhft.chronicle.bytes.interna
         this.chunkSize = chunkSize;
     }
 
+    public long getChunkSize() {
+        return chunkSize;
+    }
+
     @Override
     public MappedBytesStore acquireByteStore(final ReferenceOwner owner, final long position,
             final BytesStore<?, ?> oldByteStore, final MappedBytesStoreFactory mappedBytesStoreFactory)
