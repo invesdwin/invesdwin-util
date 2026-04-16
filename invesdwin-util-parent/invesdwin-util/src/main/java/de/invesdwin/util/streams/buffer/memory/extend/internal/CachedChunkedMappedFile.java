@@ -93,13 +93,13 @@ public class CachedChunkedMappedFile extends net.openhft.chronicle.bytes.interna
         }
     }
 
-    public static MappedFile of(final File file, final long chunkSize, final long overlapSize, final boolean readOnly)
-            throws FileNotFoundException {
+    public static CachedChunkedMappedFile of(final File file, final long chunkSize, final long overlapSize,
+            final boolean readOnly) throws FileNotFoundException {
         return of(file, chunkSize, overlapSize, PageUtil.getPageSize(file.getAbsolutePath()), readOnly);
     }
 
-    public static MappedFile of(final File file, final long chunkSize, final long overlapSize, final int pageSize,
-            final boolean readOnly) throws FileNotFoundException {
+    public static CachedChunkedMappedFile of(final File file, final long chunkSize, final long overlapSize,
+            final int pageSize, final boolean readOnly) throws FileNotFoundException {
         final RandomAccessFile raf = new CleaningRandomAccessFile(file, readOnly ? "r" : "rw");
         return new CachedChunkedMappedFile(file, raf, chunkSize, overlapSize, pageSize, DEFAULT_CAPACITY, readOnly);
     }

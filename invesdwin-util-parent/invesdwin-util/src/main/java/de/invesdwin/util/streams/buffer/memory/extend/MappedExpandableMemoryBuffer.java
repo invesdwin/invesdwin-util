@@ -6,18 +6,25 @@ import java.io.UncheckedIOException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.concurrent.reference.WeakThreadLocalReference;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.string.UniqueNameGenerator;
 import de.invesdwin.util.math.Longs;
+import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.ChronicleDelegateMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedDelegateMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedFromDelegateMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.extend.internal.CachedChunkedMappedFile;
 import net.openhft.chronicle.bytes.MappedBytesStore;
 import net.openhft.chronicle.core.OS;
 
 /**
  * Registers a cleaner to free memory
+ * 
+ * MappedBytes is normally not thread safe due to the chronicle buffer switching the storage chunk internally during
+ * reads, though we use a threadLocal to avoid these issues (e.g. in ChronicleLargeMappedFileChunkStorage).
  *
  */
 @NotThreadSafe
@@ -40,7 +47,8 @@ public class MappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer 
         private final File file;
         private final boolean deleteOnClose;
         private final long chunkSize;
-        private net.openhft.chronicle.bytes.MappedBytes mappedBytes;
+        private CachedChunkedMappedFile mappedFile;
+        private final MappedBytesThreadLocalReference mappedBytesHolder;
 
         private MappedExpandableMemoryBufferFinalizer(final long chunkSize, final File file,
                 final boolean deleteOnClose, final long overlapSize, final boolean readOnly) {
@@ -49,27 +57,29 @@ public class MappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer 
             this.chunkSize = chunkSize;
             try {
                 Files.forceMkdirParent(file);
-                mappedBytes = CachedChunkedMappedFile.mappedBytes(file, chunkSize, overlapSize, readOnly);
+                mappedFile = CachedChunkedMappedFile.of(file, chunkSize, overlapSize, readOnly);
             } catch (final IOException e) {
                 throw new UncheckedIOException(e);
             }
+            this.mappedBytesHolder = new MappedBytesThreadLocalReference(mappedFile);
         }
 
         @Override
         protected void clean() {
-            final net.openhft.chronicle.bytes.MappedBytes mappedBytesCopy = mappedBytes;
+            final CachedChunkedMappedFile mappedBytesCopy = mappedFile;
             if (mappedBytesCopy != null) {
                 mappedBytesCopy.close();
-                mappedBytes = null;
+                mappedFile = null;
                 if (deleteOnClose) {
                     Files.deleteQuietly(file);
                 }
+                mappedBytesHolder.remove();
             }
         }
 
         @Override
         protected boolean isCleaned() {
-            return mappedBytes == null;
+            return mappedFile == null;
         }
 
         @Override
@@ -77,6 +87,24 @@ public class MappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer 
             return false;
         }
 
+    }
+
+    /**
+     * MappedBytes keeps a local field for the current chunk storage which would cause issues when being shared across
+     * threads for parallel reads.
+     */
+    private static final class MappedBytesThreadLocalReference
+            extends WeakThreadLocalReference<net.openhft.chronicle.bytes.MappedBytes> {
+        private final CachedChunkedMappedFile mappedFile;
+
+        private MappedBytesThreadLocalReference(final CachedChunkedMappedFile mappedFile) {
+            this.mappedFile = mappedFile;
+        }
+
+        @Override
+        protected net.openhft.chronicle.bytes.MappedBytes initialValue() {
+            return mappedFile.createBytesFor();
+        }
     }
 
     private final MappedExpandableMemoryBufferFinalizer finalizer;
@@ -115,7 +143,7 @@ public class MappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer 
 
     @Override
     public net.openhft.chronicle.bytes.MappedBytes getDelegate() {
-        return finalizer.mappedBytes;
+        return finalizer.mappedBytesHolder.get();
     }
 
     @Override
@@ -156,6 +184,47 @@ public class MappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer 
 
         if (remaining != 0) {
             throw new IllegalStateException("Remaining should be 0 but is " + remaining);
+        }
+    }
+
+    @Override
+    public IMemoryBuffer newSliceFrom(final long index) {
+        if (index == 0) {
+            return this;
+        } else {
+            return new SlicedFromDelegateMemoryBuffer(newSliceInstance(), index);
+        }
+    }
+
+    @Override
+    public IMemoryBuffer newSlice(final long index, final long length) {
+        if (index == 0 && length == capacity()) {
+            return this;
+        } else {
+            return new SlicedDelegateMemoryBuffer(newSliceInstance(), index, length);
+        }
+    }
+
+    private IMemoryBuffer newSliceInstance() {
+        return new IsolatedMappedExpandableMemoryBuffer(finalizer.mappedFile);
+    }
+
+    /**
+     * Make sure anywhere the buffer can be shared across other threads as a new slice, a separate threadLocal is used
+     * so that the store does not have to be switched as often internally.
+     */
+    private final class IsolatedMappedExpandableMemoryBuffer extends ChronicleDelegateMemoryBuffer {
+
+        private final MappedBytesThreadLocalReference mappedBytesHolder;
+
+        private IsolatedMappedExpandableMemoryBuffer(final CachedChunkedMappedFile mappedFile) {
+            super(null, false);
+            this.mappedBytesHolder = new MappedBytesThreadLocalReference(mappedFile);
+        }
+
+        @Override
+        public net.openhft.chronicle.bytes.Bytes<?> getDelegate() {
+            return mappedBytesHolder.get();
         }
     }
 
