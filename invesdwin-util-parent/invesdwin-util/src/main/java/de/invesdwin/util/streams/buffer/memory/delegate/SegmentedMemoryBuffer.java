@@ -53,7 +53,8 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
         }
         this.segments = segments;
         this.segmentSize = segmentSize;
-        assertSegments(this.segments, this.segmentSize);
+        //just document expectations but skip this check internally
+        //assertSegments(this.segments, this.segmentSize);
     }
 
     public static void assertSegments(final IMemoryBuffer[] segments, final long segmentSize) {

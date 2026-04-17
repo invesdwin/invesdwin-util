@@ -52,7 +52,8 @@ public class SegmentedByteBuffer implements IByteBuffer {
         }
         this.segments = segments;
         this.segmentSize = segmentSize;
-        assertSegments(this.segments, this.segmentSize);
+        //just document expectations but skip this check internally
+        //        assertSegments(this.segments, this.segmentSize);
     }
 
     public static void assertSegments(final IByteBuffer[] segments, final int segmentSize) {

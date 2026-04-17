@@ -53,7 +53,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
 
     public ListMemoryBuffer(final List<IMemoryBuffer> list) {
         this.list = list;
-        assertList(this.list);
+        //just document expectations but skip this check internally
+        //assertList(this.list);
     }
 
     public static void assertList(final List<IMemoryBuffer> list) {
