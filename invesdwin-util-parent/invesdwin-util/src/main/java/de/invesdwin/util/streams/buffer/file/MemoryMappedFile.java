@@ -46,8 +46,8 @@ public class MemoryMappedFile implements IMemoryMappedFile {
      * @throws Exception
      *             in case there was an error creating the memory mapped file
      */
-    public MemoryMappedFile(final File file, final long offset, final long length, final boolean readOnly,
-            final boolean closeAllowed) throws IOException {
+    public MemoryMappedFile(final boolean closeAllowed, final File file, final long offset, final long length,
+            final boolean readOnly) throws IOException {
         if (length < 0) {
             throw new IllegalArgumentException("length must be non-negative: " + length);
         }

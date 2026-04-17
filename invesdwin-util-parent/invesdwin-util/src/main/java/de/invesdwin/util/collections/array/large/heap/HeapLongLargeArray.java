@@ -54,6 +54,7 @@ public class HeapLongLargeArray implements ILongLargeArray {
         return new SliceDelegateLongLargeArray(this, fromIndex, length);
     }
 
+    @Override
     public long[] asArray() {
         return values;
     }
@@ -68,6 +69,7 @@ public class HeapLongLargeArray implements ILongLargeArray {
         }
     }
 
+    @Override
     public long[] asArrayCopy() {
         return values.clone();
     }

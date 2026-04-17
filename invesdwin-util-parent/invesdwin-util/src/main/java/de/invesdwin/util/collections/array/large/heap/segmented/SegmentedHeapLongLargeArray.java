@@ -9,12 +9,13 @@ import de.invesdwin.util.collections.array.large.heap.HeapLongLargeArray;
 import de.invesdwin.util.collections.array.large.slice.SliceDelegateLongLargeArray;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.delegate.SegmentedByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
 @NotThreadSafe
 public class SegmentedHeapLongLargeArray implements ILongLargeArray {
 
-    public static final long SEGMENT_SIZE = HeapLongLargeArray.MAX_SIZE;
+    public static final int SEGMENT_SIZE = HeapLongLargeArray.MAX_SIZE;
 
     private final long[][] segments;
     private final long size;
@@ -35,11 +36,11 @@ public class SegmentedHeapLongLargeArray implements ILongLargeArray {
     }
 
     private int getSegmentIndex(final long index) {
-        return (int) (index / SEGMENT_SIZE);
+        return SegmentedByteBuffer.getSegmentIndex(index, SEGMENT_SIZE);
     }
 
     private int getSegmentOffset(final long index) {
-        return (int) (index % SEGMENT_SIZE);
+        return SegmentedByteBuffer.getSegmentOffset(index, SEGMENT_SIZE);
     }
 
     @Override

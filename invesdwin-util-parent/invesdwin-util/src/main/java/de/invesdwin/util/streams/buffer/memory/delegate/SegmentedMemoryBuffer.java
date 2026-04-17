@@ -91,10 +91,18 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
     }
 
     private int getSegmentIndex(final long index) {
-        return (int) (index / segmentSize);
+        return getSegmentIndex(index, segmentSize);
     }
 
     private long getSegmentOffset(final long index) {
+        return getSegmentOffset(index, segmentSize);
+    }
+
+    public static int getSegmentIndex(final long index, final long segmentSize) {
+        return ByteBuffers.checkedCast(index / segmentSize);
+    }
+
+    public static long getSegmentOffset(final long index, final long segmentSize) {
         return index % segmentSize;
     }
 
@@ -180,7 +188,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             final long limit = index + Long.BYTES;
             int ri = 0;
             for (long i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -219,7 +227,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             final long limit = index + Integer.BYTES;
             int ri = 0;
             for (long i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -276,7 +284,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             final long limit = index + Short.BYTES;
             int ri = 0;
             for (long i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -310,7 +318,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             final long limit = index + Character.BYTES;
             int ri = 0;
             for (long i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -552,7 +560,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             try {
                 final long limit = index + length;
                 for (long i = index; i < limit;) {
-                    while (bufferPosition >= capacity) {
+                    if (bufferPosition >= capacity) {
                         buf++;
                         buffer = segments[buf];
                         capacity = buffer.capacity();
@@ -582,7 +590,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             final long limit = index + length;
             int vi = valueIndex;
             for (long i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -646,7 +654,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
                     final long limit = index + length;
                     long remaining = length;
                     for (long i = index; i < limit;) {
-                        while (bufferPosition >= capacity) {
+                        if (bufferPosition >= capacity) {
                             buf++;
                             buffer = segments[buf];
                             capacity = buffer.capacity();
@@ -682,7 +690,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
                     final long limit = index + length;
                     long remaining = length;
                     for (long i = index; i < limit;) {
-                        while (bufferPosition >= capacity) {
+                        if (bufferPosition >= capacity) {
                             buf++;
                             buffer = segments[buf];
                             capacity = buffer.capacity();
@@ -723,7 +731,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
                     final long limit = index + length;
                     long remaining = length;
                     for (long i = index; i < limit;) {
-                        while (bufferPosition >= capacity) {
+                        if (bufferPosition >= capacity) {
                             buf++;
                             buffer = segments[buf];
                             capacity = buffer.capacity();
@@ -756,7 +764,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
                 final long limit = index + length;
                 long remaining = length;
                 for (long i = index; i < limit;) {
-                    while (bufferPosition >= capacity) {
+                    if (bufferPosition >= capacity) {
                         buf++;
                         buffer = segments[buf];
                         capacity = buffer.capacity();
@@ -790,7 +798,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
                     final long limit = index + length;
                     long remaining = length;
                     for (long i = index; i < limit;) {
-                        while (bufferPosition >= capacity) {
+                        if (bufferPosition >= capacity) {
                             buf++;
                             buffer = segments[buf];
                             capacity = buffer.capacity();
@@ -822,7 +830,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
                 final long limit = index + length;
                 long remaining = length;
                 for (long i = index; i < limit;) {
-                    while (bufferPosition >= capacity) {
+                    if (bufferPosition >= capacity) {
                         buf++;
                         buffer = segments[buf];
                         capacity = buffer.capacity();
@@ -854,7 +862,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             int remaining = length;
             int srcPosition = srcIndex;
             for (long i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -884,7 +892,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             int remaining = length;
             int srcPosition = srcIndex;
             for (long i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -914,7 +922,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             int remaining = length;
             int srcPosition = srcIndex;
             for (long i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -944,7 +952,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             int remaining = length;
             int srcPosition = srcIndex;
             for (long i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -974,7 +982,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             long remaining = length;
             long srcPosition = srcIndex;
             for (long i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -1003,7 +1011,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             int remaining = length;
             int dstPosition = dstIndex;
             for (long i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -1032,7 +1040,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             int remaining = length;
             int dstPosition = dstIndex;
             for (long i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -1061,7 +1069,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             int remaining = length;
             int dstPosition = dstIndex;
             for (long i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -1090,7 +1098,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             int remaining = length;
             int dstPosition = dstIndex;
             for (long i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -1119,7 +1127,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             long remaining = length;
             long dstPosition = dstIndex;
             for (long i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -1147,7 +1155,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             final long limit = index + length;
             long remaining = length;
             for (long i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();

@@ -39,7 +39,7 @@ public class MappedMemoryBuffer extends UnsafeMemoryBuffer implements Closeable 
             this.deleteOnClose = deleteOnClose;
             try {
                 Files.forceMkdirParent(file);
-                mappedFile = new MemoryMappedFile(file, 0, length, false, true);
+                mappedFile = new MemoryMappedFile(true, file, 0, length, false);
             } catch (final IOException e) {
                 throw new UncheckedIOException(e);
             }

@@ -90,11 +90,31 @@ public class SegmentedByteBuffer implements IByteBuffer {
     }
 
     private int getSegmentIndex(final int index) {
-        return index / segmentSize;
+        return getSegmentIndex(index, segmentSize);
     }
 
     private int getSegmentOffset(final int index) {
+        return getSegmentOffset(index, segmentSize);
+    }
+
+    public static int getSegmentIndex(final int index, final int segmentSize) {
+        return index / segmentSize;
+    }
+
+    public static int getSegmentOffset(final int index, final int segmentSize) {
         return index % segmentSize;
+    }
+
+    public static int getSegmentIndex(final long index, final int segmentSize) {
+        return ByteBuffers.checkedCast(index / segmentSize);
+    }
+
+    public static int getSegmentOffset(final long index, final int segmentSize) {
+        return ByteBuffers.checkedCast(index % segmentSize);
+    }
+
+    public static int getSegmentOffset(final long index, final long segmentSize) {
+        return ByteBuffers.checkedCast(index % segmentSize);
     }
 
     private IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
@@ -205,7 +225,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
             final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
             final int limit = index + Long.BYTES;
             for (int i = index, ri = 0; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -243,7 +263,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
             final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
             final int limit = index + Integer.BYTES;
             for (int i = index, ri = 0; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -299,7 +319,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
             final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
             final int limit = index + Short.BYTES;
             for (int i = index, ri = 0; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -332,7 +352,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
             final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
             final int limit = index + Character.BYTES;
             for (int i = index, ri = 0; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -600,7 +620,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
             try {
                 final int limit = index + length;
                 for (int i = index; i < limit;) {
-                    while (bufferPosition >= capacity) {
+                    if (bufferPosition >= capacity) {
                         buf++;
                         buffer = segments[buf];
                         capacity = buffer.capacity();
@@ -629,7 +649,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
         } else {
             final int limit = index + length;
             for (int i = index, vi = valueIndex; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -693,7 +713,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
                     final int limit = index + length;
                     int remaining = length;
                     for (int i = index; i < limit;) {
-                        while (bufferPosition >= capacity) {
+                        if (bufferPosition >= capacity) {
                             buf++;
                             buffer = segments[buf];
                             capacity = buffer.capacity();
@@ -729,7 +749,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
                     final int limit = index + length;
                     int remaining = length;
                     for (int i = index; i < limit;) {
-                        while (bufferPosition >= capacity) {
+                        if (bufferPosition >= capacity) {
                             buf++;
                             buffer = segments[buf];
                             capacity = buffer.capacity();
@@ -770,7 +790,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
                     final int limit = index + length;
                     int remaining = length;
                     for (int i = index; i < limit;) {
-                        while (bufferPosition >= capacity) {
+                        if (bufferPosition >= capacity) {
                             buf++;
                             buffer = segments[buf];
                             capacity = buffer.capacity();
@@ -803,7 +823,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
                 final int limit = index + length;
                 int remaining = length;
                 for (int i = index; i < limit;) {
-                    while (bufferPosition >= capacity) {
+                    if (bufferPosition >= capacity) {
                         buf++;
                         buffer = segments[buf];
                         capacity = buffer.capacity();
@@ -837,7 +857,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
                     final int limit = index + length;
                     int remaining = length;
                     for (int i = index; i < limit;) {
-                        while (bufferPosition >= capacity) {
+                        if (bufferPosition >= capacity) {
                             buf++;
                             buffer = segments[buf];
                             capacity = buffer.capacity();
@@ -869,7 +889,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
                 final int limit = index + length;
                 int remaining = length;
                 for (int i = index; i < limit;) {
-                    while (bufferPosition >= capacity) {
+                    if (bufferPosition >= capacity) {
                         buf++;
                         buffer = segments[buf];
                         capacity = buffer.capacity();
@@ -901,7 +921,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
             int remaining = length;
             int srcPosition = srcIndex;
             for (int i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -931,7 +951,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
             int remaining = length;
             int srcPosition = srcIndex;
             for (int i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -961,7 +981,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
             int remaining = length;
             int srcPosition = srcIndex;
             for (int i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -991,7 +1011,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
             int remaining = length;
             int srcPosition = srcIndex;
             for (int i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -1021,7 +1041,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
             int remaining = length;
             long srcPosition = srcIndex;
             for (int i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -1050,7 +1070,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
             int remaining = length;
             int dstPosition = dstIndex;
             for (int i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -1079,7 +1099,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
             int remaining = length;
             int dstPosition = dstIndex;
             for (int i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -1108,7 +1128,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
             int remaining = length;
             int dstPosition = dstIndex;
             for (int i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -1137,7 +1157,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
             int remaining = length;
             int dstPosition = dstIndex;
             for (int i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -1166,7 +1186,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
             int remaining = length;
             long dstPosition = dstIndex;
             for (int i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();
@@ -1194,7 +1214,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
             final int limit = index + length;
             int remaining = length;
             for (int i = index; i < limit;) {
-                while (bufferPosition >= capacity) {
+                if (bufferPosition >= capacity) {
                     buf++;
                     buffer = segments[buf];
                     capacity = buffer.capacity();

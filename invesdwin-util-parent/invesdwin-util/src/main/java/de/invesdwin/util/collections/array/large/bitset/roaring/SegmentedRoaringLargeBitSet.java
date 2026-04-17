@@ -14,6 +14,7 @@ import de.invesdwin.util.collections.array.large.bitset.skippingindex.ISkippingL
 import de.invesdwin.util.math.BitSets;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.delegate.SegmentedMemoryBuffer;
 
 @NotThreadSafe
 public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
@@ -44,11 +45,11 @@ public class SegmentedRoaringLargeBitSet implements ILargeBitSet {
     }
 
     private int getSegmentIndex(final long index) {
-        return (int) (index / SEGMENT_SIZE);
+        return SegmentedMemoryBuffer.getSegmentIndex(index, SEGMENT_SIZE);
     }
 
     private long getSegmentOffset(final long index) {
-        return index % SEGMENT_SIZE;
+        return SegmentedMemoryBuffer.getSegmentOffset(index, SEGMENT_SIZE);
     }
 
     @Override
