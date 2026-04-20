@@ -29,7 +29,7 @@ import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateCloseableByteBufferFactory;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateCloseableByteBufferFactory;
-import de.invesdwin.util.streams.buffer.bytes.extend.internal.MappedExpandableBufferBase;
+import de.invesdwin.util.streams.buffer.bytes.extend.internal.MappedExpandableByteBufferBase;
 import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferInputStream;
 import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferOutputStream;
 import de.invesdwin.util.streams.buffer.bytes.stream.ExpandableByteBufferOutputStream;
@@ -38,7 +38,7 @@ import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
-public class MappedExpandableByteBuffer extends MappedExpandableBufferBase implements ICloseableByteBuffer {
+public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase implements ICloseableByteBuffer {
 
     protected IMutableSlicedDelegateCloseableByteBufferFactory mutableSliceFactory;
 
