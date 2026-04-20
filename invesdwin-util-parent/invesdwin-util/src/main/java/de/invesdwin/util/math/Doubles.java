@@ -36,13 +36,13 @@ public final class Doubles extends ADoublesStaticFacade {
     public static final double[][] EMPTY_MATRIX = new double[0][];
 
     //CHECKSTYLE:OFF
+    public static final double PI = Math.PI;
+    public static final double E = Math.E;
     public static final double NaN = Double.NaN;
-    //CHECKSTYLE:ON
-    public static final String NAN_STR = "NaN";
-    //CHECKSTYLE:OFF
     public static final double MAX_VALUE = Double.MAX_VALUE;
     public static final double MIN_VALUE = -Double.MAX_VALUE;
     //CHECKSTYLE:ON
+    public static final String NAN_STR = "NaN";
     public static final double ONE_THIRD = 1D / 3D;
     public static final double DEFAULT_MISSING_VALUE = 0d;
     public static final Double DEFAULT_MISSING_VALUE_OBJ = DEFAULT_MISSING_VALUE;
@@ -328,7 +328,7 @@ public final class Doubles extends ADoublesStaticFacade {
             //nothing to round
             return value;
         }
-        final long factor = (long) Math.pow(10, scale);
+        final long factor = Longs.pow(10, scale);
         final double toBeRoundedValue;
         if (scale < Decimal.DEFAULT_ROUNDING_SCALE && roundingMode != Decimal.DEFAULT_ROUNDING_MODE) {
             //fix 1 represented as 0.9999999 becoming 0 here instead of correctly being 1; for instance in FLOOR rounding mode
@@ -341,7 +341,7 @@ public final class Doubles extends ADoublesStaticFacade {
         final double roundedValue;
         switch (roundingMode) {
         case CEILING:
-            roundedValue = Math.ceil(toBeRoundedValue);
+            roundedValue = ceil(toBeRoundedValue);
             break;
         case UP:
             if (toBeRoundedValue >= 0) {
@@ -351,24 +351,24 @@ public final class Doubles extends ADoublesStaticFacade {
             }
             break;
         case FLOOR:
-            roundedValue = Math.floor(toBeRoundedValue);
+            roundedValue = floor(toBeRoundedValue);
             break;
         case DOWN:
             roundedValue = (long) toBeRoundedValue;
             break;
         case HALF_DOWN:
             if (toBeRoundedValue >= 0) {
-                roundedValue = Math.ceil(toBeRoundedValue - 0.5d);
+                roundedValue = ceil(toBeRoundedValue - 0.5d);
             } else {
-                roundedValue = Math.floor(toBeRoundedValue + 0.5d);
+                roundedValue = floor(toBeRoundedValue + 0.5d);
             }
             break;
         case HALF_EVEN:
             //if the value is even and the fraction is 0.5, we need to round to the even number
             final long longValue = (long) toBeRoundedValue;
             if (longValue % 2 == 0) {
-                //need to rounded here, since 0.5 can not be represented properly for doubles
-                final long firstFractionalDigit = Longs.abs(Math.round(toBeRoundedValue % 1 * 10));
+                //need to round here, since 0.5 can not be represented properly for doubles
+                final long firstFractionalDigit = Longs.abs(Longs.round(toBeRoundedValue % 1 * 10));
                 if (firstFractionalDigit == 5) {
                     roundedValue = longValue;
                     break;
@@ -376,13 +376,13 @@ public final class Doubles extends ADoublesStaticFacade {
             }
 
             //otherwise round to the nearest number
-            roundedValue = Math.rint(toBeRoundedValue);
+            roundedValue = rint(toBeRoundedValue);
             break;
         case HALF_UP:
             if (toBeRoundedValue >= 0) {
-                roundedValue = Math.floor(toBeRoundedValue + 0.5d);
+                roundedValue = floor(toBeRoundedValue + 0.5d);
             } else {
-                roundedValue = Math.ceil(toBeRoundedValue - 0.5);
+                roundedValue = ceil(toBeRoundedValue - 0.5);
             }
             break;
         default:
@@ -392,7 +392,7 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     /**
-     * With a step of 0.5: (Math.ceil(x * 2) / 2)
+     * With a step of 0.5: (Doubles.ceil(x * 2) / 2)
      */
     public static double roundToStep(final double value, final double step) {
         return roundToStep(value, step, ADecimal.DEFAULT_ROUNDING_MODE);
@@ -411,7 +411,9 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static double abs(final double value) {
+        //CHECKSTYLE:OFF
         return Math.abs(value);
+        //CHECKSTYLE:ON
     }
 
     public static double square(final double a) {
@@ -419,13 +421,19 @@ public final class Doubles extends ADoublesStaticFacade {
     }
 
     public static double pow(final double a, final double b) {
-        final double pow = Math.pow(a, b);
+        final double pow = powUnchecked(a, b);
         if (Double.isNaN(pow) && a < 0D) {
-            final double absA = Doubles.abs(a);
-            return -Math.pow(absA, b);
+            final double absA = abs(a);
+            return -powUnchecked(absA, b);
         } else {
             return pow;
         }
+    }
+
+    public static double powUnchecked(final double a, final double b) {
+        //CHECKSTYLE:OFF
+        return Math.pow(a, b);
+        //CHECKSTYLE:ON
     }
 
     /**
@@ -437,8 +445,14 @@ public final class Doubles extends ADoublesStaticFacade {
         if (value <= 0D) {
             return 0D;
         } else {
-            return Math.log(value);
+            return logUnchecked(value);
         }
+    }
+
+    public static double logUnchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return Math.log(value);
+        //CHECKSTYLE:ON
     }
 
     public static double exp(final double value) {
@@ -449,8 +463,14 @@ public final class Doubles extends ADoublesStaticFacade {
                 return 1D;
             }
         } else {
-            return Math.exp(value);
+            return expUnchecked(value);
         }
+    }
+
+    public static double expUnchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return Math.exp(value);
+        //CHECKSTYLE:ON
     }
 
     /**
@@ -462,8 +482,14 @@ public final class Doubles extends ADoublesStaticFacade {
         if (value <= 0D) {
             return 0D;
         } else {
-            return Math.log10(value);
+            return log10Unchecked(value);
         }
+    }
+
+    public static double log10Unchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return Math.log10(value);
+        //CHECKSTYLE:ON
     }
 
     public static double exp10(final double value) {
@@ -474,16 +500,26 @@ public final class Doubles extends ADoublesStaticFacade {
                 return 1D;
             }
         } else {
-            return Math.pow(10D, value);
+            return exp10Unchecked(value);
         }
     }
 
+    public static double exp10Unchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return Math.pow(10D, value);
+        //CHECKSTYLE:ON
+    }
+
     public static double cos(final double value) {
+        //CHECKSTYLE:OFF
         return Math.cos(value);
+        //CHECKSTYLE:ON
     }
 
     public static double sin(final double value) {
+        //CHECKSTYLE:OFF
         return Math.sin(value);
+        //CHECKSTYLE:ON
     }
 
     public static double remainder(final double value, final double divisor) {
@@ -495,10 +531,16 @@ public final class Doubles extends ADoublesStaticFacade {
      */
     public static double sqrt(final double value) {
         if (value < 0D) {
-            return -Math.sqrt(value);
+            return -sqrtUnchecked(value);
         } else {
-            return Math.sqrt(value);
+            return sqrtUnchecked(value);
         }
+    }
+
+    private static double sqrtUnchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return Math.sqrt(value);
+        //CHECKSTYLE:ON
     }
 
     public static double root(final double value, final double n) {
@@ -654,7 +696,13 @@ public final class Doubles extends ADoublesStaticFacade {
         } else if (isNaN(b)) {
             return a;
         }
+        return maxUnchecked(a, b);
+    }
+
+    public static double maxUnchecked(final double a, final double b) {
+        //CHECKSTYLE:OFF
         return Math.max(a, b);
+        //CHECKSTYLE:ON
     }
 
     public static double min(final double a, final double b) {
@@ -663,11 +711,19 @@ public final class Doubles extends ADoublesStaticFacade {
         } else if (isNaN(b)) {
             return a;
         }
+        return minUnchecked(a, b);
+    }
+
+    public static double minUnchecked(final double a, final double b) {
+        //CHECKSTYLE:OFF
         return Math.min(a, b);
+        //CHECKSTYLE:ON
     }
 
     public static double cbrt(final double a) {
+        //CHECKSTYLE:OFF
         return Math.cbrt(a);
+        //CHECKSTYLE:ON
     }
 
     public static double negate(final double value) {
@@ -1702,6 +1758,96 @@ public final class Doubles extends ADoublesStaticFacade {
         } catch (final NumberFormatException e) {
             return Double.NaN;
         }
+    }
+
+    public static double ceil(final double value) {
+        //CHECKSTYLE:OFF
+        return Math.ceil(value);
+        //CHECKSTYLE:ON
+    }
+
+    public static double floor(final double value) {
+        //CHECKSTYLE:OFF
+        return Math.floor(value);
+        //CHECKSTYLE:ON
+    }
+
+    public static double rint(final double value) {
+        //CHECKSTYLE:OFF
+        return Math.rint(value);
+        //CHECKSTYLE:ON
+    }
+
+    public static double sinh(final double x) {
+        //CHECKSTYLE:OFF
+        return Math.sinh(x);
+        //CHECKSTYLE:ON
+    }
+
+    public static double cosh(final double x) {
+        //CHECKSTYLE:OFF
+        return Math.cosh(x);
+        //CHECKSTYLE:ON
+    }
+
+    public static double toRadians(final double angdeg) {
+        //CHECKSTYLE:OFF
+        return Math.toRadians(angdeg);
+        //CHECKSTYLE:ON
+    }
+
+    public static double tan(final double a) {
+        //CHECKSTYLE:OFF
+        return Math.tan(a);
+        //CHECKSTYLE:ON
+    }
+
+    public static double tanh(final double a) {
+        //CHECKSTYLE:OFF
+        return Math.tanh(a);
+        //CHECKSTYLE:ON
+    }
+
+    public static double asin(final double a) {
+        //CHECKSTYLE:OFF
+        return Math.asin(a);
+        //CHECKSTYLE:ON
+    }
+
+    public static double acos(final double a) {
+        //CHECKSTYLE:OFF
+        return Math.acos(a);
+        //CHECKSTYLE:ON
+    }
+
+    public static double atan(final double a) {
+        //CHECKSTYLE:OFF
+        return Math.atan(a);
+        //CHECKSTYLE:ON
+    }
+
+    public static double atan2(final double x, final double y) {
+        //CHECKSTYLE:OFF
+        return Math.atan2(x, y);
+        //CHECKSTYLE:ON
+    }
+
+    public static double signum(final double a) {
+        //CHECKSTYLE:OFF
+        return Math.signum(a);
+        //CHECKSTYLE:ON
+    }
+
+    public static double toDegrees(final double a) {
+        //CHECKSTYLE:OFF
+        return Math.toDegrees(a);
+        //CHECKSTYLE:ON
+    }
+
+    public static double ulp(final double d) {
+        //CHECKSTYLE:OFF
+        return Math.ulp(d);
+        //CHECKSTYLE:ON
     }
 
 }

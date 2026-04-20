@@ -9,6 +9,7 @@ import de.invesdwin.util.concurrent.lock.internal.readwrite.read.TimeoutReadLock
 import de.invesdwin.util.concurrent.lock.internal.readwrite.write.TimeoutReentrantWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -123,6 +124,11 @@ public class TimeoutReentrantReadWriteLock implements IReentrantReadWriteLock {
     public IReentrantReadWriteLock withStrategy(final ILockingStrategy strategy) {
         //CHECKSTYLE:ON
         return new TimeoutReentrantReadWriteLock(delegate.withStrategy(strategy), lockWaitTimeout, onlyWriteLock);
+    }
+
+    @Override
+    public ILockTrace getLockTrace() {
+        return delegate.getLockTrace();
     }
 
 }

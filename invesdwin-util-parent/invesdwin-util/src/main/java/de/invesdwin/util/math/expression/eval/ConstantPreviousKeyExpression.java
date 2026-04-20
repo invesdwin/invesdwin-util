@@ -65,7 +65,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
             return prevF;
         } else {
             return key -> {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, index);
                 return prevF.evaluateDouble(previousKey);
             };
         }
@@ -73,7 +73,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateDouble newEvaluateDouble() {
-        throw new UnsupportedOperationException("use time or int key instead");
+        throw new UnsupportedOperationException("use time or long key instead");
     }
 
     @Override
@@ -100,7 +100,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
             return prevF;
         } else {
             return key -> {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, index);
                 return prevF.evaluateInteger(previousKey);
             };
         }
@@ -108,7 +108,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateInteger newEvaluateInteger() {
-        throw new UnsupportedOperationException("use time or int key instead");
+        throw new UnsupportedOperationException("use time or long key instead");
     }
 
     @Override
@@ -135,7 +135,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
             return prevF;
         } else {
             return key -> {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, index);
                 return prevF.evaluateBooleanNullable(previousKey);
             };
         }
@@ -143,7 +143,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateBooleanNullable newEvaluateBooleanNullable() {
-        throw new UnsupportedOperationException("use time or int key instead");
+        throw new UnsupportedOperationException("use time or long key instead");
     }
 
     @Override
@@ -170,7 +170,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
             return prevF;
         } else {
             return key -> {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, index);
                 return prevF.evaluateBoolean(previousKey);
             };
         }
@@ -178,12 +178,12 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateBoolean newEvaluateBoolean() {
-        throw new UnsupportedOperationException("use time or int key instead");
+        throw new UnsupportedOperationException("use time or long key instead");
     }
 
     @Override
     public IEvaluateGeneric<String> newEvaluateFalseReason() {
-        throw new UnsupportedOperationException("use time or int key instead");
+        throw new UnsupportedOperationException("use time or long key instead");
     }
 
     @Override
@@ -210,7 +210,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
             return prevF;
         } else {
             return key -> {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, index);
                 return prevF.evaluateGeneric(previousKey);
             };
         }
@@ -218,7 +218,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateGeneric<String> newEvaluateTrueReason() {
-        throw new UnsupportedOperationException("use time or int key instead");
+        throw new UnsupportedOperationException("use time or long key instead");
     }
 
     @Override
@@ -245,7 +245,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
             return prevF;
         } else {
             return key -> {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, index);
                 return prevF.evaluateGeneric(previousKey);
             };
         }
@@ -253,7 +253,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
 
     @Override
     public IEvaluateGeneric<String> newEvaluateNullReason() {
-        throw new UnsupportedOperationException("use time or int key instead");
+        throw new UnsupportedOperationException("use time or long key instead");
     }
 
     @Override
@@ -280,7 +280,7 @@ public class ConstantPreviousKeyExpression implements IParsedExpression {
             return prevF;
         } else {
             return key -> {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, index);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, index);
                 return prevF.evaluateGeneric(previousKey);
             };
         }

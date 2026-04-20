@@ -331,7 +331,7 @@ public class JSplitButton extends JButton {
         final int h = img.getHeight();
         final BufferedImage dimg = new BufferedImage(w, h, img.getType());
         final Graphics2D g = dimg.createGraphics();
-        g.rotate(Math.toRadians(angle), Doubles.divide(w, 2), Doubles.divide(h, 2));
+        g.rotate(Doubles.toRadians(angle), Doubles.divide(w, 2), Doubles.divide(h, 2));
         g.drawImage(img, null, 0, 0);
         return dimg;
     }

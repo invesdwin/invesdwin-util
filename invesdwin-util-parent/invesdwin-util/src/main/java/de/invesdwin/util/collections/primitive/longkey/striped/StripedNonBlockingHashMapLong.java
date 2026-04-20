@@ -31,6 +31,7 @@ import de.invesdwin.util.collections.primitive.util.BucketHashUtil;
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
 import de.invesdwin.util.concurrent.lock.padded.PaddedCloseableReentrantLock;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -83,7 +84,7 @@ public class StripedNonBlockingHashMapLong<V> extends AbstractMap<Long, V>
         assert concurrencyLevel < 100_000_000 : "Too many stripes: " + concurrencyLevel;
         this.lockingStrategy = config.getLockingStrategy();
         this.preserveLargeArraysOnClear = preserveLargeArraysOnClear;
-        m = new NonBlockingHashMapLong<>(Math.max(config.getInitialCapacity(), concurrencyLevel), optimizeForSpace);
+        m = new NonBlockingHashMapLong<>(Integers.max(config.getInitialCapacity(), concurrencyLevel), optimizeForSpace);
         s = new PaddedCloseableReentrantLock[concurrencyLevel];
         for (int i = 0; i < concurrencyLevel; i++) {
             s[i] = new PaddedCloseableReentrantLock();

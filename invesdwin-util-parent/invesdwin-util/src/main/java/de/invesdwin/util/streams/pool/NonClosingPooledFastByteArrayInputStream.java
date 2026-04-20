@@ -2,6 +2,8 @@ package de.invesdwin.util.streams.pool;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.Longs;
 import it.unimi.dsi.fastutil.io.MeasurableInputStream;
 import it.unimi.dsi.fastutil.io.RepositionableStream;
 
@@ -41,8 +43,7 @@ public class NonClosingPooledFastByteArrayInputStream extends MeasurableInputStr
 
     /** Closing a fast byte array input stream has no effect. */
     @Override
-    public void close() {
-    }
+    public void close() {}
 
     @Override
     public void mark(final int dummy) {
@@ -85,7 +86,7 @@ public class NonClosingPooledFastByteArrayInputStream extends MeasurableInputStr
         if (delegate.length == this.position) {
             return length == 0 ? 0 : -1;
         }
-        final int n = Math.min(length, delegate.length - this.position);
+        final int n = Integers.min(length, delegate.length - this.position);
         System.arraycopy(delegate.array, this.position, b, offset, n);
         this.position += n;
         return n;
@@ -98,7 +99,7 @@ public class NonClosingPooledFastByteArrayInputStream extends MeasurableInputStr
 
     @Override
     public void position(final long newPosition) {
-        position = (int) Math.min(newPosition, delegate.length);
+        position = (int) Longs.min(newPosition, delegate.length);
     }
 
     @Override

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.time.date.holiday.HolidayManagers;
 import de.invesdwin.util.time.date.millis.WeekAdjustment;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
@@ -299,7 +300,7 @@ public class FDateTest {
 
     private int getWeekOfMonthJoda(final DateTime date) {
         final DateTime.Property dayOfWeeks = date.dayOfWeek();
-        return (int) (Math.ceil((date.dayOfMonth().get() - dayOfWeeks.get()) / 7.0)) + 1;
+        return (int) (Doubles.ceil((date.dayOfMonth().get() - dayOfWeeks.get()) / 7.0)) + 1;
     }
 
     @Test

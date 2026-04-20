@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Characters;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.operation.Op;
 import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
@@ -15,6 +17,10 @@ import de.invesdwin.util.time.date.IFDateProvider;
 
 @NotThreadSafe
 public class ExpressionParserTest {
+
+    static {
+        Reflections.disableJavaModuleSystemRestrictions();
+    }
 
     private static final String[] ESCAPE_STRS = new String[] { "*", ".", ",", "+", "-", "^", "\\", ":", ";", "!", "§",
             "$", "%", "&", "{", "}", "?", "#", "~", "¸", "´", "|", "<", ">", "=", "€", "ß", "@", "/" };
@@ -87,7 +93,7 @@ public class ExpressionParserTest {
                 return new IPreviousKeyFunction() {
 
                     @Override
-                    public int getPreviousKey(final int key, final int index) {
+                    public long getPreviousKey(final long key, final int index) {
                         return key - index;
                     }
 
@@ -110,7 +116,7 @@ public class ExpressionParserTest {
                 return new IPreviousKeyFunction() {
 
                     @Override
-                    public int getPreviousKey(final int key, final int index) {
+                    public long getPreviousKey(final long key, final int index) {
                         return key - index;
                     }
 
@@ -1278,7 +1284,7 @@ public class ExpressionParserTest {
         final ExpressionParser expressionParser = new ExpressionParser("-PI");
         final IExpression parsed = expressionParser.parse();
         final double evaluateDouble = parsed.newEvaluateDouble().evaluateDouble();
-        Assertions.checkEquals(-Math.PI, evaluateDouble);
+        Assertions.checkEquals(-Doubles.PI, evaluateDouble);
     }
 
     @Test
@@ -1325,7 +1331,7 @@ public class ExpressionParserTest {
                 return new IPreviousKeyFunction() {
 
                     @Override
-                    public int getPreviousKey(final int key, final int index) {
+                    public long getPreviousKey(final long key, final int index) {
                         return key - index;
                     }
 
@@ -1356,7 +1362,7 @@ public class ExpressionParserTest {
                 return new IPreviousKeyFunction() {
 
                     @Override
-                    public int getPreviousKey(final int key, final int index) {
+                    public long getPreviousKey(final long key, final int index) {
                         return key - index;
                     }
 
@@ -1386,7 +1392,7 @@ public class ExpressionParserTest {
                 return new IPreviousKeyFunction() {
 
                     @Override
-                    public int getPreviousKey(final int key, final int index) {
+                    public long getPreviousKey(final long key, final int index) {
                         return key - index;
                     }
 
@@ -1409,7 +1415,7 @@ public class ExpressionParserTest {
                 return new IPreviousKeyFunction() {
 
                     @Override
-                    public int getPreviousKey(final int key, final int index) {
+                    public long getPreviousKey(final long key, final int index) {
                         return key - index;
                     }
 

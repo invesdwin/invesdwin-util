@@ -120,7 +120,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -131,7 +131,7 @@ public final class HistoricalFunctions {
                             if (!cur) {
                                 return false;
                             }
-                            final int prevKey = previousKeyFunction.getPreviousKey(key, 1);
+                            final long prevKey = previousKeyFunction.getPreviousKey(key, 1);
                             final boolean prev = conditionF.evaluateBoolean(prevKey);
                             if (prev) {
                                 return false;
@@ -294,7 +294,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -303,7 +303,7 @@ public final class HistoricalFunctions {
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         return key -> {
                             final int count = countF.evaluateInteger(key);
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final Boolean result = conditionF.evaluateBooleanNullable(curKey);
                                 if (result != null && !result) {
@@ -474,7 +474,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -484,7 +484,7 @@ public final class HistoricalFunctions {
                         return key -> {
                             final int count = countF.evaluateInteger(key);
                             int stableCount = 0;
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final Boolean result = conditionF.evaluateBooleanNullable(curKey);
                                 if (result != null && !result) {
@@ -662,7 +662,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -676,7 +676,7 @@ public final class HistoricalFunctions {
                         return key -> {
                             final int count = countF.evaluateInteger(key);
                             final double rightResult = conditionRightF.evaluateDouble(key);
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double leftResult = conditionLeftF.evaluateDouble(curKey);
                                 final Boolean result = opF.applyBooleanNullableFromDoubles(leftResult, rightResult);
@@ -856,7 +856,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -871,7 +871,7 @@ public final class HistoricalFunctions {
                             final int count = countF.evaluateInteger(key);
                             final double rightResult = conditionRightF.evaluateDouble(key);
                             int stableCount = 0;
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double leftResult = conditionLeftF.evaluateDouble(curKey);
                                 final Boolean result = opF.applyBooleanNullableFromDoubles(leftResult, rightResult);
@@ -1060,7 +1060,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -1074,7 +1074,7 @@ public final class HistoricalFunctions {
                         return key -> {
                             final int count = countF.evaluateInteger(key);
                             final double leftResult = conditionLeftF.evaluateDouble(key);
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double rightResult = conditionRightF.evaluateDouble(curKey);
                                 final Boolean result = opF.applyBooleanNullableFromDoubles(leftResult, rightResult);
@@ -1254,7 +1254,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -1269,7 +1269,7 @@ public final class HistoricalFunctions {
                             final int count = countF.evaluateInteger(key);
                             final double leftResult = conditionLeftF.evaluateDouble(key);
                             int stableCount = 0;
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double rightResult = conditionRightF.evaluateDouble(curKey);
                                 final Boolean result = opF.applyBooleanNullableFromDoubles(leftResult, rightResult);
@@ -1456,7 +1456,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -1466,7 +1466,7 @@ public final class HistoricalFunctions {
                         final IEvaluateIntegerKey countF = args[1].newEvaluateIntegerKey();
                         return key -> {
                             final int count = countF.evaluateInteger(key);
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final boolean result = conditionF.evaluateBoolean(curKey);
                                 if (result) {
@@ -1638,7 +1638,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -1649,7 +1649,7 @@ public final class HistoricalFunctions {
                         return key -> {
                             final int count = countF.evaluateInteger(key);
                             int occursCount = 0;
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final boolean result = conditionF.evaluateBoolean(curKey);
                                 if (result) {
@@ -1824,7 +1824,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -1837,7 +1837,7 @@ public final class HistoricalFunctions {
                         return key -> {
                             final int count = countF.evaluateInteger(key);
                             final double rightResult = conditionRightF.evaluateDouble(key);
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double leftResult = conditionLeftF.evaluateDouble(curKey);
                                 final boolean result = opF.applyBooleanFromDoubles(leftResult, rightResult);
@@ -2016,7 +2016,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -2030,7 +2030,7 @@ public final class HistoricalFunctions {
                             final int count = countF.evaluateInteger(key);
                             final double rightResult = conditionRightF.evaluateDouble(key);
                             int occursCount = 0;
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double leftResult = conditionLeftF.evaluateDouble(curKey);
                                 final boolean result = opF.applyBooleanFromDoubles(leftResult, rightResult);
@@ -2210,7 +2210,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public IEvaluateBoolean newEvaluateBoolean(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -2223,7 +2223,7 @@ public final class HistoricalFunctions {
                         return key -> {
                             final int count = countF.evaluateInteger(key);
                             final double leftResult = conditionLeftF.evaluateDouble(key);
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double rightResult = conditionRightF.evaluateDouble(curKey);
                                 final boolean result = opF.applyBooleanFromDoubles(leftResult, rightResult);
@@ -2402,7 +2402,7 @@ public final class HistoricalFunctions {
 
                     @Override
                     public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -2416,7 +2416,7 @@ public final class HistoricalFunctions {
                             final int count = countF.evaluateInteger(key);
                             final double leftResult = conditionLeftF.evaluateDouble(key);
                             int occursCount = 0;
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double rightResult = conditionRightF.evaluateDouble(curKey);
                                 final boolean result = opF.applyBooleanFromDoubles(leftResult, rightResult);

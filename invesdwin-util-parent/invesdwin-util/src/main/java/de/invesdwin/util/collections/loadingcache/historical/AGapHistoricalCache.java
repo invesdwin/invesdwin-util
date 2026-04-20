@@ -7,7 +7,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.circular.CircularGenericArrayQueue;
+import de.invesdwin.util.collections.array.primitive.circular.CircularGenericPrimitiveArrayQueue;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.loadingcache.historical.internal.AGapHistoricalCacheMissCounter;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
@@ -54,7 +54,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     @GuardedBy("this")
     private final BufferingIterator<V> furtherValues = new BufferingIterator<V>();
     @GuardedBy("this")
-    private final CircularGenericArrayQueue<V> lastValuesFromFurtherValues = new CircularGenericArrayQueue<V>(
+    private final CircularGenericPrimitiveArrayQueue<V> lastValuesFromFurtherValues = new CircularGenericPrimitiveArrayQueue<V>(
             MAX_LAST_VALUES_FROM_LOAD_FURTHER_VALUES);
     @GuardedBy("this")
     private final AGapHistoricalCacheMissCounter<V> cacheMissCounter = new AGapHistoricalCacheMissCounter<V>() {

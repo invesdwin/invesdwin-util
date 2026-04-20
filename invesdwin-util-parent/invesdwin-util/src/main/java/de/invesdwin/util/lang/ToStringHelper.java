@@ -39,6 +39,13 @@ public final class ToStringHelper {
         return this;
     }
 
+    public ToStringHelper addOptional(final String name, @Nullable final Object value) {
+        if (value != null) {
+            add(name, value);
+        }
+        return this;
+    }
+
     public ToStringHelper add(final String name, final boolean value) {
         checkNameAndAppend(name).append(value);
         return this;
@@ -74,6 +81,13 @@ public final class ToStringHelper {
         return this;
     }
 
+    public ToStringHelper addValueOptional(@Nullable final Object value) {
+        if (value != null) {
+            addValue(value);
+        }
+        return this;
+    }
+
     public ToStringHelper addValue(final boolean value) {
         maybeAppendSeparator().append(value);
         return this;
@@ -106,13 +120,36 @@ public final class ToStringHelper {
 
     //CHECKSTYLE:OFF
     public ToStringHelper with(final Object... objs) {
-        //CHECKSTYLE:ON
-        for (final Object obj : objs) {
-            if (obj != null) {
-                final String string = obj.toString();
-                this.withObjStrs.add(string);
-            }
+        for (int i = 0; i < objs.length; i++) {
+            final Object obj = objs[i];
+            with(obj);
         }
+        return this;
+    }
+
+    //CHECKSTYLE:OFF
+    public ToStringHelper withOptional(final Object... objs) {
+        for (int i = 0; i < objs.length; i++) {
+            final Object obj = objs[i];
+            withOptional(obj);
+        }
+        return this;
+    }
+
+    //CHECKSTYLE:OFF
+    public ToStringHelper withOptional(final Object obj) {
+        //CHECKSTYLE:ON
+        if (obj != null) {
+            with(obj);
+        }
+        return this;
+    }
+
+    //CHECKSTYLE:OFF
+    public ToStringHelper with(final Object obj) {
+        //CHECKSTYLE:ON
+        final String string = String.valueOf(obj);
+        this.withObjStrs.add(string);
         return this;
     }
 

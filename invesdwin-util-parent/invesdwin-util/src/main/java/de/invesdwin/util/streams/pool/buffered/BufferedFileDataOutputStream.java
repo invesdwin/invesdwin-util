@@ -92,7 +92,7 @@ public class BufferedFileDataOutputStream extends OutputStream implements DataOu
         int current = off;
         final int end = off + len;
         while (current < end) {
-            final int size = Math.min(nioBuffer.remaining(), end - current);
+            final int size = Integers.min(nioBuffer.remaining(), end - current);
             if (size == 0) {
                 flush();
                 continue;

@@ -50,7 +50,7 @@ public class DecimalStreamGeomAvg<E extends ADecimal<E>> implements IStreamAlgor
         if (count == 0) {
             return converter.zero();
         } else {
-            final double result = Math.exp(logSum / count);
+            final double result = Doubles.exp(logSum / count);
             final E geomAvg = converter.fromDefaultValue(result - valueAdjustmentAddition);
             return geomAvg;
         }

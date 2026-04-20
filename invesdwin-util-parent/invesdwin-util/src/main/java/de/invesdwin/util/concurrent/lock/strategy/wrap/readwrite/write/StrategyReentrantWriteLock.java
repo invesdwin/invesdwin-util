@@ -8,6 +8,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantWriteLock;
 import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
@@ -67,8 +68,8 @@ public final class StrategyReentrantWriteLock implements IReentrantWriteLock {
     }
 
     @Override
-    public boolean isLockedByCurrentThread() {
-        return delegate.isLockedByCurrentThread();
+    public boolean isHeldByCurrentThread() {
+        return delegate.isHeldByCurrentThread();
     }
 
     @Override
@@ -93,6 +94,11 @@ public final class StrategyReentrantWriteLock implements IReentrantWriteLock {
             return lock;
         }
         return new StrategyReentrantWriteLock(strategy, lock);
+    }
+
+    @Override
+    public ILockTrace getLockTrace() {
+        return delegate.getLockTrace();
     }
 
 }

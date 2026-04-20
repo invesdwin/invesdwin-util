@@ -4,8 +4,8 @@ package de.invesdwin.util.math.expression.lambda;
 public interface IEvaluateGenericKey<E> {
 
     /**
-     * evaluates the expression using the current int key
+     * evaluates the expression using the given long key
      */
-    E evaluateGeneric(int key);
+    E evaluateGeneric(long key);
 
 }

@@ -10,7 +10,7 @@ import javax.swing.table.TableStringConverter;
 
 // CHECKSTYLE:OFF
 @NotThreadSafe
-public class ComparableTableRowSorter<M extends TableModel> extends ComparableDefaultRowSorter<M, Integer> {
+public class ComparableTableRowSorter<M extends TableModel> extends AComparableDefaultRowSorter<M, Integer> {
     private static final Comparator<?> COMPARABLE_COMPARATOR = new ComparableComparator();
 
     private M tableModel;
@@ -70,7 +70,7 @@ public class ComparableTableRowSorter<M extends TableModel> extends ComparableDe
         return true;
     }
 
-    private class TableRowSorterModelWrapper extends ModelWrapper<M, Integer> {
+    private class TableRowSorterModelWrapper extends AModelWrapper<M, Integer> {
         @Override
         public M getModel() {
             return tableModel;

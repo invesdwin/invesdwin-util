@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.Iterables;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
@@ -14,12 +15,17 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryElementFilter;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.error.FastNoSuchElementException;
+import de.invesdwin.util.lang.string.description.TextDescription;
+import de.invesdwin.util.log.ILog;
+import de.invesdwin.util.log.slf4j.XLoggerDelegateLog;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 
 @NotThreadSafe
 public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
+
+    private static final ILog LOG = new XLoggerDelegateLog(HistoricalCacheQuery.class);
 
     private static final HistoricalCacheAssertValue DEFAULT_ASSERT_VALUE = HistoricalCacheAssertValue.ASSERT_VALUE_WITHOUT_FUTURE;
 
@@ -521,6 +527,28 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                 };
             }
         };
+    }
+
+    @Override
+    public long size(final FDate from, final FDate to) {
+        final long sizeInterceptor = internalMethods.getQueryCore()
+                .getParent()
+                .getSizeQueryInterceptor()
+                .size(from, to);
+        if (sizeInterceptor != Long.MIN_VALUE) {
+            return sizeInterceptor;
+        } else {
+            return sizeCached(from, to);
+        }
+    }
+
+    @Override
+    public long sizeCached(final FDate from, final FDate to) {
+        return Iterables
+                .sizeLong(
+                        LOG, new TextDescription("%s.sizeCached(%s, %s, %s)",
+                                HistoricalCacheQuery.class.getSimpleName(), internalMethods.getParent(), from, to),
+                        getEntriesCached(from, to));
     }
 
     @Override

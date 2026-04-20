@@ -2,7 +2,7 @@ package de.invesdwin.util.streams.buffer.memory.delegate;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.ICloseableMemoryBuffer;
@@ -51,7 +51,7 @@ public class ByteDelegateCloseableMemoryBuffer extends ByteDelegateMemoryBuffer 
 
     @Override
     public ICloseableMemoryBuffer ensureCapacity(final long desiredCapacity) {
-        delegate.ensureCapacity(Integers.checkedCast(desiredCapacity));
+        delegate.ensureCapacity(ByteBuffers.checkedCast(desiredCapacity));
         return this;
     }
 

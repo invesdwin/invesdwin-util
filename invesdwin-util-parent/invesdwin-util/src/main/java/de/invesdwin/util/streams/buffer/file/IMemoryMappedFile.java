@@ -5,18 +5,26 @@ import java.io.File;
 import java.io.IOException;
 
 import de.invesdwin.util.lang.OperatingSystem;
+import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
 public interface IMemoryMappedFile extends Closeable {
 
+    long MAX_SEGMENT_SIZE_WINDOWS = (long) ByteSizeScale.BYTES.convert(4, ByteSizeScale.GIGABYTES);
+    long MAX_SEGMENT_SIZE = OperatingSystem.isWindows() ? MAX_SEGMENT_SIZE_WINDOWS : Long.MAX_VALUE;
+
     File getFile();
+
+    Object getRefCountLock();
 
     int getRefCount();
 
     boolean incrementRefCount();
 
-    void decrementRefCount();
+    int decrementRefCount();
+
+    void markForClose();
 
     long addressOffset();
 
@@ -37,18 +45,32 @@ public interface IMemoryMappedFile extends Closeable {
 
     IMemoryBuffer newMemoryBuffer(long index, long length);
 
-    static IMemoryMappedFile map(final File file, final long index, final long length, final boolean readOnly,
-            final boolean closeAllowed) throws IOException {
+    static IMemoryMappedFile map(final boolean closeAllowed, final File file, final long index, final long length,
+            final boolean readOnly) throws IOException {
         if (isSegmentSizeExceeded(length)) {
-            return new SegmentedMemoryMappedFile(closeAllowed, file, index, length, readOnly,
-                    SegmentedMemoryMappedFile.WINDOWS_MAX_LENGTH_PER_SEGMENT_MAPPED);
+            return new ListMemoryMappedFile(MAX_SEGMENT_SIZE, closeAllowed, file, index, length, readOnly);
         } else {
-            return new MemoryMappedFile(file, index, length, readOnly, closeAllowed);
+            return new MemoryMappedFile(closeAllowed, file, index, length, readOnly);
         }
     }
 
     static boolean isSegmentSizeExceeded(final long length) {
-        return OperatingSystem.isWindows() && length >= SegmentedMemoryMappedFile.WINDOWS_MAX_LENGTH_PER_SEGMENT_MAPPED;
+        return length >= MAX_SEGMENT_SIZE;
+    }
+
+    static long roundToBlockSize(final long length, final boolean readOnly) {
+        if (readOnly) {
+            return length;
+        } else {
+            return roundToBlockSize(length);
+        }
+    }
+
+    /**
+     * IoUtil.BLOCK_SIZE is 4096, so we round to the next multiple of 4096
+     */
+    static long roundToBlockSize(final long length) {
+        return (length + 0xfff) & ~0xfff;
     }
 
 }

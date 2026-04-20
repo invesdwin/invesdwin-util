@@ -20,8 +20,10 @@ import javax.annotation.concurrent.Immutable;
 import org.jctools.maps.NonBlockingHashMap;
 
 import de.invesdwin.util.collections.Collections;
-import de.invesdwin.util.collections.bitset.IBitSet;
-import de.invesdwin.util.collections.bitset.SynchronizedBitSet;
+import de.invesdwin.util.collections.array.large.bitset.ILargeBitSet;
+import de.invesdwin.util.collections.array.large.bitset.concurrent.SynchronizedLargeBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.concurrent.SynchronizedPrimitiveBitSet;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
@@ -42,7 +44,7 @@ import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
-import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
+import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.nested.ANestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import de.invesdwin.util.concurrent.reference.lazy.ILazyReference;
@@ -81,13 +83,18 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
-    public IReadWriteLock newReadWriteLock(final String name) {
+    public IReentrantReadWriteLock newReadWriteLock(final String name) {
         return Locks.newReentrantReadWriteLock(name);
     }
 
     @Override
-    public IBitSet newBitSet(final int initialSize) {
-        return new SynchronizedBitSet(DisabledLockCollectionFactory.INSTANCE.newBitSet(initialSize));
+    public IPrimitiveBitSet newPrimitiveBitSet(final int initialSize) {
+        return new SynchronizedPrimitiveBitSet(DisabledLockCollectionFactory.INSTANCE.newPrimitiveBitSet(initialSize));
+    }
+
+    @Override
+    public ILargeBitSet newLargeBitSet(final long initialSize) {
+        return new SynchronizedLargeBitSet(DisabledLockCollectionFactory.INSTANCE.newLargeBitSet(initialSize));
     }
 
     @Override

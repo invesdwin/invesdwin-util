@@ -298,7 +298,9 @@ public final class Longs extends ALongsStaticFacade {
     }
 
     public static long abs(final long value) {
+        //CHECKSTYLE:OFF
         return Math.abs(value);
+        //CHECKSTYLE:ON
     }
 
     public static boolean isBetween(final long value, final long min, final long max) {
@@ -355,6 +357,54 @@ public final class Longs extends ALongsStaticFacade {
 
     public static int combinedExtractSecond(final long combined) {
         return (int) combined;
+    }
+
+    public static long round(final double value) {
+        //CHECKSTYLE:OFF
+        return Math.round(value);
+        //CHECKSTYLE:ON
+    }
+
+    public static long ceil(final double value) {
+        //CHECKSTYLE:OFF
+        return checkedCast(Math.ceil(value));
+        //CHECKSTYLE:ON
+    }
+
+    public static long floor(final double value) {
+        //CHECKSTYLE:OFF
+        return checkedCast(Math.floor(value));
+        //CHECKSTYLE:ON
+    }
+
+    public static long ceilUnchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return (long) Math.ceil(value);
+        //CHECKSTYLE:ON
+    }
+
+    public static long floorUnchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return (long) Math.floor(value);
+        //CHECKSTYLE:ON
+    }
+
+    public static long pow(final double a, final double b) {
+        //CHECKSTYLE:OFF
+        return checkedCast(Math.pow(a, b));
+        //CHECKSTYLE:ON
+    }
+
+    public static long addExact(final long x, final long y) {
+        //CHECKSTYLE:OFF
+        return Math.addExact(x, y);
+        //CHECKSTYLE:ON
+    }
+
+    public static long subtractExact(final long x, final long y) {
+        //CHECKSTYLE:OFF
+        return Math.subtractExact(x, y);
+        //CHECKSTYLE:ON
     }
 
 }

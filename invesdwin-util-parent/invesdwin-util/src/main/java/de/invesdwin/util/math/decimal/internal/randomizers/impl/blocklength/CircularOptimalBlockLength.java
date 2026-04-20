@@ -5,6 +5,8 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.ADecimal;
 import de.invesdwin.util.math.decimal.IDecimalAggregate;
 
@@ -62,29 +64,29 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
         if (halfLag == 0) {
             halfLag = prevHalfLag;
         }
-        final long limitedLag = Math.min(2 * halfLag, maxLag);
+        final long limitedLag = Longs.min(2 * halfLag, maxLag);
         return limitedLag;
     }
 
     private int determineOptimalLag_checkLagInterval(final int length) {
-        final double logLength = Math.log10(length);
-        final double sqrtLogLength = Math.sqrt(logLength);
-        final int roundedSqrtLogLength = (int) Math.ceil(sqrtLogLength);
-        return Math.max(MIN_CHECK_LAG_INTERVAL, roundedSqrtLogLength);
+        final double logLength = Doubles.log10(length);
+        final double sqrtLogLength = Doubles.sqrt(logLength);
+        final int roundedSqrtLogLength = Integers.ceil(sqrtLogLength);
+        return Integers.max(MIN_CHECK_LAG_INTERVAL, roundedSqrtLogLength);
     }
 
     private long determineOptimalLag_maxlag(final int length) {
-        final double sqrtLength = Math.sqrt(length);
-        final long roundedSqrtLength = (long) Math.ceil(sqrtLength);
+        final double sqrtLength = Doubles.sqrt(length);
+        final long roundedSqrtLength = Longs.ceil(sqrtLength);
         final int checkLagInterval = determineOptimalLag_checkLagInterval(length);
         final long maxLag = roundedSqrtLength + checkLagInterval;
         final int absMaxLag = length - 1;
-        return Math.min(absMaxLag, maxLag);
+        return Longs.min(absMaxLag, maxLag);
     }
 
     private double determineOptimalLag_correlationThreshold(final int length) {
-        final double logLengthPerLength = Math.log10(length) / length;
-        final double sqrtLogLengthPerLength = Math.sqrt(logLengthPerLength);
+        final double logLengthPerLength = Doubles.log10(length) / length;
+        final double sqrtLogLengthPerLength = Doubles.sqrt(logLengthPerLength);
         return DISTRIBUTION_CONSTANT * sqrtLogLengthPerLength;
     }
 
@@ -100,17 +102,17 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
     }
 
     private long determineOptimalBlockLength_maxBlockLength(final int length) {
-        final double sqrtLength = Math.sqrt(length);
+        final double sqrtLength = Doubles.sqrt(length);
         final double threeTimesSqrtLength = 3D * sqrtLength;
         final double oneThirdLength = length / 3D;
-        final double min = Math.min(threeTimesSqrtLength, oneThirdLength);
-        final long rounded = (long) Math.ceil(min);
+        final double min = Doubles.min(threeTimesSqrtLength, oneThirdLength);
+        final long rounded = Longs.ceil(min);
         return rounded;
     }
 
     public int getBlockLength() {
         final int optimalBlockLength = (int) determineOptimalBlockLength();
-        return Math.max(1, optimalBlockLength);
+        return Integers.max(1, optimalBlockLength);
     }
 
     private long determineOptimalBlockLength() {
@@ -131,7 +133,7 @@ public class CircularOptimalBlockLength<E extends ADecimal<E>> {
         final double maxBlockLength = determineOptimalBlockLength_maxBlockLength(length);
 
         blockLength = Doubles.between(blockLength, 1D, maxBlockLength);
-        return Math.round(blockLength);
+        return Longs.round(blockLength);
     }
 
     protected double determineOptimalBlockLength_blockLengthMultiplicator() {

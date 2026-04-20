@@ -1,0 +1,78 @@
+package de.invesdwin.util.concurrent.lock.internal.readwrite;
+
+import java.util.concurrent.locks.ReadWriteLock;
+
+import javax.annotation.concurrent.ThreadSafe;
+
+import de.invesdwin.util.concurrent.lock.internal.readwrite.read.WrappedTracedReadLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.write.WrappedTracedWriteLock;
+import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
+import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
+import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.strategy.wrap.readwrite.StrategyReadWriteLock;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
+import de.invesdwin.util.lang.Objects;
+
+@ThreadSafe
+public class WrappedTracedReadWriteLock implements IReadWriteLock {
+
+    private final String name;
+    private final ReadWriteLock delegate;
+    private final WrappedTracedReadLock readLock;
+    private final WrappedTracedWriteLock writeLock;
+
+    public WrappedTracedReadWriteLock(final ILockTrace lockTrace, final String name, final ReadWriteLock delegate) {
+        this.name = name;
+        this.delegate = delegate;
+        this.readLock = new WrappedTracedReadLock(lockTrace, name + "_readLock", this, delegate.readLock());
+        this.writeLock = new WrappedTracedWriteLock(lockTrace, readLock.getName(), name + "_writeLock", delegate.writeLock());
+    }
+
+    @Override
+    public boolean isWriteLocked() {
+        return writeLock.isLocked();
+    }
+
+    @Override
+    public boolean isWriteLockedByCurrentThread() {
+        return writeLock.isHeldByCurrentThread();
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public WrappedTracedReadLock readLock() {
+        return readLock;
+    }
+
+    @Override
+    public WrappedTracedWriteLock writeLock() {
+        return writeLock;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
+    }
+
+    @Override
+    public ILockingStrategy getStrategy() {
+        return DefaultLockingStrategy.INSTANCE;
+    }
+
+    //CHECKSTYLE:OFF
+    @Override
+    public IReadWriteLock withStrategy(final ILockingStrategy strategy) {
+        //CHECKSTYLE:ON
+        return StrategyReadWriteLock.maybeWrap(strategy, this);
+    }
+
+    @Override
+    public ILockTrace getLockTrace() {
+        return writeLock.getLockTrace();
+    }
+
+}

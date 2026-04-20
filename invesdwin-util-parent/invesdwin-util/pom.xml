@@ -247,12 +247,10 @@
 		<dependency>
 			<groupId>net.openhft</groupId>
 			<artifactId>chronicle-bytes</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.openhft</groupId>
 			<artifactId>chronicle-core</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>

@@ -20,9 +20,7 @@ import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
-import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.array.IPrimitiveArrayId;
-import de.invesdwin.util.collections.delegate.ADelegateList;
+import de.invesdwin.util.collections.array.base.IBaseArrayId;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.math.Bytes;
@@ -43,29 +41,35 @@ import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer
 @NotThreadSafe
 public class ListByteBuffer implements IByteBuffer {
 
-    private final List<IByteBuffer> list = new ADelegateList<IByteBuffer>() {
-
-        @Override
-        protected List<IByteBuffer> newDelegate() {
-            return newList();
-        };
-
-        @Override
-        public boolean isAddAllowed(final IByteBuffer e) {
-            Assertions.checkEquals(e.getOrder(), ByteBuffers.DEFAULT_ORDER);
-            return true;
-        }
-    };
+    private final List<IByteBuffer> list;
 
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
 
-    @Override
-    public int getId() {
-        return IPrimitiveArrayId.newId(list);
+    public ListByteBuffer() {
+        this(new ArrayList<>());
     }
 
-    protected List<IByteBuffer> newList() {
-        return new ArrayList<>();
+    public ListByteBuffer(final List<IByteBuffer> list) {
+        this.list = list;
+        //just document expectations but skip this check internally
+        //        assertList(this.list);
+    }
+
+    public static void assertList(final List<IByteBuffer> list) {
+        final int lastSegmentIndex = list.size() - 1;
+        for (int i = 0; i <= lastSegmentIndex; i++) {
+            final IByteBuffer segment = list.get(i);
+            final ByteOrder segmentOrder = segment.getOrder();
+            if (segmentOrder != ByteBuffers.DEFAULT_ORDER) {
+                throw new IllegalArgumentException("All segments must have the same byte order: segmentIndex=" + i
+                        + " segmentByteOrder=" + segmentOrder + " expectedByteOrder=" + ByteBuffers.DEFAULT_ORDER);
+            }
+        }
+    }
+
+    @Override
+    public int getId() {
+        return IBaseArrayId.newId(list);
     }
 
     public List<IByteBuffer> getList() {
@@ -346,11 +350,11 @@ public class ListByteBuffer implements IByteBuffer {
                 continue;
             } else {
                 int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Short.BYTES) {
+                if (capacity >= bufferPosition + Character.BYTES) {
                     return buffer.getChar(bufferPosition);
                 } else {
                     final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
-                    final int limit = index + Short.BYTES;
+                    final int limit = index + Character.BYTES;
                     for (int i = index, ri = 0; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -814,6 +818,7 @@ public class ListByteBuffer implements IByteBuffer {
         if (src instanceof ReadableByteChannel) {
             putBytesTo(index, (ReadableByteChannel) src, length);
         } else {
+            ensureCapacity(index, length);
             int position = 0;
             for (int buf = 0; buf < list.size(); buf++) {
                 IByteBuffer buffer = list.get(buf);
@@ -864,6 +869,7 @@ public class ListByteBuffer implements IByteBuffer {
         } else if (src instanceof DataInput) {
             putBytesTo(index, (DataInput) src, length);
         } else {
+            ensureCapacity(index, length);
             int position = 0;
             for (int buf = 0; buf < list.size(); buf++) {
                 IByteBuffer buffer = list.get(buf);
@@ -906,6 +912,7 @@ public class ListByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
+        ensureCapacity(index, length);
         int position = 0;
         for (int buf = 0; buf < list.size(); buf++) {
             IByteBuffer buffer = list.get(buf);
@@ -1033,6 +1040,7 @@ public class ListByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytes(final int index, final byte[] src, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
         int position = 0;
         for (int buf = 0; buf < list.size(); buf++) {
             IByteBuffer buffer = list.get(buf);
@@ -1042,13 +1050,13 @@ public class ListByteBuffer implements IByteBuffer {
                 continue;
             } else {
                 int bufferPosition = index - position;
-                int srcPosition = srcIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.putBytes(bufferPosition, src, srcPosition, length);
+                    buffer.putBytes(bufferPosition, src, srcIndex, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
+                    int srcPosition = srcIndex;
                     for (int i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1072,6 +1080,7 @@ public class ListByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
         int position = 0;
         for (int buf = 0; buf < list.size(); buf++) {
             IByteBuffer buffer = list.get(buf);
@@ -1081,13 +1090,13 @@ public class ListByteBuffer implements IByteBuffer {
                 continue;
             } else {
                 int bufferPosition = index - position;
-                int srcPosition = srcIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.putBytes(bufferPosition, srcBuffer, srcPosition, length);
+                    buffer.putBytes(bufferPosition, srcBuffer, srcIndex, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
+                    int srcPosition = srcIndex;
                     for (int i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1111,6 +1120,7 @@ public class ListByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
         int position = 0;
         for (int buf = 0; buf < list.size(); buf++) {
             IByteBuffer buffer = list.get(buf);
@@ -1120,13 +1130,13 @@ public class ListByteBuffer implements IByteBuffer {
                 continue;
             } else {
                 int bufferPosition = index - position;
-                int srcPosition = srcIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.putBytes(bufferPosition, srcBuffer, srcPosition, length);
+                    buffer.putBytes(bufferPosition, srcBuffer, srcIndex, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
+                    int srcPosition = srcIndex;
                     for (int i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1150,6 +1160,7 @@ public class ListByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
         int position = 0;
         for (int buf = 0; buf < list.size(); buf++) {
             IByteBuffer buffer = list.get(buf);
@@ -1159,13 +1170,13 @@ public class ListByteBuffer implements IByteBuffer {
                 continue;
             } else {
                 int bufferPosition = index - position;
-                int srcPosition = srcIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.putBytes(bufferPosition, srcBuffer, srcPosition, length);
+                    buffer.putBytes(bufferPosition, srcBuffer, srcIndex, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
+                    int srcPosition = srcIndex;
                     for (int i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1189,6 +1200,7 @@ public class ListByteBuffer implements IByteBuffer {
 
     @Override
     public void putBytes(final int index, final IMemoryBuffer srcBuffer, final long srcIndex, final int length) {
+        ensureCapacity(index, length);
         int position = 0;
         for (int buf = 0; buf < list.size(); buf++) {
             IByteBuffer buffer = list.get(buf);
@@ -1198,13 +1210,13 @@ public class ListByteBuffer implements IByteBuffer {
                 continue;
             } else {
                 int bufferPosition = index - position;
-                long srcPosition = srcIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.putBytes(bufferPosition, srcBuffer, srcPosition, length);
+                    buffer.putBytes(bufferPosition, srcBuffer, srcIndex, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
+                    long srcPosition = srcIndex;
                     for (int i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1237,13 +1249,13 @@ public class ListByteBuffer implements IByteBuffer {
                 continue;
             } else {
                 int bufferPosition = index - position;
-                int dstPosition = dstIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.getBytes(bufferPosition, dst, dstPosition, length);
+                    buffer.getBytes(bufferPosition, dst, dstIndex, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
+                    int dstPosition = dstIndex;
                     for (int i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1276,13 +1288,13 @@ public class ListByteBuffer implements IByteBuffer {
                 continue;
             } else {
                 int bufferPosition = index - position;
-                int dstPosition = dstIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.getBytes(bufferPosition, dstBuffer, dstPosition, length);
+                    buffer.getBytes(bufferPosition, dstBuffer, dstIndex, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
+                    int dstPosition = dstIndex;
                     for (int i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1315,13 +1327,13 @@ public class ListByteBuffer implements IByteBuffer {
                 continue;
             } else {
                 int bufferPosition = index - position;
-                int dstPosition = dstIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.getBytes(bufferPosition, dstBuffer, dstPosition, length);
+                    buffer.getBytes(bufferPosition, dstBuffer, dstIndex, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
+                    int dstPosition = dstIndex;
                     for (int i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1354,13 +1366,13 @@ public class ListByteBuffer implements IByteBuffer {
                 continue;
             } else {
                 int bufferPosition = index - position;
-                int dstPosition = dstIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.getBytes(bufferPosition, dstBuffer, dstPosition, length);
+                    buffer.getBytes(bufferPosition, dstBuffer, dstIndex, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
+                    int dstPosition = dstIndex;
                     for (int i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1393,13 +1405,13 @@ public class ListByteBuffer implements IByteBuffer {
                 continue;
             } else {
                 int bufferPosition = index - position;
-                long dstPosition = dstIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.getBytes(bufferPosition, dstBuffer, dstPosition, length);
+                    buffer.getBytes(bufferPosition, dstBuffer, dstIndex, length);
                     return;
                 } else {
                     final int limit = index + length;
                     int remaining = length;
+                    long dstPosition = dstIndex;
                     for (int i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;

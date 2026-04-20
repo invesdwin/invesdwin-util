@@ -32,8 +32,6 @@ import static org.agrona.BufferUtil.NULL_BYTES;
 import static org.agrona.BufferUtil.address;
 import static org.agrona.BufferUtil.array;
 import static org.agrona.BufferUtil.arrayOffset;
-import static org.agrona.UnsafeAccess.MEMSET_HACK_REQUIRED;
-import static org.agrona.UnsafeAccess.MEMSET_HACK_THRESHOLD;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -46,10 +44,11 @@ import org.agrona.BufferUtil;
 import org.agrona.DirectBuffer;
 import org.agrona.LangUtil;
 import org.agrona.MutableDirectBuffer;
+import org.agrona.UnsafeApi;
 
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
-import de.invesdwin.util.lang.reflection.Reflections;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.UninitializedDirectByteBuffers;
 
@@ -57,7 +56,6 @@ import de.invesdwin.util.streams.buffer.bytes.UninitializedDirectByteBuffers;
  * Extracted from org.agrona.ExpandableDirectByteBuffer
  */
 @NotThreadSafe
-@SuppressWarnings("restriction")
 public class UninitializedDirectExpandableBufferBase implements MutableDirectBuffer, Closeable {
     /**
      * Maximum length to which the underlying buffer can grow.
@@ -68,8 +66,6 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
      * Initial capacity of the buffer from which it will expand.
      */
     public static final int INITIAL_CAPACITY = 128;
-
-    private static final sun.misc.Unsafe UNSAFE = Reflections.getUnsafe();
 
     private static final class UninitializedDirectExpandableBufferFinalizer extends AFinalizer {
 
@@ -122,7 +118,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         finalizer.close();
     }
 
@@ -214,12 +210,25 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         ensureCapacity(index, length);
 
         final long offset = finalizer.address + index;
-        if (MEMSET_HACK_REQUIRED && length > MEMSET_HACK_THRESHOLD && 0 == (offset & 1)) {
-            // This horrible filth is to encourage the JVM to call memset() when address is even.
-            UNSAFE.putByte(null, offset, value);
-            UNSAFE.setMemory(null, offset + 1, length - 1, value);
+
+        if (length < 100) {
+            int i = 0;
+            final int end = (length & ~7);
+            //CHECKSTYLE:OFF
+            final long mask = ((((long) value) << 56) | (((long) value & 0xff) << 48) | (((long) value & 0xff) << 40)
+                    | (((long) value & 0xff) << 32) | (((long) value & 0xff) << 24) | (((long) value & 0xff) << 16)
+                    | (((long) value & 0xff) << 8) | (((long) value & 0xff)));
+
+            for (; i < end; i += 8) {
+                UnsafeApi.putLong(null, offset + i, mask);
+            }
+
+            for (; i < length; i++) {
+                UnsafeApi.putByte(null, offset + i, value);
+            }
+            //CHECKSTYLE:ON
         } else {
-            UNSAFE.setMemory(null, offset, length, value);
+            UnsafeApi.setMemory(null, offset, length, value);
         }
     }
 
@@ -251,7 +260,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -260,7 +269,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public long getLong(final int index, final ByteOrder byteOrder) {
         boundsCheck0(index, SIZE_OF_LONG);
 
-        long bits = UNSAFE.getLong(null, finalizer.address + index);
+        long bits = UnsafeApi.getLong(null, finalizer.address + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
             bits = Long.reverseBytes(bits);
         }
@@ -280,7 +289,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             bits = Long.reverseBytes(bits);
         }
 
-        UNSAFE.putLong(null, finalizer.address + index, bits);
+        UnsafeApi.putLong(null, finalizer.address + index, bits);
     }
 
     /**
@@ -290,7 +299,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public long getLong(final int index) {
         boundsCheck0(index, SIZE_OF_LONG);
 
-        return UNSAFE.getLong(null, finalizer.address + index);
+        return UnsafeApi.getLong(null, finalizer.address + index);
     }
 
     /**
@@ -300,10 +309,10 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public void putLong(final int index, final long value) {
         ensureCapacity(index, SIZE_OF_LONG);
 
-        UNSAFE.putLong(null, finalizer.address + index, value);
+        UnsafeApi.putLong(null, finalizer.address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -312,7 +321,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public int getInt(final int index, final ByteOrder byteOrder) {
         boundsCheck0(index, SIZE_OF_INT);
 
-        int bits = UNSAFE.getInt(null, finalizer.address + index);
+        int bits = UnsafeApi.getInt(null, finalizer.address + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
             bits = Integer.reverseBytes(bits);
         }
@@ -332,7 +341,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             bits = Integer.reverseBytes(bits);
         }
 
-        UNSAFE.putInt(null, finalizer.address + index, bits);
+        UnsafeApi.putInt(null, finalizer.address + index, bits);
     }
 
     /**
@@ -342,10 +351,10 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public int getInt(final int index) {
         boundsCheck0(index, SIZE_OF_INT);
 
-        return UNSAFE.getInt(null, finalizer.address + index);
+        return UnsafeApi.getInt(null, finalizer.address + index);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -355,10 +364,10 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         boundsCheck0(index, SIZE_OF_DOUBLE);
 
         if (NATIVE_BYTE_ORDER != byteOrder) {
-            final long bits = UNSAFE.getLong(null, finalizer.address + index);
+            final long bits = UnsafeApi.getLong(null, finalizer.address + index);
             return Double.longBitsToDouble(Long.reverseBytes(bits));
         } else {
-            return UNSAFE.getDouble(null, finalizer.address + index);
+            return UnsafeApi.getDouble(null, finalizer.address + index);
         }
     }
 
@@ -371,9 +380,9 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         if (NATIVE_BYTE_ORDER != byteOrder) {
             final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
-            UNSAFE.putLong(null, finalizer.address + index, bits);
+            UnsafeApi.putLong(null, finalizer.address + index, bits);
         } else {
-            UNSAFE.putDouble(null, finalizer.address + index, value);
+            UnsafeApi.putDouble(null, finalizer.address + index, value);
         }
     }
 
@@ -384,7 +393,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public double getDouble(final int index) {
         boundsCheck0(index, SIZE_OF_DOUBLE);
 
-        return UNSAFE.getDouble(null, finalizer.address + index);
+        return UnsafeApi.getDouble(null, finalizer.address + index);
     }
 
     /**
@@ -394,10 +403,10 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public void putDouble(final int index, final double value) {
         ensureCapacity(index, SIZE_OF_DOUBLE);
 
-        UNSAFE.putDouble(null, finalizer.address + index, value);
+        UnsafeApi.putDouble(null, finalizer.address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -407,10 +416,10 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         boundsCheck0(index, SIZE_OF_FLOAT);
 
         if (NATIVE_BYTE_ORDER != byteOrder) {
-            final int bits = UNSAFE.getInt(null, finalizer.address + index);
+            final int bits = UnsafeApi.getInt(null, finalizer.address + index);
             return Float.intBitsToFloat(Integer.reverseBytes(bits));
         } else {
-            return UNSAFE.getFloat(null, finalizer.address + index);
+            return UnsafeApi.getFloat(null, finalizer.address + index);
         }
     }
 
@@ -423,9 +432,9 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         if (NATIVE_BYTE_ORDER != byteOrder) {
             final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
-            UNSAFE.putInt(null, finalizer.address + index, bits);
+            UnsafeApi.putInt(null, finalizer.address + index, bits);
         } else {
-            UNSAFE.putFloat(null, finalizer.address + index, value);
+            UnsafeApi.putFloat(null, finalizer.address + index, value);
         }
     }
 
@@ -436,7 +445,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public float getFloat(final int index) {
         boundsCheck0(index, SIZE_OF_FLOAT);
 
-        return UNSAFE.getFloat(null, finalizer.address + index);
+        return UnsafeApi.getFloat(null, finalizer.address + index);
     }
 
     /**
@@ -446,10 +455,10 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public void putFloat(final int index, final float value) {
         ensureCapacity(index, SIZE_OF_FLOAT);
 
-        UNSAFE.putFloat(null, finalizer.address + index, value);
+        UnsafeApi.putFloat(null, finalizer.address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -458,7 +467,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public short getShort(final int index, final ByteOrder byteOrder) {
         boundsCheck0(index, SIZE_OF_SHORT);
 
-        short bits = UNSAFE.getShort(null, finalizer.address + index);
+        short bits = UnsafeApi.getShort(null, finalizer.address + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
             bits = Short.reverseBytes(bits);
         }
@@ -478,7 +487,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             bits = Short.reverseBytes(bits);
         }
 
-        UNSAFE.putShort(null, finalizer.address + index, bits);
+        UnsafeApi.putShort(null, finalizer.address + index, bits);
     }
 
     /**
@@ -488,7 +497,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public short getShort(final int index) {
         boundsCheck0(index, SIZE_OF_SHORT);
 
-        return UNSAFE.getShort(null, finalizer.address + index);
+        return UnsafeApi.getShort(null, finalizer.address + index);
     }
 
     /**
@@ -498,10 +507,10 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public void putShort(final int index, final short value) {
         ensureCapacity(index, SIZE_OF_SHORT);
 
-        UNSAFE.putShort(null, finalizer.address + index, value);
+        UnsafeApi.putShort(null, finalizer.address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -509,12 +518,12 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     @Override
     public byte getByte(final int index) {
         boundsCheck0(index, SIZE_OF_BYTE);
-        return UNSAFE.getByte(null, finalizer.address + index);
+        return UnsafeApi.getByte(null, finalizer.address + index);
     }
 
     private byte getByte0(final int index) {
         boundsCheck0(index, SIZE_OF_BYTE);
-        return UNSAFE.getByte(null, finalizer.address + index);
+        return UnsafeApi.getByte(null, finalizer.address + index);
     }
 
     /**
@@ -523,12 +532,12 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     @Override
     public void putByte(final int index, final byte value) {
         ensureCapacity(index, SIZE_OF_BYTE);
-        UNSAFE.putByte(null, finalizer.address + index, value);
+        UnsafeApi.putByte(null, finalizer.address + index, value);
     }
 
     private void putByte0(final int index, final byte value) {
         ensureCapacity(index, SIZE_OF_BYTE);
-        UNSAFE.putByte(null, finalizer.address + index, value);
+        UnsafeApi.putByte(null, finalizer.address + index, value);
     }
 
     /**
@@ -547,7 +556,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         boundsCheck0(index, length);
         BufferUtil.boundsCheck(dst, offset, length);
 
-        UNSAFE.copyMemory(null, finalizer.address + index, dst, ARRAY_BASE_OFFSET + offset, length);
+        UnsafeApi.copyMemory(null, finalizer.address + index, dst, ARRAY_BASE_OFFSET + offset, length);
     }
 
     /**
@@ -586,7 +595,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             dstBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(dstBuffer);
         }
 
-        UNSAFE.copyMemory(null, finalizer.address + index, dstByteArray, dstBaseOffset + dstOffset, length);
+        UnsafeApi.copyMemory(null, finalizer.address + index, dstByteArray, dstBaseOffset + dstOffset, length);
     }
 
     /**
@@ -606,7 +615,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         BufferUtil.boundsCheck(src, offset, length);
 
-        UNSAFE.copyMemory(src, ARRAY_BASE_OFFSET + offset, null, finalizer.address + index, length);
+        UnsafeApi.copyMemory(src, ARRAY_BASE_OFFSET + offset, null, finalizer.address + index, length);
     }
 
     /**
@@ -637,7 +646,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             srcBaseOffset = ARRAY_BASE_OFFSET + arrayOffset(srcBuffer);
         }
 
-        UNSAFE.copyMemory(srcByteArray, srcBaseOffset + srcIndex, null, finalizer.address + index, length);
+        UnsafeApi.copyMemory(srcByteArray, srcBaseOffset + srcIndex, null, finalizer.address + index, length);
     }
 
     /**
@@ -648,11 +657,11 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         ensureCapacity(index, length);
         srcBuffer.boundsCheck(srcIndex, length);
 
-        UNSAFE.copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, null, finalizer.address + index,
-                length);
+        UnsafeApi.copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, null,
+                finalizer.address + index, length);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -661,7 +670,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public char getChar(final int index, final ByteOrder byteOrder) {
         boundsCheck0(index, SIZE_OF_SHORT);
 
-        char bits = UNSAFE.getChar(null, finalizer.address + index);
+        char bits = UnsafeApi.getChar(null, finalizer.address + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
             bits = (char) Short.reverseBytes((short) bits);
         }
@@ -681,7 +690,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             bits = (char) Short.reverseBytes((short) bits);
         }
 
-        UNSAFE.putChar(null, finalizer.address + index, bits);
+        UnsafeApi.putChar(null, finalizer.address + index, bits);
     }
 
     /**
@@ -691,7 +700,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public char getChar(final int index) {
         boundsCheck0(index, SIZE_OF_CHAR);
 
-        return UNSAFE.getChar(null, finalizer.address + index);
+        return UnsafeApi.getChar(null, finalizer.address + index);
     }
 
     /**
@@ -701,10 +710,10 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public void putChar(final int index, final char value) {
         ensureCapacity(index, SIZE_OF_CHAR);
 
-        UNSAFE.putChar(null, finalizer.address + index, value);
+        UnsafeApi.putChar(null, finalizer.address + index, value);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -713,7 +722,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public String getStringAscii(final int index) {
         boundsCheck0(index, STR_HEADER_LEN);
 
-        final int length = UNSAFE.getInt(null, finalizer.address + index);
+        final int length = UnsafeApi.getInt(null, finalizer.address + index);
 
         return getStringAscii(index, length);
     }
@@ -725,7 +734,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public int getStringAscii(final int index, final Appendable appendable) {
         boundsCheck0(index, STR_HEADER_LEN);
 
-        final int length = UNSAFE.getInt(null, finalizer.address + index);
+        final int length = UnsafeApi.getInt(null, finalizer.address + index);
 
         return getStringAscii(index, length, appendable);
     }
@@ -737,7 +746,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public String getStringAscii(final int index, final ByteOrder byteOrder) {
         boundsCheck0(index, STR_HEADER_LEN);
 
-        int bits = UNSAFE.getInt(null, finalizer.address + index);
+        int bits = UnsafeApi.getInt(null, finalizer.address + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
             bits = Integer.reverseBytes(bits);
         }
@@ -754,7 +763,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public int getStringAscii(final int index, final Appendable appendable, final ByteOrder byteOrder) {
         boundsCheck0(index, STR_HEADER_LEN);
 
-        int bits = UNSAFE.getInt(null, finalizer.address + index);
+        int bits = UnsafeApi.getInt(null, finalizer.address + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
             bits = Integer.reverseBytes(bits);
         }
@@ -772,7 +781,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         boundsCheck0(index + STR_HEADER_LEN, length);
 
         final byte[] dst = new byte[length];
-        UNSAFE.copyMemory(null, finalizer.address + index + STR_HEADER_LEN, dst, ARRAY_BASE_OFFSET, length);
+        UnsafeApi.copyMemory(null, finalizer.address + index + STR_HEADER_LEN, dst, ARRAY_BASE_OFFSET, length);
 
         return new String(dst, US_ASCII);
     }
@@ -786,7 +795,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         try {
             for (int i = index + STR_HEADER_LEN, limit = index + STR_HEADER_LEN + length; i < limit; i++) {
-                final char c = (char) UNSAFE.getByte(null, finalizer.address + i);
+                final char c = (char) UnsafeApi.getByte(null, finalizer.address + i);
                 appendable.append(c > 127 ? '?' : c);
             }
         } catch (final IOException ex) {
@@ -805,7 +814,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         ensureCapacity(index, length + STR_HEADER_LEN);
 
-        UNSAFE.putInt(null, finalizer.address + index, length);
+        UnsafeApi.putInt(null, finalizer.address + index, length);
 
         for (int i = 0; i < length; i++) {
             char c = value.charAt(i);
@@ -813,7 +822,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
                 c = '?';
             }
 
-            UNSAFE.putByte(null, finalizer.address + STR_HEADER_LEN + index + i, (byte) c);
+            UnsafeApi.putByte(null, finalizer.address + STR_HEADER_LEN + index + i, (byte) c);
         }
 
         return STR_HEADER_LEN + length;
@@ -828,7 +837,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         ensureCapacity(index, length + STR_HEADER_LEN);
 
-        UNSAFE.putInt(null, finalizer.address + index, length);
+        UnsafeApi.putInt(null, finalizer.address + index, length);
 
         for (int i = 0; i < length; i++) {
             char c = value.charAt(i);
@@ -836,7 +845,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
                 c = '?';
             }
 
-            UNSAFE.putByte(null, finalizer.address + STR_HEADER_LEN + index + i, (byte) c);
+            UnsafeApi.putByte(null, finalizer.address + STR_HEADER_LEN + index + i, (byte) c);
         }
 
         return STR_HEADER_LEN + length;
@@ -856,7 +865,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             bits = Integer.reverseBytes(bits);
         }
 
-        UNSAFE.putInt(null, finalizer.address + index, bits);
+        UnsafeApi.putInt(null, finalizer.address + index, bits);
 
         for (int i = 0; i < length; i++) {
             char c = value.charAt(i);
@@ -864,7 +873,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
                 c = '?';
             }
 
-            UNSAFE.putByte(null, finalizer.address + STR_HEADER_LEN + index + i, (byte) c);
+            UnsafeApi.putByte(null, finalizer.address + STR_HEADER_LEN + index + i, (byte) c);
         }
 
         return STR_HEADER_LEN + length;
@@ -884,7 +893,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             bits = Integer.reverseBytes(bits);
         }
 
-        UNSAFE.putInt(null, finalizer.address + index, bits);
+        UnsafeApi.putInt(null, finalizer.address + index, bits);
 
         for (int i = 0; i < length; i++) {
             char c = value.charAt(i);
@@ -892,7 +901,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
                 c = '?';
             }
 
-            UNSAFE.putByte(null, finalizer.address + STR_HEADER_LEN + index + i, (byte) c);
+            UnsafeApi.putByte(null, finalizer.address + STR_HEADER_LEN + index + i, (byte) c);
         }
 
         return STR_HEADER_LEN + length;
@@ -906,7 +915,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         boundsCheck0(index, length);
 
         final byte[] dst = new byte[length];
-        UNSAFE.copyMemory(null, finalizer.address + index, dst, ARRAY_BASE_OFFSET, length);
+        UnsafeApi.copyMemory(null, finalizer.address + index, dst, ARRAY_BASE_OFFSET, length);
 
         return new String(dst, US_ASCII);
     }
@@ -920,7 +929,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         try {
             for (int i = index, limit = index + length; i < limit; i++) {
-                final char c = (char) UNSAFE.getByte(null, finalizer.address + i);
+                final char c = (char) UnsafeApi.getByte(null, finalizer.address + i);
                 appendable.append(c > 127 ? '?' : c);
             }
         } catch (final IOException ex) {
@@ -945,7 +954,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
                 c = '?';
             }
 
-            UNSAFE.putByte(null, finalizer.address + index + i, (byte) c);
+            UnsafeApi.putByte(null, finalizer.address + index + i, (byte) c);
         }
 
         return length;
@@ -966,7 +975,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
                 c = '?';
             }
 
-            UNSAFE.putByte(null, finalizer.address + index + i, (byte) c);
+            UnsafeApi.putByte(null, finalizer.address + index + i, (byte) c);
         }
 
         return length;
@@ -978,7 +987,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     @Override
     public int putStringWithoutLengthAscii(final int index, final String value, final int valueOffset,
             final int length) {
-        final int len = value != null ? Math.min(value.length() - valueOffset, length) : 0;
+        final int len = value != null ? Integers.min(value.length() - valueOffset, length) : 0;
 
         ensureCapacity(index, len);
 
@@ -988,7 +997,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
                 c = '?';
             }
 
-            UNSAFE.putByte(null, finalizer.address + index + i, (byte) c);
+            UnsafeApi.putByte(null, finalizer.address + index + i, (byte) c);
         }
 
         return len;
@@ -1000,7 +1009,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     @Override
     public int putStringWithoutLengthAscii(final int index, final CharSequence value, final int valueOffset,
             final int length) {
-        final int len = value != null ? Math.min(value.length() - valueOffset, length) : 0;
+        final int len = value != null ? Integers.min(value.length() - valueOffset, length) : 0;
 
         ensureCapacity(index, len);
 
@@ -1010,13 +1019,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
                 c = '?';
             }
 
-            UNSAFE.putByte(null, finalizer.address + index + i, (byte) c);
+            UnsafeApi.putByte(null, finalizer.address + index + i, (byte) c);
         }
 
         return len;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1025,7 +1034,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public String getStringUtf8(final int index) {
         boundsCheck0(index, STR_HEADER_LEN);
 
-        final int length = UNSAFE.getInt(null, finalizer.address + index);
+        final int length = UnsafeApi.getInt(null, finalizer.address + index);
 
         return getStringUtf8(index, length);
     }
@@ -1037,7 +1046,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public String getStringUtf8(final int index, final ByteOrder byteOrder) {
         boundsCheck0(index, STR_HEADER_LEN);
 
-        int bits = UNSAFE.getInt(null, finalizer.address + index);
+        int bits = UnsafeApi.getInt(null, finalizer.address + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
             bits = Integer.reverseBytes(bits);
         }
@@ -1055,7 +1064,8 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         boundsCheck0(index + STR_HEADER_LEN, length);
 
         final byte[] stringInBytes = new byte[length];
-        UNSAFE.copyMemory(null, finalizer.address + index + STR_HEADER_LEN, stringInBytes, ARRAY_BASE_OFFSET, length);
+        UnsafeApi.copyMemory(null, finalizer.address + index + STR_HEADER_LEN, stringInBytes, ARRAY_BASE_OFFSET,
+                length);
 
         return new String(stringInBytes, UTF_8);
     }
@@ -1088,8 +1098,8 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         ensureCapacity(index, STR_HEADER_LEN + bytes.length);
 
-        UNSAFE.putInt(null, finalizer.address + index, bytes.length);
-        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, null, finalizer.address + index + STR_HEADER_LEN, bytes.length);
+        UnsafeApi.putInt(null, finalizer.address + index, bytes.length);
+        UnsafeApi.copyMemory(bytes, ARRAY_BASE_OFFSET, null, finalizer.address + index + STR_HEADER_LEN, bytes.length);
 
         return STR_HEADER_LEN + bytes.length;
     }
@@ -1112,8 +1122,8 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             bits = Integer.reverseBytes(bits);
         }
 
-        UNSAFE.putInt(null, finalizer.address + index, bits);
-        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, null, finalizer.address + index + STR_HEADER_LEN, bytes.length);
+        UnsafeApi.putInt(null, finalizer.address + index, bits);
+        UnsafeApi.copyMemory(bytes, ARRAY_BASE_OFFSET, null, finalizer.address + index + STR_HEADER_LEN, bytes.length);
 
         return STR_HEADER_LEN + bytes.length;
     }
@@ -1126,7 +1136,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         boundsCheck0(index, length);
 
         final byte[] stringInBytes = new byte[length];
-        UNSAFE.copyMemory(null, finalizer.address + index, stringInBytes, ARRAY_BASE_OFFSET, length);
+        UnsafeApi.copyMemory(null, finalizer.address + index, stringInBytes, ARRAY_BASE_OFFSET, length);
 
         return new String(stringInBytes, UTF_8);
     }
@@ -1139,12 +1149,12 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
         ensureCapacity(index, bytes.length);
 
-        UNSAFE.copyMemory(bytes, ARRAY_BASE_OFFSET, null, finalizer.address + index, bytes.length);
+        UnsafeApi.copyMemory(bytes, ARRAY_BASE_OFFSET, null, finalizer.address + index, bytes.length);
 
         return bytes.length;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1197,7 +1207,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final boolean negative = MINUS_SIGN == UNSAFE.getByte(null, finalizer.address + index);
+        final boolean negative = MINUS_SIGN == UnsafeApi.getByte(null, finalizer.address + index);
         int i = index;
         if (negative) {
             i++;
@@ -1230,7 +1240,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             throw new AsciiNumberFormatException("empty string: index=" + index + " length=" + length);
         }
 
-        final boolean negative = MINUS_SIGN == UNSAFE.getByte(null, finalizer.address + index);
+        final boolean negative = MINUS_SIGN == UnsafeApi.getByte(null, finalizer.address + index);
         int i = index;
         if (negative) {
             i++;
@@ -1257,7 +1267,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
     public void putInt(final int index, final int value) {
         ensureCapacity(index, SIZE_OF_INT);
 
-        UNSAFE.putInt(null, finalizer.address + index, value);
+        UnsafeApi.putInt(null, finalizer.address + index, value);
     }
 
     /**
@@ -1286,7 +1296,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             ensureCapacity(index, length);
             offset = finalizer.address + index;
 
-            UNSAFE.putByte(null, offset, MINUS_SIGN);
+            UnsafeApi.putByte(null, offset, MINUS_SIGN);
             offset++;
         } else {
             digitCount = digitCount(quotient);
@@ -1400,7 +1410,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             ensureCapacity(index, length);
             offset = finalizer.address + index;
 
-            UNSAFE.putByte(null, offset, MINUS_SIGN);
+            UnsafeApi.putByte(null, offset, MINUS_SIGN);
             offset++;
         } else {
             digitCount = digitCount(quotient);
@@ -1431,7 +1441,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         return 0;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1460,7 +1470,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         final long address = finalizer.address;
         for (int i = 0, length = finalizer.capacity; i < length; i++) {
-            hashCode = 31 * hashCode + UNSAFE.getByte(null, address + i);
+            hashCode = 31 * hashCode + UnsafeApi.getByte(null, address + i);
         }
 
         return hashCode;
@@ -1477,9 +1487,9 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         final long thisOffset = this.addressOffset();
         final long thatOffset = that.addressOffset();
 
-        for (int i = 0, length = Math.min(thisCapacity, thatCapacity); i < length; i++) {
-            final int cmp = Byte.compare(UNSAFE.getByte(null, thisOffset + i),
-                    UNSAFE.getByte(thatByteArray, thatOffset + i));
+        for (int i = 0, length = Integers.min(thisCapacity, thatCapacity); i < length; i++) {
+            final int cmp = Byte.compare(UnsafeApi.getByte(null, thisOffset + i),
+                    UnsafeApi.getByte(thatByteArray, thatOffset + i));
 
             if (0 != cmp) {
                 return cmp;
@@ -1551,7 +1561,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         final long offset = finalizer.address;
         int i = startIndex;
         int tally = 0, quartet;
-        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = UNSAFE.getInt(null, offset + i))) {
+        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = UnsafeApi.getInt(null, offset + i))) {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
                 quartet = Integer.reverseBytes(quartet);
             }
@@ -1561,7 +1571,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         }
 
         byte digit;
-        while (i < end && isDigit(digit = UNSAFE.getByte(null, offset + i))) {
+        while (i < end && isDigit(digit = UnsafeApi.getByte(null, offset + i))) {
             tally = (tally * 10) + (digit - 0x30);
             i++;
         }
@@ -1582,7 +1592,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         final long offset = finalizer.address;
         int i = startIndex;
         long tally = 0;
-        long octet = UNSAFE.getLong(null, offset + i);
+        long octet = UnsafeApi.getLong(null, offset + i);
         if (isEightDigitAsciiEncodedNumber(octet)) {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
                 octet = Long.reverseBytes(octet);
@@ -1591,7 +1601,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             i += 8;
 
             byte digit;
-            while (i < end && isDigit(digit = UNSAFE.getByte(null, offset + i))) {
+            while (i < end && isDigit(digit = UnsafeApi.getByte(null, offset + i))) {
                 tally = (tally * 10L) + (digit - 0x30);
                 i++;
             }
@@ -1616,7 +1626,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         final long offset = finalizer.address;
         int i = startIndex;
         long tally = 0, octet;
-        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = UNSAFE.getLong(null, offset + i))) {
+        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = UnsafeApi.getLong(null, offset + i))) {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
                 octet = Long.reverseBytes(octet);
             }
@@ -1626,7 +1636,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         }
 
         int quartet;
-        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = UNSAFE.getInt(null, offset + i))) {
+        while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = UnsafeApi.getInt(null, offset + i))) {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
                 quartet = Integer.reverseBytes(quartet);
             }
@@ -1636,7 +1646,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         }
 
         byte digit;
-        while (i < end && isDigit(digit = UNSAFE.getByte(null, offset + i))) {
+        while (i < end && isDigit(digit = UnsafeApi.getByte(null, offset + i))) {
             tally = (tally * 10) + (digit - 0x30);
             i++;
         }
@@ -1658,7 +1668,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         int i = startIndex, k = 0;
         boolean checkOverflow = true;
         long tally = 0, octet;
-        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = UNSAFE.getLong(null, offset + i))) {
+        while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = UnsafeApi.getLong(null, offset + i))) {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
                 octet = Long.reverseBytes(octet);
             }
@@ -1678,7 +1688,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         byte digit;
         int lastDigits = 0;
-        while (i < end && isDigit(digit = UNSAFE.getByte(null, offset + i))) {
+        while (i < end && isDigit(digit = UnsafeApi.getByte(null, offset + i))) {
             lastDigits = (lastDigits * 10) + (digit - 0x30);
             i++;
         }
@@ -1713,25 +1723,25 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
             i -= 4;
 
-            UNSAFE.putByte(null, offset + i, ASCII_DIGITS[p1]);
-            UNSAFE.putByte(null, offset + i + 1, ASCII_DIGITS[p1 + 1]);
-            UNSAFE.putByte(null, offset + i + 2, ASCII_DIGITS[p2]);
-            UNSAFE.putByte(null, offset + i + 3, ASCII_DIGITS[p2 + 1]);
+            UnsafeApi.putByte(null, offset + i, ASCII_DIGITS[p1]);
+            UnsafeApi.putByte(null, offset + i + 1, ASCII_DIGITS[p1 + 1]);
+            UnsafeApi.putByte(null, offset + i + 2, ASCII_DIGITS[p2]);
+            UnsafeApi.putByte(null, offset + i + 3, ASCII_DIGITS[p2 + 1]);
         }
 
         if (quotient >= 100) {
             final int position = (quotient % 100) << 1;
             quotient /= 100;
-            UNSAFE.putByte(null, offset + i - 1, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(null, offset + i - 2, ASCII_DIGITS[position]);
+            UnsafeApi.putByte(null, offset + i - 1, ASCII_DIGITS[position + 1]);
+            UnsafeApi.putByte(null, offset + i - 2, ASCII_DIGITS[position]);
         }
 
         if (quotient >= 10) {
             final int position = quotient << 1;
-            UNSAFE.putByte(null, offset + 1, ASCII_DIGITS[position + 1]);
-            UNSAFE.putByte(null, offset, ASCII_DIGITS[position]);
+            UnsafeApi.putByte(null, offset + 1, ASCII_DIGITS[position + 1]);
+            UnsafeApi.putByte(null, offset, ASCII_DIGITS[position]);
         } else {
-            UNSAFE.putByte(null, offset, (byte) (ZERO + quotient));
+            UnsafeApi.putByte(null, offset, (byte) (ZERO + quotient));
         }
     }
 
@@ -1752,14 +1762,14 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
             i -= 8;
 
-            UNSAFE.putByte(null, offset + i, ASCII_DIGITS[u1]);
-            UNSAFE.putByte(null, offset + i + 1, ASCII_DIGITS[u1 + 1]);
-            UNSAFE.putByte(null, offset + i + 2, ASCII_DIGITS[u2]);
-            UNSAFE.putByte(null, offset + i + 3, ASCII_DIGITS[u2 + 1]);
-            UNSAFE.putByte(null, offset + i + 4, ASCII_DIGITS[l1]);
-            UNSAFE.putByte(null, offset + i + 5, ASCII_DIGITS[l1 + 1]);
-            UNSAFE.putByte(null, offset + i + 6, ASCII_DIGITS[l2]);
-            UNSAFE.putByte(null, offset + i + 7, ASCII_DIGITS[l2 + 1]);
+            UnsafeApi.putByte(null, offset + i, ASCII_DIGITS[u1]);
+            UnsafeApi.putByte(null, offset + i + 1, ASCII_DIGITS[u1 + 1]);
+            UnsafeApi.putByte(null, offset + i + 2, ASCII_DIGITS[u2]);
+            UnsafeApi.putByte(null, offset + i + 3, ASCII_DIGITS[u2 + 1]);
+            UnsafeApi.putByte(null, offset + i + 4, ASCII_DIGITS[l1]);
+            UnsafeApi.putByte(null, offset + i + 5, ASCII_DIGITS[l1 + 1]);
+            UnsafeApi.putByte(null, offset + i + 6, ASCII_DIGITS[l2]);
+            UnsafeApi.putByte(null, offset + i + 7, ASCII_DIGITS[l2 + 1]);
         }
 
         putPositiveIntAscii(offset, (int) quotient, i);

@@ -9,8 +9,7 @@ public final class DummyPreviousKeyFunction implements IPreviousKeyFunction {
 
     public static final DummyPreviousKeyFunction INSTANCE = new DummyPreviousKeyFunction();
 
-    private DummyPreviousKeyFunction() {
-    }
+    private DummyPreviousKeyFunction() {}
 
     @Override
     public IFDateProvider getPreviousKey(final IFDateProvider key, final int index) {
@@ -18,7 +17,7 @@ public final class DummyPreviousKeyFunction implements IPreviousKeyFunction {
     }
 
     @Override
-    public int getPreviousKey(final int key, final int index) {
+    public long getPreviousKey(final long key, final int index) {
         return key;
     }
 

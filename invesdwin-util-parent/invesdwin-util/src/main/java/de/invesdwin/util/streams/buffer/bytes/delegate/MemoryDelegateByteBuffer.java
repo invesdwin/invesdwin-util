@@ -14,7 +14,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
 
-import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -261,7 +260,7 @@ public class MemoryDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public int wrapAdjustment() {
-        return Integers.checkedCast(delegate.wrapAdjustment());
+        return ByteBuffers.checkedCast(delegate.wrapAdjustment());
     }
 
     @Override

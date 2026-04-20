@@ -4,8 +4,8 @@ package de.invesdwin.util.math.expression.lambda;
 public interface IEvaluateDoubleKey {
 
     /**
-     * evaluates the expression using the current int key
+     * evaluates the expression using the given long key
      */
-    double evaluateDouble(int key);
+    double evaluateDouble(long key);
 
 }

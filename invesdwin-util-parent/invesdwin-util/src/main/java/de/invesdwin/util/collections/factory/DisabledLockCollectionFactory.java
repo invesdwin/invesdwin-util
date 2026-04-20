@@ -17,9 +17,13 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.Collections;
-import de.invesdwin.util.collections.bitset.IBitSet;
-import de.invesdwin.util.collections.bitset.JavaBitSet;
-import de.invesdwin.util.collections.bitset.RoaringBitSet;
+import de.invesdwin.util.collections.array.large.bitset.ILargeBitSet;
+import de.invesdwin.util.collections.array.large.bitset.JavaLargeBitSet;
+import de.invesdwin.util.collections.array.large.bitset.roaring.RoaringLargeBitSet;
+import de.invesdwin.util.collections.array.large.bitset.roaring.SegmentedRoaringLargeBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.JavaPrimitiveBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.RoaringPrimitiveBitSet;
 import de.invesdwin.util.collections.fast.FastIterableDelegateList;
 import de.invesdwin.util.collections.fast.FastIterableDelegateMap;
 import de.invesdwin.util.collections.fast.FastIterableDelegateSet;
@@ -31,13 +35,14 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
-import de.invesdwin.util.concurrent.lock.disabled.DisabledReadWriteLock;
-import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
+import de.invesdwin.util.concurrent.lock.disabled.DisabledReentrantReadWriteLock;
+import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.nested.DisabledNestedExecutor;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import de.invesdwin.util.concurrent.reference.lazy.ILazyReference;
 import de.invesdwin.util.concurrent.reference.lazy.LazyReference;
 import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
@@ -61,20 +66,37 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
-    public IReadWriteLock newReadWriteLock(final String name) {
-        return DisabledReadWriteLock.INSTANCE;
+    public IReentrantReadWriteLock newReadWriteLock(final String name) {
+        return DisabledReentrantReadWriteLock.INSTANCE;
     }
 
     @Override
-    public IBitSet newBitSet(final int initialSize) {
+    public IPrimitiveBitSet newPrimitiveBitSet(final int initialSize) {
         /*
          * java bitsets are about twice as fast as roaring bitsets, though roaring might be interesting to use with
          * larger sizes to stay in memory limits
          */
         if (initialSize > ROARING_BITMAP_THRESHOLD) {
-            return new RoaringBitSet(initialSize);
+            return new RoaringPrimitiveBitSet(initialSize);
         } else {
-            return new JavaBitSet(initialSize);
+            return new JavaPrimitiveBitSet(initialSize);
+        }
+    }
+
+    @Override
+    public ILargeBitSet newLargeBitSet(final long initialSize) {
+        if (initialSize > RoaringLargeBitSet.MAX_SIZE) {
+            /*
+             * TODO: test which one is actually faster. Roaring64 implementations do not support range-based operations,
+             * which are used in some places. They might be slower than the segmented version, which does support them.
+             */
+            //return new Roaring64LargeNavigableBitSet(initialSize);
+            //return new Roaring64LargeBitSet(initialSize);
+            return new SegmentedRoaringLargeBitSet(initialSize);
+        } else if (initialSize > ROARING_BITMAP_THRESHOLD) {
+            return new RoaringLargeBitSet(initialSize);
+        } else {
+            return new JavaLargeBitSet(ByteBuffers.checkedCast(initialSize));
         }
     }
 

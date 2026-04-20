@@ -9,15 +9,14 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
-import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
-import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
+import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.EmptyByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.delegate.ListByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.delegate.SegmentedByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.EmptyMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
-import de.invesdwin.util.streams.buffer.memory.delegate.ListMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.delegate.SegmentedMemoryBuffer;
 
 /**
  * Workaround for accessing memory mapped files larger than 4gb on windows:
@@ -25,38 +24,39 @@ import de.invesdwin.util.streams.buffer.memory.delegate.ListMemoryBuffer;
  * 
  * Though also be aware that mapped memory files can not be deleted on windows even if they are unmapped:
  * https://mapdb.org/blog/mmap_files_alloc_and_jvm_crash/
+ * 
+ * This implementation expects the same segmentSize for all segments.
  */
 @NotThreadSafe
 public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
-
-    /**
-     * This is the maximum size we can memory-map per segment on windows on files that are larger than 4 gb. Though this
-     * does not work correctly, so files should be limited to around 3gb on disk as defined below.
-     */
-    public static final long WINDOWS_MAX_LENGTH_PER_SEGMENT_MAPPED = (long) ByteSizeScale.BYTES.convert(4,
-            ByteSizeScale.GIGABYTES);
 
     private final List<IMemoryMappedFile> list;
 
     private final long offset;
     private final long length;
+    private final long segmentSize;
     private final boolean closeAllowed;
+    private boolean markedForClose;
 
-    public SegmentedMemoryMappedFile(final boolean closeAllowed, final File file, final long offset, final long length,
-            final boolean readOnly, final long segmentLength) throws IOException {
+    public SegmentedMemoryMappedFile(final long segmentSize, final boolean closeAllowed, final File file,
+            final long offset, final long length, final boolean readOnly) throws IOException {
         this.closeAllowed = closeAllowed;
         this.offset = offset;
         this.length = length;
-        this.list = initList(file, readOnly, segmentLength);
+        this.segmentSize = segmentSize;
+        this.list = initList(file, readOnly);
     }
 
-    public SegmentedMemoryMappedFile(final boolean closeAllowed, final IMemoryMappedFile... list) {
-        this(closeAllowed, Arrays.asList(list));
+    public SegmentedMemoryMappedFile(final long segmentSize, final boolean closeAllowed,
+            final IMemoryMappedFile... list) {
+        this(segmentSize, closeAllowed, Arrays.asList(list));
     }
 
-    public SegmentedMemoryMappedFile(final boolean closeAllowed, final List<IMemoryMappedFile> list) {
+    public SegmentedMemoryMappedFile(final long segmentSize, final boolean closeAllowed,
+            final List<IMemoryMappedFile> list) {
         this.closeAllowed = closeAllowed;
         this.offset = 0;
+        this.segmentSize = segmentSize;
         this.length = calculateLength(list);
         this.list = list;
     }
@@ -74,29 +74,27 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
         return length;
     }
 
-    private List<IMemoryMappedFile> initList(final File file, final boolean readOnly, final long segmentLength)
-            throws IOException {
+    private List<IMemoryMappedFile> initList(final File file, final boolean readOnly) throws IOException {
         final List<IMemoryMappedFile> list = new ArrayList<>();
         final long limit = offset + length;
         long position = 0;
-        final long capacity = segmentLength;
         while (position < limit) {
-            if (offset >= position + capacity) {
-                position += capacity;
+            if (offset >= position + segmentSize) {
+                position += segmentSize;
                 continue;
             } else {
                 long bufferPosition = offset - position;
-                if (capacity >= bufferPosition + length) {
-                    list.add(new MemoryMappedFile(file, bufferPosition, length, readOnly, closeAllowed));
+                if (segmentSize >= bufferPosition + length) {
+                    list.add(new MemoryMappedFile(closeAllowed, file, bufferPosition, length, readOnly));
                     return list;
                 } else {
                     long remaining = length;
                     for (long i = offset; i < limit;) {
-                        while (bufferPosition >= capacity) {
+                        while (bufferPosition >= segmentSize) {
                             bufferPosition = 0;
                         }
-                        final long toCopy = Longs.min(remaining, segmentLength - bufferPosition);
-                        list.add(new MemoryMappedFile(file, bufferPosition, toCopy, readOnly, closeAllowed));
+                        final long toCopy = Longs.min(remaining, segmentSize - bufferPosition);
+                        list.add(new MemoryMappedFile(closeAllowed, file, bufferPosition, toCopy, readOnly));
                         remaining -= toCopy;
                         i += toCopy;
                         bufferPosition += toCopy;
@@ -109,18 +107,42 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
     }
 
     @Override
+    public Object getRefCountLock() {
+        return list;
+    }
+
+    @Override
     public int getRefCount() {
+        if (list.isEmpty()) {
+            return 0;
+        }
         return list.get(0).getRefCount();
     }
 
     @Override
     public boolean incrementRefCount() {
+        if (list.isEmpty()) {
+            return false;
+        }
         return list.get(0).incrementRefCount();
     }
 
     @Override
-    public void decrementRefCount() {
-        list.get(0).decrementRefCount();
+    public int decrementRefCount() {
+        if (list.isEmpty()) {
+            return 0;
+        }
+        final int decremented = list.get(0).decrementRefCount();
+        if (decremented <= 0 && markedForClose) {
+            close();
+            markedForClose = false;
+        }
+        return decremented;
+    }
+
+    @Override
+    public void markForClose() {
+        markedForClose = true;
     }
 
     @Deprecated
@@ -165,40 +187,40 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
         } else if (list.size() == 1) {
             return list.get(0).newByteBuffer(index, length);
         } else {
-            long position = 0;
-            for (int buf = 0; buf < list.size(); buf++) {
-                IMemoryMappedFile buffer = list.get(buf);
-                long capacity = buffer.capacity();
-                if (index >= position + capacity) {
-                    position += capacity;
-                    continue;
-                } else {
-                    long bufferPosition = index - position;
-                    if (capacity >= bufferPosition + length) {
-                        return buffer.newByteBuffer(bufferPosition, length);
-                    } else {
-                        final ListByteBuffer wrapper = new ListByteBuffer();
-                        final long limit = index + length;
-                        long remaining = length;
-                        for (long i = index; i < limit;) {
-                            while (bufferPosition >= capacity) {
-                                buf++;
-                                buffer = list.get(buf);
-                                capacity = buffer.capacity();
-                                bufferPosition = 0;
-                            }
-                            final int toCopy = Integers
-                                    .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
-                            wrapper.getList().add(buffer.newByteBuffer(bufferPosition, toCopy));
-                            remaining -= toCopy;
-                            i += toCopy;
-                            bufferPosition += toCopy;
-                        }
-                        return wrapper;
+            int buf = SegmentedMemoryBuffer.getSegmentIndex(index, segmentSize);
+            IMemoryMappedFile buffer = list.get(buf);
+            int capacity = ByteBuffers.checkedCast(buffer.capacity());
+            final int startBufferPosition = SegmentedByteBuffer.getSegmentOffset(index, segmentSize);
+            int bufferPosition = startBufferPosition;
+            if (capacity >= bufferPosition + length) {
+                return buffer.newByteBuffer(bufferPosition, length);
+            } else {
+                // Calculate upfront how many buffers are needed
+                final long endPosition = index + length;
+                final int startSegment = SegmentedMemoryBuffer.getSegmentIndex(index, segmentSize);
+                final int endSegment = SegmentedMemoryBuffer.getSegmentIndex(endPosition - 1, segmentSize);
+                final int bufferCount = endSegment - startSegment + 1;
+
+                final IByteBuffer[] buffers = new IByteBuffer[bufferCount];
+
+                final long limit = index + length;
+                long remaining = length;
+                int bufferIdx = 0;
+                for (long i = index; i < limit;) {
+                    if (bufferPosition >= capacity) {
+                        buf++;
+                        buffer = list.get(buf);
+                        capacity = ByteBuffers.checkedCast(buffer.capacity());
+                        bufferPosition = 0;
                     }
+                    final int toCopy = ByteBuffers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                    buffers[bufferIdx++] = buffer.newByteBuffer(0, capacity);
+                    remaining -= toCopy;
+                    i += toCopy;
+                    bufferPosition += toCopy;
                 }
+                return new SegmentedByteBuffer(buffers, (int) segmentSize).newSlice(startBufferPosition, length);
             }
-            throw FastIndexOutOfBoundsException.getInstance("offset=%s capacity=%s", index, capacity());
         }
     }
 
@@ -213,40 +235,40 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
         } else if (list.size() == 1) {
             return list.get(0).newMemoryBuffer(index, length);
         } else {
-            long position = 0;
-            for (int buf = 0; buf < list.size(); buf++) {
-                IMemoryMappedFile buffer = list.get(buf);
-                long capacity = buffer.capacity();
-                if (index >= position + capacity) {
-                    position += capacity;
-                    continue;
-                } else {
-                    long bufferPosition = index - position;
-                    if (capacity >= bufferPosition + length) {
-                        return buffer.newMemoryBuffer(bufferPosition, length);
-                    } else {
-                        final ListMemoryBuffer wrapper = new ListMemoryBuffer();
-                        final long limit = index + length;
-                        long remaining = length;
-                        for (long i = index; i < limit;) {
-                            while (bufferPosition >= capacity) {
-                                buf++;
-                                buffer = list.get(buf);
-                                capacity = buffer.capacity();
-                                bufferPosition = 0;
-                            }
-                            final int toCopy = Integers
-                                    .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
-                            wrapper.getList().add(buffer.newMemoryBuffer(bufferPosition, toCopy));
-                            remaining -= toCopy;
-                            i += toCopy;
-                            bufferPosition += toCopy;
-                        }
-                        return wrapper;
+            int buf = SegmentedMemoryBuffer.getSegmentIndex(index, segmentSize);
+            IMemoryMappedFile buffer = list.get(buf);
+            long capacity = buffer.capacity();
+            final long startBufferPosition = SegmentedMemoryBuffer.getSegmentOffset(index, segmentSize);
+            long bufferPosition = startBufferPosition;
+            if (capacity >= bufferPosition + length) {
+                return buffer.newMemoryBuffer(bufferPosition, length);
+            } else {
+                // Calculate upfront how many buffers are needed
+                final long endPosition = index + length;
+                final int startSegment = SegmentedMemoryBuffer.getSegmentIndex(index, segmentSize);
+                final int endSegment = SegmentedMemoryBuffer.getSegmentIndex(endPosition - 1, segmentSize);
+                final int bufferCount = endSegment - startSegment + 1;
+
+                final IMemoryBuffer[] buffers = new IMemoryBuffer[bufferCount];
+
+                final long limit = index + length;
+                long remaining = length;
+                int bufferIdx = 0;
+                for (long i = index; i < limit;) {
+                    if (bufferPosition >= capacity) {
+                        buf++;
+                        buffer = list.get(buf);
+                        capacity = buffer.capacity();
+                        bufferPosition = 0;
                     }
+                    final long toCopy = Longs.min(remaining, buffer.remaining(bufferPosition));
+                    buffers[bufferIdx++] = buffer.newMemoryBuffer(0, capacity);
+                    remaining -= toCopy;
+                    i += toCopy;
+                    bufferPosition += toCopy;
                 }
+                return new SegmentedMemoryBuffer(buffers, segmentSize).newSlice(startBufferPosition, length);
             }
-            throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
         }
     }
 

@@ -54,7 +54,7 @@ public class DecimalStreamRelativeDetrending<Y extends ADecimal<Y>>
         final double logCurProfit = Doubles.log(curY / fromY);
         final double logMinusProfit = logAvgChangeYperX * changeInX;
         final double logDetrendedProfit = logCurProfit - logMinusProfit;
-        final double detrendedY = fromY * Math.exp(logDetrendedProfit);
+        final double detrendedY = fromY * Doubles.exp(logDetrendedProfit);
         return new DecimalPoint<Decimal, Y>(curX, value.getY().fromDefaultValue(detrendedY));
     }
 

@@ -17,6 +17,7 @@ import javax.swing.table.TableColumn;
 
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.string.description.HtmlToPlainText;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.HiDPI;
 
@@ -84,8 +85,8 @@ public class ResizeGrowingDelegateTableCellRenderer implements TableCellRenderer
         final int textWidth = (int) (component.getFont().getStringBounds(longestLine, frc).getWidth())
                 + HiDPI.scale(10);
         final TableColumn c = table.getColumnModel().getColumn(column);
-        Components.setMinWidth(c, Math.max(c.getMinWidth(), textWidth));
-        Components.setPreferredWidth(c, Math.max(c.getPreferredWidth(), textWidth));
+        Components.setMinWidth(c, Integers.max(c.getMinWidth(), textWidth));
+        Components.setPreferredWidth(c, Integers.max(c.getPreferredWidth(), textWidth));
     }
 
     protected void resizeOtherColumn(final JTable table, final int row, final int column, final Component component) {

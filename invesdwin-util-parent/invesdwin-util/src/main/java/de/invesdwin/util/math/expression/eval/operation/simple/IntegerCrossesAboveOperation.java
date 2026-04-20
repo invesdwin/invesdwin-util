@@ -73,9 +73,9 @@ public class IntegerCrossesAboveOperation extends DoubleCrossesAboveOperation {
             final int rightValue0 = rightF.evaluateInteger(key);
             //left is above right
             if (Integers.isGreaterThan(leftValue0, rightValue0)) {
-                final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
+                final long leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
                 final int leftValue1 = prevLeftF.evaluateInteger(leftPreviousKey);
-                final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
+                final long rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
                 final int rightValue1 = prevRightF.evaluateInteger(rightPreviousKey);
                 //previous left is below or equal to previous right
                 if (Integers.isLessThanOrEqualTo(leftValue1, rightValue1)) {
@@ -134,9 +134,9 @@ public class IntegerCrossesAboveOperation extends DoubleCrossesAboveOperation {
             final int rightValue0 = rightF.evaluateInteger(key);
             //left is above right
             if (Integers.isGreaterThan(leftValue0, rightValue0)) {
-                final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
+                final long leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
                 final int leftValue1 = prevLeftF.evaluateInteger(leftPreviousKey);
-                final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
+                final long rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
                 final int rightValue1 = prevRightF.evaluateInteger(rightPreviousKey);
                 //previous left is below or equal to previous right
                 if (Integers.isLessThanOrEqualTo(leftValue1, rightValue1)) {
@@ -195,9 +195,9 @@ public class IntegerCrossesAboveOperation extends DoubleCrossesAboveOperation {
             final int rightValue0 = rightF.evaluateInteger(key);
             //left is above right
             if (Integers.isGreaterThan(leftValue0, rightValue0)) {
-                final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
+                final long leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
                 final int leftValue1 = prevLeftF.evaluateInteger(leftPreviousKey);
-                final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
+                final long rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
                 final int rightValue1 = prevRightF.evaluateInteger(rightPreviousKey);
                 //previous left is below or equal to previous right
                 if (Integers.isLessThanOrEqualTo(leftValue1, rightValue1)) {
@@ -256,9 +256,9 @@ public class IntegerCrossesAboveOperation extends DoubleCrossesAboveOperation {
             final int rightValue0 = rightF.evaluateInteger(key);
             //left is above right
             if (Integers.isGreaterThan(leftValue0, rightValue0)) {
-                final int leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
+                final long leftPreviousKey = leftPreviousKeyFunction.getPreviousKey(key, 1);
                 final int leftValue1 = prevLeftF.evaluateInteger(leftPreviousKey);
-                final int rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
+                final long rightPreviousKey = rightPreviousKeyFunction.getPreviousKey(key, 1);
                 final int rightValue1 = prevRightF.evaluateInteger(rightPreviousKey);
                 //previous left is below or equal to previous right
                 if (Integers.isLessThanOrEqualTo(leftValue1, rightValue1)) {

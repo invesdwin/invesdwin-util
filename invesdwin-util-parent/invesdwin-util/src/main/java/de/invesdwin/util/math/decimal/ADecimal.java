@@ -736,7 +736,7 @@ public abstract class ADecimal<E extends ADecimal<E>> extends ADecimalNumber<E> 
     }
 
     /**
-     * With a step of 0.5: (Math.ceil(x * 2) / 2)
+     * With a step of 0.5: (Doubles.ceil(x * 2) / 2)
      */
     public E roundToStep(final ADecimal<E> step) {
         return roundToStep(step, DEFAULT_ROUNDING_MODE);

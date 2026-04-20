@@ -25,6 +25,7 @@ import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.reflection.Reflections;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.date.BisectDuplicateKeyHandling;
 import de.invesdwin.util.time.date.FDates;
 
@@ -345,7 +346,7 @@ public final class Lists extends AListsStaticFacade {
             packages.add(list);
             return packages;
         }
-        final int realPackageCount = Math.min(packageCount, list.size());
+        final int realPackageCount = Integers.min(packageCount, list.size());
         for (int i = 0; i < realPackageCount; i++) {
             packages.add(new ArrayList<E>());
         }

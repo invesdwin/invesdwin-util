@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public interface IMemoryBufferProvider {
 
-    long writeBuffer(IMemoryBuffer dst) throws IOException;
+    long getBuffer(IMemoryBuffer dst) throws IOException;
 
     IMemoryBuffer asBuffer() throws IOException;
 

@@ -12,12 +12,17 @@ import org.mockito.Mockito;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.lang.string.Strings;
 
 // CHECKSTYLE:OFF abstract class name
 @ThreadSafe
 public class AValueObjectTest {
     //CHECKSTYLE:ON
+
+    static {
+        Reflections.disableJavaModuleSystemRestrictions();
+    }
 
     private boolean propertyChanged;
 

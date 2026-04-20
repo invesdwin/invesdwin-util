@@ -4,7 +4,7 @@ package de.invesdwin.util.math.expression.lambda;
 public interface IEvaluateGenericGeneric<K, V> {
 
     /**
-     * evaluates the expression using the current int key
+     * evaluates the expression using the given key
      */
     V evaluateGeneric(K key);
 

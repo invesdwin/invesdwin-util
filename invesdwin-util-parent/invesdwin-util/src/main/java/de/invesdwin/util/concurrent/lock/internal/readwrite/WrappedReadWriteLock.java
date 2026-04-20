@@ -10,6 +10,7 @@ import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.wrap.readwrite.StrategyReadWriteLock;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
@@ -34,7 +35,7 @@ public class WrappedReadWriteLock implements IReadWriteLock {
 
     @Override
     public boolean isWriteLockedByCurrentThread() {
-        return writeLock.isLockedByCurrentThread();
+        return writeLock.isHeldByCurrentThread();
     }
 
     @Override
@@ -67,6 +68,11 @@ public class WrappedReadWriteLock implements IReadWriteLock {
     public IReadWriteLock withStrategy(final ILockingStrategy strategy) {
         //CHECKSTYLE:ON
         return StrategyReadWriteLock.maybeWrap(strategy, this);
+    }
+
+    @Override
+    public ILockTrace getLockTrace() {
+        return writeLock.getLockTrace();
     }
 
 }
