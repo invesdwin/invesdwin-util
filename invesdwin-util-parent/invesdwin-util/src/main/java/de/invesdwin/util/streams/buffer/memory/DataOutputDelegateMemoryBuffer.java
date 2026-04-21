@@ -26,22 +26,30 @@ import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedDelegateMemo
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedFromDelegateMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IMutableSlicedDelegateMemoryBufferFactory;
 import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferOutputStream;
+import de.invesdwin.util.streams.closeable.Closeables;
+import de.invesdwin.util.streams.closeable.ISafeCloseable;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
-public class DataOutputDelegateMemoryBuffer implements IMemoryBuffer {
+public class DataOutputDelegateMemoryBuffer implements IMemoryBuffer, ISafeCloseable {
     private final DataOutput out;
 
     private IMutableSlicedDelegateMemoryBufferFactory mutableSliceFactory;
     private long position = 0;
+    private final long capacity;
 
     public DataOutputDelegateMemoryBuffer(final DataOutput out) {
+        this(out, Long.MAX_VALUE);
+    }
+
+    public DataOutputDelegateMemoryBuffer(final DataOutput out, final long capacity) {
         this.out = out;
+        this.capacity = capacity;
     }
 
     @Override
     public long capacity() {
-        return Long.MAX_VALUE;
+        return capacity;
     }
 
     private UnsupportedOperationException newUnsupportedOperationException() {
@@ -568,11 +576,20 @@ public class DataOutputDelegateMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public void clear(final byte value, final long index, final long length) {
-        throw newUnsupportedOperationException();
+        final long limit = index + length;
+        for (long i = index; i < limit; i++) {
+            putByte(i, value);
+        }
     }
 
     @Override
     public IMemoryBuffer asImmutableSlice() {
         return this;
     }
+
+    @Override
+    public void close() {
+        Closeables.close(out);
+    }
+
 }

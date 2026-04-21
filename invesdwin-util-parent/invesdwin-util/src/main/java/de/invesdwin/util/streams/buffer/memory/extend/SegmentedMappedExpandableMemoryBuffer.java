@@ -118,18 +118,24 @@ public class SegmentedMappedExpandableMemoryBuffer extends ADelegateCloseableMem
 
     @Override
     public ICloseableMemoryBuffer ensureCapacity(final long desiredCapacity) {
-        if (desiredCapacity < 0) {
-            throw FastIndexOutOfBoundsException.getInstance("negative value: desiredCapacity=%s´", desiredCapacity);
+        ensureCapacity(desiredCapacity, 0);
+        return this;
+    }
+
+    private void ensureCapacity(final long index, final long length) {
+        if (index < 0 || length < 0) {
+            throw FastIndexOutOfBoundsException.getInstance("negative value: index=%s length=%s", index, length);
         }
 
+        final long resultingPosition = index + length;
         final long currentCapacity = finalizer.mappedFile.capacity();
-        if (desiredCapacity > currentCapacity) {
-            if (desiredCapacity > MAX_BUFFER_LENGTH) {
-                throw FastIndexOutOfBoundsException.getInstance("desiredCapacity=%s maxCapacity=%s", desiredCapacity,
+        if (resultingPosition > currentCapacity) {
+            if (resultingPosition > MAX_BUFFER_LENGTH) {
+                throw FastIndexOutOfBoundsException.getInstance("index=%s length=%s maxCapacity=%s", index, length,
                         MAX_BUFFER_LENGTH);
             }
 
-            final long newCapacity = calculateExpansion(currentCapacity, desiredCapacity);
+            final long newCapacity = calculateExpansion(currentCapacity, resultingPosition);
             finalizer.mappedFile.setDeleteOnClose(false);
             finalizer.mappedFile.close();
             try {
@@ -144,8 +150,6 @@ public class SegmentedMappedExpandableMemoryBuffer extends ADelegateCloseableMem
 
             finalizer.delegate = finalizer.mappedFile.newMemoryBuffer(0, finalizer.mappedFile.capacity());
         }
-
-        return this;
     }
 
     protected long calculateExpansion(final long currentLength, final long requiredLength) {

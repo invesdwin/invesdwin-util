@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
@@ -626,6 +627,14 @@ public final class Files extends AFilesStaticFacade {
     public static String readFileToStringNoThrow(final File file, final Charset charsetName) {
         try {
             return org.apache.commons.io.FileUtils.readFileToString(file, charsetName);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void setLength(final File file, final long newLength) {
+        try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+            raf.setLength(newLength);
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }

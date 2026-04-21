@@ -445,6 +445,18 @@ public interface IMemoryBuffer extends IMemoryBufferProvider, ILargeArray, IUnwr
         clear(Bytes.ZERO);
     }
 
+    default void clearFrom(final long index) {
+        clear(Bytes.ZERO, index, remaining(index));
+    }
+
+    default void clearTo(final long length) {
+        clear(Bytes.ZERO, 0, length);
+    }
+
+    default void clear(final long index, final long length) {
+        clear(Bytes.ZERO, index, length);
+    }
+
     default void clear(final byte value) {
         clear(value, 0, capacity());
     }

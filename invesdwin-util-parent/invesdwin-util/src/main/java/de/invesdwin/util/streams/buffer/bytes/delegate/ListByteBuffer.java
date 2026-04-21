@@ -49,8 +49,9 @@ public class ListByteBuffer implements IByteBuffer {
         this(new ArrayList<>());
     }
 
-    public ListByteBuffer(final List<IByteBuffer> list) {
-        this.list = list;
+    @SuppressWarnings("unchecked")
+    public ListByteBuffer(final List<? extends IByteBuffer> list) {
+        this.list = (List<IByteBuffer>) list;
         //just document expectations but skip this check internally
         //        assertList(this.list);
     }

@@ -51,8 +51,9 @@ public class ListMemoryBuffer implements IMemoryBuffer {
         this(new ArrayList<>());
     }
 
-    public ListMemoryBuffer(final List<IMemoryBuffer> list) {
-        this.list = list;
+    @SuppressWarnings("unchecked")
+    public ListMemoryBuffer(final List<? extends IMemoryBuffer> list) {
+        this.list = (List<IMemoryBuffer>) list;
         //just document expectations but skip this check internally
         //assertList(this.list);
     }
