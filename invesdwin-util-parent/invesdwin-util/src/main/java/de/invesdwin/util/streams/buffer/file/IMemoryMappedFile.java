@@ -54,7 +54,7 @@ public interface IMemoryMappedFile extends Closeable {
     static IMemoryMappedFile map(final boolean closeAllowed, final File file, final long index, final long length,
             final boolean readOnly, final boolean deleteOnClose) throws IOException {
         if (isSegmentSizeExceeded(length)) {
-            return new ListMemoryMappedFile(MAX_SEGMENT_SIZE, closeAllowed, file, index, length, readOnly,
+            return new SegmentedMemoryMappedFile(MAX_SEGMENT_SIZE, closeAllowed, file, index, length, readOnly,
                     deleteOnClose, false);
         } else {
             return new MemoryMappedFile(closeAllowed, file, index, length, readOnly, deleteOnClose);
