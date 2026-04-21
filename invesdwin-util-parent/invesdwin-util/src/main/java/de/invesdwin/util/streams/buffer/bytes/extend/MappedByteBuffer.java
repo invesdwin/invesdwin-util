@@ -30,16 +30,12 @@ public class MappedByteBuffer extends UnsafeByteBuffer implements Closeable {
 
     private static final class MappedBufferFinalizer extends AFinalizer {
 
-        private final File file;
-        private final boolean deleteOnClose;
         private MemoryMappedFile mappedFile;
 
         private MappedBufferFinalizer(final File file, final int length, final boolean deleteOnClose) {
-            this.file = file;
-            this.deleteOnClose = deleteOnClose;
             try {
                 Files.forceMkdirParent(file);
-                mappedFile = new MemoryMappedFile(true, file, 0, length, false);
+                mappedFile = new MemoryMappedFile(true, file, 0, length, false, deleteOnClose);
             } catch (final IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -51,9 +47,6 @@ public class MappedByteBuffer extends UnsafeByteBuffer implements Closeable {
             if (mappedFileCopy != null) {
                 mappedFileCopy.close();
                 mappedFile = null;
-                if (deleteOnClose) {
-                    Files.deleteQuietly(file);
-                }
             }
         }
 

@@ -351,6 +351,10 @@ public final class Files extends AFilesStaticFacade {
 
     public static String getExtension(final File f) {
         final String fileName = f.getName();
+        return getExtension(fileName);
+    }
+
+    public static String getExtension(final String fileName) {
         final int i = fileName.lastIndexOf('.');
         if (i < 0) {
             return "";
@@ -360,12 +364,17 @@ public final class Files extends AFilesStaticFacade {
     }
 
     public static File setExtension(final File f, final String newExtension) {
-        final int i = f.getName().lastIndexOf('.');
+        final String fileName = f.getName();
+        return new File(f.getParent(), setExtension(fileName, newExtension));
+    }
+
+    public static String setExtension(final String fileName, final String newExtension) {
+        final int i = fileName.lastIndexOf('.');
         if (i < 0) {
-            return new File(f.getParent(), f.getName() + newExtension);
+            return fileName + newExtension;
         } else {
-            final String name = f.getName().substring(0, i);
-            return new File(f.getParent(), name + newExtension);
+            final String name = fileName.substring(0, i);
+            return name + newExtension;
         }
     }
 
@@ -382,6 +391,11 @@ public final class Files extends AFilesStaticFacade {
     public static File prefixExtension(final File f, final String prefix) {
         final String newExtension = prefix + getExtension(f);
         return setExtension(f, newExtension);
+    }
+
+    public static String prefixExtension(final String fileName, final String prefix) {
+        final String newExtension = prefix + getExtension(fileName);
+        return setExtension(fileName, newExtension);
     }
 
     /**

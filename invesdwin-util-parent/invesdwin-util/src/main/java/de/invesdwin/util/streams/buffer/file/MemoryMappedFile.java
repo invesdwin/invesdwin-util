@@ -12,6 +12,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.IoUtil;
 
+import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -47,13 +48,23 @@ public class MemoryMappedFile implements IMemoryMappedFile {
      *             in case there was an error creating the memory mapped file
      */
     public MemoryMappedFile(final boolean closeAllowed, final File file, final long offset, final long length,
-            final boolean readOnly) throws IOException {
+            final boolean readOnly, final boolean deleteOnClose) throws IOException {
         if (length < 0) {
             throw new IllegalArgumentException("length must be non-negative: " + length);
         }
         this.closeAllowed = closeAllowed;
-        this.finalizer = new MemoryMappedFileFinalizer(file, offset, length, readOnly);
+        this.finalizer = new MemoryMappedFileFinalizer(file, offset, length, readOnly, deleteOnClose);
         this.finalizer.register(this);
+    }
+
+    @Override
+    public boolean isDeleteOnClose() {
+        return finalizer.deleteOnClose;
+    }
+
+    @Override
+    public void setDeleteOnClose(final boolean deleteOnClose) {
+        finalizer.deleteOnClose = deleteOnClose;
     }
 
     @Override
@@ -61,6 +72,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
         return finalizer.file;
     }
 
+    @Override
     public java.nio.MappedByteBuffer getMappedByteBuffer() {
         return finalizer.getMappedByteBuffer();
     }
@@ -180,11 +192,12 @@ public class MemoryMappedFile implements IMemoryMappedFile {
         private final RandomAccessFile raf;
         private final FileChannel channel;
         private final long address;
+        private boolean deleteOnClose;
         private volatile boolean cleaned;
         private java.nio.MappedByteBuffer mappedByteBuffer;
 
-        private MemoryMappedFileFinalizer(final File file, final long offset, final long length, final boolean readOnly)
-                throws IOException {
+        private MemoryMappedFileFinalizer(final File file, final long offset, final long length, final boolean readOnly,
+                final boolean deleteOnClose) throws IOException {
             this.readOnly = readOnly;
             this.file = file;
             this.offset = offset;
@@ -200,6 +213,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
                 this.channel = raf.getChannel();
                 this.address = OSAccessor.mapUnaligned(channel, MapMode.READ_WRITE, this.offset, this.length);
             }
+            this.deleteOnClose = deleteOnClose;
         }
 
         public java.nio.MappedByteBuffer getMappedByteBuffer() {
@@ -237,6 +251,9 @@ public class MemoryMappedFile implements IMemoryMappedFile {
                 OSAccessor.unmapUnaligned(address, this.length);
                 channel.close();
                 raf.close();
+                if (deleteOnClose) {
+                    Files.delete(file);
+                }
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
