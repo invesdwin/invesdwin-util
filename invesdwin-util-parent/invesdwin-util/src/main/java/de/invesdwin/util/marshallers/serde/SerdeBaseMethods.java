@@ -49,7 +49,7 @@ public final class SerdeBaseMethods {
     }
 
     public static <O> int toBuffer(final ISerde<O> serde, final IMemoryBuffer buffer, final O obj) {
-        final int size = ByteBuffers.checkedCast(buffer.size());
+        final int size = ByteBuffers.checkedCastNoOverflow(buffer.size());
         return serde.toBuffer(buffer.asByteBuffer(0, size), obj);
     }
 

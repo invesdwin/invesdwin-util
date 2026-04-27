@@ -520,6 +520,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
         } else if (list.size() == 1) {
             return list.get(0).asNioByteBuffer(index, length);
         } else {
+            //WARNING: this is not a mutable version of the underlying memory
             final java.nio.ByteBuffer byteBuffer = java.nio.ByteBuffer.allocate(length);
             getBytes(index, byteBuffer, 0, length);
             return byteBuffer;
