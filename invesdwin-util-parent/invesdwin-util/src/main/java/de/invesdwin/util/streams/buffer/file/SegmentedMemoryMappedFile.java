@@ -11,10 +11,8 @@ import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.math.Longs;
-import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.EmptyByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.delegate.SegmentedByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.EmptyMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.SegmentedMemoryBuffer;
@@ -226,9 +224,9 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
         } else {
             int buf = SegmentedMemoryBuffer.getSegmentIndex(index, segmentSize);
             IMemoryMappedFile buffer = list.get(buf);
-            int capacity = ByteBuffers.checkedCast(buffer.capacity());
-            final int startBufferPosition = SegmentedByteBuffer.getSegmentOffset(index, segmentSize);
-            int bufferPosition = startBufferPosition;
+            long capacity = buffer.capacity();
+            final long startBufferPosition = SegmentedMemoryBuffer.getSegmentOffset(index, segmentSize);
+            long bufferPosition = startBufferPosition;
             if (capacity >= bufferPosition + length) {
                 return buffer.newByteBuffer(bufferPosition, length);
             } else {
@@ -238,7 +236,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                 final int endSegment = SegmentedMemoryBuffer.getSegmentIndex(endPosition - 1, segmentSize);
                 final int bufferCount = endSegment - startSegment + 1;
 
-                final IByteBuffer[] buffers = new IByteBuffer[bufferCount];
+                final IMemoryBuffer[] buffers = new IMemoryBuffer[bufferCount];
 
                 final long limit = index + length;
                 long remaining = length;
@@ -247,16 +245,16 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                     if (bufferPosition >= capacity) {
                         buf++;
                         buffer = list.get(buf);
-                        capacity = ByteBuffers.checkedCast(buffer.capacity());
+                        capacity = buffer.capacity();
                         bufferPosition = 0;
                     }
-                    final int toCopy = ByteBuffers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
-                    buffers[bufferIdx++] = buffer.newByteBuffer(0, capacity);
+                    final long toCopy = Longs.min(remaining, buffer.remaining(bufferPosition));
+                    buffers[bufferIdx++] = buffer.newMemoryBuffer(0, capacity);
                     remaining -= toCopy;
                     i += toCopy;
                     bufferPosition += toCopy;
                 }
-                return new SegmentedByteBuffer(buffers, (int) segmentSize).newSlice(startBufferPosition, length);
+                return new SegmentedMemoryBuffer(buffers, segmentSize).asByteBuffer(startBufferPosition, length);
             }
         }
     }
