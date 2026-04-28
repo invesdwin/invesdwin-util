@@ -9,6 +9,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
+import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.EmptyByteBuffer;
@@ -30,26 +31,28 @@ import de.invesdwin.util.streams.buffer.memory.delegate.ListMemoryBuffer;
 @NotThreadSafe
 public class ListMemoryMappedFile implements IMemoryMappedFile {
 
-    private final List<IMemoryMappedFile> list;
-
     private final long offset;
     private final long length;
     private final boolean closeAllowed;
     private boolean markedForClose;
+    private final List<IMemoryMappedFile> list;
 
     public ListMemoryMappedFile(final long maxSegmentSize, final boolean closeAllowed, final File file,
-            final long offset, final long length, final boolean readOnly) throws IOException {
+            final long offset, final long length, final boolean readOnly, final boolean deleteOnClose,
+            final boolean separateFiles) throws IOException {
         this.closeAllowed = closeAllowed;
         this.offset = offset;
         this.length = length;
-        this.list = initList(maxSegmentSize, file, readOnly);
+        this.list = initList(maxSegmentSize, file, readOnly, deleteOnClose, separateFiles);
     }
 
-    public ListMemoryMappedFile(final boolean closeAllowed, final IMemoryMappedFile... list) {
-        this(closeAllowed, Arrays.asList(list));
+    public ListMemoryMappedFile(final boolean closeAllowed, final boolean deleteOnClose,
+            final IMemoryMappedFile... list) {
+        this(closeAllowed, deleteOnClose, Arrays.asList(list));
     }
 
-    public ListMemoryMappedFile(final boolean closeAllowed, final List<IMemoryMappedFile> list) {
+    public ListMemoryMappedFile(final boolean closeAllowed, final boolean deleteOnClose,
+            final List<IMemoryMappedFile> list) {
         this.closeAllowed = closeAllowed;
         this.offset = 0;
         this.length = calculateLength(list);
@@ -69,8 +72,8 @@ public class ListMemoryMappedFile implements IMemoryMappedFile {
         return length;
     }
 
-    private List<IMemoryMappedFile> initList(final long maxSegmentSize, final File file, final boolean readOnly)
-            throws IOException {
+    private List<IMemoryMappedFile> initList(final long maxSegmentSize, final File file, final boolean readOnly,
+            final boolean deleteOnClose, final boolean separateFiles) throws IOException {
         final List<IMemoryMappedFile> list = new ArrayList<>();
         final long limit = offset + length;
         long position = 0;
@@ -81,7 +84,8 @@ public class ListMemoryMappedFile implements IMemoryMappedFile {
             } else {
                 long bufferPosition = offset - position;
                 if (maxSegmentSize >= bufferPosition + length) {
-                    list.add(new MemoryMappedFile(closeAllowed, file, bufferPosition, length, readOnly));
+                    list.add(new MemoryMappedFile(closeAllowed, newFile(file, bufferPosition, separateFiles),
+                            bufferPosition, length, readOnly, deleteOnClose));
                     return list;
                 } else {
                     long remaining = length;
@@ -90,7 +94,8 @@ public class ListMemoryMappedFile implements IMemoryMappedFile {
                             bufferPosition = 0;
                         }
                         final long toCopy = Longs.min(remaining, maxSegmentSize - bufferPosition);
-                        list.add(new MemoryMappedFile(closeAllowed, file, bufferPosition, toCopy, readOnly));
+                        list.add(new MemoryMappedFile(closeAllowed, newFile(file, bufferPosition, separateFiles),
+                                bufferPosition, toCopy, readOnly, false));
                         remaining -= toCopy;
                         i += toCopy;
                         bufferPosition += toCopy;
@@ -100,6 +105,33 @@ public class ListMemoryMappedFile implements IMemoryMappedFile {
             }
         }
         throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", offset, capacity());
+    }
+
+    private File newFile(final File file, final long bufferPosition, final boolean separateFiles) {
+        if (separateFiles) {
+            return Files.prefixExtension(file, "_" + bufferPosition);
+        } else {
+            return file;
+        }
+    }
+
+    @Override
+    public boolean isDeleteOnClose() {
+        return list.get(0).isDeleteOnClose();
+    }
+
+    @Override
+    public void setDeleteOnClose(final boolean deleteOnClose) {
+        final IMemoryMappedFile first = list.get(0);
+        first.setDeleteOnClose(deleteOnClose);
+        for (int i = 1; i < list.size(); i++) {
+            final IMemoryMappedFile other = list.get(i);
+            if (first.getFile().equals(other.getFile())) {
+                list.get(i).setDeleteOnClose(deleteOnClose);
+            } else {
+                break;
+            }
+        }
     }
 
     @Override
@@ -148,6 +180,11 @@ public class ListMemoryMappedFile implements IMemoryMappedFile {
     }
 
     @Override
+    public java.nio.ByteBuffer getMappedByteBuffer() {
+        throw new UnsupportedOperationException("invalid on segmented mapped memory files");
+    }
+
+    @Override
     public long wrapAdjustment() {
         return offset;
     }
@@ -165,7 +202,8 @@ public class ListMemoryMappedFile implements IMemoryMappedFile {
     @Override
     public void close() {
         if (closeAllowed) {
-            for (int i = 0; i < list.size(); i++) {
+            for (int i = list.size() - 1; i >= 0; i--) {
+                //first one might deleteOnClose
                 list.get(i).close();
             }
         }

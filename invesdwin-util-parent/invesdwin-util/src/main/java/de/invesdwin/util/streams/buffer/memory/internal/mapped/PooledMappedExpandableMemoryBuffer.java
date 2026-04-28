@@ -2,10 +2,10 @@ package de.invesdwin.util.streams.buffer.memory.internal.mapped;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.streams.buffer.memory.extend.ChronicleMappedExpandableMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.extend.MappedExpandableMemoryBuffer;
 
 @NotThreadSafe
-class PooledMappedExpandableMemoryBuffer extends ChronicleMappedExpandableMemoryBuffer {
+class PooledMappedExpandableMemoryBuffer extends MappedExpandableMemoryBuffer {
 
     PooledMappedExpandableMemoryBuffer() {}
 

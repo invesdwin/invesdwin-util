@@ -11,14 +11,16 @@ import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.file.IMemoryMappedFile;
 import de.invesdwin.util.streams.buffer.memory.delegate.ChronicleDelegateMemoryBuffer;
-import de.invesdwin.util.streams.buffer.memory.extend.DirectMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.extend.ChronicleMappedExpandableMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.extend.DirectMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.extend.MappedMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.extend.UnsafeMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.internal.direct.DirectExpandableMemoryBufferPool;
 import de.invesdwin.util.streams.buffer.memory.internal.heap.HeapExpandableMemoryBufferPool;
 import de.invesdwin.util.streams.buffer.memory.internal.mapped.MappedExpandableMemoryBufferPool;
+import de.invesdwin.util.streams.buffer.memory.internal.mapped.segmented.SegmentedMappedExpandableMemoryBufferPool;
 
 @Immutable
 public final class MemoryBuffers {
@@ -27,7 +29,15 @@ public final class MemoryBuffers {
 
     public static final IObjectPool<ICloseableMemoryBuffer> EXPANDABLE_POOL = HeapExpandableMemoryBufferPool.INSTANCE;
     public static final IObjectPool<ICloseableMemoryBuffer> DIRECT_EXPANDABLE_POOL = DirectExpandableMemoryBufferPool.INSTANCE;
-    public static final IObjectPool<ICloseableMemoryBuffer> MAPPED_EXPANDABLE_POOL = MappedExpandableMemoryBufferPool.INSTANCE;
+    public static final IObjectPool<ICloseableMemoryBuffer> MAPPED_EXPANDABLE_POOL;
+
+    static {
+        if (IMemoryMappedFile.isSegmentSizeExceeded(Long.MAX_VALUE)) {
+            MAPPED_EXPANDABLE_POOL = SegmentedMappedExpandableMemoryBufferPool.INSTANCE;
+        } else {
+            MAPPED_EXPANDABLE_POOL = MappedExpandableMemoryBufferPool.INSTANCE;
+        }
+    }
 
     private MemoryBuffers() {}
 

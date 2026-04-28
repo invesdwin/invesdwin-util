@@ -26,7 +26,13 @@ public interface IMemoryMappedFile extends Closeable {
 
     void markForClose();
 
+    boolean isDeleteOnClose();
+
+    void setDeleteOnClose(boolean deleteOnClose);
+
     long addressOffset();
+
+    java.nio.ByteBuffer getMappedByteBuffer();
 
     long wrapAdjustment();
 
@@ -46,11 +52,12 @@ public interface IMemoryMappedFile extends Closeable {
     IMemoryBuffer newMemoryBuffer(long index, long length);
 
     static IMemoryMappedFile map(final boolean closeAllowed, final File file, final long index, final long length,
-            final boolean readOnly) throws IOException {
+            final boolean readOnly, final boolean deleteOnClose) throws IOException {
         if (isSegmentSizeExceeded(length)) {
-            return new ListMemoryMappedFile(MAX_SEGMENT_SIZE, closeAllowed, file, index, length, readOnly);
+            return new SegmentedMemoryMappedFile(MAX_SEGMENT_SIZE, closeAllowed, file, index, length, readOnly,
+                    deleteOnClose, false);
         } else {
-            return new MemoryMappedFile(closeAllowed, file, index, length, readOnly);
+            return new MemoryMappedFile(closeAllowed, file, index, length, readOnly, deleteOnClose);
         }
     }
 

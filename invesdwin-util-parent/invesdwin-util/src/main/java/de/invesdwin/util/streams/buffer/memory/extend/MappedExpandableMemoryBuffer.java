@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams.buffer.bytes.extend;
+package de.invesdwin.util.streams.buffer.memory.extend;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -16,61 +16,60 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.BitUtil;
 import org.agrona.MutableDirectBuffer;
-import org.agrona.concurrent.UnsafeBuffer;
 
 import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.lang.uri.URIs;
+import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedDelegateByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateCloseableByteBufferFactory;
-import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateCloseableByteBufferFactory;
-import de.invesdwin.util.streams.buffer.bytes.extend.internal.MappedExpandableByteBufferBase;
-import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferInputStream;
-import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferOutputStream;
-import de.invesdwin.util.streams.buffer.bytes.stream.ExpandableByteBufferOutputStream;
+import de.invesdwin.util.streams.buffer.bytes.UninitializedDirectByteBuffers;
+import de.invesdwin.util.streams.buffer.bytes.delegate.MemoryDelegateByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.extend.ArrayExpandableByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
+import de.invesdwin.util.streams.buffer.memory.ICloseableMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
-import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.MemoryBuffers;
+import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedDelegateMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedFromDelegateMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateCloseableMemoryBufferFactory;
+import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IMutableSlicedDelegateCloseableMemoryBufferFactory;
+import de.invesdwin.util.streams.buffer.memory.extend.internal.MappedExpandableMemoryBufferBase;
+import de.invesdwin.util.streams.buffer.memory.stream.ExpandableMemoryBufferOutputStream;
+import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferInputStream;
+import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferOutputStream;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
-public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase implements ICloseableByteBuffer {
+public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBase implements ICloseableMemoryBuffer {
 
-    protected IMutableSlicedDelegateCloseableByteBufferFactory mutableSliceFactory;
+    protected IMutableSlicedDelegateCloseableMemoryBufferFactory mutableSliceFactory;
 
-    public MappedExpandableByteBuffer() {
+    public MappedExpandableMemoryBuffer() {
         super(INITIAL_CAPACITY);
     }
 
-    public MappedExpandableByteBuffer(final int initialCapacity) {
+    public MappedExpandableMemoryBuffer(final int initialCapacity) {
         super(initialCapacity);
     }
 
-    public MappedExpandableByteBuffer(final int initialCapacity, final String name) {
+    public MappedExpandableMemoryBuffer(final int initialCapacity, final String name) {
         super(initialCapacity, name);
     }
 
-    public MappedExpandableByteBuffer(final int initialCapacity, final File file) {
+    public MappedExpandableMemoryBuffer(final int initialCapacity, final File file) {
         super(initialCapacity, file);
     }
 
-    public MappedExpandableByteBuffer(final int initialCapacity, final File file, final boolean deleteOnClose) {
+    public MappedExpandableMemoryBuffer(final int initialCapacity, final File file, final boolean deleteOnClose) {
         super(initialCapacity, file, deleteOnClose);
     }
 
     @Override
     public int getId() {
         return System.identityHashCode(this);
-    }
-
-    @Override
-    public java.nio.ByteBuffer nioByteBuffer() {
-        return byteBuffer();
     }
 
     @Override
@@ -84,12 +83,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public MutableDirectBuffer directBuffer() {
-        return this;
-    }
-
-    @Override
-    public void getBytes(final int index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
+    public void getBytes(final long index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
         final MutableDirectBuffer directBuffer = dstBuffer.directBuffer();
         if (directBuffer != null) {
             getBytes(index, directBuffer, dstIndex + dstBuffer.wrapAdjustment() - directBuffer.wrapAdjustment(),
@@ -106,14 +100,14 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public void getBytes(final int index, final IMemoryBuffer dstBuffer, final long dstIndex, final int length) {
+    public void getBytes(final long index, final IMemoryBuffer dstBuffer, final long dstIndex, final long length) {
         for (int i = 0; i < length; i++) {
             dstBuffer.putByte(dstIndex + i, getByte(index + i));
         }
     }
 
     @Override
-    public void putBytes(final int index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final long index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
         final MutableDirectBuffer directBuffer = srcBuffer.directBuffer();
         if (directBuffer != null) {
             putBytes(index, directBuffer, srcIndex + srcBuffer.wrapAdjustment() - directBuffer.wrapAdjustment(),
@@ -130,163 +124,127 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public void putBytes(final int index, final IMemoryBuffer srcBuffer, final long srcIndex, final int length) {
+    public void putBytes(final long index, final IMemoryBuffer srcBuffer, final long srcIndex, final long length) {
         for (int i = 0; i < length; i++) {
             putByte(index + i, srcBuffer.getByte(srcIndex + i));
         }
     }
 
     @Override
-    public InputStream asInputStream(final int index, final int length) {
-        return new ByteBufferInputStream(this, index, length);
+    public InputStream asInputStream(final long index, final long length) {
+        return new MemoryBufferInputStream(this, index, length);
     }
 
     @Override
     public OutputStream asOutputStream() {
-        return new ExpandableByteBufferOutputStream(this);
+        return new ExpandableMemoryBufferOutputStream(this);
     }
 
     @Override
-    public OutputStream asOutputStreamFrom(final int index) {
-        return new ExpandableByteBufferOutputStream(this, index);
+    public OutputStream asOutputStreamFrom(final long index) {
+        return new ExpandableMemoryBufferOutputStream(this, index);
     }
 
     @Override
-    public OutputStream asOutputStream(final int index, final int length) {
-        return new ByteBufferOutputStream(this, index, length);
-    }
-
-    @Deprecated
-    @Override
-    public byte[] asByteArray() {
-        throw newAsByteArrayUnsupported();
-    }
-
-    public static UnsupportedOperationException newAsByteArrayUnsupported() {
-        return new UnsupportedOperationException("This will give a bigger size than what was added to the buffer. "
-                + "Use buffer.asByteArrayTo(buffer.capacity()) if you really want this from an expandable buffer."
-                + "Also a slice(from, to)'d wrapper of this buffer should not cause this exception.");
-    }
-
-    @Deprecated
-    @Override
-    public byte[] asByteArrayCopy() {
-        throw newAsByteArrayUnsupported();
-    }
-
-    //CHECKSTYLE:OFF
-    @Override
-    public IByteBuffer clone() {
-        //CHECKSTYLE:ON
-        throw newAsByteArrayUnsupported();
+    public OutputStream asOutputStream(final long index, final long length) {
+        return new MemoryBufferOutputStream(this, index, length);
     }
 
     @Override
-    public IByteBuffer clone(final int index, final int length) {
-        return ByteBuffers.wrap(asByteArrayCopy(index, length));
+    public IMemoryBuffer clone(final long index, final int length) {
+        return MemoryBuffers.wrap(asByteArrayCopy(index, length));
     }
 
     @Override
-    public byte[] asByteArray(final int index, final int length) {
-        return ByteBuffers.asByteArrayCopyGet(this, index, length);
+    public byte[] asByteArrayCopy(final long index, final int length) {
+        return MemoryBuffers.asByteArrayCopyGet(this, index, length);
     }
 
     @Override
-    public byte[] asByteArrayCopy(final int index, final int length) {
-        return ByteBuffers.asByteArrayCopyGet(this, index, length);
+    public MutableDirectBuffer asDirectBuffer(final long index, final int length) {
+        return asUnsafeBuffer(index, length);
     }
 
-    @Override
-    public MutableDirectBuffer asDirectBuffer() {
-        return directBuffer();
-    }
-
-    @Override
-    public MutableDirectBuffer asDirectBuffer(final int index, final int length) {
-        if (index == 0 && length == capacity()) {
-            return this;
+    private UnsafeByteBuffer asUnsafeBuffer(final long index, final int length) {
+        final byte[] byteArray = byteArray();
+        if (byteArray != null) {
+            return new UnsafeByteBuffer(byteArray, ByteBuffers.checkedCast(index), length);
         } else {
-            return new UnsafeBuffer(this, index, length);
+            return new UnsafeByteBuffer(addressOffset() + wrapAdjustment() + index, length);
         }
     }
 
     @Override
-    public IMemoryBuffer asMemoryBuffer() {
-        return new ByteDelegateMemoryBuffer(this);
+    public IByteBuffer asByteBuffer(final long index, final int length) {
+        if (index + length < ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH) {
+            return asUnsafeBuffer(index, length);
+        } else {
+            return new MemoryDelegateByteBuffer(newSlice(index, length));
+        }
     }
 
-    @Override
-    public IMemoryBuffer asMemoryBufferFrom(final int index) {
-        return new ByteDelegateMemoryBuffer(this).newSliceFrom(index);
-    }
-
-    @Override
-    public IMemoryBuffer asMemoryBuffer(final int index, final int length) {
-        return new ByteDelegateMemoryBuffer(this).newSlice(index, length);
-    }
-
-    protected IMutableSlicedDelegateCloseableByteBufferFactory getMutableSliceFactory() {
+    protected IMutableSlicedDelegateCloseableMemoryBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
-            mutableSliceFactory = new ExpandableMutableSlicedDelegateCloseableByteBufferFactory(this);
+            mutableSliceFactory = new ExpandableMutableSlicedDelegateCloseableMemoryBufferFactory(this);
         }
         return mutableSliceFactory;
     }
 
     @Override
-    public ICloseableByteBuffer sliceFrom(final int index) {
+    public ICloseableMemoryBuffer sliceFrom(final long index) {
         return getMutableSliceFactory().sliceFrom(index);
     }
 
     @Override
-    public ICloseableByteBuffer slice(final int index, final int length) {
+    public ICloseableMemoryBuffer slice(final long index, final long length) {
         return getMutableSliceFactory().slice(index, length);
     }
 
     @Override
-    public IByteBuffer newSliceFrom(final int index) {
+    public IMemoryBuffer newSliceFrom(final long index) {
         if (index == 0) {
             return this;
         }
-        return new SlicedFromDelegateByteBuffer(this, index);
+        return new SlicedFromDelegateMemoryBuffer(this, index);
     }
 
     @Override
-    public IByteBuffer newSlice(final int index, final int length) {
+    public IMemoryBuffer newSlice(final long index, final long length) {
         if (index == 0 && length == capacity()) {
             return this;
         } else {
             ensureCapacity(index + length);
-            return new SlicedDelegateByteBuffer(this, index, length);
+            return new SlicedDelegateMemoryBuffer(this, index, length);
         }
     }
 
     @Override
-    public String getStringAsciii(final int index, final int length) {
+    public String getStringAsciii(final long index, final int length) {
         return getStringWithoutLengthAscii(index, length);
     }
 
     @Override
-    public void getStringAsciii(final int index, final int length, final Appendable dst) {
+    public void getStringAsciii(final long index, final int length, final Appendable dst) {
         getStringWithoutLengthAscii(index, length, dst);
     }
 
     @Override
-    public void putStringAsciii(final int index, final CharSequence value, final int valueIndex, final int length) {
+    public void putStringAsciii(final long index, final CharSequence value, final int valueIndex, final int length) {
         putStringWithoutLengthAscii(index, value, valueIndex, length);
     }
 
     @Override
-    public String getStringUtf8(final int index, final int length) {
+    public String getStringUtf8(final long index, final int length) {
         return getStringWithoutLengthUtf8(index, length);
     }
 
     @Override
-    public int putStringUtf8(final int index, final String value) {
+    public int putStringUtf8(final long index, final String value) {
         return putStringWithoutLengthUtf8(index, value);
     }
 
     @Override
-    public void getStringUtf8(final int index, final int length, final Appendable dst) {
+    public void getStringUtf8(final long index, final int length, final Appendable dst) {
         final String string = getStringWithoutLengthUtf8(index, length);
         try {
             dst.append(string);
@@ -296,20 +254,21 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public void getBytesTo(final int index, final DataOutput dst, final int length) throws IOException {
+    public void getBytesTo(final long index, final DataOutput dst, final long length) throws IOException {
         if (dst instanceof WritableByteChannel) {
             getBytesTo(index, (WritableByteChannel) dst, length);
         } else {
-            final int limit = index + length;
-            for (int i = index; i < limit; i++) {
+            long i = index;
+            while (i < length) {
                 final byte b = getByte(i);
                 dst.write(b);
+                i++;
             }
         }
     }
 
     @Override
-    public void getBytesTo(final int index, final OutputStream dst, final int length) throws IOException {
+    public void getBytesTo(final long index, final OutputStream dst, final long length) throws IOException {
         if (dst instanceof WritableByteChannel) {
             getBytesTo(index, (WritableByteChannel) dst, length);
         } else if (dst instanceof FileOutputStream && ((FileOutputStream) dst).getChannel() != null) {
@@ -318,30 +277,32 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
         } else if (dst instanceof DataOutput) {
             getBytesTo(index, (DataOutput) dst, length);
         } else {
-            final int limit = index + length;
-            for (int i = index; i < limit; i++) {
+            long i = index;
+            while (i < length) {
                 final byte b = getByte(i);
                 dst.write(b);
+                i++;
             }
         }
     }
 
     @Override
-    public void putBytesTo(final int index, final DataInput src, final int length) throws IOException {
+    public void putBytesTo(final long index, final DataInput src, final long length) throws IOException {
         if (src instanceof ReadableByteChannel) {
             putBytesTo(index, (ReadableByteChannel) src, length);
         } else {
             ensureCapacity(index + length);
-            final int limit = index + length;
-            for (int i = index; i < limit; i++) {
+            long i = index;
+            while (i < length) {
                 final byte b = src.readByte();
                 putByte(i, b);
+                i++;
             }
         }
     }
 
     @Override
-    public void putBytesTo(final int index, final InputStream src, final int length) throws IOException {
+    public void putBytesTo(final long index, final InputStream src, final long length) throws IOException {
         if (src instanceof ReadableByteChannel) {
             putBytesTo(index, (ReadableByteChannel) src, length);
         } else if (src instanceof FileInputStream && ((FileInputStream) src).getChannel() != null) {
@@ -353,9 +314,8 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
             final Duration timeout = URIs.getDefaultNetworkTimeout();
             long zeroCountNanos = -1L;
 
-            ensureCapacity(index + length);
-            final int limit = index + length;
-            for (int i = index; i < limit;) {
+            final long limit = index + length;
+            for (long i = index; i < limit;) {
                 final int result = src.read();
                 if (result < 0) { // EOF
                     throw ByteBuffers.newEOF();
@@ -377,17 +337,35 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public void getBytesTo(final int index, final WritableByteChannel dst, final int length) throws IOException {
-        OutputStreams.writeFullyNoTimeout(dst, asNioByteBuffer(index, length));
+    public void getBytesTo(final long index, final WritableByteChannel dst, final long length) throws IOException {
+        if (length > ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH) {
+            long remaining = length;
+            while (remaining > 0L) {
+                final long chunk = Longs.min(remaining, ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH);
+                remaining -= chunk;
+                OutputStreams.writeFullyNoTimeout(dst, asNioByteBuffer(index, (int) chunk));
+            }
+        } else {
+            OutputStreams.writeFullyNoTimeout(dst, asNioByteBuffer(index, (int) length));
+        }
     }
 
     @Override
-    public void putBytesTo(final int index, final ReadableByteChannel src, final int length) throws IOException {
-        InputStreams.readFullyNoTimeout(src, asNioByteBuffer(index, length));
+    public void putBytesTo(final long index, final ReadableByteChannel src, final long length) throws IOException {
+        if (length > ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH) {
+            long remaining = length;
+            while (remaining > 0L) {
+                final long chunk = Longs.min(remaining, ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH);
+                remaining -= chunk;
+                InputStreams.readFullyNoTimeout(src, asNioByteBuffer(index, (int) chunk));
+            }
+        } else {
+            InputStreams.readFullyNoTimeout(src, asNioByteBuffer(index, (int) length));
+        }
     }
 
     @Override
-    public void putLong(final int index, final long value) {
+    public void putLong(final long index, final long value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(value);
             super.putLong(index, bits);
@@ -397,7 +375,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public void putInt(final int index, final int value) {
+    public void putInt(final long index, final int value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(value);
             super.putInt(index, bits);
@@ -407,7 +385,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public void putDouble(final int index, final double value) {
+    public void putDouble(final long index, final double value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
             super.putLong(index, bits);
@@ -417,7 +395,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public void putFloat(final int index, final float value) {
+    public void putFloat(final long index, final float value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
             super.putInt(index, bits);
@@ -427,7 +405,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public void putShort(final int index, final short value) {
+    public void putShort(final long index, final short value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final short bits = Short.reverseBytes(value);
             super.putShort(index, bits);
@@ -437,7 +415,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public void putChar(final int index, final char value) {
+    public void putChar(final long index, final char value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final short bits = Short.reverseBytes((short) value);
             super.putShort(index, bits);
@@ -447,7 +425,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public void putLongReverse(final int index, final long value) {
+    public void putLongReverse(final long index, final long value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(value);
             super.putLong(index, bits);
@@ -457,7 +435,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public void putIntReverse(final int index, final int value) {
+    public void putIntReverse(final long index, final int value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(value);
             super.putInt(index, bits);
@@ -467,7 +445,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public void putDoubleReverse(final int index, final double value) {
+    public void putDoubleReverse(final long index, final double value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
             super.putLong(index, bits);
@@ -477,7 +455,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public void putFloatReverse(final int index, final float value) {
+    public void putFloatReverse(final long index, final float value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
             super.putInt(index, bits);
@@ -487,7 +465,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public void putShortReverse(final int index, final short value) {
+    public void putShortReverse(final long index, final short value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final short bits = Short.reverseBytes(value);
             super.putShort(index, bits);
@@ -497,7 +475,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public void putCharReverse(final int index, final char value) {
+    public void putCharReverse(final long index, final char value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final short bits = Short.reverseBytes((short) value);
             super.putShort(index, bits);
@@ -507,7 +485,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public long getLong(final int index) {
+    public long getLong(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final long bits = super.getLong(index);
             return Long.reverseBytes(bits);
@@ -517,7 +495,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public int getInt(final int index) {
+    public int getInt(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final int bits = super.getInt(index);
             return Integer.reverseBytes(bits);
@@ -527,7 +505,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public double getDouble(final int index) {
+    public double getDouble(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final long bits = super.getLong(index);
             return Double.longBitsToDouble(Long.reverseBytes(bits));
@@ -537,7 +515,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public float getFloat(final int index) {
+    public float getFloat(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final int bits = super.getInt(index);
             return Float.intBitsToFloat(Integer.reverseBytes(bits));
@@ -547,7 +525,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public short getShort(final int index) {
+    public short getShort(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final short bits = super.getShort(index);
             return Short.reverseBytes(bits);
@@ -557,7 +535,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public char getChar(final int index) {
+    public char getChar(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final short bits = super.getShort(index);
             return (char) Short.reverseBytes(bits);
@@ -567,7 +545,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public long getLongReverse(final int index) {
+    public long getLongReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final long bits = super.getLong(index);
             return Long.reverseBytes(bits);
@@ -577,7 +555,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public int getIntReverse(final int index) {
+    public int getIntReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final int bits = super.getInt(index);
             return Integer.reverseBytes(bits);
@@ -587,7 +565,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public double getDoubleReverse(final int index) {
+    public double getDoubleReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final long bits = super.getLong(index);
             return Double.longBitsToDouble(Long.reverseBytes(bits));
@@ -597,7 +575,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public float getFloatReverse(final int index) {
+    public float getFloatReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final int bits = super.getInt(index);
             return Float.intBitsToFloat(Integer.reverseBytes(bits));
@@ -607,7 +585,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public short getShortReverse(final int index) {
+    public short getShortReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final short bits = super.getShort(index);
             return Short.reverseBytes(bits);
@@ -617,18 +595,13 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public char getCharReverse(final int index) {
+    public char getCharReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final short bits = super.getShort(index);
             return (char) Short.reverseBytes(bits);
         } else {
             return super.getChar(index);
         }
-    }
-
-    @Override
-    public void clear(final byte value, final int index, final int length) {
-        setMemory(index, length, value);
     }
 
     @SuppressWarnings("unchecked")
@@ -640,24 +613,55 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
         return null;
     }
 
+    public java.nio.ByteBuffer asNioByteBuffer() {
+        final java.nio.ByteBuffer byteBuffer = byteBuffer();
+        final long wrapAdjustment = wrapAdjustment();
+        final int intCapacity = ByteBuffers.checkedCastNoOverflow(capacity());
+        if (byteBuffer != null) {
+            if (wrapAdjustment == 0 && capacity() == byteBuffer.capacity()) {
+                return byteBuffer;
+            } else {
+                return ByteBuffers.slice(byteBuffer, ByteBuffers.checkedCast(wrapAdjustment), intCapacity);
+            }
+        }
+        final byte[] array = byteArray();
+        if (array != null) {
+            final java.nio.ByteBuffer arrayBuffer = java.nio.ByteBuffer.wrap(array,
+                    ByteBuffers.checkedCast(wrapAdjustment), intCapacity);
+            return arrayBuffer;
+        }
+        final long address = addressOffset();
+        return UninitializedDirectByteBuffers.asDirectByteBufferNoCleaner(address, intCapacity);
+    }
+
     @Override
-    public java.nio.ByteBuffer asNioByteBuffer(final int index, final int length) {
-        ensureCapacity(index + length);
-        final java.nio.ByteBuffer buffer = nioByteBuffer();
-        if (index == 0 && length == capacity()) {
-            return buffer;
+    public java.nio.ByteBuffer asNioByteBuffer(final long index, final int length) {
+        if (index == 0) {
+            final java.nio.ByteBuffer buffer = asNioByteBuffer();
+            final int intCapacity = ByteBuffers.checkedCastNoOverflow(capacity());
+            if (length == intCapacity) {
+                return buffer;
+            } else {
+                return ByteBuffers.slice(buffer, 0, length);
+            }
         } else {
-            return ByteBuffers.slice(buffer, index, length);
+            final long address = addressOffset() + index;
+            return UninitializedDirectByteBuffers.asDirectByteBufferNoCleaner(address, length);
         }
     }
 
     @Override
-    public String toString() {
-        return ByteBuffers.toString(this);
+    public void clear(final byte value, final long index, final long length) {
+        super.setMemory(index, length, value);
     }
 
     @Override
-    public ICloseableByteBuffer ensureCapacity(final int desiredCapacity) {
+    public String toString() {
+        return MemoryBuffers.toString(this);
+    }
+
+    @Override
+    public ICloseableMemoryBuffer ensureCapacity(final long desiredCapacity) {
         if (desiredCapacity > capacity()) {
             //we need this workaround to prevent growth when capacity matches on the last bit
             checkLimit(desiredCapacity - BitUtil.SIZE_OF_BYTE);
@@ -666,7 +670,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase i
     }
 
     @Override
-    public ICloseableByteBuffer asImmutableSlice() {
+    public ICloseableMemoryBuffer asImmutableSlice() {
         return this;
     }
 

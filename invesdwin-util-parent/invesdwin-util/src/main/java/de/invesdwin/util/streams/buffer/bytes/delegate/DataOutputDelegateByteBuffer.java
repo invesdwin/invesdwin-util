@@ -27,22 +27,30 @@ import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateB
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
 import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferOutputStream;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
+import de.invesdwin.util.streams.closeable.Closeables;
+import de.invesdwin.util.streams.closeable.ISafeCloseable;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
-public class DataOutputDelegateByteBuffer implements IByteBuffer {
+public class DataOutputDelegateByteBuffer implements IByteBuffer, ISafeCloseable {
     private final DataOutput out;
 
     private IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
+    private final int capacity;
     private int position = 0;
 
     public DataOutputDelegateByteBuffer(final DataOutput out) {
+        this(out, Integer.MAX_VALUE);
+    }
+
+    public DataOutputDelegateByteBuffer(final DataOutput out, final int capacity) {
         this.out = out;
+        this.capacity = capacity;
     }
 
     @Override
     public int capacity() {
-        return Integer.MAX_VALUE;
+        return capacity;
     }
 
     private UnsupportedOperationException newUnsupportedOperationException() {
@@ -607,11 +615,19 @@ public class DataOutputDelegateByteBuffer implements IByteBuffer {
 
     @Override
     public void clear(final byte value, final int index, final int length) {
-        throw newUnsupportedOperationException();
+        final int limit = index + length;
+        for (int i = index; i < limit; i++) {
+            putByte(i, value);
+        }
     }
 
     @Override
     public IByteBuffer asImmutableSlice() {
         return this;
+    }
+
+    @Override
+    public void close() {
+        Closeables.close(out);
     }
 }

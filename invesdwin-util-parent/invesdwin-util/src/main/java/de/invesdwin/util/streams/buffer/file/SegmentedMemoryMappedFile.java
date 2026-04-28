@@ -9,6 +9,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
+import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.EmptyByteBuffer;
@@ -30,21 +31,21 @@ import de.invesdwin.util.streams.buffer.memory.delegate.SegmentedMemoryBuffer;
 @NotThreadSafe
 public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
 
-    private final List<IMemoryMappedFile> list;
-
     private final long offset;
     private final long length;
     private final long segmentSize;
     private final boolean closeAllowed;
+    private final List<IMemoryMappedFile> list;
     private boolean markedForClose;
 
     public SegmentedMemoryMappedFile(final long segmentSize, final boolean closeAllowed, final File file,
-            final long offset, final long length, final boolean readOnly) throws IOException {
+            final long offset, final long length, final boolean readOnly, final boolean deleteOnClose,
+            final boolean separateFiles) throws IOException {
         this.closeAllowed = closeAllowed;
         this.offset = offset;
         this.length = length;
         this.segmentSize = segmentSize;
-        this.list = initList(file, readOnly);
+        this.list = initList(file, readOnly, deleteOnClose, separateFiles);
     }
 
     public SegmentedMemoryMappedFile(final long segmentSize, final boolean closeAllowed,
@@ -74,7 +75,8 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
         return length;
     }
 
-    private List<IMemoryMappedFile> initList(final File file, final boolean readOnly) throws IOException {
+    private List<IMemoryMappedFile> initList(final File file, final boolean readOnly, final boolean deleteOnClose,
+            final boolean separateFiles) throws IOException {
         final List<IMemoryMappedFile> list = new ArrayList<>();
         final long limit = offset + length;
         long position = 0;
@@ -85,7 +87,8 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
             } else {
                 long bufferPosition = offset - position;
                 if (segmentSize >= bufferPosition + length) {
-                    list.add(new MemoryMappedFile(closeAllowed, file, bufferPosition, length, readOnly));
+                    list.add(new MemoryMappedFile(closeAllowed, newFile(file, bufferPosition, separateFiles),
+                            bufferPosition, length, readOnly, deleteOnClose));
                     return list;
                 } else {
                     long remaining = length;
@@ -94,7 +97,8 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                             bufferPosition = 0;
                         }
                         final long toCopy = Longs.min(remaining, segmentSize - bufferPosition);
-                        list.add(new MemoryMappedFile(closeAllowed, file, bufferPosition, toCopy, readOnly));
+                        list.add(new MemoryMappedFile(closeAllowed, newFile(file, bufferPosition, separateFiles),
+                                bufferPosition, toCopy, readOnly, false));
                         remaining -= toCopy;
                         i += toCopy;
                         bufferPosition += toCopy;
@@ -104,6 +108,33 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
             }
         }
         throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", offset, capacity());
+    }
+
+    private File newFile(final File file, final long bufferPosition, final boolean separateFiles) {
+        if (separateFiles) {
+            return Files.prefixExtension(file, "_" + bufferPosition);
+        } else {
+            return file;
+        }
+    }
+
+    @Override
+    public boolean isDeleteOnClose() {
+        return list.get(0).isDeleteOnClose();
+    }
+
+    @Override
+    public void setDeleteOnClose(final boolean deleteOnClose) {
+        final IMemoryMappedFile first = list.get(0);
+        first.setDeleteOnClose(deleteOnClose);
+        for (int i = 1; i < list.size(); i++) {
+            final IMemoryMappedFile other = list.get(i);
+            if (first.getFile().equals(other.getFile())) {
+                list.get(i).setDeleteOnClose(deleteOnClose);
+            } else {
+                break;
+            }
+        }
     }
 
     @Override
@@ -152,6 +183,11 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
     }
 
     @Override
+    public java.nio.ByteBuffer getMappedByteBuffer() {
+        throw new UnsupportedOperationException("invalid on segmented mapped memory files");
+    }
+
+    @Override
     public long wrapAdjustment() {
         return offset;
     }
@@ -169,7 +205,8 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
     @Override
     public void close() {
         if (closeAllowed) {
-            for (int i = 0; i < list.size(); i++) {
+            for (int i = list.size() - 1; i >= 0; i--) {
+                //first one might deleteOnClose
                 list.get(i).close();
             }
         }

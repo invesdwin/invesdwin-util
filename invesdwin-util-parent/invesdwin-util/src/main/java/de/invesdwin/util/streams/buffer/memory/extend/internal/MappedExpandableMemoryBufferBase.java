@@ -1,4 +1,4 @@
-package de.invesdwin.util.streams.buffer.bytes.extend.internal;
+package de.invesdwin.util.streams.buffer.memory.extend.internal;
 
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static java.nio.charset.StandardCharsets.US_ASCII;
@@ -59,39 +59,48 @@ import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.file.IMemoryMappedFile;
 import de.invesdwin.util.streams.buffer.file.MemoryMappedFile;
+import de.invesdwin.util.streams.buffer.memory.MemoryBuffers;
 
 /**
  * Extracted from org.agrona.ExpandableDirectByteBuffer
  */
 @NotThreadSafe
-public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Closeable {
+public class MappedExpandableMemoryBufferBase implements Closeable {
     /**
      * Maximum length to which the underlying buffer can grow.
      */
-    public static final int MAX_BUFFER_LENGTH = ByteBuffers
-            .checkedCast(Longs.min(IMemoryMappedFile.MAX_SEGMENT_SIZE, Integer.MAX_VALUE));
+    public static final long MAX_BUFFER_LENGTH = IMemoryMappedFile.MAX_SEGMENT_SIZE;
 
     /**
      * Initial capacity of the buffer from which it will expand.
      */
     public static final int INITIAL_CAPACITY = IoUtil.BLOCK_SIZE;
 
+    /**
+     * Should bounds-checks operations be done or not. Controlled by the {@link #DISABLE_BOUNDS_CHECKS_PROP_NAME} system
+     * property.
+     *
+     * @see #DISABLE_BOUNDS_CHECKS_PROP_NAME
+     */
+    public static final boolean SHOULD_BOUNDS_CHECK = DirectBuffer.SHOULD_BOUNDS_CHECK;
+
     private static final UniqueNameGenerator UNIQUE_NAME_GENERATOR = new UniqueNameGenerator() {
+
         @Override
         protected long getInitialValue() {
             return 1;
         }
     };
 
-    private static final class MappedExpandableByteBufferFinalizer extends AFinalizer {
+    private static final class MappedExpandableMemoryBufferFinalizer extends AFinalizer {
 
         private final File file;
         private final boolean deleteOnClose;
         private MemoryMappedFile mappedFile;
         private long address;
-        private int capacity;
+        private long capacity;
 
-        private MappedExpandableByteBufferFinalizer(final File file, final int initialCapacity,
+        private MappedExpandableMemoryBufferFinalizer(final File file, final int initialCapacity,
                 final boolean deleteOnClose) {
             this.file = file;
             this.deleteOnClose = deleteOnClose;
@@ -103,7 +112,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
                 throw new UncheckedIOException(e);
             }
             address = mappedFile.addressOffset();
-            capacity = ByteBuffers.checkedCast(mappedFile.capacity());
+            capacity = mappedFile.capacity();
         }
 
         @Override
@@ -127,28 +136,28 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
 
     }
 
-    private final MappedExpandableByteBufferFinalizer finalizer;
+    private final MappedExpandableMemoryBufferFinalizer finalizer;
 
-    public MappedExpandableByteBufferBase() {
+    public MappedExpandableMemoryBufferBase() {
         this(INITIAL_CAPACITY);
     }
 
-    public MappedExpandableByteBufferBase(final int initialCapacity) {
-        this(initialCapacity, MappedExpandableByteBufferBase.class.getSimpleName());
+    public MappedExpandableMemoryBufferBase(final int initialCapacity) {
+        this(initialCapacity, MappedExpandableMemoryBufferBase.class.getSimpleName());
     }
 
-    public MappedExpandableByteBufferBase(final int initialCapacity, final String name) {
+    public MappedExpandableMemoryBufferBase(final int initialCapacity, final String name) {
         this(initialCapacity,
-                new File(new File(Files.getTempDirectory(), MappedExpandableByteBufferBase.class.getSimpleName()),
+                new File(new File(Files.getTempDirectory(), MappedExpandableMemoryBufferBase.class.getSimpleName()),
                         Files.normalizeFilename(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
     }
 
-    public MappedExpandableByteBufferBase(final int initialCapacity, final File file) {
+    public MappedExpandableMemoryBufferBase(final int initialCapacity, final File file) {
         this(initialCapacity, file, true);
     }
 
-    public MappedExpandableByteBufferBase(final int initialCapacity, final File file, final boolean deleteOnClose) {
-        this.finalizer = new MappedExpandableByteBufferFinalizer(file, initialCapacity, deleteOnClose);
+    public MappedExpandableMemoryBufferBase(final int initialCapacity, final File file, final boolean deleteOnClose) {
+        this.finalizer = new MappedExpandableMemoryBufferFinalizer(file, initialCapacity, deleteOnClose);
         this.finalizer.register(this);
     }
 
@@ -157,98 +166,54 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         finalizer.close();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void wrap(final byte[] buffer) {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void wrap(final byte[] buffer, final int offset, final int length) {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void wrap(final java.nio.ByteBuffer buffer) {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void wrap(final java.nio.ByteBuffer buffer, final int offset, final int length) {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void wrap(final DirectBuffer buffer) {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void wrap(final DirectBuffer buffer, final int offset, final int length) {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void wrap(final long address, final int length) {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public long addressOffset() {
         return finalizer.address;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public byte[] byteArray() {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public java.nio.ByteBuffer byteBuffer() {
         return finalizer.mappedFile.getMappedByteBuffer();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setMemory(final int index, final int length, final byte value) {
+    public void setMemory(final long index, final long length, final byte value) {
         ensureCapacity(index, length);
 
         final long offset = finalizer.address + index;
 
         if (length < 100) {
             int i = 0;
-            final int end = (length & ~7);
+            final long end = (length & ~7);
             //CHECKSTYLE:OFF
             final long mask = ((((long) value) << 56) | (((long) value & 0xff) << 48) | (((long) value & 0xff) << 40)
                     | (((long) value & 0xff) << 32) | (((long) value & 0xff) << 24) | (((long) value & 0xff) << 16)
@@ -267,27 +232,15 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int capacity() {
+    public long capacity() {
         return finalizer.capacity;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public boolean isExpandable() {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void checkLimit(final int limit) {
+    public void checkLimit(final long limit) {
         if (limit < 0) {
             throw FastIndexOutOfBoundsException.getInstance("limit cannot be negative: limit=%s", limit);
         }
@@ -295,13 +248,9 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    ////////////////////////////////////////////////////////
+    //////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getLong(final int index, final ByteOrder byteOrder) {
+    public long getLong(final long index, final ByteOrder byteOrder) {
         boundsCheck0(index, SIZE_OF_LONG);
 
         long bits = UnsafeApi.getLong(null, finalizer.address + index);
@@ -312,11 +261,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return bits;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putLong(final int index, final long value, final ByteOrder byteOrder) {
+    public void putLong(final long index, final long value, final ByteOrder byteOrder) {
         ensureCapacity(index, SIZE_OF_LONG);
 
         long bits = value;
@@ -327,33 +272,21 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         UnsafeApi.putLong(null, finalizer.address + index, bits);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getLong(final int index) {
+    public long getLong(final long index) {
         boundsCheck0(index, SIZE_OF_LONG);
 
         return UnsafeApi.getLong(null, finalizer.address + index);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putLong(final int index, final long value) {
+    public void putLong(final long index, final long value) {
         ensureCapacity(index, SIZE_OF_LONG);
 
         UnsafeApi.putLong(null, finalizer.address + index, value);
     }
 
-    ////////////////////////////////////////////////////////
+    //////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getInt(final int index, final ByteOrder byteOrder) {
+    public int getInt(final long index, final ByteOrder byteOrder) {
         boundsCheck0(index, SIZE_OF_INT);
 
         int bits = UnsafeApi.getInt(null, finalizer.address + index);
@@ -364,11 +297,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return bits;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putInt(final int index, final int value, final ByteOrder byteOrder) {
+    public void putInt(final long index, final int value, final ByteOrder byteOrder) {
         ensureCapacity(index, SIZE_OF_INT);
 
         int bits = value;
@@ -379,23 +308,15 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         UnsafeApi.putInt(null, finalizer.address + index, bits);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getInt(final int index) {
+    public int getInt(final long index) {
         boundsCheck0(index, SIZE_OF_INT);
 
         return UnsafeApi.getInt(null, finalizer.address + index);
     }
 
-    ////////////////////////////////////////////////////////
+    //////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getDouble(final int index, final ByteOrder byteOrder) {
+    public double getDouble(final long index, final ByteOrder byteOrder) {
         boundsCheck0(index, SIZE_OF_DOUBLE);
 
         if (NATIVE_BYTE_ORDER != byteOrder) {
@@ -406,11 +327,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putDouble(final int index, final double value, final ByteOrder byteOrder) {
+    public void putDouble(final long index, final double value, final ByteOrder byteOrder) {
         ensureCapacity(index, SIZE_OF_DOUBLE);
 
         if (NATIVE_BYTE_ORDER != byteOrder) {
@@ -421,33 +338,21 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getDouble(final int index) {
+    public double getDouble(final long index) {
         boundsCheck0(index, SIZE_OF_DOUBLE);
 
         return UnsafeApi.getDouble(null, finalizer.address + index);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putDouble(final int index, final double value) {
+    public void putDouble(final long index, final double value) {
         ensureCapacity(index, SIZE_OF_DOUBLE);
 
         UnsafeApi.putDouble(null, finalizer.address + index, value);
     }
 
-    ////////////////////////////////////////////////////////
+    //////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public float getFloat(final int index, final ByteOrder byteOrder) {
+    public float getFloat(final long index, final ByteOrder byteOrder) {
         boundsCheck0(index, SIZE_OF_FLOAT);
 
         if (NATIVE_BYTE_ORDER != byteOrder) {
@@ -458,11 +363,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putFloat(final int index, final float value, final ByteOrder byteOrder) {
+    public void putFloat(final long index, final float value, final ByteOrder byteOrder) {
         ensureCapacity(index, SIZE_OF_FLOAT);
 
         if (NATIVE_BYTE_ORDER != byteOrder) {
@@ -473,33 +374,21 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public float getFloat(final int index) {
+    public float getFloat(final long index) {
         boundsCheck0(index, SIZE_OF_FLOAT);
 
         return UnsafeApi.getFloat(null, finalizer.address + index);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putFloat(final int index, final float value) {
+    public void putFloat(final long index, final float value) {
         ensureCapacity(index, SIZE_OF_FLOAT);
 
         UnsafeApi.putFloat(null, finalizer.address + index, value);
     }
 
-    ////////////////////////////////////////////////////////
+    //////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public short getShort(final int index, final ByteOrder byteOrder) {
+    public short getShort(final long index, final ByteOrder byteOrder) {
         boundsCheck0(index, SIZE_OF_SHORT);
 
         short bits = UnsafeApi.getShort(null, finalizer.address + index);
@@ -510,11 +399,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return bits;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putShort(final int index, final short value, final ByteOrder byteOrder) {
+    public void putShort(final long index, final short value, final ByteOrder byteOrder) {
         ensureCapacity(index, SIZE_OF_SHORT);
 
         short bits = value;
@@ -525,93 +410,68 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         UnsafeApi.putShort(null, finalizer.address + index, bits);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public short getShort(final int index) {
+    public short getShort(final long index) {
         boundsCheck0(index, SIZE_OF_SHORT);
 
         return UnsafeApi.getShort(null, finalizer.address + index);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putShort(final int index, final short value) {
+    public void putShort(final long index, final short value) {
         ensureCapacity(index, SIZE_OF_SHORT);
 
         UnsafeApi.putShort(null, finalizer.address + index, value);
     }
 
-    ////////////////////////////////////////////////////////
+    //////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public byte getByte(final int index) {
+    public byte getByte(final long index) {
         boundsCheck0(index, SIZE_OF_BYTE);
         return UnsafeApi.getByte(null, finalizer.address + index);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putByte(final int index, final byte value) {
+    public void putByte(final long index, final byte value) {
         ensureCapacity(index, SIZE_OF_BYTE);
         UnsafeApi.putByte(null, finalizer.address + index, value);
     }
 
-    private void putByte0(final int index, final byte value) {
+    private void putByte0(final long index, final byte value) {
         ensureCapacity(index, SIZE_OF_BYTE);
         UnsafeApi.putByte(null, finalizer.address + index, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getBytes(final int index, final byte[] dst) {
+    public void getBytes(final long index, final byte[] dst) {
         getBytes(index, dst, 0, dst.length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getBytes(final int index, final byte[] dst, final int offset, final int length) {
+    public void getBytes(final long index, final byte[] dst, final int offset, final int length) {
         boundsCheck0(index, length);
         BufferUtil.boundsCheck(dst, offset, length);
 
         UnsafeApi.copyMemory(null, finalizer.address + index, dst, ARRAY_BASE_OFFSET + offset, length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getBytes(final int index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {
-        dstBuffer.putBytes(dstIndex, this, index, length);
+    public void getBytes(final long index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {
+        putBytesExplicit(dstBuffer, dstIndex, this, index, length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getBytes(final int index, final java.nio.ByteBuffer dstBuffer, final int length) {
+    private static void putBytesExplicit(final MutableDirectBuffer dstBuffer, final int dstIndex,
+            final MappedExpandableMemoryBufferBase srcBuffer, final long srcIndex, final int length) {
+        if (SHOULD_BOUNDS_CHECK) {
+            dstBuffer.boundsCheck(dstIndex, length);
+            srcBuffer.boundsCheck(srcIndex, length);
+        }
+
+        UnsafeApi.copyMemory(srcBuffer.byteArray(), srcBuffer.addressOffset() + srcIndex, dstBuffer.byteArray(),
+                dstBuffer.addressOffset() + dstIndex, length);
+    }
+
+    public void getBytes(final long index, final java.nio.ByteBuffer dstBuffer, final int length) {
         final int dstOffset = dstBuffer.position();
         getBytes(index, dstBuffer, dstOffset, length);
         ByteBuffers.position(dstBuffer, dstOffset + length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void getBytes(final int index, final java.nio.ByteBuffer dstBuffer, final int dstOffset, final int length) {
+    public void getBytes(final long index, final java.nio.ByteBuffer dstBuffer, final int dstOffset, final int length) {
         boundsCheck0(index, length);
         BufferUtil.boundsCheck(dstBuffer, dstOffset, length);
 
@@ -628,19 +488,11 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         UnsafeApi.copyMemory(null, finalizer.address + index, dstByteArray, dstBaseOffset + dstOffset, length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putBytes(final int index, final byte[] src) {
+    public void putBytes(final long index, final byte[] src) {
         putBytes(index, src, 0, src.length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putBytes(final int index, final byte[] src, final int offset, final int length) {
+    public void putBytes(final long index, final byte[] src, final int offset, final int length) {
         ensureCapacity(index, length);
 
         BufferUtil.boundsCheck(src, offset, length);
@@ -648,21 +500,13 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         UnsafeApi.copyMemory(src, ARRAY_BASE_OFFSET + offset, null, finalizer.address + index, length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int length) {
+    public void putBytes(final long index, final java.nio.ByteBuffer srcBuffer, final int length) {
         final int srcIndex = srcBuffer.position();
         putBytes(index, srcBuffer, srcIndex, length);
         ByteBuffers.position(srcBuffer, srcIndex + length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putBytes(final int index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final long index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
         ensureCapacity(index, length);
         BufferUtil.boundsCheck(srcBuffer, srcIndex, length);
 
@@ -679,11 +523,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         UnsafeApi.copyMemory(srcByteArray, srcBaseOffset + srcIndex, null, finalizer.address + index, length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putBytes(final int index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
+    public void putBytes(final long index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
         ensureCapacity(index, length);
         srcBuffer.boundsCheck(srcIndex, length);
 
@@ -691,13 +531,9 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
                 finalizer.address + index, length);
     }
 
-    ////////////////////////////////////////////////////////
+    //////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public char getChar(final int index, final ByteOrder byteOrder) {
+    public char getChar(final long index, final ByteOrder byteOrder) {
         boundsCheck0(index, SIZE_OF_SHORT);
 
         char bits = UnsafeApi.getChar(null, finalizer.address + index);
@@ -708,11 +544,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return bits;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putChar(final int index, final char value, final ByteOrder byteOrder) {
+    public void putChar(final long index, final char value, final ByteOrder byteOrder) {
         ensureCapacity(index, SIZE_OF_CHAR);
 
         char bits = value;
@@ -723,58 +555,38 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         UnsafeApi.putChar(null, finalizer.address + index, bits);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public char getChar(final int index) {
+    public char getChar(final long index) {
         boundsCheck0(index, SIZE_OF_CHAR);
 
         return UnsafeApi.getChar(null, finalizer.address + index);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putChar(final int index, final char value) {
+    public void putChar(final long index, final char value) {
         ensureCapacity(index, SIZE_OF_CHAR);
 
         UnsafeApi.putChar(null, finalizer.address + index, value);
     }
 
-    ////////////////////////////////////////////////////////
+    //////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getStringAscii(final int index) {
-        boundsCheck0(index, STR_HEADER_LEN);
+    public String getStringAscii(final long index) {
+        boundsCheck0(index, DirectBuffer.STR_HEADER_LEN);
 
         final int length = UnsafeApi.getInt(null, finalizer.address + index);
 
         return getStringAscii(index, length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getStringAscii(final int index, final Appendable appendable) {
-        boundsCheck0(index, STR_HEADER_LEN);
+    public int getStringAscii(final long index, final Appendable appendable) {
+        boundsCheck0(index, DirectBuffer.STR_HEADER_LEN);
 
         final int length = UnsafeApi.getInt(null, finalizer.address + index);
 
         return getStringAscii(index, length, appendable);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getStringAscii(final int index, final ByteOrder byteOrder) {
-        boundsCheck0(index, STR_HEADER_LEN);
+    public String getStringAscii(final long index, final ByteOrder byteOrder) {
+        boundsCheck0(index, DirectBuffer.STR_HEADER_LEN);
 
         int bits = UnsafeApi.getInt(null, finalizer.address + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
@@ -786,12 +598,8 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return getStringAscii(index, length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getStringAscii(final int index, final Appendable appendable, final ByteOrder byteOrder) {
-        boundsCheck0(index, STR_HEADER_LEN);
+    public int getStringAscii(final long index, final Appendable appendable, final ByteOrder byteOrder) {
+        boundsCheck0(index, DirectBuffer.STR_HEADER_LEN);
 
         int bits = UnsafeApi.getInt(null, finalizer.address + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
@@ -803,28 +611,22 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return getStringAscii(index, length, appendable);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getStringAscii(final int index, final int length) {
-        boundsCheck0(index + STR_HEADER_LEN, length);
+    public String getStringAscii(final long index, final int length) {
+        boundsCheck0(index + DirectBuffer.STR_HEADER_LEN, length);
 
         final byte[] dst = new byte[length];
-        UnsafeApi.copyMemory(null, finalizer.address + index + STR_HEADER_LEN, dst, ARRAY_BASE_OFFSET, length);
+        UnsafeApi.copyMemory(null, finalizer.address + index + DirectBuffer.STR_HEADER_LEN, dst, ARRAY_BASE_OFFSET,
+                length);
 
         return new String(dst, US_ASCII);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getStringAscii(final int index, final int length, final Appendable appendable) {
-        boundsCheck0(index, length + STR_HEADER_LEN);
+    public int getStringAscii(final long index, final int length, final Appendable appendable) {
+        boundsCheck0(index, length + DirectBuffer.STR_HEADER_LEN);
 
         try {
-            for (int i = index + STR_HEADER_LEN, limit = index + STR_HEADER_LEN + length; i < limit; i++) {
+            for (long i = index + DirectBuffer.STR_HEADER_LEN,
+                    limit = index + DirectBuffer.STR_HEADER_LEN + length; i < limit; i++) {
                 final char c = (char) UnsafeApi.getByte(null, finalizer.address + i);
                 appendable.append(c > 127 ? '?' : c);
             }
@@ -835,14 +637,10 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return length;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putStringAscii(final int index, final String value) {
+    public int putStringAscii(final long index, final String value) {
         final int length = value != null ? value.length() : 0;
 
-        ensureCapacity(index, length + STR_HEADER_LEN);
+        ensureCapacity(index, length + DirectBuffer.STR_HEADER_LEN);
 
         UnsafeApi.putInt(null, finalizer.address + index, length);
 
@@ -852,20 +650,16 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
                 c = '?';
             }
 
-            UnsafeApi.putByte(null, finalizer.address + STR_HEADER_LEN + index + i, (byte) c);
+            UnsafeApi.putByte(null, finalizer.address + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
         }
 
-        return STR_HEADER_LEN + length;
+        return DirectBuffer.STR_HEADER_LEN + length;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putStringAscii(final int index, final CharSequence value) {
+    public int putStringAscii(final long index, final CharSequence value) {
         final int length = value != null ? value.length() : 0;
 
-        ensureCapacity(index, length + STR_HEADER_LEN);
+        ensureCapacity(index, length + DirectBuffer.STR_HEADER_LEN);
 
         UnsafeApi.putInt(null, finalizer.address + index, length);
 
@@ -875,20 +669,16 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
                 c = '?';
             }
 
-            UnsafeApi.putByte(null, finalizer.address + STR_HEADER_LEN + index + i, (byte) c);
+            UnsafeApi.putByte(null, finalizer.address + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
         }
 
-        return STR_HEADER_LEN + length;
+        return DirectBuffer.STR_HEADER_LEN + length;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putStringAscii(final int index, final String value, final ByteOrder byteOrder) {
+    public int putStringAscii(final long index, final String value, final ByteOrder byteOrder) {
         final int length = value != null ? value.length() : 0;
 
-        ensureCapacity(index, length + STR_HEADER_LEN);
+        ensureCapacity(index, length + DirectBuffer.STR_HEADER_LEN);
 
         int bits = length;
         if (NATIVE_BYTE_ORDER != byteOrder) {
@@ -903,20 +693,16 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
                 c = '?';
             }
 
-            UnsafeApi.putByte(null, finalizer.address + STR_HEADER_LEN + index + i, (byte) c);
+            UnsafeApi.putByte(null, finalizer.address + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
         }
 
-        return STR_HEADER_LEN + length;
+        return DirectBuffer.STR_HEADER_LEN + length;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putStringAscii(final int index, final CharSequence value, final ByteOrder byteOrder) {
+    public int putStringAscii(final long index, final CharSequence value, final ByteOrder byteOrder) {
         final int length = value != null ? value.length() : 0;
 
-        ensureCapacity(index, length + STR_HEADER_LEN);
+        ensureCapacity(index, length + DirectBuffer.STR_HEADER_LEN);
 
         int bits = length;
         if (NATIVE_BYTE_ORDER != byteOrder) {
@@ -931,17 +717,13 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
                 c = '?';
             }
 
-            UnsafeApi.putByte(null, finalizer.address + STR_HEADER_LEN + index + i, (byte) c);
+            UnsafeApi.putByte(null, finalizer.address + DirectBuffer.STR_HEADER_LEN + index + i, (byte) c);
         }
 
-        return STR_HEADER_LEN + length;
+        return DirectBuffer.STR_HEADER_LEN + length;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getStringWithoutLengthAscii(final int index, final int length) {
+    public String getStringWithoutLengthAscii(final long index, final int length) {
         boundsCheck0(index, length);
 
         final byte[] dst = new byte[length];
@@ -950,15 +732,11 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return new String(dst, US_ASCII);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getStringWithoutLengthAscii(final int index, final int length, final Appendable appendable) {
+    public int getStringWithoutLengthAscii(final long index, final int length, final Appendable appendable) {
         boundsCheck0(index, length);
 
         try {
-            for (int i = index, limit = index + length; i < limit; i++) {
+            for (long i = index, limit = index + length; i < limit; i++) {
                 final char c = (char) UnsafeApi.getByte(null, finalizer.address + i);
                 appendable.append(c > 127 ? '?' : c);
             }
@@ -969,11 +747,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return length;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putStringWithoutLengthAscii(final int index, final String value) {
+    public int putStringWithoutLengthAscii(final long index, final String value) {
         final int length = value != null ? value.length() : 0;
 
         ensureCapacity(index, length);
@@ -990,11 +764,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return length;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putStringWithoutLengthAscii(final int index, final CharSequence value) {
+    public int putStringWithoutLengthAscii(final long index, final CharSequence value) {
         final int length = value != null ? value.length() : 0;
 
         ensureCapacity(index, length);
@@ -1011,11 +781,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return length;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putStringWithoutLengthAscii(final int index, final String value, final int valueOffset,
+    public int putStringWithoutLengthAscii(final long index, final String value, final int valueOffset,
             final int length) {
         final int len = value != null ? Integers.min(value.length() - valueOffset, length) : 0;
 
@@ -1033,11 +799,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return len;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putStringWithoutLengthAscii(final int index, final CharSequence value, final int valueOffset,
+    public int putStringWithoutLengthAscii(final long index, final CharSequence value, final int valueOffset,
             final int length) {
         final int len = value != null ? Integers.min(value.length() - valueOffset, length) : 0;
 
@@ -1055,26 +817,18 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return len;
     }
 
-    ////////////////////////////////////////////////////////
+    //////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getStringUtf8(final int index) {
-        boundsCheck0(index, STR_HEADER_LEN);
+    public String getStringUtf8(final long index) {
+        boundsCheck0(index, DirectBuffer.STR_HEADER_LEN);
 
         final int length = UnsafeApi.getInt(null, finalizer.address + index);
 
         return getStringUtf8(index, length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getStringUtf8(final int index, final ByteOrder byteOrder) {
-        boundsCheck0(index, STR_HEADER_LEN);
+    public String getStringUtf8(final long index, final ByteOrder byteOrder) {
+        boundsCheck0(index, DirectBuffer.STR_HEADER_LEN);
 
         int bits = UnsafeApi.getInt(null, finalizer.address + index);
         if (NATIVE_BYTE_ORDER != byteOrder) {
@@ -1086,66 +840,47 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return getStringUtf8(index, length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getStringUtf8(final int index, final int length) {
-        boundsCheck0(index + STR_HEADER_LEN, length);
+    public String getStringUtf8(final long index, final int length) {
+        boundsCheck0(index + DirectBuffer.STR_HEADER_LEN, length);
 
         final byte[] stringInBytes = new byte[length];
-        UnsafeApi.copyMemory(null, finalizer.address + index + STR_HEADER_LEN, stringInBytes, ARRAY_BASE_OFFSET,
-                length);
+        UnsafeApi.copyMemory(null, finalizer.address + index + DirectBuffer.STR_HEADER_LEN, stringInBytes,
+                ARRAY_BASE_OFFSET, length);
 
         return new String(stringInBytes, UTF_8);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putStringUtf8(final int index, final String value) {
+    public int putStringUtf8(final long index, final String value) {
         return putStringUtf8(index, value, Integer.MAX_VALUE);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putStringUtf8(final int index, final String value, final ByteOrder byteOrder) {
+    public int putStringUtf8(final long index, final String value, final ByteOrder byteOrder) {
         return putStringUtf8(index, value, byteOrder, Integer.MAX_VALUE);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putStringUtf8(final int index, final String value, final int maxEncodedLength) {
+    public int putStringUtf8(final long index, final String value, final int maxEncodedLength) {
         final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
         if (bytes.length > maxEncodedLength) {
             throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedLength);
         }
 
-        ensureCapacity(index, STR_HEADER_LEN + bytes.length);
+        ensureCapacity(index, DirectBuffer.STR_HEADER_LEN + bytes.length);
 
         UnsafeApi.putInt(null, finalizer.address + index, bytes.length);
-        UnsafeApi.copyMemory(bytes, ARRAY_BASE_OFFSET, null, finalizer.address + index + STR_HEADER_LEN, bytes.length);
+        UnsafeApi.copyMemory(bytes, ARRAY_BASE_OFFSET, null, finalizer.address + index + DirectBuffer.STR_HEADER_LEN,
+                bytes.length);
 
-        return STR_HEADER_LEN + bytes.length;
+        return DirectBuffer.STR_HEADER_LEN + bytes.length;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putStringUtf8(final int index, final String value, final ByteOrder byteOrder,
+    public int putStringUtf8(final long index, final String value, final ByteOrder byteOrder,
             final int maxEncodedLength) {
         final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
         if (bytes.length > maxEncodedLength) {
             throw new IllegalArgumentException("Encoded string larger than maximum size: " + maxEncodedLength);
         }
 
-        ensureCapacity(index, STR_HEADER_LEN + bytes.length);
+        ensureCapacity(index, DirectBuffer.STR_HEADER_LEN + bytes.length);
 
         int bits = bytes.length;
         if (NATIVE_BYTE_ORDER != byteOrder) {
@@ -1153,16 +888,13 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         }
 
         UnsafeApi.putInt(null, finalizer.address + index, bits);
-        UnsafeApi.copyMemory(bytes, ARRAY_BASE_OFFSET, null, finalizer.address + index + STR_HEADER_LEN, bytes.length);
+        UnsafeApi.copyMemory(bytes, ARRAY_BASE_OFFSET, null, finalizer.address + index + DirectBuffer.STR_HEADER_LEN,
+                bytes.length);
 
-        return STR_HEADER_LEN + bytes.length;
+        return DirectBuffer.STR_HEADER_LEN + bytes.length;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getStringWithoutLengthUtf8(final int index, final int length) {
+    public String getStringWithoutLengthUtf8(final long index, final int length) {
         boundsCheck0(index, length);
 
         final byte[] stringInBytes = new byte[length];
@@ -1171,11 +903,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return new String(stringInBytes, UTF_8);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putStringWithoutLengthUtf8(final int index, final String value) {
+    public int putStringWithoutLengthUtf8(final long index, final String value) {
         final byte[] bytes = value != null ? value.getBytes(UTF_8) : NULL_BYTES;
         ensureCapacity(index, bytes.length);
 
@@ -1184,13 +912,9 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return bytes.length;
     }
 
-    ////////////////////////////////////////////////////////
+    //////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int parseNaturalIntAscii(final int index, final int length) {
+    public int parseNaturalIntAscii(final long index, final int length) {
         boundsCheck0(index, length);
 
         if (length <= 0) {
@@ -1208,11 +932,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long parseNaturalLongAscii(final int index, final int length) {
+    public long parseNaturalLongAscii(final long index, final int length) {
         boundsCheck0(index, length);
 
         if (length <= 0) {
@@ -1226,11 +946,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int parseIntAscii(final int index, final int length) {
+    public int parseIntAscii(final long index, final int length) {
         boundsCheck0(index, length);
 
         if (length <= 0) {
@@ -1238,7 +954,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         }
 
         final boolean negative = MINUS_SIGN == UnsafeApi.getByte(null, finalizer.address + index);
-        int i = index;
+        long i = index;
         if (negative) {
             i++;
             if (1 == length) {
@@ -1246,7 +962,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
             }
         }
 
-        final int end = index + length;
+        final long end = index + length;
         if (end - i < INT_MAX_DIGITS) {
             final int tally = parsePositiveIntAscii(index, length, i, end);
             return negative ? -tally : tally;
@@ -1259,11 +975,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long parseLongAscii(final int index, final int length) {
+    public long parseLongAscii(final long index, final int length) {
         boundsCheck0(index, length);
 
         if (length <= 0) {
@@ -1271,7 +983,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         }
 
         final boolean negative = MINUS_SIGN == UnsafeApi.getByte(null, finalizer.address + index);
-        int i = index;
+        long i = index;
         if (negative) {
             i++;
             if (1 == length) {
@@ -1279,7 +991,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
             }
         }
 
-        final int end = index + length;
+        final long end = index + length;
         if (end - i < LONG_MAX_DIGITS) {
             final long tally = parsePositiveLongAscii(index, length, i, end);
             return negative ? -tally : tally;
@@ -1290,21 +1002,13 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putInt(final int index, final int value) {
+    public void putInt(final long index, final int value) {
         ensureCapacity(index, SIZE_OF_INT);
 
         UnsafeApi.putInt(null, finalizer.address + index, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putIntAscii(final int index, final int value) {
+    public int putIntAscii(final long index, final int value) {
         if (0 == value) {
             putByte0(index, ZERO);
             return 1;
@@ -1341,11 +1045,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return length;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putNaturalIntAscii(final int index, final int value) {
+    public int putNaturalIntAscii(final long index, final int value) {
         if (0 == value) {
             putByte0(index, ZERO);
             return 1;
@@ -1360,14 +1060,10 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return digitCount;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void putNaturalPaddedIntAscii(final int offset, final int length, final int value) {
         final int end = offset + length;
         int remainder = value;
-        for (int index = end - 1; index >= offset; index--) {
+        for (long index = end - 1; index >= offset; index--) {
             final int digit = remainder % 10;
             remainder = remainder / 10;
             putByte0(index, (byte) (ZERO + digit));
@@ -1378,10 +1074,6 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public int putNaturalIntAsciiFromEnd(final int value, final int endExclusive) {
         int remainder = value;
         int index = endExclusive;
@@ -1395,11 +1087,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return index;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putNaturalLongAscii(final int index, final long value) {
+    public int putNaturalLongAscii(final long index, final long value) {
         if (0L == value) {
             putByte0(index, ZERO);
             return 1;
@@ -1414,11 +1102,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return digitCount;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int putLongAscii(final int index, final long value) {
+    public int putLongAscii(final long index, final long value) {
         if (0L == value) {
             putByte0(index, ZERO);
             return 1;
@@ -1455,27 +1139,16 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return length;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void boundsCheck(final int index, final int length) {
+    public void boundsCheck(final long index, final int length) {
         boundsCheck0(index, length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int wrapAdjustment() {
+    public long wrapAdjustment() {
         return 0;
     }
 
-    ////////////////////////////////////////////////////////
+    //////
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -1486,38 +1159,31 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
             return false;
         }
 
-        final MappedExpandableByteBufferBase that = (MappedExpandableByteBufferBase) obj;
+        final MappedExpandableMemoryBufferBase that = (MappedExpandableMemoryBufferBase) obj;
 
         return compareTo(that) == 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int hashCode() {
         int hashCode = 1;
 
         final long address = finalizer.address;
-        for (int i = 0, length = finalizer.capacity; i < length; i++) {
+        for (long i = 0, length = finalizer.capacity; i < length; i++) {
             hashCode = 31 * hashCode + UnsafeApi.getByte(null, address + i);
         }
 
         return hashCode;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int compareTo(final DirectBuffer that) {
-        final int thisCapacity = this.capacity();
-        final int thatCapacity = that.capacity();
+    public int compareTo(final MappedExpandableMemoryBufferBase that) {
+        final long thisCapacity = this.capacity();
+        final long thatCapacity = that.capacity();
         final byte[] thatByteArray = that.byteArray();
         final long thisOffset = this.addressOffset();
         final long thatOffset = that.addressOffset();
 
-        for (int i = 0, length = Integers.min(thisCapacity, thatCapacity); i < length; i++) {
+        for (long i = 0, length = Longs.min(thisCapacity, thatCapacity); i < length; i++) {
             final int cmp = Byte.compare(UnsafeApi.getByte(null, thisOffset + i),
                     UnsafeApi.getByte(thatByteArray, thatOffset + i));
 
@@ -1527,35 +1193,32 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         }
 
         if (thisCapacity != thatCapacity) {
-            return thisCapacity - thatCapacity;
+            return (int) (thisCapacity - thatCapacity);
         }
 
         return 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String toString() {
-        return MappedExpandableByteBufferBase.class.getSimpleName() + "{" + "address=" + finalizer.address
+        return MappedExpandableMemoryBufferBase.class.getSimpleName() + "{" + "address=" + finalizer.address
                 + ", capacity=" + finalizer.capacity + ", mappedFile=" + finalizer.file + '}';
     }
 
-    private void ensureCapacity(final int index, final int length) {
+    private void ensureCapacity(final long index, final long length) {
         if (index < 0 || length < 0) {
             throw FastIndexOutOfBoundsException.getInstance("negative value: index=%s length=%s", index, length);
         }
 
-        final long resultingPosition = index + (long) length;
-        final int currentCapacity = finalizer.capacity;
+        final long resultingPosition = index + length;
+        final long currentCapacity = finalizer.capacity;
         if (resultingPosition > currentCapacity) {
             if (resultingPosition > MAX_BUFFER_LENGTH) {
                 throw FastIndexOutOfBoundsException.getInstance("index=%s length=%s maxCapacity=%s", index, length,
                         MAX_BUFFER_LENGTH);
             }
 
-            final int newCapacity = calculateExpansion(currentCapacity, (int) resultingPosition);
+            final long newCapacity = calculateExpansion(currentCapacity, resultingPosition);
             finalizer.mappedFile.setDeleteOnClose(false);
             finalizer.mappedFile.close();
             try {
@@ -1569,12 +1232,12 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
             //            getBytes(0, newBuffer, 0, finalizer.capacity);
 
             finalizer.address = finalizer.mappedFile.addressOffset();
-            finalizer.capacity = ByteBuffers.checkedCast(finalizer.mappedFile.capacity());
+            finalizer.capacity = finalizer.mappedFile.capacity();
         }
     }
 
-    protected int calculateExpansion(final int currentLength, final int requiredLength) {
-        final int value = ByteBuffers.calculateExpansion(requiredLength);
+    protected long calculateExpansion(final long currentLength, final long requiredLength) {
+        final long value = MemoryBuffers.calculateExpansion(requiredLength);
         if (value > MAX_BUFFER_LENGTH) {
             return MAX_BUFFER_LENGTH;
         } else {
@@ -1582,9 +1245,9 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         }
     }
 
-    private void boundsCheck0(final int index, final int length) {
-        final int currentCapacity = finalizer.capacity;
-        final long resultingPosition = index + (long) length;
+    private void boundsCheck0(final long index, final long length) {
+        final long currentCapacity = finalizer.capacity;
+        final long resultingPosition = index + length;
         if (index < 0 || length < 0 || resultingPosition > currentCapacity) {
             throw FastIndexOutOfBoundsException.getInstance("index=%s length=%s capacity=%s", index, length,
                     currentCapacity);
@@ -1592,9 +1255,9 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
     }
 
     //CHECKSTYLE:OFF
-    private int parsePositiveIntAscii(final int index, final int length, final int startIndex, final int end) {
+    private int parsePositiveIntAscii(final long index, final int length, final long startIndex, final long end) {
         final long offset = finalizer.address;
-        int i = startIndex;
+        long i = startIndex;
         int tally = 0, quartet;
         while ((end - i) >= 4 && isFourDigitsAsciiEncodedNumber(quartet = UnsafeApi.getInt(null, offset + i))) {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
@@ -1618,14 +1281,14 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return tally;
     }
 
-    private long parsePositiveIntAsciiOverflowCheck(final int index, final int length, final int startIndex,
-            final int end) {
+    private long parsePositiveIntAsciiOverflowCheck(final long index, final int length, final long startIndex,
+            final long end) {
         if ((end - startIndex) > INT_MAX_DIGITS) {
             throwParseIntOverflowError(index, length);
         }
 
         final long offset = finalizer.address;
-        int i = startIndex;
+        long i = startIndex;
         long tally = 0;
         long octet = UnsafeApi.getLong(null, offset + i);
         if (isEightDigitAsciiEncodedNumber(octet)) {
@@ -1649,17 +1312,17 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return tally;
     }
 
-    private void throwParseIntError(final int index, final int length) {
+    private void throwParseIntError(final long index, final int length) {
         throw new AsciiNumberFormatException("error parsing int: " + getStringWithoutLengthAscii(index, length));
     }
 
-    private void throwParseIntOverflowError(final int index, final int length) {
+    private void throwParseIntOverflowError(final long index, final int length) {
         throw new AsciiNumberFormatException("int overflow parsing: " + getStringWithoutLengthAscii(index, length));
     }
 
-    private long parsePositiveLongAscii(final int index, final int length, final int startIndex, final int end) {
+    private long parsePositiveLongAscii(final long index, final int length, final long startIndex, final long end) {
         final long offset = finalizer.address;
-        int i = startIndex;
+        long i = startIndex;
         long tally = 0, octet;
         while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = UnsafeApi.getLong(null, offset + i))) {
             if (NATIVE_BYTE_ORDER != LITTLE_ENDIAN) {
@@ -1693,14 +1356,15 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return tally;
     }
 
-    private long parseLongAsciiOverflowCheck(final int index, final int length, final int[] maxValue,
-            final int startIndex, final int end) {
+    private long parseLongAsciiOverflowCheck(final long index, final int length, final int[] maxValue,
+            final long startIndex, final long end) {
         if ((end - startIndex) > LONG_MAX_DIGITS) {
             throwParseLongOverflowError(index, length);
         }
 
         final long offset = finalizer.address;
-        int i = startIndex, k = 0;
+        long i = startIndex;
+        int k = 0;
         boolean checkOverflow = true;
         long tally = 0, octet;
         while ((end - i) >= 8 && isEightDigitAsciiEncodedNumber(octet = UnsafeApi.getLong(null, offset + i))) {
@@ -1738,11 +1402,11 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
     }
     //CHECKSTYLE:ON
 
-    private void throwParseLongError(final int index, final int length) {
+    private void throwParseLongError(final long index, final int length) {
         throw new AsciiNumberFormatException("error parsing long: " + getStringWithoutLengthAscii(index, length));
     }
 
-    private void throwParseLongOverflowError(final int index, final int length) {
+    private void throwParseLongOverflowError(final long index, final int length) {
         throw new AsciiNumberFormatException("long overflow parsing: " + getStringWithoutLengthAscii(index, length));
     }
 

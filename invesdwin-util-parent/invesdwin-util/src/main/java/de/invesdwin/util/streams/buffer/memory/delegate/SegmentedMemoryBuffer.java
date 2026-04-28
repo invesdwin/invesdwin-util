@@ -480,9 +480,16 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
         if (segments.length == 1) {
             return segments[0].asNioByteBuffer(index, length);
         } else {
-            final java.nio.ByteBuffer byteBuffer = java.nio.ByteBuffer.allocate(length);
-            getBytes(index, byteBuffer, 0, length);
-            return byteBuffer;
+            final int startSegmentIndex = getSegmentIndex(index);
+            final int endSegmentIndex = getSegmentIndex(index + length - 1);
+            if (startSegmentIndex == endSegmentIndex) {
+                return segments[startSegmentIndex].asNioByteBuffer(getSegmentOffset(index), length);
+            } else {
+                //WARNING: this is not a mutable version of the underlying memory
+                final java.nio.ByteBuffer byteBuffer = java.nio.ByteBuffer.allocate(length);
+                getBytes(index, byteBuffer, 0, length);
+                return byteBuffer;
+            }
         }
     }
 

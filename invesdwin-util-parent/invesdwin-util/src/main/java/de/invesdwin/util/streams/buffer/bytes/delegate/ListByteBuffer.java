@@ -49,8 +49,9 @@ public class ListByteBuffer implements IByteBuffer {
         this(new ArrayList<>());
     }
 
-    public ListByteBuffer(final List<IByteBuffer> list) {
-        this.list = list;
+    @SuppressWarnings("unchecked")
+    public ListByteBuffer(final List<? extends IByteBuffer> list) {
+        this.list = (List<IByteBuffer>) list;
         //just document expectations but skip this check internally
         //        assertList(this.list);
     }
@@ -563,6 +564,7 @@ public class ListByteBuffer implements IByteBuffer {
         } else if (list.size() == 1) {
             return list.get(0).asNioByteBuffer(index, length);
         } else {
+            //WARNING: this is not a mutable version of the underlying memory
             final java.nio.ByteBuffer byteBuffer = java.nio.ByteBuffer.allocate(length);
             getBytes(index, byteBuffer, 0, length);
             return byteBuffer;
