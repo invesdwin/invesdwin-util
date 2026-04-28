@@ -22,6 +22,7 @@ import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.delegate.MemoryDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedDelegateMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedFromDelegateMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IMutableSlicedDelegateMemoryBufferFactory;
@@ -496,7 +497,7 @@ public class DataOutputDelegateMemoryBuffer implements IMemoryBuffer, ISafeClose
 
     @Override
     public IByteBuffer asByteBuffer(final long index, final int length) {
-        throw newUnsupportedOperationException();
+        return new MemoryDelegateByteBuffer(newSlice(index, length));
     }
 
     private IMutableSlicedDelegateMemoryBufferFactory getMutableSliceFactory() {

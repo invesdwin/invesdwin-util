@@ -563,7 +563,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public IByteBuffer asByteBuffer(final long index, final int length) {
-        return new MemoryDelegateByteBuffer(newSlice(length, length));
+        return new MemoryDelegateByteBuffer(newSlice(index, length));
     }
 
     @Override
