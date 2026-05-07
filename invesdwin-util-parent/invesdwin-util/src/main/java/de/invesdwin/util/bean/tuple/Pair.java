@@ -30,7 +30,7 @@ public class Pair<FIRST, SECOND> extends AValueObject implements IPair<FIRST, SE
     private final SECOND second;
 
     /**
-     * Creates a new </code>{@link Pair}</code>.
+     * Creates a new <code>{@link Pair}</code>.
      * 
      * @param first
      *            the 1st. value in this tuple.
