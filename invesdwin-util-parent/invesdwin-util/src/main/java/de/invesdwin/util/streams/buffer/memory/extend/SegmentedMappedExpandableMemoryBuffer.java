@@ -38,6 +38,7 @@ public class SegmentedMappedExpandableMemoryBuffer extends ADelegateCloseableMem
      * Initial capacity of the buffer from which it will expand.
      */
     public static final int INITIAL_CAPACITY = IoUtil.BLOCK_SIZE;
+    private static final boolean SEPARATE_FILES = true;
 
     private static final UniqueNameGenerator UNIQUE_NAME_GENERATOR = new UniqueNameGenerator() {
 
@@ -61,7 +62,7 @@ public class SegmentedMappedExpandableMemoryBuffer extends ADelegateCloseableMem
             try {
                 Files.forceMkdirParent(file);
                 mappedFile = new SegmentedMemoryMappedFile(MAX_SEGMENT_SIZE, true, file, 0,
-                        IMemoryMappedFile.roundToBlockSize(initialCapacity), false, deleteOnClose, true);
+                        IMemoryMappedFile.roundToBlockSize(initialCapacity), false, deleteOnClose, SEPARATE_FILES);
             } catch (final IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -145,7 +146,8 @@ public class SegmentedMappedExpandableMemoryBuffer extends ADelegateCloseableMem
             finalizer.mappedFile.close();
             try {
                 finalizer.mappedFile = new SegmentedMemoryMappedFile(MAX_SEGMENT_SIZE, true, finalizer.file, 0,
-                        IMemoryMappedFile.roundToBlockSize(newCapacity), false, finalizer.deleteOnClose, true);
+                        IMemoryMappedFile.roundToBlockSize(newCapacity), false, finalizer.deleteOnClose,
+                        SEPARATE_FILES);
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
