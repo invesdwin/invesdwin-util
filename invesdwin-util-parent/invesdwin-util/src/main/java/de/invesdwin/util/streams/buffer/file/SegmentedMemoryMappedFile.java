@@ -85,8 +85,8 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
             } else {
                 long bufferPosition = offset - position;
                 if (segmentSize >= bufferPosition + length) {
-                    list.add(new MemoryMappedFile(closeAllowed, newFile(file, bufferPosition, separateFiles),
-                            bufferPosition, length, readOnly, deleteOnClose));
+                    list.add(new MemoryMappedFile(closeAllowed, newFile(file, position, separateFiles), bufferPosition,
+                            length, readOnly, deleteOnClose));
                     return list;
                 } else {
                     long remaining = length;
@@ -94,12 +94,19 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                         while (bufferPosition >= segmentSize) {
                             bufferPosition = 0;
                         }
+                        final long mappedPosition;
+                        if (separateFiles) {
+                            mappedPosition = bufferPosition;
+                        } else {
+                            mappedPosition = position;
+                        }
                         final long toCopy = Longs.min(remaining, segmentSize - bufferPosition);
-                        list.add(new MemoryMappedFile(closeAllowed, newFile(file, bufferPosition, separateFiles),
-                                bufferPosition, toCopy, readOnly, false));
+                        list.add(new MemoryMappedFile(closeAllowed, newFile(file, position, separateFiles),
+                                mappedPosition, toCopy, readOnly, false));
                         remaining -= toCopy;
                         i += toCopy;
                         bufferPosition += toCopy;
+                        position += toCopy;
                     }
                     return list;
                 }

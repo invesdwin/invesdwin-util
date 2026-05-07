@@ -1,11 +1,15 @@
 package de.invesdwin.util.streams.buffer.memory.extend;
 
+import java.io.DataInput;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.channels.ReadableByteChannel;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.agrona.DirectBuffer;
 import org.agrona.IoUtil;
 
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
@@ -13,6 +17,7 @@ import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.string.UniqueNameGenerator;
+import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.file.IMemoryMappedFile;
 import de.invesdwin.util.streams.buffer.file.SegmentedMemoryMappedFile;
 import de.invesdwin.util.streams.buffer.memory.ICloseableMemoryBuffer;
@@ -150,6 +155,61 @@ public class SegmentedMappedExpandableMemoryBuffer extends ADelegateCloseableMem
 
             finalizer.delegate = finalizer.mappedFile.newMemoryBuffer(0, finalizer.mappedFile.capacity());
         }
+
+    }
+
+    @Override
+    public InputStream asInputStream(final long index, final long length) {
+        ensureCapacity(index, length);
+        return getDelegate().asInputStream(index, length);
+    }
+
+    @Override
+    public void putBytes(final long index, final byte[] src, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
+        super.putBytes(index, src, srcIndex, length);
+    }
+
+    @Override
+    public void putBytes(final long index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
+        super.putBytes(index, srcBuffer, srcIndex, length);
+    }
+
+    @Override
+    public void putBytes(final long index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
+        super.putBytes(index, srcBuffer, srcIndex, length);
+    }
+
+    @Override
+    public void putBytes(final long index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
+        super.putBytes(index, srcBuffer, srcIndex, length);
+    }
+
+    @Override
+    public void putBytes(final long index, final IMemoryBuffer srcBuffer, final long srcIndex, final long length) {
+        ensureCapacity(index, length);
+        super.putBytes(index, srcBuffer, srcIndex, length);
+    }
+
+    @Override
+    public void putBytesTo(final long index, final DataInput src, final long length) throws IOException {
+        ensureCapacity(index, length);
+        super.putBytesTo(index, src, length);
+    }
+
+    @Override
+    public void putBytesTo(final long index, final InputStream src, final long length) throws IOException {
+        ensureCapacity(index, length);
+        super.putBytesTo(index, src, length);
+    }
+
+    @Override
+    public void putBytesTo(final long index, final ReadableByteChannel src, final long length) throws IOException {
+        ensureCapacity(index, length);
+        super.putBytesTo(index, src, length);
     }
 
     protected long calculateExpansion(final long currentLength, final long requiredLength) {
