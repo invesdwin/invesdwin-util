@@ -9,12 +9,13 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.string.description.TextDescription;
+import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Floats;
 
 @Immutable
 public final class AssertionUtils {
 
-    private AssertionUtils() {
-    }
+    private AssertionUtils() {}
 
     static void fail(final String message) {
         fail(() -> message);
@@ -95,7 +96,7 @@ public final class AssertionUtils {
 
     static boolean floatsAreEqual(final float value1, final float value2, final float delta) {
         assertValidDelta(delta);
-        return floatsAreEqual(value1, value2) || Math.abs(value1 - value2) <= delta;
+        return floatsAreEqual(value1, value2) || Floats.abs(value1 - value2) <= delta;
     }
 
     static void assertValidDelta(final float delta) {
@@ -116,7 +117,7 @@ public final class AssertionUtils {
 
     static boolean doublesAreEqual(final double value1, final double value2, final double delta) {
         assertValidDelta(delta);
-        return doublesAreEqual(value1, value2) || Math.abs(value1 - value2) <= delta;
+        return doublesAreEqual(value1, value2) || Doubles.abs(value1 - value2) <= delta;
     }
 
     static boolean doublesAreEqual(final double value1, final double value2) {

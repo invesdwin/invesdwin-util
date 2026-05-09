@@ -4,12 +4,15 @@ import java.io.DataInput;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PushbackInputStream;
 import java.io.UTFDataFormatException;
 import java.nio.channels.ReadableByteChannel;
 import java.util.concurrent.TimeoutException;
 
 import javax.annotation.concurrent.Immutable;
+
+import org.apache.commons.io.IOUtils;
 
 import de.invesdwin.util.concurrent.future.throwing.IThrowingIORunnable;
 import de.invesdwin.util.concurrent.future.throwing.IThrowingTimeoutRunnable;
@@ -18,6 +21,7 @@ import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.FastTimeoutException;
 import de.invesdwin.util.lang.uri.URIs;
+import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
 import de.invesdwin.util.time.duration.Duration;
@@ -40,6 +44,12 @@ public final class InputStreams {
         @Override
         protected char[] initialValue() throws Exception {
             return new char[128];
+        }
+    };
+    private static final FastThreadLocal<byte[]> COPY_BUFFER_HOLDER = new FastThreadLocal<byte[]>() {
+        @Override
+        protected byte[] initialValue() throws Exception {
+            return new byte[IOUtils.DEFAULT_BUFFER_SIZE];
         }
     };
 
@@ -257,6 +267,37 @@ public final class InputStreams {
         }
     }
 
+    public static void copyFullyNoTimeout(final InputStream src, final OutputStream out, final long length)
+            throws IOException {
+        final Duration timeout = URIs.getDefaultNetworkTimeout();
+        try {
+            copyFully(src, out, length, timeout);
+        } catch (final TimeoutException e) {
+            throw newTimeoutEOF(e);
+        }
+    }
+
+    public static void copyFully(final InputStream src, final OutputStream out, final long length)
+            throws IOException, TimeoutException {
+        final Duration timeout = URIs.getDefaultNetworkTimeout();
+        copyFully(src, out, length, timeout);
+    }
+
+    public static void copyFully(final InputStream src, final OutputStream array, final long length,
+            final Duration timeout) throws IOException, TimeoutException {
+        copyFully(src, array, length, timeout, ASpinWait::onSpinWaitStatic, InputStreams::throwOnEOF,
+                InputStreams::throwOnTimeout);
+    }
+
+    public static void copyFully(final InputStream src, final OutputStream array, final long length,
+            final Duration timeout, final Runnable onSpinWaitF, final IThrowingIORunnable onEofF,
+            final IThrowingTimeoutRunnable onTimeoutF) throws IOException, TimeoutException {
+        final long read = copyFullyIfPossible(src, array, length, timeout, onSpinWaitF, onEofF, onTimeoutF);
+        if (read < length) {
+            throw newEOF();
+        }
+    }
+
     public static void readFullyNoTimeout(final ReadableByteChannel src, final java.nio.ByteBuffer byteBuffer)
             throws IOException {
         try {
@@ -330,6 +371,40 @@ public final class InputStreams {
                 }
                 onSpinWaitF.run();
             } else {
+                zeroCountNanos = -1L;
+                remaining -= count;
+            }
+        }
+        return length - remaining;
+    }
+
+    public static long copyFullyIfPossible(final InputStream src, final OutputStream out, final long length,
+            final Duration timeout, final Runnable onSpinWaitF, final IThrowingIORunnable onEofF,
+            final IThrowingTimeoutRunnable onTimeoutF) throws IOException, TimeoutException {
+        long zeroCountNanos = -1L;
+
+        final byte[] array = COPY_BUFFER_HOLDER.get();
+
+        long remaining = length;
+        while (remaining > 0) {
+            final int count = src.read(array, 0, ByteBuffers.checkedCast(Longs.min(array.length, remaining)));
+            if (count < 0) { // EOF
+                onEofF.run();
+                break;
+            }
+            if (count == 0) {
+                if (timeout != null) {
+                    if (zeroCountNanos == -1) {
+                        zeroCountNanos = System.nanoTime();
+                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        //timeout exceeded
+                        onTimeoutF.run();
+                        return length - remaining;
+                    }
+                }
+                onSpinWaitF.run();
+            } else {
+                out.write(array, 0, count);
                 zeroCountNanos = -1L;
                 remaining -= count;
             }

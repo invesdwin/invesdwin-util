@@ -26,6 +26,7 @@ import de.invesdwin.util.lang.string.internal.DefaultToStringStyle;
 import de.invesdwin.util.lang.string.internal.ExtendedReflectionToStringBuilder;
 import de.invesdwin.util.lang.string.internal.MultilineToStringStyle;
 import de.invesdwin.util.lang.string.internal.SplitByMaxLengthIterator;
+import de.invesdwin.util.math.Integers;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.string.internal.AStringsStaticFacade", targets = {
@@ -304,7 +305,7 @@ public final class Strings extends AStringsStaticFacade {
         final String[] lines = Strings.splitPreserveAllTokens(s, "\n");
         int maxLength = 0;
         for (int i = 0; i < lines.length; i++) {
-            maxLength = Math.max(maxLength, lines[i].length());
+            maxLength = Integers.max(maxLength, lines[i].length());
         }
         return maxLength;
     }
@@ -614,7 +615,7 @@ public final class Strings extends AStringsStaticFacade {
             }
         }
         // have upper-bound at 20% increase, then let Java take over
-        increase = Math.min(increase, text.length() / 5);
+        increase = Integers.min(increase, text.length() / 5);
 
         final StringBuilder buf = new StringBuilder(text.length() + increase);
 

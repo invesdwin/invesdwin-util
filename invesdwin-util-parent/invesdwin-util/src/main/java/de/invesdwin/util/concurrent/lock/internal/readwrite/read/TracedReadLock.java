@@ -2,27 +2,24 @@ package de.invesdwin.util.concurrent.lock.internal.readwrite.read;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import de.invesdwin.util.concurrent.lock.ILock;
-import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
-import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
-import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyLock;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.concurrent.reference.WeakThreadLocalReference;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public class TracedReadLock implements ILock {
 
-    private final String name;
+    private final ILockTrace lockTrace;
     private final IReadWriteLock parent;
-    private final Lock delegate;
+    private final ILock delegate;
     /**
      * we need to separate this info per thread because read locks can be held concurrently by multiple threads
      */
@@ -33,15 +30,15 @@ public class TracedReadLock implements ILock {
         }
     };
 
-    public TracedReadLock(final String name, final IReadWriteLock parent, final Lock delegate) {
-        this.name = name;
+    public TracedReadLock(final ILockTrace lockTrace, final IReadWriteLock parent, final ILock delegate) {
+        this.lockTrace = lockTrace;
         this.parent = parent;
         this.delegate = delegate;
     }
 
     @Override
     public String getName() {
-        return name;
+        return delegate.getName();
     }
 
     @Override
@@ -51,20 +48,20 @@ public class TracedReadLock implements ILock {
     }
 
     @Override
-    public boolean isLockedByCurrentThread() {
+    public boolean isHeldByCurrentThread() {
         //intentionally gives the info of writelock because readlocks don't block among themselves
         return parent.isWriteLockedByCurrentThread();
     }
 
     protected void onLocked() {
         if (lockedThreadCount.get().incrementAndGet() == 1) {
-            Locks.getLockTrace().locked(getName());
+            lockTrace.locked(getName());
         }
     }
 
     protected void onUnlock() {
         if (lockedThreadCount.get().decrementAndGet() == 0) {
-            Locks.getLockTrace().unlocked(getName());
+            lockTrace.unlocked(getName());
         }
     }
 
@@ -74,7 +71,7 @@ public class TracedReadLock implements ILock {
             delegate.lock();
             onLocked();
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -86,7 +83,7 @@ public class TracedReadLock implements ILock {
         } catch (final InterruptedException t) {
             throw t;
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -99,7 +96,7 @@ public class TracedReadLock implements ILock {
             }
             return locked;
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -114,7 +111,7 @@ public class TracedReadLock implements ILock {
         } catch (final InterruptedException t) {
             throw t;
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -124,7 +121,7 @@ public class TracedReadLock implements ILock {
             onUnlock();
             delegate.unlock();
         } catch (final Throwable t) {
-            throw Locks.getLockTrace().handleLockException(getName(), t);
+            throw lockTrace.handleLockException(getName(), t);
         }
     }
 
@@ -135,19 +132,24 @@ public class TracedReadLock implements ILock {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
+        return Objects.toStringHelper(this).addValue(delegate).toString();
     }
 
     @Override
     public ILockingStrategy getStrategy() {
-        return DefaultLockingStrategy.INSTANCE;
+        return delegate.getStrategy();
     }
 
     //CHECKSTYLE:OFF
     @Override
     public ILock withStrategy(final ILockingStrategy strategy) {
         //CHECKSTYLE:ON
-        return StrategyLock.maybeWrap(strategy, this);
+        return new TracedReadLock(lockTrace, parent, delegate.withStrategy(strategy));
+    }
+
+    @Override
+    public ILockTrace getLockTrace() {
+        return lockTrace;
     }
 
 }

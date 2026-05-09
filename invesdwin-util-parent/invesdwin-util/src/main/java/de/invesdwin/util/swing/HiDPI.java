@@ -8,6 +8,8 @@ import java.awt.Toolkit;
 import javax.annotation.concurrent.Immutable;
 import javax.swing.ImageIcon;
 
+import de.invesdwin.util.math.Integers;
+
 @Immutable
 public final class HiDPI {
 
@@ -49,11 +51,11 @@ public final class HiDPI {
     }
 
     public static int scale(final int size) {
-        return (int) Math.ceil(size * scaleFactor);
+        return Integers.ceil(size * scaleFactor);
     }
 
     public static int descale(final int size) {
-        return (int) Math.ceil(size / scaleFactor);
+        return Integers.ceil(size / scaleFactor);
     }
 
     public static double scale(final double size) {

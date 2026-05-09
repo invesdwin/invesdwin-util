@@ -22,8 +22,8 @@ import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.uri.URIs;
-import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.OutputStreams;
@@ -34,47 +34,81 @@ import de.invesdwin.util.streams.buffer.bytes.delegate.ChronicleDelegateByteBuff
 import de.invesdwin.util.streams.buffer.bytes.delegate.MemoryDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.ArrayExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
+import de.invesdwin.util.streams.buffer.memory.ICloseableMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.MemoryBuffers;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedDelegateMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.slice.SlicedFromDelegateMemoryBuffer;
-import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IMutableSlicedDelegateMemoryBufferFactory;
+import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IMutableSlicedDelegateCloseableMemoryBufferFactory;
 import de.invesdwin.util.streams.buffer.memory.stream.ExpandableMemoryBufferOutputStream;
 import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferInputStream;
 import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferOutputStream;
 import de.invesdwin.util.time.duration.Duration;
 import net.openhft.chronicle.bytes.BytesStore;
+import net.openhft.chronicle.core.OS;
 
 @NotThreadSafe
-public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
+public class ChronicleDelegateMemoryBuffer implements ICloseableMemoryBuffer {
 
     public static final net.openhft.chronicle.bytes.Bytes<?> EMPTY_BYTES = ChronicleDelegateByteBuffer.EMPTY_BYTES;
-    public static final ChronicleDelegateMemoryBuffer EMPTY_BUFFER = new ChronicleDelegateMemoryBuffer(EMPTY_BYTES);
+    public static final ChronicleDelegateMemoryBuffer EMPTY_BUFFER = new ChronicleDelegateMemoryBuffer(EMPTY_BYTES,
+            false);
 
-    private net.openhft.chronicle.bytes.Bytes<?> delegate;
-    private IMutableSlicedDelegateMemoryBufferFactory mutableSliceFactory;
+    private static final class ChronicleDelegateMemoryBufferFinalizer extends AFinalizer {
 
-    public ChronicleDelegateMemoryBuffer(final net.openhft.chronicle.bytes.Bytes<?> delegate) {
+        private net.openhft.chronicle.bytes.Bytes<?> delegate;
+
+        private ChronicleDelegateMemoryBufferFinalizer() {}
+
+        @Override
+        protected void clean() {
+            final net.openhft.chronicle.bytes.Bytes<?> delegateCopy = delegate;
+            if (delegateCopy != null) {
+                delegateCopy.releaseLast();
+                delegate = null;
+            }
+        }
+
+        @Override
+        protected boolean isCleaned() {
+            return delegate == null;
+        }
+
+        @Override
+        public boolean isThreadLocal() {
+            return false;
+        }
+
+    }
+
+    private final ChronicleDelegateMemoryBufferFinalizer finalizer;
+    private IMutableSlicedDelegateCloseableMemoryBufferFactory mutableSliceFactory;
+
+    public ChronicleDelegateMemoryBuffer(final net.openhft.chronicle.bytes.Bytes<?> delegate, final boolean finalize) {
+        this.finalizer = new ChronicleDelegateMemoryBufferFinalizer();
         setDelegate(delegate);
+        if (finalize) {
+            finalizer.register(this);
+        }
     }
 
     @Override
     public int getId() {
-        return System.identityHashCode(delegate);
+        return System.identityHashCode(getDelegate());
     }
 
     public net.openhft.chronicle.bytes.Bytes<?> getDelegate() {
-        return delegate;
+        return finalizer.delegate;
     }
 
     public void setDelegate(final net.openhft.chronicle.bytes.Bytes<?> delegate) {
         if (delegate == null) {
-            this.delegate = null;
+            finalizer.delegate = null;
         } else {
             if (delegate.byteOrder() != ByteBuffers.NATIVE_ORDER) {
                 throw new IllegalArgumentException("Expecting chronicle-bytes to always be in native order!");
             }
-            this.delegate = delegate;
+            finalizer.delegate = delegate;
         }
     }
 
@@ -89,7 +123,7 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     public java.nio.ByteBuffer nioByteBuffer() {
-        final Object underlying = delegate.underlyingObject();
+        final Object underlying = getDelegate().underlyingObject();
         if (underlying instanceof java.nio.ByteBuffer) {
             return (java.nio.ByteBuffer) underlying;
         }
@@ -97,7 +131,7 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     public byte[] byteArray() {
-        final Object underlying = delegate.underlyingObject();
+        final Object underlying = getDelegate().underlyingObject();
         if (underlying instanceof byte[]) {
             return (byte[]) underlying;
         }
@@ -115,174 +149,174 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
         if (array != null) {
             return BufferUtil.ARRAY_BASE_OFFSET;
         }
-        final BytesStore store = delegate.bytesStore();
+        final BytesStore store = getDelegate().bytesStore();
         final long address = store.addressForRead(store.start());
         return address;
     }
 
     @Override
     public long capacity() {
-        final long capacity = delegate.safeLimit();
+        final long capacity = getDelegate().safeLimit();
         return capacity;
     }
 
     @Override
     public long getLong(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final long bits = delegate.readLong(index);
+            final long bits = getDelegate().readLong(index);
             return Long.reverseBytes(bits);
         } else {
-            return delegate.readLong(index);
+            return getDelegate().readLong(index);
         }
     }
 
     @Override
     public int getInt(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final int bits = delegate.readInt(index);
+            final int bits = getDelegate().readInt(index);
             return Integer.reverseBytes(bits);
         } else {
-            return delegate.readInt(index);
+            return getDelegate().readInt(index);
         }
     }
 
     @Override
     public double getDouble(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final long bits = delegate.readLong(index);
+            final long bits = getDelegate().readLong(index);
             return Double.longBitsToDouble(Long.reverseBytes(bits));
         } else {
-            return delegate.readDouble(index);
+            return getDelegate().readDouble(index);
         }
     }
 
     @Override
     public float getFloat(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final int bits = delegate.readInt(index);
+            final int bits = getDelegate().readInt(index);
             return Float.intBitsToFloat(Integer.reverseBytes(bits));
         } else {
-            return delegate.readFloat(index);
+            return getDelegate().readFloat(index);
         }
     }
 
     @Override
     public short getShort(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final short bits = delegate.readShort(index);
+            final short bits = getDelegate().readShort(index);
             return Short.reverseBytes(bits);
         } else {
-            return delegate.readShort(index);
+            return getDelegate().readShort(index);
         }
     }
 
     @Override
     public char getChar(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final short bits = delegate.readShort(index);
+            final short bits = getDelegate().readShort(index);
             return (char) Short.reverseBytes(bits);
         } else {
-            return (char) delegate.readShort(index);
+            return (char) getDelegate().readShort(index);
         }
     }
 
     @Override
     public long getLongReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final long bits = delegate.readLong(index);
+            final long bits = getDelegate().readLong(index);
             return Long.reverseBytes(bits);
         } else {
-            return delegate.readLong(index);
+            return getDelegate().readLong(index);
         }
     }
 
     @Override
     public int getIntReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final int bits = delegate.readInt(index);
+            final int bits = getDelegate().readInt(index);
             return Integer.reverseBytes(bits);
         } else {
-            return delegate.readInt(index);
+            return getDelegate().readInt(index);
         }
     }
 
     @Override
     public double getDoubleReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final long bits = delegate.readLong(index);
+            final long bits = getDelegate().readLong(index);
             return Double.longBitsToDouble(Long.reverseBytes(bits));
         } else {
-            return delegate.readDouble(index);
+            return getDelegate().readDouble(index);
         }
     }
 
     @Override
     public float getFloatReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final int bits = delegate.readInt(index);
+            final int bits = getDelegate().readInt(index);
             return Float.intBitsToFloat(Integer.reverseBytes(bits));
         } else {
-            return delegate.readFloat(index);
+            return getDelegate().readFloat(index);
         }
     }
 
     @Override
     public short getShortReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final short bits = delegate.readShort(index);
+            final short bits = getDelegate().readShort(index);
             return Short.reverseBytes(bits);
         } else {
-            return delegate.readShort(index);
+            return getDelegate().readShort(index);
         }
     }
 
     @Override
     public char getCharReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final short bits = delegate.readShort(index);
+            final short bits = getDelegate().readShort(index);
             return (char) Short.reverseBytes(bits);
         } else {
-            return (char) delegate.readShort(index);
+            return (char) getDelegate().readShort(index);
         }
     }
 
     @Override
     public byte getByte(final long index) {
-        return delegate.readByte(index);
+        return getDelegate().readByte(index);
     }
 
     @Override
     public void getBytes(final long index, final byte[] dst, final int dstIndex, final int length) {
         for (int i = 0; i < length; i++) {
-            dst[dstIndex + i] = delegate.readByte(index + i);
+            dst[dstIndex + i] = getDelegate().readByte(index + i);
         }
     }
 
     @Override
     public void getBytes(final long index, final MutableDirectBuffer dstBuffer, final int dstIndex, final int length) {
         for (int i = 0; i < length; i++) {
-            dstBuffer.putByte(dstIndex + i, delegate.readByte(index + i));
+            dstBuffer.putByte(dstIndex + i, getDelegate().readByte(index + i));
         }
     }
 
     @Override
     public void getBytes(final long index, final IByteBuffer dstBuffer, final int dstIndex, final int length) {
         for (int i = 0; i < length; i++) {
-            dstBuffer.putByte(dstIndex + i, delegate.readByte(index + i));
+            dstBuffer.putByte(dstIndex + i, getDelegate().readByte(index + i));
         }
     }
 
     @Override
     public void getBytes(final long index, final IMemoryBuffer dstBuffer, final long dstIndex, final long length) {
         for (long i = 0; i < length; i++) {
-            dstBuffer.putByte(dstIndex + i, delegate.readByte(index + i));
+            dstBuffer.putByte(dstIndex + i, getDelegate().readByte(index + i));
         }
     }
 
     @Override
     public void getBytes(final long index, final java.nio.ByteBuffer dstBuffer, final int dstIndex, final int length) {
         for (int i = 0; i < length; i++) {
-            dstBuffer.put(dstIndex + i, delegate.readByte(index + i));
+            dstBuffer.put(dstIndex + i, getDelegate().readByte(index + i));
         }
     }
 
@@ -302,16 +336,16 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public boolean isExpandable() {
-        return delegate.isElastic();
+        return getDelegate().isElastic();
     }
 
     @Override
     public void putLong(final long index, final long value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(value);
-            delegate.writeLong(index, bits);
+            getDelegate().writeLong(index, bits);
         } else {
-            delegate.writeLong(index, value);
+            getDelegate().writeLong(index, value);
         }
     }
 
@@ -319,9 +353,9 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     public void putInt(final long index, final int value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(value);
-            delegate.writeInt(index, bits);
+            getDelegate().writeInt(index, bits);
         } else {
-            delegate.writeInt(index, value);
+            getDelegate().writeInt(index, value);
         }
     }
 
@@ -329,9 +363,9 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     public void putDouble(final long index, final double value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
-            delegate.writeLong(index, bits);
+            getDelegate().writeLong(index, bits);
         } else {
-            delegate.writeDouble(index, value);
+            getDelegate().writeDouble(index, value);
         }
     }
 
@@ -339,9 +373,9 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     public void putFloat(final long index, final float value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
-            delegate.writeInt(index, bits);
+            getDelegate().writeInt(index, bits);
         } else {
-            delegate.writeFloat(index, value);
+            getDelegate().writeFloat(index, value);
         }
     }
 
@@ -349,9 +383,9 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     public void putShort(final long index, final short value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final short bits = Short.reverseBytes(value);
-            delegate.writeShort(index, bits);
+            getDelegate().writeShort(index, bits);
         } else {
-            delegate.writeShort(index, value);
+            getDelegate().writeShort(index, value);
         }
     }
 
@@ -359,9 +393,9 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     public void putChar(final long index, final char value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final short bits = Short.reverseBytes((short) value);
-            delegate.writeShort(index, bits);
+            getDelegate().writeShort(index, bits);
         } else {
-            delegate.writeShort(index, (short) value);
+            getDelegate().writeShort(index, (short) value);
         }
     }
 
@@ -369,9 +403,9 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     public void putLongReverse(final long index, final long value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(value);
-            delegate.writeLong(index, bits);
+            getDelegate().writeLong(index, bits);
         } else {
-            delegate.writeLong(index, value);
+            getDelegate().writeLong(index, value);
         }
     }
 
@@ -379,9 +413,9 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     public void putIntReverse(final long index, final int value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(value);
-            delegate.writeInt(index, bits);
+            getDelegate().writeInt(index, bits);
         } else {
-            delegate.writeInt(index, value);
+            getDelegate().writeInt(index, value);
         }
     }
 
@@ -389,9 +423,9 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     public void putDoubleReverse(final long index, final double value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
-            delegate.writeLong(index, bits);
+            getDelegate().writeLong(index, bits);
         } else {
-            delegate.writeDouble(index, value);
+            getDelegate().writeDouble(index, value);
         }
     }
 
@@ -399,9 +433,9 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     public void putFloatReverse(final long index, final float value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
-            delegate.writeInt(index, bits);
+            getDelegate().writeInt(index, bits);
         } else {
-            delegate.writeFloat(index, value);
+            getDelegate().writeFloat(index, value);
         }
     }
 
@@ -409,9 +443,9 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     public void putShortReverse(final long index, final short value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final short bits = Short.reverseBytes(value);
-            delegate.writeShort(index, bits);
+            getDelegate().writeShort(index, bits);
         } else {
-            delegate.writeShort(index, value);
+            getDelegate().writeShort(index, value);
         }
     }
 
@@ -419,45 +453,45 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     public void putCharReverse(final long index, final char value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final short bits = Short.reverseBytes((short) value);
-            delegate.writeShort(index, bits);
+            getDelegate().writeShort(index, bits);
         } else {
-            delegate.writeShort(index, (short) value);
+            getDelegate().writeShort(index, (short) value);
         }
     }
 
     @Override
     public void putByte(final long index, final byte value) {
-        delegate.writeByte(index, value);
+        getDelegate().writeByte(index, value);
     }
 
     @Override
     public void putBytes(final long index, final byte[] src, final int srcIndex, final int length) {
-        delegate.write(index, src, srcIndex, length);
+        getDelegate().write(index, src, srcIndex, length);
     }
 
     @Override
     public void putBytes(final long index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
-        delegate.write(index, srcBuffer, srcIndex, length);
+        getDelegate().write(index, srcBuffer, srcIndex, length);
     }
 
     @Override
     public void putBytes(final long index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
         for (int i = 0; i < length; i++) {
-            delegate.writeByte(index + i, srcBuffer.getByte(srcIndex + i));
+            getDelegate().writeByte(index + i, srcBuffer.getByte(srcIndex + i));
         }
     }
 
     @Override
     public void putBytes(final long index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
         for (int i = 0; i < length; i++) {
-            delegate.writeByte(index + i, srcBuffer.getByte(srcIndex + i));
+            getDelegate().writeByte(index + i, srcBuffer.getByte(srcIndex + i));
         }
     }
 
     @Override
     public void putBytes(final long index, final IMemoryBuffer srcBuffer, final long srcIndex, final long length) {
         for (int i = 0; i < length; i++) {
-            delegate.writeByte(index + i, srcBuffer.getByte(srcIndex + i));
+            getDelegate().writeByte(index + i, srcBuffer.getByte(srcIndex + i));
         }
     }
 
@@ -489,26 +523,26 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     @Override
     public IByteBuffer asByteBuffer(final long index, final int length) {
         if (index + length < ArrayExpandableByteBuffer.MAX_ARRAY_LENGTH) {
-            return new ChronicleDelegateByteBuffer(delegate).newSlice((int) index, length);
+            return new ChronicleDelegateByteBuffer(getDelegate(), false).newSlice((int) index, length);
         } else {
             return new MemoryDelegateByteBuffer(newSlice(index, length));
         }
     }
 
-    private IMutableSlicedDelegateMemoryBufferFactory getMutableSliceFactory() {
+    private IMutableSlicedDelegateCloseableMemoryBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
-            mutableSliceFactory = IMutableSlicedDelegateMemoryBufferFactory.newInstance(this);
+            mutableSliceFactory = IMutableSlicedDelegateCloseableMemoryBufferFactory.newInstance(this);
         }
         return mutableSliceFactory;
     }
 
     @Override
-    public IMemoryBuffer sliceFrom(final long index) {
+    public ICloseableMemoryBuffer sliceFrom(final long index) {
         return getMutableSliceFactory().sliceFrom(index);
     }
 
     @Override
-    public IMemoryBuffer slice(final long index, final long length) {
+    public ICloseableMemoryBuffer slice(final long index, final long length) {
         return getMutableSliceFactory().slice(index, length);
     }
 
@@ -542,7 +576,7 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
         try {
             final long limit = index + length;
             for (long i = index; i < limit; i++) {
-                final char c = (char) delegate.readByte(i);
+                final char c = (char) getDelegate().readByte(i);
                 dst.append(c > 127 ? '?' : c);
             }
         } catch (final IOException e) {
@@ -558,14 +592,14 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
                 c = '?';
             }
 
-            delegate.writeByte(index + i, (byte) c);
+            getDelegate().writeByte(index + i, (byte) c);
         }
     }
 
     @Override
     public int putStringUtf8(final long index, final String value) {
         final byte[] bytes = ByteBuffers.newStringUtf8Bytes(value);
-        delegate.write(index, bytes);
+        getDelegate().write(index, bytes);
         return bytes.length;
     }
 
@@ -593,7 +627,7 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
         } else {
             long i = index;
             while (i < length) {
-                final byte b = delegate.readByte(i);
+                final byte b = getDelegate().readByte(i);
                 dst.write(b);
                 i++;
             }
@@ -612,7 +646,7 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
         } else {
             long i = index;
             while (i < length) {
-                final byte b = delegate.readByte(i);
+                final byte b = getDelegate().readByte(i);
                 dst.write(b);
                 i++;
             }
@@ -627,7 +661,7 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
             long i = index;
             while (i < length) {
                 final byte b = src.readByte();
-                delegate.writeByte(i, b);
+                getDelegate().writeByte(i, b);
                 i++;
             }
         }
@@ -662,7 +696,7 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
                     ASpinWait.onSpinWaitStatic();
                 } else {
                     zeroCountNanos = -1L;
-                    delegate.writeByte(i, (byte) result);
+                    getDelegate().writeByte(i, (byte) result);
                     i++;
                 }
             }
@@ -703,8 +737,8 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
         if (getClass().isAssignableFrom(type)) {
             return (T) this;
         }
-        if (delegate.getClass().isAssignableFrom(type)) {
-            return (T) delegate;
+        if (getDelegate().getClass().isAssignableFrom(type)) {
+            return (T) getDelegate();
         }
         return null;
     }
@@ -717,26 +751,34 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
             if (wrapAdjustment == 0 && capacity() == byteBuffer.capacity()) {
                 return byteBuffer;
             } else {
-                return ByteBuffers.slice(byteBuffer, Integers.checkedCast(wrapAdjustment + index), length);
+                return ByteBuffers.slice(byteBuffer, ByteBuffers.checkedCast(wrapAdjustment + index), length);
             }
         }
         final byte[] array = byteArray();
         if (array != null) {
             final java.nio.ByteBuffer arrayBuffer = java.nio.ByteBuffer.wrap(array,
-                    Integers.checkedCast(wrapAdjustment + index), length);
+                    ByteBuffers.checkedCast(wrapAdjustment + index), length);
             return arrayBuffer;
         }
-        final BytesStore store = delegate.bytesStore();
+        final BytesStore<?, ?> store = getDelegate().bytesStore();
         final long address = store.addressForRead(store.start());
         return UninitializedDirectByteBuffers.asDirectByteBufferNoCleaner(address + index, length);
     }
 
     @Override
     public void clear(final byte value, final long index, final long length) {
-        final long target = index + length;
-        for (long i = index; i < target; i++) {
-            delegate.writeByte(i, value);
+        final net.openhft.chronicle.bytes.Bytes<?> bytes = getDelegate();
+
+        final BytesStore<?, ?> store = bytes.bytesStore();
+        final long endInStore = store.capacity();
+        final long canWrite = Longs.min(length, endInStore - index);
+        if (canWrite != length) {
+            throw new IllegalStateException(
+                    "Unexpectedly cannot clear entire range in one go, this should not happen for chronicle-bytes!"
+                            + " Maybe there is a chunked storage used internally?");
         }
+        final long address = store.addressForWrite(index);
+        OS.memory().setMemory(address, canWrite, value);
     }
 
     @Override
@@ -745,8 +787,8 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public IMemoryBuffer ensureCapacity(final long desiredCapacity) {
-        delegate.ensureCapacity(desiredCapacity);
+    public ICloseableMemoryBuffer ensureCapacity(final long desiredCapacity) {
+        getDelegate().ensureCapacity(desiredCapacity);
         return this;
     }
 
@@ -773,8 +815,16 @@ public class ChronicleDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
-    public IMemoryBuffer asImmutableSlice() {
+    public ICloseableMemoryBuffer asImmutableSlice() {
         return this;
+    }
+
+    @Override
+    public void close() {
+        final net.openhft.chronicle.bytes.Bytes<?> delegate = getDelegate();
+        if (delegate != null) {
+            delegate.releaseLast();
+        }
     }
 
 }

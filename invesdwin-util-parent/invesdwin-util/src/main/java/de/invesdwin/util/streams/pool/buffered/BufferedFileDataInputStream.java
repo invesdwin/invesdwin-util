@@ -13,6 +13,8 @@ import java.nio.file.StandardOpenOption;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.concurrent.pool.IObjectPool;
+import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -92,7 +94,7 @@ public class BufferedFileDataInputStream extends InputStream implements DataInpu
 
     private boolean fillBuffer() throws IOException {
         ByteBuffers.position(nioBuffer, 0);
-        final int limit = (int) Math.min((channelLimit - channel.position()), nioBuffer.capacity());
+        final int limit = (int) Longs.min((channelLimit - channel.position()), nioBuffer.capacity());
         ByteBuffers.limit(nioBuffer, limit);
         if (limit == 0) {
             return false;
@@ -120,7 +122,7 @@ public class BufferedFileDataInputStream extends InputStream implements DataInpu
                 return -1;
             }
         }
-        final int read = Math.min(len, nioBuffer.remaining());
+        final int read = Integers.min(len, nioBuffer.remaining());
         nioBuffer.get(b, off, read);
         return read;
     }

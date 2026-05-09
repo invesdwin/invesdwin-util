@@ -20,8 +20,7 @@ import de.invesdwin.util.time.date.IFDateProvider;
 @Immutable
 public final class StatisticalFunctions {
 
-    private StatisticalFunctions() {
-    }
+    private StatisticalFunctions() {}
 
     public static IFunctionFactory newCountFunction(final String name) {
         return new IFunctionFactory() {
@@ -154,7 +153,7 @@ public final class StatisticalFunctions {
 
                     @Override
                     public IEvaluateInteger newEvaluateInteger(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -164,7 +163,7 @@ public final class StatisticalFunctions {
                         return key -> {
                             final int count = countF.evaluateInteger(key);
                             int countNotNan = 0;
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double result = conditionF.evaluateDouble(curKey);
                                 if (!Doubles.isNaN(result)) {
@@ -336,7 +335,7 @@ public final class StatisticalFunctions {
 
                     @Override
                     public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -346,7 +345,7 @@ public final class StatisticalFunctions {
                         return key -> {
                             final int count = countF.evaluateInteger(key);
                             double sum = 0D;
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double result = conditionF.evaluateDouble(curKey);
                                 if (!Doubles.isNaN(result)) {
@@ -517,7 +516,7 @@ public final class StatisticalFunctions {
 
                     @Override
                     public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -527,7 +526,7 @@ public final class StatisticalFunctions {
                         return key -> {
                             final int count = countF.evaluateInteger(key);
                             double sum = 0D;
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double result = conditionF.evaluateDouble(curKey);
                                 if (!Doubles.isNaN(result)) {
@@ -699,7 +698,7 @@ public final class StatisticalFunctions {
 
                     @Override
                     public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @SuppressWarnings("deprecation")
@@ -710,7 +709,7 @@ public final class StatisticalFunctions {
                         return key -> {
                             final int count = countF.evaluateInteger(key);
                             final DoubleStreamVariance variance = new DoubleStreamVariance();
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double result = conditionF.evaluateDouble(curKey);
                                 if (!Doubles.isNaN(result)) {
@@ -882,7 +881,7 @@ public final class StatisticalFunctions {
 
                     @Override
                     public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -892,7 +891,7 @@ public final class StatisticalFunctions {
                         return key -> {
                             final int count = countF.evaluateInteger(key);
                             final DoubleStreamVariance variance = new DoubleStreamVariance();
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double result = conditionF.evaluateDouble(curKey);
                                 if (!Doubles.isNaN(result)) {
@@ -1064,7 +1063,7 @@ public final class StatisticalFunctions {
 
                     @Override
                     public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @SuppressWarnings("deprecation")
@@ -1075,7 +1074,7 @@ public final class StatisticalFunctions {
                         return key -> {
                             final int count = countF.evaluateInteger(key);
                             final DoubleStreamStdev standardDeviation = new DoubleStreamStdev();
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double result = conditionF.evaluateDouble(curKey);
                                 if (!Doubles.isNaN(result)) {
@@ -1247,7 +1246,7 @@ public final class StatisticalFunctions {
 
                     @Override
                     public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -1257,7 +1256,7 @@ public final class StatisticalFunctions {
                         return key -> {
                             final int count = countF.evaluateInteger(key);
                             final DoubleStreamStdev standardDeviation = new DoubleStreamStdev();
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double result = conditionF.evaluateDouble(curKey);
                                 if (!Doubles.isNaN(result)) {
@@ -1428,7 +1427,7 @@ public final class StatisticalFunctions {
 
                     @Override
                     public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -1438,7 +1437,7 @@ public final class StatisticalFunctions {
                         return key -> {
                             final int count = countF.evaluateInteger(key);
                             final RunningMedian median = new RunningMedian(count);
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double result = conditionF.evaluateDouble(curKey);
                                 if (!Doubles.isNaN(result)) {
@@ -1647,7 +1646,7 @@ public final class StatisticalFunctions {
 
                     @Override
                     public IEvaluateDouble newEvaluateDouble(final String context, final IExpression[] args) {
-                        throw new UnsupportedOperationException("use time or int key instead");
+                        throw new UnsupportedOperationException("use time or long key instead");
                     }
 
                     @Override
@@ -1659,7 +1658,7 @@ public final class StatisticalFunctions {
                             final double percentile = percentileF.evaluateDouble(key);
                             final int count = countF.evaluateInteger(key);
                             final RunningMedian median = new RunningMedian(count);
-                            int curKey = key;
+                            long curKey = key;
                             for (int i = 1; i <= count; i++) {
                                 final double result = condition.evaluateDouble(curKey);
                                 if (!Doubles.isNaN(result)) {

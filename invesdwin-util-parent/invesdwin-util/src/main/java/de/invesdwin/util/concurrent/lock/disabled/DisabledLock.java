@@ -6,15 +6,17 @@ import java.util.concurrent.locks.Condition;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.strategy.DisabledLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 
 @Immutable
-public final class DisabledLock implements ILock {
+public class DisabledLock implements ILock {
 
     public static final DisabledLock INSTANCE = new DisabledLock();
 
-    private DisabledLock() {}
+    protected DisabledLock() {}
 
     @Override
     public boolean isLocked() {
@@ -22,7 +24,7 @@ public final class DisabledLock implements ILock {
     }
 
     @Override
-    public boolean isLockedByCurrentThread() {
+    public boolean isHeldByCurrentThread() {
         return false;
     }
 
@@ -65,6 +67,12 @@ public final class DisabledLock implements ILock {
     @Override
     public ILockingStrategy getStrategy() {
         return DisabledLockingStrategy.INSTANCE;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public ILockTrace getLockTrace() {
+        return Locks.getDefaultLockTrace();
     }
 
 }

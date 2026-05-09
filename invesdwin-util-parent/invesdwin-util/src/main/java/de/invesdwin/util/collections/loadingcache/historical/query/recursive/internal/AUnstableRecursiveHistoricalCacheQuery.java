@@ -24,6 +24,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.error.ResetCa
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.ARecursiveHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.query.recursive.IRecursiveHistoricalCacheQuery;
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 
@@ -96,7 +97,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
 
             @Override
             protected Integer getInitialMaximumSize() {
-                return Math.max(recursionCount, parent.getMaximumSize());
+                return Integers.max(recursionCount, parent.getMaximumSize());
             }
 
             @Override
@@ -106,7 +107,7 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
 
         };
         this.cachedRecursionResults = AHistoricalCache.EVICTION_MODE
-                .newMap(Math.max(recursionCount, parent.getMaximumSize()));
+                .newMap(Integers.max(recursionCount, parent.getMaximumSize()));
         Assertions.checkTrue(parent.registerOnClearListener(new IHistoricalCacheOnClearListener() {
             @Override
             public void onClear() {

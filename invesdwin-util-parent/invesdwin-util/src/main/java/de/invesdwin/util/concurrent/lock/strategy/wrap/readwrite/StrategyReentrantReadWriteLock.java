@@ -11,6 +11,7 @@ import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyLock;
 import de.invesdwin.util.concurrent.lock.strategy.wrap.readwrite.write.StrategyReentrantWriteLock;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
@@ -125,5 +126,10 @@ public final class StrategyReentrantReadWriteLock implements IReentrantReadWrite
             return lock;
         }
         return new StrategyReentrantReadWriteLock(strategy, lock);
+    }
+
+    @Override
+    public ILockTrace getLockTrace() {
+        return delegate.getLockTrace();
     }
 }

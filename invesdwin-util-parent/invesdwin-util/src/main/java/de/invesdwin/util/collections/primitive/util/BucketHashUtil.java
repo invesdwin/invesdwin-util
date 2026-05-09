@@ -5,6 +5,7 @@ import javax.annotation.concurrent.Immutable;
 import org.jspecify.annotations.Nullable;
 
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.math.Integers;
 import it.unimi.dsi.fastutil.HashCommon;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -69,13 +70,13 @@ public final class BucketHashUtil {
 
     /** @see #bucket */
     public static @PositiveOrZero int bucket(final int hashOrKey, @Positive final int bucketSize) {
-        return Math.abs(hash(hashOrKey) % bucketSize);
+        return Integers.abs(hash(hashOrKey) % bucketSize);
     }
 
     /// @see #bucket
     /// @see java.util.Objects#hashCode(Object)
     public static @PositiveOrZero int bucket(@Nullable final Object object4hashCode, @Positive final int bucketSize) {
-        return Math.abs(hash(object4hashCode) % bucketSize);
+        return Integers.abs(hash(object4hashCode) % bucketSize);
     }
 
     /**
@@ -90,11 +91,11 @@ public final class BucketHashUtil {
      * @see Long#hashCode(long)
      */
     public static @PositiveOrZero int bucket(final long hashOrKey, @Positive final int bucketSize) {
-        return Math.abs(hash(hashOrKey) % bucketSize);
+        return Integers.abs(hash(hashOrKey) % bucketSize);
     }
 
     public static @PositiveOrZero int bucket(@Nullable final Long hashOrKey, @Positive final int bucketSize) {
-        return Math.abs(hash(hashOrKey) % bucketSize);
+        return Integers.abs(hash(hashOrKey) % bucketSize);
     }
 
     /**

@@ -10,10 +10,10 @@ import org.roaringbitmap.RoaringBitmap;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.collections.bitset.IBitSet;
-import de.invesdwin.util.collections.bitset.ISkippingIndexProvider;
-import de.invesdwin.util.collections.bitset.JavaBitSet;
-import de.invesdwin.util.collections.bitset.RoaringBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.JavaPrimitiveBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.RoaringPrimitiveBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.skippingindex.ISkippingPrimitiveIndexProvider;
 
 @NotThreadSafe
 public class BitSetsTest {
@@ -50,7 +50,7 @@ public class BitSetsTest {
         final RoaringBitmap roaringBitmapAndFast = RoaringBitmap
                 .and(Arrays.asList(roaringBitmap, roaringBitmap2).iterator(), (long) 0, (long) bool.length);
         final BitSet bitSetAndFast = (BitSet) bitSet.clone();
-        BitSets.andRangeFast(bitSetAndFast, bitSet2, 0, bool.length);
+        BitSets.andRange(bitSetAndFast, bitSet2, 0, bool.length);
 
         //test contains with and working properly
         for (int i = 0; i < bool.length; i++) {
@@ -72,7 +72,7 @@ public class BitSetsTest {
         final RoaringBitmap roaringBitmapAndFastSub = RoaringBitmap
                 .and(Arrays.asList(roaringBitmap, roaringBitmap2).iterator(), startSub, (long) endSub + 1);
         final BitSet bitSetAndFastSub = (BitSet) bitSet.clone();
-        BitSets.andRangeFast(bitSetAndFastSub, bitSet2, startSub, endSub);
+        BitSets.andRange(bitSetAndFastSub, bitSet2, startSub, endSub);
 
         final BitSet bitSetAndFastSubGet = bitSet.get(startSub, endSub);
         for (int i = 0; i < endSub - startSub; i++) {
@@ -129,7 +129,7 @@ public class BitSetsTest {
         final RoaringBitmap roaringBitmapOrFast = RoaringBitmap
                 .or(Arrays.asList(roaringBitmap, roaringBitmap2).iterator(), (long) 0, (long) bool.length);
         final BitSet bitSetOrFast = (BitSet) bitSet.clone();
-        BitSets.orRangeFast(bitSetOrFast, bitSet2, 0, bool.length);
+        BitSets.orRange(bitSetOrFast, bitSet2, 0, bool.length);
 
         //test contains with or working properly
         for (int i = 0; i < bool.length; i++) {
@@ -151,7 +151,7 @@ public class BitSetsTest {
         final RoaringBitmap roaringBitmapOrFastSub = RoaringBitmap
                 .or(Arrays.asList(roaringBitmap, roaringBitmap2).iterator(), startSub, (long) endSub + 1);
         final BitSet bitSetOrFastSub = (BitSet) bitSet.clone();
-        BitSets.orRangeFast(bitSetOrFastSub, bitSet2, startSub, endSub);
+        BitSets.orRange(bitSetOrFastSub, bitSet2, startSub, endSub);
 
         final BitSet bitSetOrFastSubGet = bitSet.get(startSub, endSub);
         for (int i = 0; i < endSub - startSub; i++) {
@@ -181,8 +181,8 @@ public class BitSetsTest {
         final int size = 1000000;
         final boolean[] bool = new boolean[size];
         final boolean[] boolNegated = new boolean[size];
-        final JavaBitSet bitSet = new JavaBitSet(size);
-        final RoaringBitSet roaringBitmap = new RoaringBitSet(size);
+        final JavaPrimitiveBitSet bitSet = new JavaPrimitiveBitSet(size);
+        final RoaringPrimitiveBitSet roaringBitmap = new RoaringPrimitiveBitSet(size);
         for (int i = 0; i < size; i++) {
             final boolean value = i % 2 == 0;
             bool[i] = value;
@@ -192,10 +192,10 @@ public class BitSetsTest {
                 roaringBitmap.add(i);
             }
         }
-        final IBitSet bitSetNegated = bitSet.negate();
-        final IBitSet roaringBitmapNegated = roaringBitmap.negate();
-        final IBitSet bitSetNegatedShallow = bitSet.negateShallow();
-        final IBitSet roaringBitmapNegatedShallow = roaringBitmap.negateShallow();
+        final IPrimitiveBitSet bitSetNegated = bitSet.negate();
+        final IPrimitiveBitSet roaringBitmapNegated = roaringBitmap.negate();
+        final IPrimitiveBitSet bitSetNegatedShallow = bitSet.negateShallow();
+        final IPrimitiveBitSet roaringBitmapNegatedShallow = roaringBitmap.negateShallow();
         for (int i = 0; i < bool.length; i++) {
             Assertions.assertThat(bitSet.contains(i)).as("i: " + i).isEqualTo(bool[i]);
             Assertions.assertThat(roaringBitmap.contains(i)).as("i: " + i).isEqualTo(bool[i]);
@@ -207,14 +207,15 @@ public class BitSetsTest {
             Assertions.assertThat(roaringBitmapNegatedShallow.contains(i)).as("i: " + i).isEqualTo(boolNegated[i]);
         }
 
-        final ISkippingIndexProvider bitSetSkipping = bitSet.newSkippingIndexProvider();
-        final ISkippingIndexProvider roaringBitmapSkipping = roaringBitmap.newSkippingIndexProvider();
+        final ISkippingPrimitiveIndexProvider bitSetSkipping = bitSet.newSkippingIndexProvider();
+        final ISkippingPrimitiveIndexProvider roaringBitmapSkipping = roaringBitmap.newSkippingIndexProvider();
 
-        final ISkippingIndexProvider bitSetNegatedSkipping = bitSetNegated.newSkippingIndexProvider();
-        final ISkippingIndexProvider bitSetNegatedShallowSkipping = bitSetNegated.newSkippingIndexProvider();
+        final ISkippingPrimitiveIndexProvider bitSetNegatedSkipping = bitSetNegated.newSkippingIndexProvider();
+        final ISkippingPrimitiveIndexProvider bitSetNegatedShallowSkipping = bitSetNegated.newSkippingIndexProvider();
 
-        final ISkippingIndexProvider roaringBitmapNegatedSkipping = roaringBitmapNegated.newSkippingIndexProvider();
-        final ISkippingIndexProvider roaringBitmapNegatedShallowSkipping = roaringBitmapNegatedShallow
+        final ISkippingPrimitiveIndexProvider roaringBitmapNegatedSkipping = roaringBitmapNegated
+                .newSkippingIndexProvider();
+        final ISkippingPrimitiveIndexProvider roaringBitmapNegatedShallowSkipping = roaringBitmapNegatedShallow
                 .newSkippingIndexProvider();
         for (int i = 0; i < bool.length; i++) {
             final int nextBitSetSkipping = bitSetSkipping.next(i);

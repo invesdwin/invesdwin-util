@@ -120,7 +120,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
 
             @Override
             protected Integer getInitialMaximumSize() {
-                return Math.max(recursionCount, parent.getMaximumSize());
+                return Integers.max(recursionCount, parent.getMaximumSize());
             }
 
             @Override

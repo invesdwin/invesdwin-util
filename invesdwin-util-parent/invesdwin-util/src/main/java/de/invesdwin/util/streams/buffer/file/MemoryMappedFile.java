@@ -12,12 +12,14 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.agrona.IoUtil;
 
+import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.extend.UnsafeMemoryBuffer;
+import net.openhft.chronicle.core.OSAccessor;
 
 /**
  * Class for direct access to a memory mapped file.
@@ -33,6 +35,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
     private final boolean closeAllowed;
     private final MemoryMappedFileFinalizer finalizer;
     private final AtomicInteger refCount = new AtomicInteger();
+    private boolean markedForClose;
 
     /**
      * Constructs a new memory mapped file.
@@ -44,11 +47,24 @@ public class MemoryMappedFile implements IMemoryMappedFile {
      * @throws Exception
      *             in case there was an error creating the memory mapped file
      */
-    public MemoryMappedFile(final File file, final long offset, final long length, final boolean readOnly,
-            final boolean closeAllowed) throws IOException {
+    public MemoryMappedFile(final boolean closeAllowed, final File file, final long offset, final long length,
+            final boolean readOnly, final boolean deleteOnClose) throws IOException {
+        if (length < 0) {
+            throw new IllegalArgumentException("length must be non-negative: " + length);
+        }
         this.closeAllowed = closeAllowed;
-        this.finalizer = new MemoryMappedFileFinalizer(file, offset, length, readOnly);
+        this.finalizer = new MemoryMappedFileFinalizer(file, offset, length, readOnly, deleteOnClose);
         this.finalizer.register(this);
+    }
+
+    @Override
+    public boolean isDeleteOnClose() {
+        return finalizer.deleteOnClose;
+    }
+
+    @Override
+    public void setDeleteOnClose(final boolean deleteOnClose) {
+        finalizer.deleteOnClose = deleteOnClose;
     }
 
     @Override
@@ -56,8 +72,14 @@ public class MemoryMappedFile implements IMemoryMappedFile {
         return finalizer.file;
     }
 
+    @Override
     public java.nio.MappedByteBuffer getMappedByteBuffer() {
         return finalizer.getMappedByteBuffer();
+    }
+
+    @Override
+    public Object getRefCountLock() {
+        return refCount;
     }
 
     @Override
@@ -75,8 +97,18 @@ public class MemoryMappedFile implements IMemoryMappedFile {
     }
 
     @Override
-    public void decrementRefCount() {
-        refCount.decrementAndGet();
+    public int decrementRefCount() {
+        final int decremented = refCount.decrementAndGet();
+        if (decremented <= 0 && markedForClose) {
+            close();
+            markedForClose = false;
+        }
+        return decremented;
+    }
+
+    @Override
+    public void markForClose() {
+        markedForClose = true;
     }
 
     @Override
@@ -160,26 +192,28 @@ public class MemoryMappedFile implements IMemoryMappedFile {
         private final RandomAccessFile raf;
         private final FileChannel channel;
         private final long address;
+        private boolean deleteOnClose;
         private volatile boolean cleaned;
         private java.nio.MappedByteBuffer mappedByteBuffer;
 
-        private MemoryMappedFileFinalizer(final File file, final long offset, final long length, final boolean readOnly)
-                throws IOException {
+        private MemoryMappedFileFinalizer(final File file, final long offset, final long length, final boolean readOnly,
+                final boolean deleteOnClose) throws IOException {
             this.readOnly = readOnly;
             this.file = file;
             this.offset = offset;
+            //use IMemoryMappedFile.roundTo4096 to round the length to a multiple of 4096 if not readOnly, otherwise use the length as is
+            this.length = length;
             if (readOnly) {
-                this.length = length;
                 this.raf = new RandomAccessFile(this.file, "r");
                 this.channel = raf.getChannel();
-                this.address = IoUtil.map(channel, MapMode.READ_ONLY, this.offset, this.length);
+                this.address = OSAccessor.mapUnaligned(channel, MapMode.READ_ONLY, this.offset, this.length);
             } else {
-                this.length = roundTo4096(length);
                 this.raf = new RandomAccessFile(this.file, "rw");
                 raf.setLength(this.length);
                 this.channel = raf.getChannel();
-                this.address = IoUtil.map(channel, MapMode.READ_WRITE, this.offset, this.length);
+                this.address = OSAccessor.mapUnaligned(channel, MapMode.READ_WRITE, this.offset, this.length);
             }
+            this.deleteOnClose = deleteOnClose;
         }
 
         public java.nio.MappedByteBuffer getMappedByteBuffer() {
@@ -213,10 +247,13 @@ public class MemoryMappedFile implements IMemoryMappedFile {
                 IoUtil.unmap(mappedByteBufferCopy);
                 mappedByteBuffer = null;
             }
-            IoUtil.unmap(channel, address, this.length);
             try {
+                OSAccessor.unmapUnaligned(address, this.length);
                 channel.close();
                 raf.close();
+                if (deleteOnClose) {
+                    Files.delete(file);
+                }
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
@@ -230,10 +267,6 @@ public class MemoryMappedFile implements IMemoryMappedFile {
         @Override
         public boolean isThreadLocal() {
             return false;
-        }
-
-        private static long roundTo4096(final long i) {
-            return (i + 0xfff) & ~0xfff;
         }
 
     }

@@ -42,6 +42,10 @@ class PooledUninitializedDirectExpandableByteBuffer
         DirectExpandableByteBufferPool.INSTANCE.returnObject(this);
     }
 
+    public void superClose() {
+        super.close();
+    }
+
     @Override
     public ICloseableByteBuffer asImmutableSlice() {
         return this;

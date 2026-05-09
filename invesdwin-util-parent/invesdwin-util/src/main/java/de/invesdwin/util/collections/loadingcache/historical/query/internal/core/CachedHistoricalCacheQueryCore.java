@@ -81,7 +81,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
             getParent().increaseMaximumSize(adjRequiredSize, CachedHistoricalCacheQueryCore.class.getSimpleName()
                     + " encountered higher shiftBackUnits of " + requiredSize);
         }
-        maxCachedIndex = Math.max(maxCachedIndex, adjRequiredSize);
+        maxCachedIndex = Integers.max(maxCachedIndex, adjRequiredSize);
         return getParent().getMaximumSize();
     }
 
@@ -519,7 +519,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
         }
 
         final int toIndex = cachedToIndex + 1;
-        final int fromIndex = Math.max(0, toIndex - unitsBack - 1);
+        final int fromIndex = Integers.max(0, toIndex - unitsBack - 1);
         final int size = toIndex - fromIndex;
         final int newUnitsBack = unitsBack - size;
         final List<IHistoricalEntry<V>> subList = cachedPreviousEntries.subList(fromIndex, toIndex);
@@ -622,7 +622,7 @@ public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCa
 
     @Override
     public void increaseMaximumSize(final int maximumSize) {
-        this.maxCachedIndex = Math.max(maxCachedIndex, maximumSize);
+        this.maxCachedIndex = Integers.max(maxCachedIndex, maximumSize);
     }
 
     @Override

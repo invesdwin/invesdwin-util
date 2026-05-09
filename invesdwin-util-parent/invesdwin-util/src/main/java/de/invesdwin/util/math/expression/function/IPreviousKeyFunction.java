@@ -17,7 +17,7 @@ public interface IPreviousKeyFunction {
 
     IFDateProvider getPreviousKey(IFDateProvider key, int index);
 
-    int getPreviousKey(int key, int index);
+    long getPreviousKey(long key, int index);
 
     default IEvaluateDoubleFDate newEvaluateDoubleFDate(final IParsedExpression expression) {
         return expression.newEvaluateDoubleFDate();

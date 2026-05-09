@@ -33,13 +33,15 @@ import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.buffer.bytes.delegate.AgronaDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.AgronaDelegateMutableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.ArrayExpandableByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.extend.MappedByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.extend.MappedExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeArrayByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.internal.DirectExpandableByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedDirectByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedDirectExpandableByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.internal.array.ArrayExpandableByteBufferPool;
 import de.invesdwin.util.streams.buffer.bytes.internal.direct.DirectExpandableByteBufferPool;
+import de.invesdwin.util.streams.buffer.bytes.internal.heap.HeapExpandableByteBufferPool;
 import de.invesdwin.util.streams.buffer.bytes.internal.mapped.MappedExpandableByteBufferPool;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -66,7 +68,7 @@ public final class ByteBuffers {
      */
     public static final ByteOrder NATIVE_ORDER = ByteOrder.nativeOrder();
 
-    public static final IObjectPool<ICloseableByteBuffer> EXPANDABLE_POOL = ArrayExpandableByteBufferPool.INSTANCE;
+    public static final IObjectPool<ICloseableByteBuffer> EXPANDABLE_POOL = HeapExpandableByteBufferPool.INSTANCE;
     public static final IObjectPool<ICloseableByteBuffer> DIRECT_EXPANDABLE_POOL = DirectExpandableByteBufferPool.INSTANCE;
     public static final IObjectPool<ICloseableByteBuffer> MAPPED_EXPANDABLE_POOL = MappedExpandableByteBufferPool.INSTANCE;
 
@@ -223,7 +225,7 @@ public final class ByteBuffers {
         if (initialLength == 0) {
             return EmptyByteBuffer.INSTANCE;
         } else if (initialLength < 0) {
-            return allocateDirectExpandable();
+            return allocateExpandable();
         } else {
             return new ArrayExpandableByteBuffer(initialLength);
         }
@@ -278,6 +280,36 @@ public final class ByteBuffers {
         } else {
             return new DirectExpandableByteBuffer(initialLength);
         }
+    }
+
+    public static IByteBuffer allocateMapped(final Integer fixedLength) {
+        if (fixedLength == null) {
+            return allocateMappedExpandable();
+        } else {
+            return allocateMapped(fixedLength.intValue());
+        }
+    }
+
+    public static IByteBuffer allocateMapped(final int fixedLength) {
+        if (fixedLength == 0) {
+            return EmptyByteBuffer.INSTANCE;
+        } else if (fixedLength < 0) {
+            return allocateMappedExpandable();
+        } else {
+            return allocateMappedFixed(fixedLength);
+        }
+    }
+
+    public static IByteBuffer allocateMappedFixed(final int fixedLength) {
+        return new MappedByteBuffer(fixedLength);
+    }
+
+    public static IByteBuffer allocateMappedExpandable() {
+        return new MappedExpandableByteBuffer();
+    }
+
+    public static IByteBuffer allocateMappedExpandable(final int initialLength) {
+        return new MappedExpandableByteBuffer(initialLength);
     }
 
     /**
@@ -699,13 +731,13 @@ public final class ByteBuffers {
 
     public static byte[] copyOf(final byte[] original, final int newLength) {
         final byte[] copy = allocateByteArray(newLength);
-        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
+        System.arraycopy(original, 0, copy, 0, Integers.min(original.length, newLength));
         return copy;
     }
 
     public static byte[] copy(final byte[] original, final int from, final int newLength) {
         final byte[] copy = allocateByteArray(newLength);
-        System.arraycopy(original, from, copy, 0, Math.min(original.length, newLength));
+        System.arraycopy(original, from, copy, 0, Integers.min(original.length, newLength));
         return copy;
     }
 
@@ -1432,6 +1464,34 @@ public final class ByteBuffers {
         final int existingCapacity = Integers.max(MIN_CAPACITY, buffer.capacity());
         final int newCapacity = (int) (existingCapacity * EXPANSION_FACTOR);
         buffer.ensureCapacity(newCapacity);
+    }
+
+    /**
+     * WARNING: don't use this
+     */
+    @Deprecated
+    public static int checkedCast(final int index) {
+        return index;
+    }
+
+    public static int checkedCast(final long index) {
+        if (DirectBuffer.SHOULD_BOUNDS_CHECK) {
+            return Integers.checkedCast(index);
+        } else {
+            return (int) index;
+        }
+    }
+
+    public static int checkedCastNoOverflow(final long index) {
+        return Integers.checkedCastNoOverflow(index);
+    }
+
+    public static int checkedCastUnsigned(final long index) {
+        if (DirectBuffer.SHOULD_BOUNDS_CHECK) {
+            return com.google.common.primitives.UnsignedInts.checkedCast(index);
+        } else {
+            return (int) index;
+        }
     }
 
 }

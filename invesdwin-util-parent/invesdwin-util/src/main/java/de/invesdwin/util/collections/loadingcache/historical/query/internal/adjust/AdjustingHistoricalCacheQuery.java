@@ -266,6 +266,26 @@ public class AdjustingHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     }
 
     @Override
+    public long size(final FDate from, final FDate to) {
+        final FDate adjFrom = adjustKey(from);
+        if (adjFrom != null && adjFrom.isBefore(from)) {
+            return 0L;
+        }
+        final FDate adjTo = adjustKey(to);
+        return delegate.size(adjFrom, adjTo);
+    }
+
+    @Override
+    public long sizeCached(final FDate from, final FDate to) {
+        final FDate adjFrom = adjustKey(from);
+        if (adjFrom != null && adjFrom.isBefore(from)) {
+            return 0L;
+        }
+        final FDate adjTo = adjustKey(to);
+        return delegate.sizeCached(adjFrom, adjTo);
+    }
+
+    @Override
     public ICloseableIterable<FDate> getKeysCached(final FDate from, final FDate to) {
         final FDate adjFrom = adjustKey(from);
         if (adjFrom != null && adjFrom.isBefore(from)) {

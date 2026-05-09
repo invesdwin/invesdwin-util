@@ -30,10 +30,10 @@ class OverflowingNumberStreamStandardDeviation<E extends Number> implements IStr
         final double avgDouble = avgProcessor.getAvg();
         for (final double value : values) {
             final double difference = value - avgDouble;
-            sum += Math.pow(difference, 2);
+            sum += Doubles.pow(difference, 2);
         }
         final double divisor = values.size() - 1;
-        final double sqrt = Math.sqrt(Doubles.divide(sum, divisor));
+        final double sqrt = Doubles.sqrt(Doubles.divide(sum, divisor));
         return sqrt;
     }
 
@@ -45,10 +45,10 @@ class OverflowingNumberStreamStandardDeviation<E extends Number> implements IStr
         final double avgDouble = avgProcessor.getAvg();
         for (final double value : values) {
             final double difference = value - avgDouble;
-            sum += Math.pow(difference, 2);
+            sum += Doubles.pow(difference, 2);
         }
         final double divisor = values.size();
-        final double sqrt = Math.sqrt(Doubles.divide(sum, divisor));
+        final double sqrt = Doubles.sqrt(Doubles.divide(sum, divisor));
         return sqrt;
     }
 

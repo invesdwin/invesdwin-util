@@ -6,7 +6,7 @@ import de.invesdwin.util.time.date.IFDateProvider;
 public interface IEvaluateDoubleFDate {
 
     /**
-     * evaluates the expression using the current time key
+     * evaluates the expression using the given time key
      */
     double evaluateDouble(IFDateProvider key);
 

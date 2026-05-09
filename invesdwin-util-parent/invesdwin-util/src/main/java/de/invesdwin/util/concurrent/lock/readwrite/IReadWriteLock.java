@@ -5,6 +5,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import de.invesdwin.util.concurrent.lock.ICloseableLock;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
+import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 
 public interface IReadWriteLock extends ReadWriteLock {
 
@@ -47,5 +48,7 @@ public interface IReadWriteLock extends ReadWriteLock {
     IReadWriteLock withStrategy(ILockingStrategy strategy);
 
     ILockingStrategy getStrategy();
+
+    ILockTrace getLockTrace();
 
 }

@@ -79,13 +79,13 @@ public class Decimal extends ADecimal<Decimal> {
         SEVENTYFIVE = new Decimal(75D);
         ONE_HUNDRED = new Decimal(100D);
 
-        PI = new Decimal(Math.PI);
+        PI = new Decimal(Doubles.PI);
     }
 
     private final double value;
 
     public Decimal(final double value) {
-        this.value = Doubles.nanToZero(value);
+        this.value = Doubles.nonFiniteToZero(value);
     }
 
     public Decimal(final Number value) {

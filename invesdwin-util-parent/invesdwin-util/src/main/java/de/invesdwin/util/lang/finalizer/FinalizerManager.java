@@ -57,13 +57,12 @@ public final class FinalizerManager {
         }
     }
 
-    private FinalizerManager() {
-    }
+    private FinalizerManager() {}
 
     public static IFinalizerReference register(final Object obj, final AFinalizer finalizer) {
         if (Throwables.isDebugStackTraceEnabled()) {
             try {
-                Reflections.assertObjectNotReferenced(obj, finalizer);
+                Reflections.assertObjectNotReferenced(obj, finalizer, 1_000_000);
             } catch (final Throwable t) {
                 LOG.error(Throwables.getFullStackTrace(t));
                 throw t;

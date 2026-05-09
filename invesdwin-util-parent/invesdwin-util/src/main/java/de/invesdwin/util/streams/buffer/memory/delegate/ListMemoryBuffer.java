@@ -20,13 +20,10 @@ import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
-import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.array.IPrimitiveArrayId;
-import de.invesdwin.util.collections.delegate.ADelegateList;
+import de.invesdwin.util.collections.array.base.IBaseArrayId;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.math.Bytes;
-import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
@@ -46,29 +43,36 @@ import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferOutputStream;
 @NotThreadSafe
 public class ListMemoryBuffer implements IMemoryBuffer {
 
-    private final List<IMemoryBuffer> list = new ADelegateList<IMemoryBuffer>() {
-
-        @Override
-        protected List<IMemoryBuffer> newDelegate() {
-            return newList();
-        };
-
-        @Override
-        public boolean isAddAllowed(final IMemoryBuffer e) {
-            Assertions.checkEquals(e.getOrder(), ByteBuffers.DEFAULT_ORDER);
-            return true;
-        }
-    };
+    private final List<IMemoryBuffer> list;
 
     private IMutableSlicedDelegateMemoryBufferFactory mutableSliceFactory;
 
-    @Override
-    public int getId() {
-        return IPrimitiveArrayId.newId(list);
+    public ListMemoryBuffer() {
+        this(new ArrayList<>());
     }
 
-    protected List<IMemoryBuffer> newList() {
-        return new ArrayList<>();
+    @SuppressWarnings("unchecked")
+    public ListMemoryBuffer(final List<? extends IMemoryBuffer> list) {
+        this.list = (List<IMemoryBuffer>) list;
+        //just document expectations but skip this check internally
+        //assertList(this.list);
+    }
+
+    public static void assertList(final List<IMemoryBuffer> list) {
+        final int lastSegmentIndex = list.size() - 1;
+        for (int i = 0; i <= lastSegmentIndex; i++) {
+            final IMemoryBuffer segment = list.get(i);
+            final ByteOrder segmentOrder = segment.getOrder();
+            if (segmentOrder != ByteBuffers.DEFAULT_ORDER) {
+                throw new IllegalArgumentException("All segments must have the same byte order: segmentIndex=" + i
+                        + " segmentByteOrder=" + segmentOrder + " expectedByteOrder=" + ByteBuffers.DEFAULT_ORDER);
+            }
+        }
+    }
+
+    @Override
+    public int getId() {
+        return IBaseArrayId.newId(list);
     }
 
     public List<IMemoryBuffer> getList() {
@@ -319,11 +323,11 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 continue;
             } else {
                 long bufferPosition = index - position;
-                if (capacity >= bufferPosition + Short.BYTES) {
+                if (capacity >= bufferPosition + Character.BYTES) {
                     return buffer.getChar(bufferPosition);
                 } else {
                     final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
-                    final long limit = index + Short.BYTES;
+                    final long limit = index + Character.BYTES;
                     int ri = 0;
                     for (long i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
@@ -516,6 +520,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
         } else if (list.size() == 1) {
             return list.get(0).asNioByteBuffer(index, length);
         } else {
+            //WARNING: this is not a mutable version of the underlying memory
             final java.nio.ByteBuffer byteBuffer = java.nio.ByteBuffer.allocate(length);
             getBytes(index, byteBuffer, 0, length);
             return byteBuffer;
@@ -558,7 +563,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public IByteBuffer asByteBuffer(final long index, final int length) {
-        return new MemoryDelegateByteBuffer(newSlice(length, length));
+        return new MemoryDelegateByteBuffer(newSlice(index, length));
     }
 
     @Override
@@ -757,6 +762,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
         if (src instanceof ReadableByteChannel) {
             putBytesTo(index, (ReadableByteChannel) src, length);
         } else {
+            ensureCapacity(index, length);
             int position = 0;
             for (int buf = 0; buf < list.size(); buf++) {
                 IMemoryBuffer buffer = list.get(buf);
@@ -807,6 +813,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
         } else if (src instanceof DataInput) {
             putBytesTo(index, (DataInput) src, length);
         } else {
+            ensureCapacity(index, length);
             long position = 0;
             for (int buf = 0; buf < list.size(); buf++) {
                 IMemoryBuffer buffer = list.get(buf);
@@ -849,6 +856,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public void putBytesTo(final long index, final ReadableByteChannel src, final long length) throws IOException {
+        ensureCapacity(index, length);
         long position = 0;
         for (int buf = 0; buf < list.size(); buf++) {
             IMemoryBuffer buffer = list.get(buf);
@@ -976,6 +984,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public void putBytes(final long index, final byte[] src, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
         long position = 0;
         for (int buf = 0; buf < list.size(); buf++) {
             IMemoryBuffer buffer = list.get(buf);
@@ -985,13 +994,13 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 continue;
             } else {
                 long bufferPosition = index - position;
-                int srcPosition = srcIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.putBytes(bufferPosition, src, srcPosition, length);
+                    buffer.putBytes(bufferPosition, src, srcIndex, length);
                     return;
                 } else {
                     final long limit = index + length;
                     int remaining = length;
+                    int srcPosition = srcIndex;
                     for (long i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -999,7 +1008,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                             capacity = buffer.capacity();
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final int toCopy = ByteBuffers
+                                .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                         buffer.putBytes(bufferPosition, src, srcPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1015,6 +1025,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public void putBytes(final long index, final java.nio.ByteBuffer srcBuffer, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
         long position = 0;
         for (int buf = 0; buf < list.size(); buf++) {
             IMemoryBuffer buffer = list.get(buf);
@@ -1024,13 +1035,13 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 continue;
             } else {
                 long bufferPosition = index - position;
-                int srcPosition = srcIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.putBytes(bufferPosition, srcBuffer, srcPosition, length);
+                    buffer.putBytes(bufferPosition, srcBuffer, srcIndex, length);
                     return;
                 } else {
                     final long limit = index + length;
                     int remaining = length;
+                    int srcPosition = srcIndex;
                     for (long i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1038,7 +1049,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                             capacity = buffer.capacity();
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final int toCopy = ByteBuffers
+                                .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                         buffer.putBytes(bufferPosition, srcBuffer, srcPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1054,6 +1066,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public void putBytes(final long index, final DirectBuffer srcBuffer, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
         long position = 0;
         for (int buf = 0; buf < list.size(); buf++) {
             IMemoryBuffer buffer = list.get(buf);
@@ -1063,13 +1076,13 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 continue;
             } else {
                 long bufferPosition = index - position;
-                int srcPosition = srcIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.putBytes(bufferPosition, srcBuffer, srcPosition, length);
+                    buffer.putBytes(bufferPosition, srcBuffer, srcIndex, length);
                     return;
                 } else {
                     final long limit = index + length;
                     int remaining = length;
+                    int srcPosition = srcIndex;
                     for (long i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1077,7 +1090,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                             capacity = buffer.capacity();
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final int toCopy = ByteBuffers
+                                .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                         buffer.putBytes(bufferPosition, srcBuffer, srcPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1093,6 +1107,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public void putBytes(final long index, final IByteBuffer srcBuffer, final int srcIndex, final int length) {
+        ensureCapacity(index, length);
         long position = 0;
         for (int buf = 0; buf < list.size(); buf++) {
             IMemoryBuffer buffer = list.get(buf);
@@ -1102,13 +1117,13 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 continue;
             } else {
                 long bufferPosition = index - position;
-                int srcPosition = srcIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.putBytes(bufferPosition, srcBuffer, srcPosition, length);
+                    buffer.putBytes(bufferPosition, srcBuffer, srcIndex, length);
                     return;
                 } else {
                     final long limit = index + length;
                     int remaining = length;
+                    int srcPosition = srcIndex;
                     for (long i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1116,7 +1131,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                             capacity = buffer.capacity();
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final int toCopy = ByteBuffers
+                                .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                         buffer.putBytes(bufferPosition, srcBuffer, srcPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1132,6 +1148,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public void putBytes(final long index, final IMemoryBuffer srcBuffer, final long srcIndex, final long length) {
+        ensureCapacity(index, length);
         long position = 0;
         for (int buf = 0; buf < list.size(); buf++) {
             IMemoryBuffer buffer = list.get(buf);
@@ -1141,13 +1158,13 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 continue;
             } else {
                 long bufferPosition = index - position;
-                long srcPosition = srcIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.putBytes(bufferPosition, srcBuffer, srcPosition, length);
+                    buffer.putBytes(bufferPosition, srcBuffer, srcIndex, length);
                     return;
                 } else {
                     final long limit = index + length;
                     long remaining = length;
+                    long srcPosition = srcIndex;
                     for (long i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1180,13 +1197,13 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 continue;
             } else {
                 long bufferPosition = index - position;
-                int dstPosition = dstIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.getBytes(bufferPosition, dst, dstPosition, length);
+                    buffer.getBytes(bufferPosition, dst, dstIndex, length);
                     return;
                 } else {
                     final long limit = index + length;
                     int remaining = length;
+                    int dstPosition = dstIndex;
                     for (long i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1194,7 +1211,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                             capacity = buffer.capacity();
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final int toCopy = ByteBuffers
+                                .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                         buffer.getBytes(bufferPosition, dst, dstPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1219,13 +1237,13 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 continue;
             } else {
                 long bufferPosition = index - position;
-                int dstPosition = dstIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.getBytes(bufferPosition, dstBuffer, dstPosition, length);
+                    buffer.getBytes(bufferPosition, dstBuffer, dstIndex, length);
                     return;
                 } else {
                     final long limit = index + length;
                     int remaining = length;
+                    int dstPosition = dstIndex;
                     for (long i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1233,7 +1251,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                             capacity = buffer.capacity();
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final int toCopy = ByteBuffers
+                                .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                         buffer.getBytes(bufferPosition, dstBuffer, dstPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1258,13 +1277,13 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 continue;
             } else {
                 long bufferPosition = index - position;
-                int dstPosition = dstIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.getBytes(bufferPosition, dstBuffer, dstPosition, length);
+                    buffer.getBytes(bufferPosition, dstBuffer, dstIndex, length);
                     return;
                 } else {
                     final long limit = index + length;
                     int remaining = length;
+                    int dstPosition = dstIndex;
                     for (long i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1272,7 +1291,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                             capacity = buffer.capacity();
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final int toCopy = ByteBuffers
+                                .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                         buffer.getBytes(bufferPosition, dstBuffer, dstPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1297,13 +1317,13 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 continue;
             } else {
                 long bufferPosition = index - position;
-                int dstPosition = dstIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.getBytes(bufferPosition, dstBuffer, dstPosition, length);
+                    buffer.getBytes(bufferPosition, dstBuffer, dstIndex, length);
                     return;
                 } else {
                     final long limit = index + length;
                     int remaining = length;
+                    int dstPosition = dstIndex;
                     for (long i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;
@@ -1311,7 +1331,8 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                             capacity = buffer.capacity();
                             bufferPosition = 0;
                         }
-                        final int toCopy = Integers.checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
+                        final int toCopy = ByteBuffers
+                                .checkedCast(Longs.min(remaining, buffer.remaining(bufferPosition)));
                         buffer.getBytes(bufferPosition, dstBuffer, dstPosition, toCopy);
                         remaining -= toCopy;
                         i += toCopy;
@@ -1336,13 +1357,13 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 continue;
             } else {
                 long bufferPosition = index - position;
-                long dstPosition = dstIndex;
                 if (capacity >= bufferPosition + length) {
-                    buffer.getBytes(bufferPosition, dstBuffer, dstPosition, length);
+                    buffer.getBytes(bufferPosition, dstBuffer, dstIndex, length);
                     return;
                 } else {
                     final long limit = index + length;
                     long remaining = length;
+                    long dstPosition = dstIndex;
                     for (long i = index; i < limit;) {
                         while (bufferPosition >= capacity) {
                             buf++;

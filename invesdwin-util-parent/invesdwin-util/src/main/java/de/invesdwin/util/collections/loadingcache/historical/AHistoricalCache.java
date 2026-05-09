@@ -25,10 +25,13 @@ import de.invesdwin.util.collections.loadingcache.ILoadingCache;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCacheNextQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCachePreviousKeysQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCacheRangeQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.DisabledHistoricalCacheSizeQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheNextQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCachePreviousKeysQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheSizeQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.interceptor.RangeHistoricalCacheNextQueryInterceptor;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.RangeHistoricalCacheSizeQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCachePutProvider;
@@ -52,6 +55,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.internal.core
 import de.invesdwin.util.collections.loadingcache.historical.query.internal.filter.FilteringHistoricalCacheQuery;
 import de.invesdwin.util.collections.loadingcache.historical.refresh.HistoricalCacheRefreshManager;
 import de.invesdwin.util.lang.string.description.TextDescription;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
@@ -108,6 +112,8 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     private IHistoricalCachePreviousKeysQueryInterceptor previousKeysQueryInterceptor;
     @GuardedBy("none for performance")
     private IHistoricalCacheNextQueryInterceptor<V> nextQueryInterceptor;
+    @GuardedBy("none for performance")
+    private IHistoricalCacheSizeQueryInterceptor sizeQueryInterceptor;
 
     public AHistoricalCache() {}
 
@@ -155,7 +161,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     @Override
     public final void increaseMaximumSize(final int maximumSize, final String reason) {
         final Integer existingMaximumSize = this.maximumSize;
-        final int usedMaximumSize = Math.min(getMaximumSizeLimit(), maximumSize);
+        final int usedMaximumSize = Integers.min(getMaximumSizeLimit(), maximumSize);
         if (existingMaximumSize == null || existingMaximumSize < usedMaximumSize) {
             innerIncreaseMaximumSize(usedMaximumSize, reason);
         }
@@ -177,7 +183,7 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         this.maximumSize = maximumSize;
         for (final IHistoricalCacheIncreaseMaximumSizeListener l : increaseMaximumSizeListeners) {
             final Integer listenerMaximumSize = l.getMaximumSize();
-            final int listenerMaximumSizeLimited = Math.min(maximumSize, l.getMaximumSizeLimit());
+            final int listenerMaximumSizeLimited = Integers.min(maximumSize, l.getMaximumSizeLimit());
             if (listenerMaximumSize == null || listenerMaximumSize.intValue() < listenerMaximumSizeLimited) {
                 l.increaseMaximumSize(maximumSize, reason);
             }
@@ -570,6 +576,22 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         }
     }
 
+    protected final IHistoricalCacheSizeQueryInterceptor getSizeQueryInterceptor() {
+        if (sizeQueryInterceptor == null) {
+            sizeQueryInterceptor = newSizeQueryInterceptor();
+        }
+        return sizeQueryInterceptor;
+    }
+
+    protected IHistoricalCacheSizeQueryInterceptor newSizeQueryInterceptor() {
+        final IHistoricalCacheRangeQueryInterceptor<V> rangeQueryInterceptor = getRangeQueryInterceptor();
+        if (rangeQueryInterceptor instanceof DisabledHistoricalCacheRangeQueryInterceptor) {
+            return DisabledHistoricalCacheSizeQueryInterceptor.INSTANCE;
+        } else {
+            return new RangeHistoricalCacheSizeQueryInterceptor(this, rangeQueryInterceptor);
+        }
+    }
+
     protected IValuesMap<V> getValuesMap() {
         return valuesMap;
     }
@@ -687,6 +709,11 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
         @Override
         public IHistoricalCacheNextQueryInterceptor<V> getNextQueryInterceptor() {
             return AHistoricalCache.this.getNextQueryInterceptor();
+        }
+
+        @Override
+        public IHistoricalCacheSizeQueryInterceptor getSizeQueryInterceptor() {
+            return AHistoricalCache.this.getSizeQueryInterceptor();
         }
 
         @Override

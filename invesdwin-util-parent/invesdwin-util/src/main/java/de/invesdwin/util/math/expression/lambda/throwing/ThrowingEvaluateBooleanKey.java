@@ -16,7 +16,7 @@ public class ThrowingEvaluateBooleanKey implements IEvaluateBooleanKey {
     }
 
     @Override
-    public boolean evaluateBoolean(final int key) {
+    public boolean evaluateBoolean(final long key) {
         throw Throwables.propagate(throwable);
     }
 

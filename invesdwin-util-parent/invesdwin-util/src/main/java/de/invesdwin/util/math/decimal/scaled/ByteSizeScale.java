@@ -18,9 +18,9 @@ public enum ByteSizeScale implements IDecimalScale<ByteSize, ByteSizeScale> {
     private static final double MULTIPLICATOR_1024 = 1024D;
     private static final int SCALE_1024 = new Decimal(MULTIPLICATOR_1024).getDigits() - 1;
 
-    private String text;
-    private int multiplesOf1024;
-    private String symbol;
+    private final String text;
+    private final int multiplesOf1024;
+    private final String symbol;
 
     ByteSizeScale(final String text, final int multiplesOf1000, final String symbol) {
         this.text = text;

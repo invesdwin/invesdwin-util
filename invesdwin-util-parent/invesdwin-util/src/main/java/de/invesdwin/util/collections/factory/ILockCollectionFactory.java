@@ -10,7 +10,8 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.collections.bitset.IBitSet;
+import de.invesdwin.util.collections.array.large.bitset.ILargeBitSet;
+import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
@@ -18,7 +19,7 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.lock.ILock;
-import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
+import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import de.invesdwin.util.concurrent.reference.lazy.ILazyReference;
 import de.invesdwin.util.lang.comparator.IComparator;
@@ -44,9 +45,11 @@ public interface ILockCollectionFactory {
 
     ILock newLock(String name);
 
-    IReadWriteLock newReadWriteLock(String name);
+    IReentrantReadWriteLock newReadWriteLock(String name);
 
-    IBitSet newBitSet(int initialSize);
+    IPrimitiveBitSet newPrimitiveBitSet(int initialSize);
+
+    ILargeBitSet newLargeBitSet(long initialSize);
 
     @SuppressWarnings("unchecked")
     <T> List<T> newArrayList(T... copyOf);

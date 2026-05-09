@@ -25,10 +25,12 @@ import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.OutputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedDelegateByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedFromDelegateByteBuffer;
-import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
-import de.invesdwin.util.streams.buffer.bytes.extend.internal.MappedExpandableBufferBase;
+import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.ExpandableMutableSlicedDelegateCloseableByteBufferFactory;
+import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateCloseableByteBufferFactory;
+import de.invesdwin.util.streams.buffer.bytes.extend.internal.MappedExpandableByteBufferBase;
 import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferInputStream;
 import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferOutputStream;
 import de.invesdwin.util.streams.buffer.bytes.stream.ExpandableByteBufferOutputStream;
@@ -37,9 +39,9 @@ import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
-public class MappedExpandableByteBuffer extends MappedExpandableBufferBase implements IByteBuffer {
+public class MappedExpandableByteBuffer extends MappedExpandableByteBufferBase implements ICloseableByteBuffer {
 
-    protected IMutableSlicedDelegateByteBufferFactory mutableSliceFactory;
+    protected IMutableSlicedDelegateCloseableByteBufferFactory mutableSliceFactory;
 
     public MappedExpandableByteBuffer() {
         super(INITIAL_CAPACITY);
@@ -223,20 +225,20 @@ public class MappedExpandableByteBuffer extends MappedExpandableBufferBase imple
         return new ByteDelegateMemoryBuffer(this).newSlice(index, length);
     }
 
-    protected IMutableSlicedDelegateByteBufferFactory getMutableSliceFactory() {
+    protected IMutableSlicedDelegateCloseableByteBufferFactory getMutableSliceFactory() {
         if (mutableSliceFactory == null) {
-            mutableSliceFactory = new ExpandableMutableSlicedDelegateByteBufferFactory(this);
+            mutableSliceFactory = new ExpandableMutableSlicedDelegateCloseableByteBufferFactory(this);
         }
         return mutableSliceFactory;
     }
 
     @Override
-    public IByteBuffer sliceFrom(final int index) {
+    public ICloseableByteBuffer sliceFrom(final int index) {
         return getMutableSliceFactory().sliceFrom(index);
     }
 
     @Override
-    public IByteBuffer slice(final int index, final int length) {
+    public ICloseableByteBuffer slice(final int index, final int length) {
         return getMutableSliceFactory().slice(index, length);
     }
 
@@ -254,7 +256,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableBufferBase imple
             return this;
         } else {
             ensureCapacity(index + length);
-            return new UnsafeByteBuffer(this, index, length);
+            return new SlicedDelegateByteBuffer(this, index, length);
         }
     }
 
@@ -655,7 +657,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableBufferBase imple
     }
 
     @Override
-    public IByteBuffer ensureCapacity(final int desiredCapacity) {
+    public ICloseableByteBuffer ensureCapacity(final int desiredCapacity) {
         if (desiredCapacity > capacity()) {
             //we need this workaround to prevent growth when capacity matches on the last bit
             checkLimit(desiredCapacity - BitUtil.SIZE_OF_BYTE);
@@ -664,7 +666,7 @@ public class MappedExpandableByteBuffer extends MappedExpandableBufferBase imple
     }
 
     @Override
-    public IByteBuffer asImmutableSlice() {
+    public ICloseableByteBuffer asImmutableSlice() {
         return this;
     }
 

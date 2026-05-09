@@ -6,6 +6,6 @@ public interface IEvaluateBooleanKey {
     /**
      * Double.NaN is interpreted as false.
      */
-    boolean evaluateBoolean(int key);
+    boolean evaluateBoolean(long key);
 
 }

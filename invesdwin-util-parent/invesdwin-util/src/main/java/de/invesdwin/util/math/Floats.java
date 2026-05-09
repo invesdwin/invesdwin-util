@@ -103,7 +103,7 @@ public final class Floats extends AFloatsStaticFacade {
         } else if (second == null) {
             return first;
         } else {
-            return Math.max(first, second);
+            return max(first.floatValue(), second.floatValue());
         }
     }
 
@@ -111,7 +111,7 @@ public final class Floats extends AFloatsStaticFacade {
         if (second == null) {
             return first;
         } else {
-            return Math.max(first, second);
+            return max(first, second.floatValue());
         }
     }
 
@@ -119,12 +119,23 @@ public final class Floats extends AFloatsStaticFacade {
         if (first == null) {
             return second;
         } else {
-            return Math.max(first, second);
+            return max(first.floatValue(), second);
         }
     }
 
-    public static float max(final float first, final float second) {
+    public static float max(final float a, final float b) {
+        if (isNaN(a)) {
+            return b;
+        } else if (isNaN(b)) {
+            return a;
+        }
+        return maxUnchecked(a, b);
+    }
+
+    public static float maxUnchecked(final float first, final float second) {
+        //CHECKSTYLE:OFF
         return Math.max(first, second);
+        //CHECKSTYLE:ON
     }
 
     public static Float minNullable(final Float... values) {
@@ -151,7 +162,7 @@ public final class Floats extends AFloatsStaticFacade {
         } else if (second == null) {
             return first;
         } else {
-            return Math.min(first, second);
+            return min(first.floatValue(), second.floatValue());
         }
     }
 
@@ -159,7 +170,7 @@ public final class Floats extends AFloatsStaticFacade {
         if (second == null) {
             return first;
         } else {
-            return Math.min(first, second);
+            return min(first, second.floatValue());
         }
     }
 
@@ -167,12 +178,23 @@ public final class Floats extends AFloatsStaticFacade {
         if (first == null) {
             return second;
         } else {
-            return Math.min(first, second);
+            return min(first.floatValue(), second);
         }
     }
 
-    public static float min(final float first, final float second) {
+    public static float min(final float a, final float b) {
+        if (isNaN(a)) {
+            return b;
+        } else if (isNaN(b)) {
+            return a;
+        }
+        return minUnchecked(a, b);
+    }
+
+    public static float minUnchecked(final float first, final float second) {
+        //CHECKSTYLE:OFF
         return Math.min(first, second);
+        //CHECKSTYLE:ON
     }
 
     public static Float between(final Float value, final Float minInclusive, final Float maxInclusive) {
@@ -267,7 +289,9 @@ public final class Floats extends AFloatsStaticFacade {
     }
 
     public static float abs(final float value) {
+        //CHECKSTYLE:OFF
         return Math.abs(value);
+        //CHECKSTYLE:ON
     }
 
     public static int compare(final Float a, final Float b) {
@@ -323,5 +347,11 @@ public final class Floats extends AFloatsStaticFacade {
 
     public static boolean isNullOrNaN(final Float value) {
         return value == null || isNaN(value);
+    }
+
+    public static float round(final float a) {
+        //CHECKSTYLE:OFF
+        return Math.round(a);
+        //CHECKSTYLE:ON
     }
 }

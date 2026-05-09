@@ -93,7 +93,7 @@ public final class MathFunctions {
     public static final ADoubleFunction SINH = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.sinh(a);
+            return Doubles.sinh(a);
         }
 
         @Override
@@ -238,7 +238,7 @@ public final class MathFunctions {
     public static final ADoubleFunction COSH = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.cosh(a);
+            return Doubles.cosh(a);
         }
 
         @Override
@@ -311,7 +311,7 @@ public final class MathFunctions {
     public static final ADoubleFunction TAN = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.tan(a);
+            return Doubles.tan(a);
         }
 
         @Override
@@ -383,7 +383,7 @@ public final class MathFunctions {
     public static final ADoubleFunction TANH = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.tanh(a);
+            return Doubles.tanh(a);
         }
 
         @Override
@@ -530,7 +530,7 @@ public final class MathFunctions {
     public static final ADoubleFunction ASIN = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.asin(a);
+            return Doubles.asin(a);
         }
 
         @Override
@@ -602,7 +602,7 @@ public final class MathFunctions {
     public static final ADoubleFunction ACOS = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.acos(a);
+            return Doubles.acos(a);
         }
 
         @Override
@@ -674,7 +674,7 @@ public final class MathFunctions {
     public static final ADoubleFunction ATAN = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.atan(a);
+            return Doubles.atan(a);
         }
 
         @Override
@@ -746,7 +746,7 @@ public final class MathFunctions {
     public static final ADoubleFunction ATAN2 = new ADoubleBinaryFunction() {
         @Override
         protected double eval(final double a, final double b) {
-            return Math.atan2(a, b);
+            return Doubles.atan2(a, b);
         }
 
         @Override
@@ -931,7 +931,7 @@ public final class MathFunctions {
     public static final ADoubleFunction FLOOR = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.floor(a);
+            return Doubles.floor(a);
         }
 
         @Override
@@ -1004,7 +1004,7 @@ public final class MathFunctions {
     public static final ADoubleFunction CEIL = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.ceil(a);
+            return Doubles.ceil(a);
         }
 
         @Override
@@ -1551,7 +1551,7 @@ public final class MathFunctions {
     public static final ADoubleFunction SIGN = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.signum(a);
+            return Doubles.signum(a);
         }
 
         @Override
@@ -1624,7 +1624,7 @@ public final class MathFunctions {
     public static final ADoubleFunction DEG = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.toDegrees(a);
+            return Doubles.toDegrees(a);
         }
 
         @Override
@@ -1697,7 +1697,7 @@ public final class MathFunctions {
     public static final ADoubleFunction RAD = new ADoubleUnaryFunction() {
         @Override
         protected double eval(final double a) {
-            return Math.toRadians(a);
+            return Doubles.toRadians(a);
         }
 
         @Override
@@ -2023,8 +2023,7 @@ public final class MathFunctions {
 
     };
 
-    private MathFunctions() {
-    }
+    private MathFunctions() {}
 
     public static ADoubleFunction newRandomFunction(final String expressionName) {
         return new ADoubleFunction() {

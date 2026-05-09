@@ -4,7 +4,7 @@ package de.invesdwin.util.math.expression.lambda;
 public interface IEvaluateDouble {
 
     /**
-     * evaluates the expression using the current available time/int key
+     * evaluates the expression using the current available time/long key
      */
     double evaluateDouble();
 

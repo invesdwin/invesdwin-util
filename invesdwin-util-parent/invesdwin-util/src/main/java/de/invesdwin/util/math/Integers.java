@@ -98,16 +98,20 @@ public final class Integers extends AIntegersStaticFacade {
         } else if (second == null) {
             return first;
         } else {
-            return Math.max(first, second);
+            return max(first.intValue(), second.intValue());
         }
     }
 
     public static int max(final int first, final int second) {
+        //CHECKSTYLE:OFF
         return Math.max(first, second);
+        //CHECKSTYLE:ON
     }
 
     public static int min(final int first, final int second) {
+        //CHECKSTYLE:OFF
         return Math.min(first, second);
+        //CHECKSTYLE:ON
     }
 
     public static int min(final int first, final Integer second) {
@@ -132,7 +136,7 @@ public final class Integers extends AIntegersStaticFacade {
         } else if (second == null) {
             return first;
         } else {
-            return Math.min(first, second);
+            return min(first.intValue(), second.intValue());
         }
     }
 
@@ -391,7 +395,9 @@ public final class Integers extends AIntegersStaticFacade {
     }
 
     public static int abs(final int value) {
+        //CHECKSTYLE:OFF
         return Math.abs(value);
+        //CHECKSTYLE:ON
     }
 
     public static Boolean toBooleanNullable(final int value) {
@@ -560,6 +566,48 @@ public final class Integers extends AIntegersStaticFacade {
 
     public static int maxExclusiveToInclusive(final int maxExclusive) {
         return maxExclusive - 1;
+    }
+
+    public static int round(final double value) {
+        return checkedCast(Longs.round(value));
+    }
+
+    public static int round(final float value) {
+        //CHECKSTYLE:OFF
+        return Math.round(value);
+        //CHECKSTYLE:ON
+    }
+
+    public static int ceil(final double value) {
+        //CHECKSTYLE:OFF
+        return Integers.checkedCast(Math.ceil((value)));
+        //CHECKSTYLE:ON
+    }
+
+    public static int ceilUnchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return (int) Math.ceil(value);
+        //CHECKSTYLE:ON
+    }
+
+    public static int floor(final double value) {
+        //CHECKSTYLE:OFF
+        return Integers.checkedCast(Math.floor(value));
+        //CHECKSTYLE:ON
+    }
+
+    public static int floorUnchecked(final double value) {
+        //CHECKSTYLE:OFF
+        return (int) Math.floor(value);
+        //CHECKSTYLE:ON
+    }
+
+    public static int sqrt(final double value) {
+        return checkedCast(Doubles.sqrt(value));
+    }
+
+    public static int sqrtUnchecked(final double value) {
+        return (int) Doubles.sqrt(value);
     }
 
 }

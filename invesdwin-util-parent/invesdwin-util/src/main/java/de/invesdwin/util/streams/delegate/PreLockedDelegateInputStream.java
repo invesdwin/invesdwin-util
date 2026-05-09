@@ -19,9 +19,13 @@ public class PreLockedDelegateInputStream extends SimpleDelegateInputStream {
     @Override
     public void close() throws IOException {
         if (lock != null) {
-            super.close();
-            lock.unlock();
-            lock = null;
+            synchronized (this) {
+                if (lock != null) {
+                    super.close();
+                    lock.unlock();
+                    lock = null;
+                }
+            }
         }
     }
 

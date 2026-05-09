@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.stream.IStreamAlgorithm;
 
 @NotThreadSafe
@@ -30,7 +31,7 @@ class OverflowingNumberStreamVariance<E extends Number> implements IStreamAlgori
         final double avg = avgProcessor.getAvg();
         double sum = 0D;
         for (final double value : values) {
-            sum += Math.pow(value - avg, 2);
+            sum += Doubles.pow(value - avg, 2);
         }
         return sum / (values.size());
     }
@@ -42,7 +43,7 @@ class OverflowingNumberStreamVariance<E extends Number> implements IStreamAlgori
         final double avg = avgProcessor.getAvg();
         double sum = 0D;
         for (final double value : values) {
-            sum += Math.pow(value - avg, 2);
+            sum += Doubles.pow(value - avg, 2);
         }
         return sum / (values.size() - 1);
     }

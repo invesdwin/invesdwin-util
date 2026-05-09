@@ -37,7 +37,7 @@
 		<version.classgraph>4.8.184</version.classgraph>
 		<version.okhttp>5.1.0</version.okhttp>
 		<version.okio>3.15.0</version.okio>
-		<version.roaringbitmap>1.0.0</version.roaringbitmap>
+		<version.roaringbitmap>1.6.13</version.roaringbitmap>
 		<version.fst>2.57-inv3</version.fst>
 		<version.jcolorbrewer>5.2</version.jcolorbrewer>
 	</properties>

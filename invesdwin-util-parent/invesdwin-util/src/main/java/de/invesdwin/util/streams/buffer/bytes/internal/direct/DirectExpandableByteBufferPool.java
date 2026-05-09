@@ -22,4 +22,15 @@ public final class DirectExpandableByteBufferPool extends AAgronaObjectPool<IClo
         }
     }
 
+    @Override
+    public void invalidateObject(final ICloseableByteBuffer element) {
+        if (element instanceof PooledUninitializedDirectExpandableByteBuffer) {
+            final PooledUninitializedDirectExpandableByteBuffer cElement = (PooledUninitializedDirectExpandableByteBuffer) element;
+            cElement.superClose();
+        } else if (element instanceof PooledDirectExpandableByteBuffer) {
+            final PooledDirectExpandableByteBuffer cElement = (PooledDirectExpandableByteBuffer) element;
+            cElement.superClose();
+        }
+    }
+
 }

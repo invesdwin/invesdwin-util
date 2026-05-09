@@ -21,7 +21,6 @@ import com.querydsl.core.annotations.QuerySupertype;
  * @author Barend Garvelink
  * @since 1.0
  */
-@SuppressWarnings("restriction")
 @ThreadSafe
 @QuerySupertype
 public abstract class APropertyChangeSupported extends APropertyChangeSupportedBase {

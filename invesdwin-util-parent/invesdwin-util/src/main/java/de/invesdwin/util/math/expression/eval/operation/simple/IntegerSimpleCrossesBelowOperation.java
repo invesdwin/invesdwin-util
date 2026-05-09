@@ -70,7 +70,7 @@ public class IntegerSimpleCrossesBelowOperation extends DoubleSimpleCrossesBelow
             final int rightValue0 = rightF.evaluateInteger(key);
             //left is below right
             if (Integers.isLessThan(leftValue0, rightValue0)) {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, 1);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, 1);
                 final int leftValue1 = prevLeftF.evaluateInteger(previousKey);
                 final int rightValue1 = prevRightF.evaluateInteger(previousKey);
                 //previous left is above or equal to previous right
@@ -129,7 +129,7 @@ public class IntegerSimpleCrossesBelowOperation extends DoubleSimpleCrossesBelow
             final int rightValue0 = rightF.evaluateInteger(key);
             //left is below right
             if (Integers.isLessThan(leftValue0, rightValue0)) {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, 1);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, 1);
                 final int leftValue1 = prevLeftF.evaluateInteger(previousKey);
                 final int rightValue1 = prevRightF.evaluateInteger(previousKey);
                 //previous left is above or equal to previous right
@@ -188,7 +188,7 @@ public class IntegerSimpleCrossesBelowOperation extends DoubleSimpleCrossesBelow
             final int rightValue0 = rightF.evaluateInteger(key);
             //left is below right
             if (Integers.isLessThan(leftValue0, rightValue0)) {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, 1);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, 1);
                 final int leftValue1 = prevLeftF.evaluateInteger(previousKey);
                 final int rightValue1 = prevRightF.evaluateInteger(previousKey);
                 //previous left is above or equal to previous right
@@ -247,7 +247,7 @@ public class IntegerSimpleCrossesBelowOperation extends DoubleSimpleCrossesBelow
             final int rightValue0 = rightF.evaluateInteger(key);
             //left is below right
             if (Integers.isLessThan(leftValue0, rightValue0)) {
-                final int previousKey = previousKeyFunction.getPreviousKey(key, 1);
+                final long previousKey = previousKeyFunction.getPreviousKey(key, 1);
                 final int leftValue1 = prevLeftF.evaluateInteger(previousKey);
                 final int rightValue1 = prevRightF.evaluateInteger(previousKey);
                 //previous left is above or equal to previous right
