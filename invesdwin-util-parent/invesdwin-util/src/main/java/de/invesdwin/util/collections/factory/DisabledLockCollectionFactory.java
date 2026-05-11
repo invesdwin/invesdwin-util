@@ -34,7 +34,8 @@ import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
 import de.invesdwin.util.concurrent.lock.ILock;
-import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
+import de.invesdwin.util.concurrent.lock.IReentrantLock;
+import de.invesdwin.util.concurrent.lock.disabled.DisabledReentrantLock;
 import de.invesdwin.util.concurrent.lock.disabled.DisabledReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.nested.DisabledNestedExecutor;
@@ -61,8 +62,8 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     private DisabledLockCollectionFactory() {}
 
     @Override
-    public ILock newLock(final String name) {
-        return DisabledLock.INSTANCE;
+    public IReentrantLock newLock(final String name) {
+        return DisabledReentrantLock.INSTANCE;
     }
 
     @Override

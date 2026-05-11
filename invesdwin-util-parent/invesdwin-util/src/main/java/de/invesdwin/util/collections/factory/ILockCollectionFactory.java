@@ -19,6 +19,7 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.collections.loadingcache.ALoadingCacheConfig;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.IReentrantLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import de.invesdwin.util.concurrent.reference.lazy.ILazyReference;
@@ -43,7 +44,7 @@ public interface ILockCollectionFactory {
         return Integers.max(Executors.getCpuThreadPoolCount(), DEFAULT_CONCURRENCY_LEVEL);
     }
 
-    ILock newLock(String name);
+    IReentrantLock newLock(String name);
 
     IReentrantReadWriteLock newReadWriteLock(String name);
 
