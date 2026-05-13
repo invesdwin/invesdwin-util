@@ -15,6 +15,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.date.millis.FDatesMillis;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
@@ -556,25 +557,33 @@ public final class FDates {
     }
 
     public static FDate avg(final FDate first, final FDate second) {
-        return new FDate((first.millisValue() + second.millisValue()) / 2);
+        final long avgMillis = (first.millisValue() + second.millisValue()) / 2;
+        final int avgPicos = Integers.avg(first.picosValue(), second.picosValue());
+        return new FDate(avgMillis, avgPicos);
     }
 
     public static FDate avg(final FDate... values) {
-        double sum = 0;
+        double sumMillis = 0;
+        double sumPicos = 0;
         for (final FDate value : values) {
-            sum += value.millisValue();
+            sumMillis += value.millisValue();
+            sumPicos += value.picosValue();
         }
-        final double avg = sum / values.length;
-        return new FDate((long) avg);
+        final double avgMillis = sumMillis / values.length;
+        final double avgPicos = sumPicos / values.length;
+        return new FDate((long) avgMillis, (int) avgPicos);
     }
 
     public static FDate avg(final Collection<FDate> values) {
-        double sum = 0;
+        double sumMillis = 0;
+        double sumPicos = 0;
         for (final FDate value : values) {
-            sum += value.millisValue();
+            sumMillis += value.millisValue();
+            sumPicos += value.picosValue();
         }
-        final double avg = sum / values.size();
-        return new FDate((long) avg);
+        final double avgMillis = sumMillis / values.size();
+        final double avgPicos = sumPicos / values.size();
+        return new FDate((long) avgMillis, (int) avgPicos);
     }
 
     public static int bisect(final FDate[] keys, final FDate skippingKeysAbove,
@@ -1009,6 +1018,22 @@ public final class FDates {
             return false;
         }
         return true;
+    }
+
+    public static FTimeUnit getTimeUnit(final FDate date) {
+        if (date.picosValue() == 0) {
+            return FTimeUnit.MILLISECONDS;
+        } else {
+            return FTimeUnit.PICOSECONDS;
+        }
+    }
+
+    public static FTimeUnit getTimeUnit(final FDate date1, final FDate date2) {
+        if (date1.picosValue() == 0 && date2.picosValue() == 0) {
+            return FTimeUnit.MILLISECONDS;
+        } else {
+            return FTimeUnit.PICOSECONDS;
+        }
     }
 
 }

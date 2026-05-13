@@ -19,7 +19,9 @@ import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.random.PseudoRandomGenerators;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.millis.FDatePicos;
 import de.invesdwin.util.time.duration.internal.DurationParser;
 import jakarta.persistence.Transient;
 
@@ -93,7 +95,7 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public Duration(final FDate start) {
-        this(start, new FDate(), FTimeUnit.MILLISECONDS);
+        this(start, new FDate(), FDates.getTimeUnit(start));
     }
 
     public Duration(final FDate start, final FTimeUnit timeUnit) {
@@ -101,7 +103,7 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public Duration(final FDate start, final FDate end) {
-        this(start, end, FTimeUnit.MILLISECONDS);
+        this(start, end, FDates.getTimeUnit(start, end));
     }
 
     public Duration(final FDate start, final FDate end, final FTimeUnit timeUnit) {
@@ -310,6 +312,7 @@ public class Duration extends Number implements Comparable<Object> {
      * @see <a href="http://de.wikipedia.org/wiki/ISO_8601">ISO_8601</a>
      */
     public String toString(final FTimeUnit smallestTimeUnit) {
+        final int picoseconds = FDatePicos.getPicosecond(picosValue());
         long nanoseconds = Longs.abs(nanosValue());
         final long years = FTimeUnit.NANOSECONDS.toYears(nanoseconds);
         nanoseconds -= FTimeUnit.YEARS.toNanos(years);
@@ -332,6 +335,12 @@ public class Duration extends Number implements Comparable<Object> {
 
         final StringBuilder sb = new StringBuilder();
         switch (smallestTimeUnit) {
+        case PICOSECONDS:
+            if (picoseconds > 0) {
+                sb.insert(0, Strings.leftPad(picosValue(), 3, "0"));
+                sb.insert(0, ".");
+            }
+            // fall through
         case NANOSECONDS:
             if (nanoseconds > 0) {
                 sb.insert(0, Strings.leftPad(nanoseconds, 3, "0"));
@@ -496,19 +505,48 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public FDate subtractFrom(final FDate date) {
-        return new FDate(date.millisValue() - longValue(FTimeUnit.MILLISECONDS));
+        return new FDate(date.millisValue() - millisValue(), picosValue());
+    }
+
+    private long millisValue() {
+        return longValue(FTimeUnit.MILLISECONDS);
+    }
+
+    private int picosValue() {
+        switch (timeUnit) {
+        case MILLENIA:
+        case CENTURIES:
+        case DECADES:
+        case YEARS:
+        case MONTHS:
+        case WEEKS:
+        case DAYS:
+        case HOURS:
+        case MINUTES:
+        case SECONDS:
+        case MILLISECONDS:
+            return 0;
+        case MICROSECONDS:
+            return FDatePicos.toPicosWithoutOverflow(duration * FTimeUnit.PICOSECONDS_IN_MICROSECOND);
+        case NANOSECONDS:
+            return FDatePicos.toPicosWithoutOverflow(duration * FTimeUnit.PICOSECONDS_IN_NANOSECOND);
+        case PICOSECONDS:
+            return FDatePicos.toPicosWithoutOverflow(duration);
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
+        }
     }
 
     public FDate addTo(final FDate date) {
-        return new FDate(date.millisValue() + longValue(FTimeUnit.MILLISECONDS));
+        return new FDate(date.millisValue() + millisValue(), picosValue());
     }
 
     public long subtractFrom(final long millis) {
-        return millis - longValue(FTimeUnit.MILLISECONDS);
+        return millis - millisValue();
     }
 
     public long addTo(final long millis) {
-        return millis + longValue(FTimeUnit.MILLISECONDS);
+        return millis + millisValue();
     }
 
     public Duration abs() {
@@ -663,7 +701,7 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public org.joda.time.Duration jodaTimeValue() {
-        return org.joda.time.Duration.millis(longValue(FTimeUnit.MILLISECONDS));
+        return org.joda.time.Duration.millis(millisValue());
     }
 
     public static Duration valueOf(final FDate from, final FDate to) {

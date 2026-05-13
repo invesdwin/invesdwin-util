@@ -4,7 +4,6 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.streams.buffer.bytes.IByteBufferProvider;
-import de.invesdwin.util.time.date.FDate;
 
 @Immutable
 public class IndexedByteBuffer {
@@ -19,10 +18,6 @@ public class IndexedByteBuffer {
 
     public long getIndex() {
         return index;
-    }
-
-    public FDate getTime() {
-        return new FDate(index);
     }
 
     public IByteBufferProvider getByteBuffer() {

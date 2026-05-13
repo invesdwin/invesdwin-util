@@ -162,11 +162,11 @@ public final class TimeZoneRange extends AValueObject {
 
     public TimeRange applyTimeZoneOffset(final long millis) {
         if (getFrom() == getTo()) {
-            final FDate fromAndTo = new FDate(FDateMillis.applyTimeZoneOffset(millis, getFrom()));
+            final FDate fromAndTo = new FDate(FDateMillis.applyTimeZoneOffset(millis, getFrom()), 0);
             return new TimeRange(fromAndTo, fromAndTo);
         } else {
-            final FDate from = new FDate(FDateMillis.applyTimeZoneOffset(millis, getFrom()));
-            final FDate to = new FDate(FDateMillis.applyTimeZoneOffset(millis, getTo()));
+            final FDate from = new FDate(FDateMillis.applyTimeZoneOffset(millis, getFrom()), 0);
+            final FDate to = new FDate(FDateMillis.applyTimeZoneOffset(millis, getTo()), 0);
             return new TimeRange(from, to);
         }
     }

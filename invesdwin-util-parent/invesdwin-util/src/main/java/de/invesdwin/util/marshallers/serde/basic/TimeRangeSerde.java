@@ -48,8 +48,8 @@ public class TimeRangeSerde implements ISerde<TimeRange> {
 
     public static int putTimeRange(final IByteBuffer buffer, final int index, final TimeRange timeRange) {
         if (timeRange == null) {
-            buffer.putLong(index + FROM_INDEX, Long.MIN_VALUE);
-            buffer.putLong(index + TO_INDEX, Long.MIN_VALUE);
+            FDateSerde.putFDate(buffer, index + FROM_INDEX, null);
+            FDateSerde.putFDate(buffer, index + TO_INDEX, null);
         } else {
             FDateSerde.putFDate(buffer, index + FROM_INDEX, timeRange.getFrom());
             FDateSerde.putFDate(buffer, index + TO_INDEX, timeRange.getTo());
@@ -58,12 +58,12 @@ public class TimeRangeSerde implements ISerde<TimeRange> {
     }
 
     public static TimeRange getTimeRange(final IByteBuffer buffer, final int index) {
-        final long from = buffer.getLong(index + FROM_INDEX);
-        final long to = buffer.getLong(index + TO_INDEX);
-        if (from == Long.MIN_VALUE && to == Long.MIN_VALUE) {
+        final FDate from = FDateSerde.getFDate(buffer, index + FROM_INDEX);
+        final FDate to = FDateSerde.getFDate(buffer, index + TO_INDEX);
+        if (from == null && to == null) {
             return null;
         } else {
-            return new TimeRange(FDateSerde.getFDate(from), FDateSerde.getFDate(to));
+            return new TimeRange(from, to);
         }
     }
 

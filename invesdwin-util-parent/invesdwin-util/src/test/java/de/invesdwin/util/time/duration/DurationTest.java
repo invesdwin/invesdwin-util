@@ -47,6 +47,8 @@ public class DurationTest {
 
     @Test
     public void testToString() {
+        System.out.println(
+                "TODO: fix overflow in duration, maybe use also a millis and picos field in duration to avoid overflow");
         Assertions.assertThat(new Duration(0, FTimeUnit.DAYS).toString()).isEqualTo("P0");
         final FDate date = new FDate();
         Assertions.assertThat(new Duration(date, date.addDays(1)).toString()).isEqualTo("P1D");
@@ -55,21 +57,25 @@ public class DurationTest {
         Assertions.assertThat(new Duration(-66, FTimeUnit.MINUTES).toString(FTimeUnit.HOURS)).isEqualTo("-PT1H");
         Assertions.assertThat(new Duration(-66, FTimeUnit.MINUTES).toString(FTimeUnit.DAYS)).isEqualTo("P0");
         Assertions.assertThat(new Duration(10, FTimeUnit.MINUTES).toString()).isEqualTo("PT10M");
-        Assertions.assertThat(new Duration(new FDate(0),
-                new FDate(0).addYears(1)
-                        .addDays(FTimeUnit.DAYS_IN_MONTH)
-                        .addWeeks(1)
-                        .addDays(1)
-                        .addHours(1)
-                        .addMinutes(1)
-                        .addSeconds(1)
-                        .addMilliseconds(1)).toString())
-                .isEqualTo("P1Y1M1W1DT1H1M1.001S");
+        Assertions
+                .assertThat(new Duration(new FDate(0, 0),
+                        new FDate(0, 0).addYears(1)
+                                .addDays(FTimeUnit.DAYS_IN_MONTH)
+                                .addWeeks(1)
+                                .addDays(1)
+                                .addHours(1)
+                                .addMinutes(1)
+                                .addSeconds(1)
+                                .addMilliseconds(1)
+                                .addMicroseconds(1)
+                                .addNanoseconds(1)
+                                .addPicoseconds(1)).toString(FTimeUnit.PICOSECONDS))
+                .isEqualTo("P1Y1M1W1DT1H1M1.001.001.001.001S");
     }
 
     @Test
     public void testDurationParser() {
-        final String durationStr = "P1Y1M1W1DT1H1M1.001.001.001S";
+        final String durationStr = "P1Y1M1W1DT1H1M1.001.001.001.001S";
         final Duration duration = Duration.valueOf(durationStr);
         Assertions.assertThat(duration.toString()).isEqualTo(durationStr);
     }

@@ -23,11 +23,13 @@ import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.string.Strings;
+import de.invesdwin.util.marshallers.serde.basic.FDateSerde;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.LongPair;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.millis.FDateMillis;
+import de.invesdwin.util.time.date.millis.FDatePicos;
 import de.invesdwin.util.time.date.millis.WeekAdjustment;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.date.timezone.TimeZoneRange;
@@ -46,7 +48,7 @@ public class FDate
 
     public static final IComparator<FDate> COMPARATOR = IComparator.getDefaultInstance();
 
-    public static final int BYTES = Long.BYTES;
+    public static final int BYTES = FDateSerde.FIXED_LENGTH;
 
     public static final int COUNT_NANOSECONDS_IN_MILLISECOND = Integers.checkedCast(FTimeUnit.MILLISECONDS.toNanos(1));
     public static final int COUNT_NANOSECONDS_IN_MICROSECOND = Integers.checkedCast(FTimeUnit.MICROSECONDS.toNanos(1));
@@ -101,31 +103,34 @@ public class FDate
     public static final FDate[] EMPTY_ARRAY = new FDate[0];
 
     private final long millis;
+    private final int picos;
     @Transient
     private transient Object extension;
 
     public FDate() {
-        this(System.currentTimeMillis());
+        this(System.currentTimeMillis(), 0);
     }
 
-    public FDate(final long millis) {
+    public FDate(final long millis, final int picos) {
         this.millis = millis;
+        this.picos = picos;
     }
 
     protected FDate(final FDate date) {
         this.millis = date.millis;
+        this.picos = date.picos;
     }
 
     public FDate(final ReadableDateTime jodaTime) {
-        this(jodaTime.getMillis());
+        this(jodaTime.getMillis(), 0);
     }
 
     public FDate(final LocalDateTime jodaTime) {
-        this(jodaTime.toDateTime().getMillis());
+        this(jodaTime.toDateTime().getMillis(), 0);
     }
 
     public FDate(final java.time.ZonedDateTime javaTime) {
-        this(javaTime.toInstant().toEpochMilli());
+        this(javaTime.toInstant().toEpochMilli(), 0);
     }
 
     public FDate(final java.time.LocalDateTime javaTime) {
@@ -133,7 +138,8 @@ public class FDate
     }
 
     public FDate(final java.time.Instant javaTime) {
-        this(javaTime.toEpochMilli());
+        this(javaTime.toEpochMilli(),
+                javaTime.getNano() % FTimeUnit.NANOSECONDS_IN_MILLISECOND * FTimeUnit.PICOSECONDS_IN_NANOSECOND);
     }
 
     public FDate(final Calendar calendar) {
@@ -141,7 +147,7 @@ public class FDate
     }
 
     public FDate(final Date date) {
-        this(date.getTime());
+        this(date.getTime(), 0);
     }
 
     public int getYear(final FTimeZone timeZone) {
@@ -212,170 +218,218 @@ public class FDate
         return FDateMillis.getMillisecond(millis);
     }
 
+    public int getMicrosecond() {
+        return FDatePicos.getMicrosecond(picos);
+    }
+
+    public int getNanosecond() {
+        return FDatePicos.getNanosecond(picos);
+    }
+
+    public int getPicosecond() {
+        return FDatePicos.getPicosecond(picos);
+    }
+
     public FTimeZone getTimeZone() {
         return FDates.getDefaultTimeZone();
     }
 
     public FDate setYear(final int year, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.setYear(millis, year, timeZone));
+        return new FDate(FDateMillis.setYear(millis, year, timeZone), picos);
     }
 
     public FDate setYear(final int year) {
-        return new FDate(FDateMillis.setYear(millis, year));
+        return new FDate(FDateMillis.setYear(millis, year), picos);
     }
 
     public FDate setMonth(final int month, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.setMonth(millis, month, timeZone));
+        return new FDate(FDateMillis.setMonth(millis, month, timeZone), picos);
     }
 
     public FDate setMonth(final int month) {
-        return new FDate(FDateMillis.setMonth(millis, month));
+        return new FDate(FDateMillis.setMonth(millis, month), picos);
     }
 
     public FDate setFMonth(final FMonth month, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.setFMonth(millis, month, timeZone));
+        return new FDate(FDateMillis.setFMonth(millis, month, timeZone), picos);
     }
 
     public FDate setFMonth(final FMonth month) {
-        return new FDate(FDateMillis.setFMonth(millis, month));
+        return new FDate(FDateMillis.setFMonth(millis, month), picos);
     }
 
     public FDate setDay(final int day, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.setDay(millis, day, timeZone));
+        return new FDate(FDateMillis.setDay(millis, day, timeZone), picos);
     }
 
     public FDate setDay(final int day) {
-        return new FDate(FDateMillis.setDay(millis, day));
+        return new FDate(FDateMillis.setDay(millis, day), picos);
     }
 
     public FDate setWeekday(final int weekday, final WeekAdjustment adjustment, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.setWeekday(millis, weekday, adjustment, timeZone));
+        return new FDate(FDateMillis.setWeekday(millis, weekday, adjustment, timeZone), picos);
     }
 
     public FDate setWeekday(final int weekday, final WeekAdjustment adjustment) {
-        return new FDate(FDateMillis.setWeekday(millis, weekday, adjustment));
+        return new FDate(FDateMillis.setWeekday(millis, weekday, adjustment), picos);
     }
 
     public FDate setFWeekday(final FWeekday weekday, final WeekAdjustment adjustment, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.setFWeekday(millis, weekday, adjustment, timeZone));
+        return new FDate(FDateMillis.setFWeekday(millis, weekday, adjustment, timeZone), picos);
     }
 
     public FDate setFWeekday(final FWeekday weekday, final WeekAdjustment adjustment) {
-        return new FDate(FDateMillis.setFWeekday(millis, weekday, adjustment));
+        return new FDate(FDateMillis.setFWeekday(millis, weekday, adjustment), picos);
     }
 
     public FDate setFWeekTime(final FWeekTime weekTime, final WeekAdjustment adjustment, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.setFWeekTime(millis, weekTime, adjustment, timeZone));
+        return new FDate(FDateMillis.setFWeekTime(millis, weekTime, adjustment, timeZone), 0);
     }
 
     public FDate setFWeekTime(final FWeekTime weekTime, final WeekAdjustment adjustment) {
-        return new FDate(FDateMillis.setFWeekTime(millis, weekTime, adjustment));
+        return new FDate(FDateMillis.setFWeekTime(millis, weekTime, adjustment), 0);
     }
 
     public FDate setFDayTime(final FDayTime dayTime, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.setFDayTime(millis, dayTime, timeZone));
+        return new FDate(FDateMillis.setFDayTime(millis, dayTime, timeZone), 0);
     }
 
     public FDate setFDayTime(final FDayTime dayTime) {
-        return new FDate(FDateMillis.setFDayTime(millis, dayTime));
+        return new FDate(FDateMillis.setFDayTime(millis, dayTime), 0);
     }
 
     public FDate setTime(final FDate time, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.setTime(millis, time.millisValue(), timeZone));
+        return new FDate(FDateMillis.setTime(millis, time.millisValue(), timeZone), time.picos);
     }
 
     public FDate setTime(final FDate time) {
-        return new FDate(FDateMillis.setTime(millis, time.millisValue()));
+        return new FDate(FDateMillis.setTime(millis, time.millisValue()), time.picos);
     }
 
     public FDate setHour(final int hour, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.setHour(millis, hour, timeZone));
+        return new FDate(FDateMillis.setHour(millis, hour, timeZone), picos);
     }
 
     public FDate setHour(final int hour) {
-        return new FDate(FDateMillis.setHour(millis, hour));
+        return new FDate(FDateMillis.setHour(millis, hour), picos);
     }
 
     public FDate setMinute(final int minute) {
-        return new FDate(FDateMillis.setMinute(millis, minute));
+        return new FDate(FDateMillis.setMinute(millis, minute), picos);
     }
 
     public FDate setSecond(final int second) {
-        return new FDate(FDateMillis.setSecond(millis, second));
+        return new FDate(FDateMillis.setSecond(millis, second), picos);
     }
 
     public FDate setMillisecond(final int millisecond) {
-        return new FDate(FDateMillis.setMillisecond(millis, millisecond));
+        return new FDate(FDateMillis.setMillisecond(millis, millisecond), picos);
     }
 
     public FDate addYears(final int years, final FTimeZone timeZone) {
         if (years == 0) {
             return this;
         }
-        return new FDate(FDateMillis.addYears(millis, years, timeZone));
+        return new FDate(FDateMillis.addYears(millis, years, timeZone), picos);
     }
 
     public FDate addYears(final int years) {
         if (years == 0) {
             return this;
         }
-        return new FDate(FDateMillis.addYears(millis, years));
+        return new FDate(FDateMillis.addYears(millis, years), picos);
     }
 
     public FDate addMonths(final int months, final FTimeZone timeZone) {
         if (months == 0) {
             return this;
         }
-        return new FDate(FDateMillis.addMonths(millis, months, timeZone));
+        return new FDate(FDateMillis.addMonths(millis, months, timeZone), picos);
     }
 
     public FDate addMonths(final int months) {
         if (months == 0) {
             return this;
         }
-        return new FDate(FDateMillis.addMonths(millis, months));
+        return new FDate(FDateMillis.addMonths(millis, months), picos);
     }
 
     public FDate addWeeks(final int weeks) {
         if (weeks == 0) {
             return this;
         }
-        return new FDate(FDateMillis.addWeeks(millis, weeks));
+        return new FDate(FDateMillis.addWeeks(millis, weeks), picos);
     }
 
     public FDate addDays(final int days) {
         if (days == 0) {
             return this;
         }
-        return new FDate(FDateMillis.addDays(millis, days));
+        return new FDate(FDateMillis.addDays(millis, days), picos);
     }
 
     public FDate addHours(final int hours) {
         if (hours == 0) {
             return this;
         }
-        return new FDate(FDateMillis.addHours(millis, hours));
+        return new FDate(FDateMillis.addHours(millis, hours), picos);
     }
 
     public FDate addMinutes(final int minutes) {
         if (minutes == 0) {
             return this;
         }
-        return new FDate(FDateMillis.addMinutes(millis, minutes));
+        return new FDate(FDateMillis.addMinutes(millis, minutes), picos);
     }
 
     public FDate addSeconds(final int seconds) {
         if (seconds == 0) {
             return this;
         }
-        return new FDate(FDateMillis.addSeconds(millis, seconds));
+        return new FDate(FDateMillis.addSeconds(millis, seconds), picos);
     }
 
     public FDate addMilliseconds(final long milliseconds) {
         if (milliseconds == 0) {
             return this;
         }
-        return new FDate(FDateMillis.addMilliseconds(millis, milliseconds));
+        return new FDate(FDateMillis.addMilliseconds(millis, milliseconds), picos);
+    }
+
+    public FDate addMicroseconds(final long microseconds) {
+        if (microseconds == 0) {
+            return this;
+        }
+        final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(picos, microseconds);
+        final int picosWithoutOverflow = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long millisecondsOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final long milliseconds = microseconds / FTimeUnit.MICROSECONDS_IN_MILLISECOND;
+        final long millisecondsWithOverflow = milliseconds + millisecondsOverflow;
+        return new FDate(FDateMillis.addMilliseconds(millis, millisecondsWithOverflow), picosWithoutOverflow);
+    }
+
+    public FDate addNanoseconds(final long nanoseconds) {
+        if (nanoseconds == 0) {
+            return this;
+        }
+        final long picosMaybeOverflow = FDatePicos.addNanosecondsMaybeOverflow(picos, nanoseconds);
+        final int picosWithoutOverflow = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long millisecondsOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final long milliseconds = nanoseconds / FTimeUnit.NANOSECONDS_IN_MILLISECOND;
+        final long millisecondsWithOverflow = milliseconds + millisecondsOverflow;
+        return new FDate(FDateMillis.addMilliseconds(millis, millisecondsWithOverflow), picosWithoutOverflow);
+    }
+
+    public FDate addPicoseconds(final long picoseconds) {
+        if (picoseconds == 0) {
+            return this;
+        }
+        final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(picos, picoseconds);
+        final int picosWithoutOverflow = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long millisecondsOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final long milliseconds = picoseconds / FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+        final long millisecondsWithOverflow = milliseconds + millisecondsOverflow;
+        return new FDate(FDateMillis.addMilliseconds(millis, millisecondsWithOverflow), picosWithoutOverflow);
     }
 
     public int get(final FDateField field, final FTimeZone timeZone) {
@@ -390,28 +444,34 @@ public class FDate
         if (value == 0) {
             return this;
         }
-        return new FDate(FDateMillis.set(millis, field, value, timeZone));
+        return new FDate(FDateMillis.set(millis, field, value, timeZone), picos);
     }
 
     public FDate set(final FDateField field, final int value) {
         if (value == 0) {
             return this;
         }
-        return new FDate(FDateMillis.set(millis, field, value));
+        return new FDate(FDateMillis.set(millis, field, value), picos);
     }
 
-    public FDate add(final FTimeUnit field, final int value, final FTimeZone timeZone) {
+    public FDate add(final FTimeUnit field, final long value, final FTimeZone timeZone) {
         if (value == 0) {
             return this;
         }
-        return new FDate(FDateMillis.add(millis, field, value, timeZone));
+        final long picosMaybeOverflow = FDatePicos.addMaybeOverflow(picos, field, value);
+        final int picosWithoutOverflow = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long millisecondsOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        return new FDate(FDateMillis.add(millis + millisecondsOverflow, field, value, timeZone), picosWithoutOverflow);
     }
 
-    public FDate add(final FTimeUnit field, final int value) {
+    public FDate add(final FTimeUnit field, final long value) {
         if (value == 0) {
             return this;
         }
-        return new FDate(FDateMillis.add(millis, field, value));
+        final long picosMaybeOverflow = FDatePicos.addMaybeOverflow(picos, field, value);
+        final int picosWithoutOverflow = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long millisecondsOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        return new FDate(FDateMillis.add(millis + millisecondsOverflow, field, value), picosWithoutOverflow);
     }
 
     public FDate add(final Duration duration) {
@@ -460,19 +520,19 @@ public class FDate
     }
 
     public FDate truncate(final FDateField field, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.truncate(millis, field, timeZone));
+        return new FDate(FDateMillis.truncate(millis, field, timeZone), 0);
     }
 
     public FDate truncate(final FDateField field) {
-        return new FDate(FDateMillis.truncate(millis, field));
+        return new FDate(FDateMillis.truncate(millis, field), 0);
     }
 
     public FDate truncate(final FTimeUnit timeUnit, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.truncate(millis, timeUnit, timeZone));
+        return new FDate(FDateMillis.truncate(millis, timeUnit, timeZone), FDatePicos.truncate(picos, timeUnit));
     }
 
     public FDate truncate(final FTimeUnit timeUnit) {
-        return new FDate(FDateMillis.truncate(millis, timeUnit));
+        return new FDate(FDateMillis.truncate(millis, timeUnit), FDatePicos.truncate(picos, timeUnit));
     }
 
     /**
@@ -481,13 +541,13 @@ public class FDate
     //CHECKSTYLE:OFF
     public FDate withoutTime() {
         //CHECKSTYLE:ON
-        return new FDate(FDateMillis.withoutTime(millis));
+        return new FDate(FDateMillis.withoutTime(millis), 0);
     }
 
     //CHECKSTYLE:OFF
     public FDate withoutTime(final FTimeZone timeZone) {
         //CHECKSTYLE:ON
-        return new FDate(FDateMillis.withoutTime(millis, timeZone));
+        return new FDate(FDateMillis.withoutTime(millis, timeZone), 0);
     }
 
     /**
@@ -497,7 +557,7 @@ public class FDate
         if (timeZone == null || timeZone.equals(getTimeZone())) {
             return this;
         }
-        return new FDate(FDateMillis.applyTimeZoneOffset(millis, timeZone));
+        return new FDate(FDateMillis.applyTimeZoneOffset(millis, timeZone), picos);
     }
 
     public TimeRange applyTimeZoneOffset(final TimeZoneRange timeZone) {
@@ -515,7 +575,7 @@ public class FDate
         if (timeZoneOffsetMilliseconds == 0) {
             return this;
         }
-        return new FDate(FDateMillis.applyTimeZoneOffset(millis, timeZoneOffsetMilliseconds));
+        return new FDate(FDateMillis.applyTimeZoneOffset(millis, timeZoneOffsetMilliseconds), picos);
     }
 
     public TimeRange applyTimeZoneOffset(final LongPair timeZoneOffsetMilliseconds) {
@@ -523,13 +583,13 @@ public class FDate
             return new TimeRange(this, this);
         } else if (timeZoneOffsetMilliseconds.getFirstValue() == timeZoneOffsetMilliseconds.getSecondValue()) {
             final FDate fromAndTo = new FDate(
-                    FDateMillis.applyTimeZoneOffset(millis, timeZoneOffsetMilliseconds.getFirstValue()));
+                    FDateMillis.applyTimeZoneOffset(millis, timeZoneOffsetMilliseconds.getFirstValue()), picos);
             return new TimeRange(fromAndTo, fromAndTo);
         } else {
             final FDate from = new FDate(
-                    FDateMillis.applyTimeZoneOffset(millis, timeZoneOffsetMilliseconds.getFirstValue()));
+                    FDateMillis.applyTimeZoneOffset(millis, timeZoneOffsetMilliseconds.getFirstValue()), picos);
             final FDate to = new FDate(
-                    FDateMillis.applyTimeZoneOffset(millis, timeZoneOffsetMilliseconds.getSecondValue()));
+                    FDateMillis.applyTimeZoneOffset(millis, timeZoneOffsetMilliseconds.getSecondValue()), picos);
             return new TimeRange(from, to);
         }
     }
@@ -560,7 +620,7 @@ public class FDate
         if (timeZone == null || timeZone.equals(getTimeZone())) {
             return this;
         }
-        return new FDate(FDateMillis.revertTimeZoneOffset(millis, timeZone));
+        return new FDate(FDateMillis.revertTimeZoneOffset(millis, timeZone), picos);
     }
 
     /**
@@ -572,18 +632,18 @@ public class FDate
         if (timeZoneOffsetMilliseconds == 0) {
             return this;
         }
-        return new FDate(FDateMillis.revertTimeZoneOffset(millis, timeZoneOffsetMilliseconds));
+        return new FDate(FDateMillis.revertTimeZoneOffset(millis, timeZoneOffsetMilliseconds), picos);
     }
 
     /**
      * sets hour, minute, second and millisecond each to 23:59:999.
      */
     public FDate atEndOfDay() {
-        return new FDate(FDateMillis.atEndOfDay(millis));
+        return new FDate(FDateMillis.atEndOfDay(millis), FDatePicos.END_OF_DAY_PICOS);
     }
 
     public FDate atEndOfDay(final FTimeZone timeZone) {
-        return new FDate(FDateMillis.atEndOfDay(millis, timeZone));
+        return new FDate(FDateMillis.atEndOfDay(millis, timeZone), FDatePicos.END_OF_DAY_PICOS);
     }
 
     /**
@@ -591,6 +651,10 @@ public class FDate
      */
     public long millisValue() {
         return millis;
+    }
+
+    public int picosValue() {
+        return picos;
     }
 
     public long toDurationMillis() {
@@ -662,16 +726,36 @@ public class FDate
     }
 
     public static FDate valueOfSeconds(final int seconds) {
-        return new FDate((long) seconds * FTimeUnit.MILLISECONDS_IN_SECOND);
+        return new FDate((long) seconds * FTimeUnit.MILLISECONDS_IN_SECOND, 0);
     }
 
     public static FDate valueOf(final long millis) {
-        return new FDate(millis);
+        return new FDate(millis, 0);
+    }
+
+    public static FDate valueOf(final long millis, final int picos) {
+        return new FDate(millis, picos);
     }
 
     public static FDate valueOf(final Long millis) {
         if (millis != null) {
-            return new FDate(millis);
+            return new FDate(millis, 0);
+        } else {
+            return null;
+        }
+    }
+
+    public static FDate valueOf(final Long millis, final Integer picos) {
+        if (millis != null) {
+            return new FDate(millis, Integers.nullToZero(picos));
+        } else {
+            return null;
+        }
+    }
+
+    public static FDate valueOf(final Long millis, final int picos) {
+        if (millis != null) {
+            return new FDate(millis, picos);
         } else {
             return null;
         }
@@ -679,7 +763,7 @@ public class FDate
 
     public static FDate valueOf(final Long value, final FTimeUnit timeUnit) {
         if (value != null) {
-            return new FDate(timeUnit.toMillis(value));
+            return new FDate(timeUnit.toMillis(value), 0);
         } else {
             return null;
         }
@@ -812,11 +896,11 @@ public class FDate
     }
 
     public static FDate today(final FTimeZone timeZone) {
-        return new FDate(FDateMillis.today(timeZone));
+        return new FDate(FDateMillis.today(timeZone), 0);
     }
 
     public static FDate today() {
-        return new FDate(FDateMillis.today());
+        return new FDate(FDateMillis.today(), 0);
     }
 
     @Override
@@ -842,7 +926,11 @@ public class FDate
     }
 
     public int compareToNotNullSafe(final FDate o) {
-        return Long.compare(millis, o.millis);
+        final int millisCompare = Long.compare(millis, o.millis);
+        if (millisCompare != 0) {
+            return millisCompare;
+        }
+        return Integer.compare(picos, o.picos);
     }
 
     public boolean equals(final FDate obj) {
@@ -850,7 +938,7 @@ public class FDate
     }
 
     public boolean equalsNotNullSafe(final FDate obj) {
-        return millis == obj.millis;
+        return millis == obj.millis && picos == obj.picos;
     }
 
     @Override
@@ -922,19 +1010,19 @@ public class FDate
     }
 
     public FDate getFirstWeekdayOfMonth(final FWeekday weekday, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.getFirstWeekdayOfMonth(millis, weekday, timeZone));
+        return new FDate(FDateMillis.getFirstWeekdayOfMonth(millis, weekday, timeZone), 0);
     }
 
     public FDate getFirstWeekdayOfMonth(final FWeekday weekday) {
-        return new FDate(FDateMillis.getFirstWeekdayOfMonth(millis, weekday));
+        return new FDate(FDateMillis.getFirstWeekdayOfMonth(millis, weekday), 0);
     }
 
     public FDate getFirstWorkdayOfMonth(final IHolidayManager holidayManager, final FTimeZone timeZone) {
-        return new FDate(FDateMillis.getFirstWorkdayOfMonth(millis, holidayManager, timeZone));
+        return new FDate(FDateMillis.getFirstWorkdayOfMonth(millis, holidayManager, timeZone), 0);
     }
 
     public FDate getFirstWorkdayOfMonth(final IHolidayManager holidayManager) {
-        return new FDate(FDateMillis.getFirstWorkdayOfMonth(millis, holidayManager));
+        return new FDate(FDateMillis.getFirstWorkdayOfMonth(millis, holidayManager), 0);
     }
 
     public FDate getNextHoliday(final IHolidayManager holidayManager, final FTimeZone timeZone) {

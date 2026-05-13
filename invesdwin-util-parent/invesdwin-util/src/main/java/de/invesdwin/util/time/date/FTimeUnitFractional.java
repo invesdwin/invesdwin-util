@@ -17,6 +17,11 @@ public enum FTimeUnitFractional {
         }
 
         @Override
+        public double toPicos(final double duration) {
+            return YEARS.toPicos(duration) * YEARS_IN_MILLENIUM;
+        }
+
+        @Override
         public double toNanos(final double duration) {
             return YEARS.toNanos(duration) * YEARS_IN_MILLENIUM;
         }
@@ -76,6 +81,11 @@ public enum FTimeUnitFractional {
         @Override
         public double convert(final double duration, final FTimeUnitFractional timeUnit) {
             return YEARS.convert(duration, timeUnit) / YEARS_IN_CENTURY;
+        }
+
+        @Override
+        public double toPicos(final double duration) {
+            return YEARS.toPicos(duration) * YEARS_IN_CENTURY;
         }
 
         @Override
@@ -141,6 +151,11 @@ public enum FTimeUnitFractional {
         }
 
         @Override
+        public double toPicos(final double duration) {
+            return YEARS.toPicos(duration) * YEARS_IN_DECADE;
+        }
+
+        @Override
         public double toNanos(final double duration) {
             return YEARS.toNanos(duration) * YEARS_IN_DECADE;
         }
@@ -200,6 +215,11 @@ public enum FTimeUnitFractional {
         @Override
         public double convert(final double duration, final FTimeUnitFractional timeUnit) {
             return timeUnit.toYears(duration);
+        }
+
+        @Override
+        public double toPicos(final double duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
         }
 
         @Override
@@ -266,6 +286,11 @@ public enum FTimeUnitFractional {
         }
 
         @Override
+        public double toPicos(final double duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
+        }
+
+        @Override
         public double toNanos(final double duration) {
             return toMicros(duration) * NANOSECONDS_IN_MICROSECOND;
         }
@@ -326,6 +351,11 @@ public enum FTimeUnitFractional {
         @Override
         public double convert(final double duration, final FTimeUnitFractional timeUnit) {
             return timeUnit.toWeeks(duration);
+        }
+
+        @Override
+        public double toPicos(final double duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
         }
 
         @Override
@@ -392,6 +422,11 @@ public enum FTimeUnitFractional {
         }
 
         @Override
+        public double toPicos(final double duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
+        }
+
+        @Override
         public double toNanos(final double duration) {
             return toMicros(duration) * NANOSECONDS_IN_MICROSECOND;
         }
@@ -452,6 +487,11 @@ public enum FTimeUnitFractional {
         @Override
         public double convert(final double duration, final FTimeUnitFractional timeUnit) {
             return timeUnit.toHours(duration);
+        }
+
+        @Override
+        public double toPicos(final double duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
         }
 
         @Override
@@ -518,6 +558,11 @@ public enum FTimeUnitFractional {
         }
 
         @Override
+        public double toPicos(final double duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
+        }
+
+        @Override
         public double toNanos(final double duration) {
             return toMicros(duration) * NANOSECONDS_IN_MICROSECOND;
         }
@@ -578,6 +623,11 @@ public enum FTimeUnitFractional {
         @Override
         public double convert(final double duration, final FTimeUnitFractional timeUnit) {
             return timeUnit.toSeconds(duration);
+        }
+
+        @Override
+        public double toPicos(final double duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
         }
 
         @Override
@@ -644,6 +694,11 @@ public enum FTimeUnitFractional {
         }
 
         @Override
+        public double toPicos(final double duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
+        }
+
+        @Override
         public double toNanos(final double duration) {
             return toMicros(duration) * NANOSECONDS_IN_MICROSECOND;
         }
@@ -703,6 +758,11 @@ public enum FTimeUnitFractional {
         @Override
         public double convert(final double duration, final FTimeUnitFractional timeUnit) {
             return timeUnit.toMicros(duration);
+        }
+
+        @Override
+        public double toPicos(final double duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
         }
 
         @Override
@@ -769,8 +829,81 @@ public enum FTimeUnitFractional {
         }
 
         @Override
+        public double toPicos(final double duration) {
+            return duration * PICOSECONDS_IN_NANOSECOND;
+        }
+
+        @Override
         public double toNanos(final double duration) {
             return duration;
+        }
+
+        @Override
+        public double toMicros(final double duration) {
+            return toNanos(duration) / NANOSECONDS_IN_MICROSECOND;
+        }
+
+        @Override
+        public double toMillis(final double duration) {
+            return toMicros(duration) / MICROSECONDS_IN_MILLISECOND;
+        }
+
+        @Override
+        public double toSeconds(final double duration) {
+            return toMillis(duration) / MILLISECONDS_IN_SECOND;
+        }
+
+        @Override
+        public double toMinutes(final double duration) {
+            return toSeconds(duration) / SECONDS_IN_MINUTE;
+        }
+
+        @Override
+        public double toHours(final double duration) {
+            return toMinutes(duration) / MINUTES_IN_HOUR;
+        }
+
+        @Override
+        public double toDays(final double duration) {
+            return toHours(duration) / HOURS_IN_DAY;
+        }
+
+        @Override
+        public double toWeeks(final double duration) {
+            return toDays(duration) / DAYS_IN_WEEK;
+        }
+
+        @Override
+        public double toMonths(final double duration) {
+            return toDays(duration) / DAYS_IN_MONTH;
+        }
+
+        @Override
+        public double toYears(final double duration) {
+            return toDays(duration) / DAYS_IN_YEAR;
+        }
+
+    },
+    PICOSECONDS {
+
+        @Override
+        public FTimeUnit asNonFractional() {
+            return FTimeUnit.PICOSECONDS;
+        }
+
+        @Override
+        public double convert(final double duration, final FTimeUnitFractional timeUnit) {
+            return timeUnit.toPicos(duration);
+        }
+
+        @Override
+        public double toPicos(final double duration) {
+            return duration;
+        }
+
+        @Override
+        public double toNanos(final double duration) {
+            return duration / PICOSECONDS_IN_NANOSECOND;
         }
 
         @Override
@@ -838,14 +971,30 @@ public enum FTimeUnitFractional {
     public static final double MILLISECONDS_IN_SECOND = FTimeUnit.MILLISECONDS_IN_SECOND;
     public static final double MICROSECONDS_IN_MILLISECOND = FTimeUnit.MICROSECONDS_IN_MILLISECOND;
     public static final double NANOSECONDS_IN_MICROSECOND = FTimeUnit.NANOSECONDS_IN_MICROSECOND;
+    public static final double PICOSECONDS_IN_NANOSECOND = FTimeUnit.PICOSECONDS_IN_NANOSECOND;
+
+    public static final double PICOSECONDS_IN_MICROSECOND = FTimeUnit.PICOSECONDS_IN_MICROSECOND;
+    public static final double PICOSECONDS_IN_MILLISECOND = FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+    public static final long PICOSECONDS_IN_SECOND = FTimeUnit.PICOSECONDS_IN_SECOND;
+    public static final long PICOSECONDS_IN_MINUTE = FTimeUnit.PICOSECONDS_IN_MINUTE;
+    public static final long PICOSECONDS_IN_HOUR = FTimeUnit.PICOSECONDS_IN_HOUR;
+    public static final long PICOSECONDS_IN_DAY = FTimeUnit.PICOSECONDS_IN_DAY;
+
+    public static final double NANOSECONDS_IN_MILLISECOND = FTimeUnit.NANOSECONDS_IN_MILLISECOND;
+    public static final double NANOSECONDS_IN_SECOND = FTimeUnit.NANOSECONDS_IN_SECOND;
 
     public static final double MILLISECONDS_IN_MINUTE = FTimeUnit.MILLISECONDS_IN_MINUTE;
     public static final double MILLISECONDS_IN_HOUR = FTimeUnit.MILLISECONDS_IN_HOUR;
     public static final double MILLISECONDS_IN_DAY = FTimeUnit.MILLISECONDS_IN_DAY;
 
+    public static final double SECONDS_IN_HOUR = FTimeUnit.SECONDS_IN_HOUR;
+    public static final double SECONDS_IN_DAY = FTimeUnit.SECONDS_IN_DAY;
+
     public abstract FTimeUnit asNonFractional();
 
     public abstract double convert(double duration, FTimeUnitFractional timeUnit);
+
+    public abstract double toPicos(double duration);
 
     public abstract double toNanos(double duration);
 

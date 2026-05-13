@@ -21,6 +21,7 @@ public class DurationParser {
     private long milliseconds = 0;
     private long microseconds = 0;
     private long nanoseconds = 0;
+    private long picoseconds = 0;
     private int dotsCount = 0;
 
     public DurationParser(final String normalizedValue) {
@@ -59,6 +60,8 @@ public class DurationParser {
     private long calculateDuration(final FTimeUnit smallestUnit) {
         long duration = 0;
         switch (smallestUnit) {
+        case PICOSECONDS:
+            duration += smallestUnit.convert(picoseconds, FTimeUnit.PICOSECONDS);
         case NANOSECONDS:
             duration += smallestUnit.convert(nanoseconds, FTimeUnit.NANOSECONDS);
         case MICROSECONDS:
@@ -113,8 +116,12 @@ public class DurationParser {
                     microseconds = Long.parseLong(numberStr.toString());
                     numberStr.setLength(0);
                     break;
+                case 3:
+                    nanoseconds = Long.parseLong(numberStr.toString());
+                    numberStr.setLength(0);
+                    break;
                 default:
-                    throw new IllegalStateException("More than 3 dots are invalid: " + normalizedValue);
+                    throw new IllegalStateException("More than 4 dots are invalid: " + normalizedValue);
                 }
                 dotsCount++;
                 break;
@@ -134,6 +141,10 @@ public class DurationParser {
                     break;
                 case 3:
                     nanoseconds = Long.parseLong(numberStr.toString());
+                    numberStr.setLength(0);
+                    break;
+                case 4:
+                    picoseconds = Long.parseLong(numberStr.toString());
                     numberStr.setLength(0);
                     break;
                 default:
@@ -175,7 +186,9 @@ public class DurationParser {
 
     private FTimeUnit determineSmallestUnit() {
         final FTimeUnit smallestUnit;
-        if (nanoseconds > 0) {
+        if (picoseconds > 0) {
+            smallestUnit = FTimeUnit.PICOSECONDS;
+        } else if (nanoseconds > 0) {
             smallestUnit = FTimeUnit.NANOSECONDS;
         } else if (microseconds > 0) {
             smallestUnit = FTimeUnit.MICROSECONDS;

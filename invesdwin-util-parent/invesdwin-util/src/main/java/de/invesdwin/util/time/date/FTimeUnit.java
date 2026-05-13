@@ -59,6 +59,11 @@ public enum FTimeUnit {
         }
 
         @Override
+        public long toPicos(final long duration) {
+            return YEARS.toPicos(duration) * YEARS_IN_MILLENIUM;
+        }
+
+        @Override
         public long toNanos(final long duration) {
             return YEARS.toNanos(duration) * YEARS_IN_MILLENIUM;
         }
@@ -147,6 +152,11 @@ public enum FTimeUnit {
         @Override
         public long convert(final long duration, final FTimeUnit timeUnit) {
             return YEARS.convert(duration, timeUnit) / YEARS_IN_CENTURY;
+        }
+
+        @Override
+        public long toPicos(final long duration) {
+            return YEARS.toPicos(duration) * YEARS_IN_CENTURY;
         }
 
         @Override
@@ -242,6 +252,11 @@ public enum FTimeUnit {
         }
 
         @Override
+        public long toPicos(final long duration) {
+            return YEARS.toPicos(duration) * YEARS_IN_DECADE;
+        }
+
+        @Override
         public long toNanos(final long duration) {
             return YEARS.toNanos(duration) * YEARS_IN_DECADE;
         }
@@ -326,6 +341,11 @@ public enum FTimeUnit {
         @Override
         public long convert(final long duration, final FTimeUnit timeUnit) {
             return timeUnit.toYears(duration);
+        }
+
+        @Override
+        public long toPicos(final long duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
         }
 
         @Override
@@ -422,6 +442,11 @@ public enum FTimeUnit {
         }
 
         @Override
+        public long toPicos(final long duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
+        }
+
+        @Override
         public long toNanos(final long duration) {
             return TimeUnit.DAYS.toNanos(toDays(duration));
         }
@@ -512,6 +537,11 @@ public enum FTimeUnit {
         @Override
         public long convert(final long duration, final FTimeUnit timeUnit) {
             return timeUnit.toWeeks(duration);
+        }
+
+        @Override
+        public long toPicos(final long duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
         }
 
         @Override
@@ -608,6 +638,11 @@ public enum FTimeUnit {
         }
 
         @Override
+        public long toPicos(final long duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
+        }
+
+        @Override
         public long toNanos(final long duration) {
             return timeUnitValue().toNanos(duration);
         }
@@ -698,6 +733,11 @@ public enum FTimeUnit {
         @Override
         public long convert(final long duration, final FTimeUnit timeUnit) {
             return timeUnit.toHours(duration);
+        }
+
+        @Override
+        public long toPicos(final long duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
         }
 
         @Override
@@ -794,6 +834,11 @@ public enum FTimeUnit {
         }
 
         @Override
+        public long toPicos(final long duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
+        }
+
+        @Override
         public long toNanos(final long duration) {
             return timeUnitValue().toNanos(duration);
         }
@@ -884,6 +929,11 @@ public enum FTimeUnit {
         @Override
         public long convert(final long duration, final FTimeUnit timeUnit) {
             return timeUnit.toSeconds(duration);
+        }
+
+        @Override
+        public long toPicos(final long duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
         }
 
         @Override
@@ -980,6 +1030,11 @@ public enum FTimeUnit {
         }
 
         @Override
+        public long toPicos(final long duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
+        }
+
+        @Override
         public long toNanos(final long duration) {
             return timeUnitValue().toNanos(duration);
         }
@@ -1070,6 +1125,11 @@ public enum FTimeUnit {
         @Override
         public long convert(final long duration, final FTimeUnit timeUnit) {
             return timeUnit.toMicros(duration);
+        }
+
+        @Override
+        public long toPicos(final long duration) {
+            return toNanos(duration) * PICOSECONDS_IN_NANOSECOND;
         }
 
         @Override
@@ -1166,6 +1226,11 @@ public enum FTimeUnit {
         }
 
         @Override
+        public long toPicos(final long duration) {
+            return duration * PICOSECONDS_IN_NANOSECOND;
+        }
+
+        @Override
         public long toNanos(final long duration) {
             return duration;
         }
@@ -1220,6 +1285,106 @@ public enum FTimeUnit {
             timeUnitValue().sleep(timeout);
         }
 
+    },
+    PICOSECONDS("ps", "PICOSECOND", "PICOS", "PS") {
+
+        @Override
+        public FTimeUnitFractional asFractional() {
+            return FTimeUnitFractional.PICOSECONDS;
+        }
+
+        @Override
+        public int calendarValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public ChronoUnit javaTimeValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public DurationFieldType jodaTimeValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public DurationField durationFieldValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public TimeUnit timeUnitValue() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public long convert(final long duration, final FTimeUnit timeUnit) {
+            return timeUnit.toPicos(duration);
+        }
+
+        @Override
+        public long toPicos(final long duration) {
+            return duration;
+        }
+
+        @Override
+        public long toNanos(final long duration) {
+            return duration / PICOSECONDS_IN_NANOSECOND;
+        }
+
+        @Override
+        public long toMicros(final long duration) {
+            return duration / PICOSECONDS_IN_MICROSECOND;
+        }
+
+        @Override
+        public long toMillis(final long duration) {
+            return duration / PICOSECONDS_IN_MILLISECOND;
+        }
+
+        @Override
+        public long toSeconds(final long duration) {
+            return duration / PICOSECONDS_IN_SECOND;
+        }
+
+        @Override
+        public long toMinutes(final long duration) {
+            return duration / PICOSECONDS_IN_MINUTE;
+        }
+
+        @Override
+        public long toHours(final long duration) {
+            return duration / PICOSECONDS_IN_HOUR;
+        }
+
+        @Override
+        public long toDays(final long duration) {
+            return duration / PICOSECONDS_IN_DAY;
+        }
+
+        @Override
+        public long toWeeks(final long duration) {
+            return DAYS.toWeeks(toDays(duration));
+        }
+
+        @Override
+        public long toMonths(final long duration) {
+            return DAYS.toMonths(toDays(duration));
+        }
+
+        @Override
+        public long toYears(final long duration) {
+            return DAYS.toYears(toDays(duration));
+        }
+
+        @Override
+        public void sleep(final long timeout) throws InterruptedException {
+            final long millis = timeout / PICOSECONDS_IN_MILLISECOND;
+            final int nanos = (int) (timeout % PICOSECONDS_IN_MILLISECOND) / PICOSECONDS_IN_NANOSECOND;
+            Thread.sleep(millis, nanos);
+        }
+
     };
 
     public static final int YEARS_IN_MILLENIUM = 1000;
@@ -1241,6 +1406,14 @@ public enum FTimeUnit {
     public static final int MILLISECONDS_IN_SECOND = 1000;
     public static final int MICROSECONDS_IN_MILLISECOND = 1000;
     public static final int NANOSECONDS_IN_MICROSECOND = 1000;
+    public static final int PICOSECONDS_IN_NANOSECOND = 1000;
+
+    public static final int PICOSECONDS_IN_MICROSECOND = PICOSECONDS_IN_NANOSECOND * NANOSECONDS_IN_MICROSECOND;
+    public static final int PICOSECONDS_IN_MILLISECOND = PICOSECONDS_IN_MICROSECOND * MICROSECONDS_IN_MILLISECOND;
+    public static final long PICOSECONDS_IN_SECOND = (long) PICOSECONDS_IN_MILLISECOND * MILLISECONDS_IN_SECOND;
+    public static final long PICOSECONDS_IN_MINUTE = PICOSECONDS_IN_SECOND * SECONDS_IN_MINUTE;
+    public static final long PICOSECONDS_IN_HOUR = PICOSECONDS_IN_MINUTE * MINUTES_IN_HOUR;
+    public static final long PICOSECONDS_IN_DAY = PICOSECONDS_IN_HOUR * HOURS_IN_DAY;
 
     public static final int NANOSECONDS_IN_MILLISECOND = NANOSECONDS_IN_MICROSECOND * MICROSECONDS_IN_MILLISECOND;
     public static final int NANOSECONDS_IN_SECOND = NANOSECONDS_IN_MILLISECOND * MILLISECONDS_IN_SECOND;
@@ -1351,6 +1524,8 @@ public enum FTimeUnit {
     public abstract void sleep(long timeout) throws InterruptedException;
 
     public abstract long convert(long duration, FTimeUnit timeUnit);
+
+    public abstract long toPicos(long duration);
 
     public abstract long toNanos(long duration);
 

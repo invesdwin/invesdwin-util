@@ -324,16 +324,16 @@ public final class FDateMillis {
         return newMillis;
     }
 
-    public static long add(final long millis, final FTimeUnit field, final int value, final FTimeZone timeZone) {
+    public static long add(final long millis, final FTimeUnit field, final long value, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(millis, timeZone);
         return revertTimeZoneOffset(add(applyTimeZoneOffset(millis, offset), field, value), offset);
     }
 
-    public static long add(final long millis, final FTimeUnit field, final int amount) {
+    public static long add(final long millis, final FTimeUnit field, final long amount) {
         if (amount == 0) {
             return millis;
         }
-        final int usedAmount;
+        final long usedAmount;
         final DurationField usedField;
         switch (field) {
         case MILLENIA:
@@ -348,10 +348,25 @@ public final class FDateMillis {
             usedField = FTimeUnit.YEARS.durationFieldValue();
             usedAmount = amount * FTimeUnit.YEARS_IN_DECADE;
             break;
-        default:
+        case YEARS:
+        case MONTHS:
+        case WEEKS:
+        case DAYS:
+        case HOURS:
+        case MINUTES:
+        case SECONDS:
+        case MILLISECONDS:
             usedField = field.durationFieldValue();
             usedAmount = amount;
             break;
+        case MICROSECONDS:
+            return millis + FDatePicos.toMillisecondsOverflow(amount * FTimeUnit.PICOSECONDS_IN_MICROSECOND);
+        case NANOSECONDS:
+            return millis + FDatePicos.toMillisecondsOverflow(amount * FTimeUnit.PICOSECONDS_IN_NANOSECOND);
+        case PICOSECONDS:
+            return millis + FDatePicos.toMillisecondsOverflow(amount);
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, field);
         }
         final long newMillis = usedField.add(millis, usedAmount);
         return newMillis;
@@ -425,6 +440,12 @@ public final class FDateMillis {
             return truncate(millis, FDateField.Second);
         case MILLISECONDS:
             return truncate(millis, FDateField.Millisecond);
+        case MICROSECONDS:
+            return millis;
+        case NANOSECONDS:
+            return millis;
+        case PICOSECONDS:
+            return millis;
         default:
             throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
         }
