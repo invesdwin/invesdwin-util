@@ -111,6 +111,11 @@ public class FDate
         this(System.currentTimeMillis(), 0);
     }
 
+    @Deprecated
+    public FDate(final long millis) {
+        this(millis, 0);
+    }
+
     public FDate(final long millis, final int picos) {
         this.millis = millis;
         this.picos = picos;
