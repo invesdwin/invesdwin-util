@@ -2,7 +2,6 @@ package de.invesdwin.util.time.duration.internal;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
@@ -19,9 +18,9 @@ public class DurationParser {
     private long minutes = 0;
     private long seconds = 0;
     private long milliseconds = 0;
-    private long microseconds = 0;
-    private long nanoseconds = 0;
-    private long picoseconds = 0;
+    private int microseconds = 0;
+    private int nanoseconds = 0;
+    private int picoseconds = 0;
     private int dotsCount = 0;
 
     public DurationParser(final String normalizedValue) {
@@ -53,40 +52,19 @@ public class DurationParser {
             parseAfterT(afterT);
         }
         final FTimeUnit smallestUnit = determineSmallestUnit();
-        final long duration = calculateDuration(smallestUnit);
-        return new Duration(duration, smallestUnit);
-    }
-
-    private long calculateDuration(final FTimeUnit smallestUnit) {
-        long duration = 0;
-        switch (smallestUnit) {
-        case PICOSECONDS:
-            duration += smallestUnit.convert(picoseconds, FTimeUnit.PICOSECONDS);
-        case NANOSECONDS:
-            duration += smallestUnit.convert(nanoseconds, FTimeUnit.NANOSECONDS);
-        case MICROSECONDS:
-            duration += smallestUnit.convert(microseconds, FTimeUnit.MICROSECONDS);
-        case MILLISECONDS:
-            duration += smallestUnit.convert(milliseconds, FTimeUnit.MILLISECONDS);
-        case MINUTES:
-            duration += smallestUnit.convert(seconds, FTimeUnit.SECONDS);
-        case SECONDS:
-            duration += smallestUnit.convert(minutes, FTimeUnit.MINUTES);
-        case HOURS:
-            duration += smallestUnit.convert(hours, FTimeUnit.HOURS);
-        case DAYS:
-            duration += smallestUnit.convert(days, FTimeUnit.DAYS);
-        case WEEKS:
-            duration += smallestUnit.convert(weeks, FTimeUnit.WEEKS);
-        case MONTHS:
-            duration += smallestUnit.convert(months, FTimeUnit.MONTHS);
-        case YEARS:
-            duration += smallestUnit.convert(years, FTimeUnit.YEARS);
-            break;
-        default:
-            throw UnknownArgumentException.newInstance(FTimeUnit.class, smallestUnit);
-        }
-        return duration;
+        final long durationMillis = //
+                years * FTimeUnit.MILLISECONDS_IN_YEAR //
+                        + months * FTimeUnit.MILLISECONDS_IN_MONTH //
+                        + weeks * FTimeUnit.MILLISECONDS_IN_WEEK //
+                        + days * FTimeUnit.MILLISECONDS_IN_DAY //
+                        + hours * FTimeUnit.MILLISECONDS_IN_HOUR //
+                        + minutes * FTimeUnit.MILLISECONDS_IN_MINUTE //
+                        + seconds * FTimeUnit.MILLISECONDS_IN_SECOND //
+                        + milliseconds //
+        ;
+        final int durationPicos = microseconds * FTimeUnit.PICOSECONDS_IN_MICROSECOND
+                + nanoseconds * FTimeUnit.PICOSECONDS_IN_NANOSECOND + picoseconds;
+        return new Duration(durationMillis, durationPicos, smallestUnit);
     }
 
     private void parseAfterT(final String afterT) {
@@ -113,11 +91,11 @@ public class DurationParser {
                     numberStr.setLength(0);
                     break;
                 case 2:
-                    microseconds = Long.parseLong(numberStr.toString());
+                    microseconds = Integer.parseInt(numberStr.toString());
                     numberStr.setLength(0);
                     break;
                 case 3:
-                    nanoseconds = Long.parseLong(numberStr.toString());
+                    nanoseconds = Integer.parseInt(numberStr.toString());
                     numberStr.setLength(0);
                     break;
                 default:
@@ -136,15 +114,15 @@ public class DurationParser {
                     numberStr.setLength(0);
                     break;
                 case 2:
-                    microseconds = Long.parseLong(numberStr.toString());
+                    microseconds = Integer.parseInt(numberStr.toString());
                     numberStr.setLength(0);
                     break;
                 case 3:
-                    nanoseconds = Long.parseLong(numberStr.toString());
+                    nanoseconds = Integer.parseInt(numberStr.toString());
                     numberStr.setLength(0);
                     break;
                 case 4:
-                    picoseconds = Long.parseLong(numberStr.toString());
+                    picoseconds = Integer.parseInt(numberStr.toString());
                     numberStr.setLength(0);
                     break;
                 default:

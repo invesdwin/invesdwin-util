@@ -110,15 +110,15 @@ public final class FDatePicos {
     }
 
     public static long addPicosecondsMaybeOverflow(final int picos, final long picoseconds) {
-        return picos + picoseconds % FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+        return picos + picoseconds;
     }
 
     public static long addNanosecondsMaybeOverflow(final int picos, final long nanoseconds) {
-        return picos + nanoseconds % FTimeUnit.NANOSECONDS_IN_MILLISECOND * FTimeUnit.PICOSECONDS_IN_NANOSECOND;
+        return picos + nanoseconds * FTimeUnit.PICOSECONDS_IN_NANOSECOND;
     }
 
     public static long addMicrosecondsMaybeOverflow(final int picos, final long microseconds) {
-        return picos + microseconds % FTimeUnit.MICROSECONDS_IN_MILLISECOND * FTimeUnit.PICOSECONDS_IN_MICROSECOND;
+        return picos + microseconds * FTimeUnit.PICOSECONDS_IN_MICROSECOND;
     }
 
     public static long toMillisecondsOverflow(final long picosMaybeOverflow) {

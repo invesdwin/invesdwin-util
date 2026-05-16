@@ -405,10 +405,11 @@ public class FDate
         if (microseconds == 0) {
             return this;
         }
-        final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(picos, microseconds);
+        final long milliseconds = microseconds / FTimeUnit.MICROSECONDS_IN_MILLISECOND;
+        final long remainingMicroseconds = microseconds % FTimeUnit.MICROSECONDS_IN_MILLISECOND;
+        final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(picos, remainingMicroseconds);
         final int picosWithoutOverflow = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
         final long millisecondsOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
-        final long milliseconds = microseconds / FTimeUnit.MICROSECONDS_IN_MILLISECOND;
         final long millisecondsWithOverflow = milliseconds + millisecondsOverflow;
         return new FDate(FDateMillis.addMilliseconds(millis, millisecondsWithOverflow), picosWithoutOverflow);
     }
@@ -417,10 +418,11 @@ public class FDate
         if (nanoseconds == 0) {
             return this;
         }
-        final long picosMaybeOverflow = FDatePicos.addNanosecondsMaybeOverflow(picos, nanoseconds);
+        final long milliseconds = nanoseconds / FTimeUnit.NANOSECONDS_IN_MILLISECOND;
+        final long remainingNanoseconds = nanoseconds % FTimeUnit.NANOSECONDS_IN_MILLISECOND;
+        final long picosMaybeOverflow = FDatePicos.addNanosecondsMaybeOverflow(picos, remainingNanoseconds);
         final int picosWithoutOverflow = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
         final long millisecondsOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
-        final long milliseconds = nanoseconds / FTimeUnit.NANOSECONDS_IN_MILLISECOND;
         final long millisecondsWithOverflow = milliseconds + millisecondsOverflow;
         return new FDate(FDateMillis.addMilliseconds(millis, millisecondsWithOverflow), picosWithoutOverflow);
     }
@@ -429,10 +431,12 @@ public class FDate
         if (picoseconds == 0) {
             return this;
         }
-        final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(picos, picoseconds);
+
+        final long milliseconds = picoseconds / FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+        final long remainingPicoseconds = picoseconds % FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+        final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(picos, remainingPicoseconds);
         final int picosWithoutOverflow = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
         final long millisecondsOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
-        final long milliseconds = picoseconds / FTimeUnit.PICOSECONDS_IN_MILLISECOND;
         final long millisecondsWithOverflow = milliseconds + millisecondsOverflow;
         return new FDate(FDateMillis.addMilliseconds(millis, millisecondsWithOverflow), picosWithoutOverflow);
     }

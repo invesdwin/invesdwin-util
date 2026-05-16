@@ -1020,20 +1020,4 @@ public final class FDates {
         return true;
     }
 
-    public static FTimeUnit getTimeUnit(final FDate date) {
-        if (date.picosValue() == 0) {
-            return FTimeUnit.MILLISECONDS;
-        } else {
-            return FTimeUnit.PICOSECONDS;
-        }
-    }
-
-    public static FTimeUnit getTimeUnit(final FDate date1, final FDate date2) {
-        if (date1.picosValue() == 0 && date2.picosValue() == 0) {
-            return FTimeUnit.MILLISECONDS;
-        } else {
-            return FTimeUnit.PICOSECONDS;
-        }
-    }
-
 }

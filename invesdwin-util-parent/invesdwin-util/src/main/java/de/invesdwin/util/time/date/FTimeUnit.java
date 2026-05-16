@@ -12,6 +12,7 @@ import org.joda.time.DurationFieldType;
 
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.time.date.millis.FDatePicos;
 import de.invesdwin.util.time.duration.Duration;
 
 @Immutable
@@ -1380,7 +1381,7 @@ public enum FTimeUnit {
 
         @Override
         public void sleep(final long timeout) throws InterruptedException {
-            final long millis = timeout / PICOSECONDS_IN_MILLISECOND;
+            final long millis = FDatePicos.toMillisecondsOverflow(timeout);
             final int nanos = (int) (timeout % PICOSECONDS_IN_MILLISECOND) / PICOSECONDS_IN_NANOSECOND;
             Thread.sleep(millis, nanos);
         }
@@ -1414,6 +1415,12 @@ public enum FTimeUnit {
     public static final long PICOSECONDS_IN_MINUTE = PICOSECONDS_IN_SECOND * SECONDS_IN_MINUTE;
     public static final long PICOSECONDS_IN_HOUR = PICOSECONDS_IN_MINUTE * MINUTES_IN_HOUR;
     public static final long PICOSECONDS_IN_DAY = PICOSECONDS_IN_HOUR * HOURS_IN_DAY;
+    public static final long PICOSECONDS_IN_WEEK = PICOSECONDS_IN_DAY * DAYS_IN_WEEK;
+    public static final long PICOSECONDS_IN_MONTH = PICOSECONDS_IN_DAY * DAYS_IN_MONTH;
+    public static final double PICOSECONDS_IN_YEAR = (double) PICOSECONDS_IN_DAY * DAYS_IN_YEAR;
+    public static final double PICOSECONDS_IN_DECADE = PICOSECONDS_IN_YEAR * YEARS_IN_DECADE;
+    public static final double PICOSECONDS_IN_CENTURY = PICOSECONDS_IN_DECADE * DECADES_IN_CENTURY;
+    public static final double PICOSECONDS_IN_MILLENIUM = PICOSECONDS_IN_CENTURY * CENTURIES_IN_MILLENIUM;
 
     public static final int NANOSECONDS_IN_MILLISECOND = NANOSECONDS_IN_MICROSECOND * MICROSECONDS_IN_MILLISECOND;
     public static final int NANOSECONDS_IN_SECOND = NANOSECONDS_IN_MILLISECOND * MILLISECONDS_IN_SECOND;
@@ -1421,6 +1428,12 @@ public enum FTimeUnit {
     public static final int MILLISECONDS_IN_MINUTE = MILLISECONDS_IN_SECOND * SECONDS_IN_MINUTE;
     public static final int MILLISECONDS_IN_HOUR = MILLISECONDS_IN_MINUTE * MINUTES_IN_HOUR;
     public static final int MILLISECONDS_IN_DAY = MILLISECONDS_IN_HOUR * HOURS_IN_DAY;
+    public static final int MILLISECONDS_IN_WEEK = MILLISECONDS_IN_DAY * DAYS_IN_WEEK;
+    public static final long MILLISECONDS_IN_MONTH = (long) MILLISECONDS_IN_DAY * DAYS_IN_MONTH;
+    public static final long MILLISECONDS_IN_YEAR = (long) MILLISECONDS_IN_DAY * DAYS_IN_YEAR;
+    public static final long MILLISECONDS_IN_DECADE = MILLISECONDS_IN_YEAR * YEARS_IN_DECADE;
+    public static final long MILLISECONDS_IN_CENTURY = MILLISECONDS_IN_DECADE * DECADES_IN_CENTURY;
+    public static final long MILLISECONDS_IN_MILLENIUM = MILLISECONDS_IN_CENTURY * CENTURIES_IN_MILLENIUM;
 
     public static final int SECONDS_IN_HOUR = SECONDS_IN_MINUTE * MINUTES_IN_HOUR;
     public static final int SECONDS_IN_DAY = SECONDS_IN_HOUR * HOURS_IN_DAY;

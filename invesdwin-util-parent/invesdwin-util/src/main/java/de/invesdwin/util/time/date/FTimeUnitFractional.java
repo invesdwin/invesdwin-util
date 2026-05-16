@@ -975,10 +975,16 @@ public enum FTimeUnitFractional {
 
     public static final double PICOSECONDS_IN_MICROSECOND = FTimeUnit.PICOSECONDS_IN_MICROSECOND;
     public static final double PICOSECONDS_IN_MILLISECOND = FTimeUnit.PICOSECONDS_IN_MILLISECOND;
-    public static final long PICOSECONDS_IN_SECOND = FTimeUnit.PICOSECONDS_IN_SECOND;
-    public static final long PICOSECONDS_IN_MINUTE = FTimeUnit.PICOSECONDS_IN_MINUTE;
-    public static final long PICOSECONDS_IN_HOUR = FTimeUnit.PICOSECONDS_IN_HOUR;
-    public static final long PICOSECONDS_IN_DAY = FTimeUnit.PICOSECONDS_IN_DAY;
+    public static final double PICOSECONDS_IN_SECOND = FTimeUnit.PICOSECONDS_IN_SECOND;
+    public static final double PICOSECONDS_IN_MINUTE = FTimeUnit.PICOSECONDS_IN_MINUTE;
+    public static final double PICOSECONDS_IN_HOUR = FTimeUnit.PICOSECONDS_IN_HOUR;
+    public static final double PICOSECONDS_IN_DAY = FTimeUnit.PICOSECONDS_IN_DAY;
+    public static final double PICOSECONDS_IN_WEEK = FTimeUnit.PICOSECONDS_IN_WEEK;
+    public static final double PICOSECONDS_IN_MONTH = FTimeUnit.PICOSECONDS_IN_MONTH;
+    public static final double PICOSECONDS_IN_YEAR = FTimeUnit.PICOSECONDS_IN_YEAR;
+    public static final double PICOSECONDS_IN_DECADE = FTimeUnit.PICOSECONDS_IN_DECADE;
+    public static final double PICOSECONDS_IN_CENTURY = FTimeUnit.PICOSECONDS_IN_CENTURY;
+    public static final double PICOSECONDS_IN_MILLENIUM = FTimeUnit.PICOSECONDS_IN_MILLENIUM;
 
     public static final double NANOSECONDS_IN_MILLISECOND = FTimeUnit.NANOSECONDS_IN_MILLISECOND;
     public static final double NANOSECONDS_IN_SECOND = FTimeUnit.NANOSECONDS_IN_SECOND;
@@ -986,6 +992,12 @@ public enum FTimeUnitFractional {
     public static final double MILLISECONDS_IN_MINUTE = FTimeUnit.MILLISECONDS_IN_MINUTE;
     public static final double MILLISECONDS_IN_HOUR = FTimeUnit.MILLISECONDS_IN_HOUR;
     public static final double MILLISECONDS_IN_DAY = FTimeUnit.MILLISECONDS_IN_DAY;
+    public static final double MILLISECONDS_IN_WEEK = FTimeUnit.MILLISECONDS_IN_WEEK;
+    public static final double MILLISECONDS_IN_MONTH = FTimeUnit.MILLISECONDS_IN_MONTH;
+    public static final double MILLISECONDS_IN_YEAR = FTimeUnit.MILLISECONDS_IN_YEAR;
+    public static final double MILLISECONDS_IN_DECADE = FTimeUnit.MILLISECONDS_IN_DECADE;
+    public static final double MILLISECONDS_IN_CENTURY = FTimeUnit.MILLISECONDS_IN_CENTURY;
+    public static final double MILLISECONDS_IN_MILLENIUM = FTimeUnit.MILLISECONDS_IN_MILLENIUM;
 
     public static final double SECONDS_IN_HOUR = FTimeUnit.SECONDS_IN_HOUR;
     public static final double SECONDS_IN_DAY = FTimeUnit.SECONDS_IN_DAY;

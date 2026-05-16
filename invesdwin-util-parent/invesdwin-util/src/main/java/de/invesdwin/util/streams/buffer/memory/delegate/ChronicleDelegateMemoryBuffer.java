@@ -770,15 +770,22 @@ public class ChronicleDelegateMemoryBuffer implements ICloseableMemoryBuffer {
         final net.openhft.chronicle.bytes.Bytes<?> bytes = getDelegate();
 
         final BytesStore<?, ?> store = bytes.bytesStore();
-        final long endInStore = store.capacity();
-        final long canWrite = Longs.min(length, endInStore - index);
-        if (canWrite != length) {
-            throw new IllegalStateException(
-                    "Unexpectedly cannot clear entire range in one go, this should not happen for chronicle-bytes!"
-                            + " Maybe there is a chunked storage used internally?");
+        if (store instanceof net.openhft.chronicle.bytes.internal.HeapBytesStore) {
+            final long limit = index + length;
+            for (long i = index; i < limit; i++) {
+                bytes.writeByte(i, value);
+            }
+        } else {
+            final long endInStore = store.capacity();
+            final long canWrite = Longs.min(length, endInStore - index);
+            if (canWrite != length) {
+                throw new IllegalStateException(
+                        "Unexpectedly cannot clear entire range in one go, this should not happen for chronicle-bytes!"
+                                + " Maybe there is a chunked storage used internally?");
+            }
+            final long address = store.addressForWrite(index);
+            OS.memory().setMemory(address, canWrite, value);
         }
-        final long address = store.addressForWrite(index);
-        OS.memory().setMemory(address, canWrite, value);
     }
 
     @Override

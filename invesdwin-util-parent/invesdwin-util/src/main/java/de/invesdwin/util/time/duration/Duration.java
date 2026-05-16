@@ -1,11 +1,9 @@
 package de.invesdwin.util.time.duration;
 
+import java.math.BigInteger;
 import java.util.List;
 
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.error.UnknownArgumentException;
@@ -16,14 +14,13 @@ import de.invesdwin.util.math.Floats;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.math.random.IRandomGenerator;
 import de.invesdwin.util.math.random.PseudoRandomGenerators;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FDate;
-import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.date.millis.FDatePicos;
 import de.invesdwin.util.time.duration.internal.DurationParser;
-import jakarta.persistence.Transient;
 
 @ThreadSafe
 public class Duration extends Number implements Comparable<Object> {
@@ -63,12 +60,9 @@ public class Duration extends Number implements Comparable<Object> {
 
     private static final long serialVersionUID = 1L;
 
-    private final long duration;
+    private final long millis;
+    private final int picos;
     private final FTimeUnit timeUnit;
-    @GuardedBy("none for performance")
-    @JsonIgnore
-    @Transient
-    private transient Long nanos;
 
     public Duration(final Instant start) {
         this(start, FTimeUnit.NANOSECONDS);
@@ -86,16 +80,20 @@ public class Duration extends Number implements Comparable<Object> {
         this(end.longValue(timeUnit) - start.longValue(timeUnit), timeUnit);
     }
 
-    public Duration(final long start, final long end, final FTimeUnit timeUnit) {
-        this(end - start, timeUnit);
-    }
-
     public Duration(final Duration start, final Duration end, final FTimeUnit timeUnit) {
-        this(end.longValue(timeUnit) - start.longValue(timeUnit), timeUnit);
+        long targetMillis = end.millisValue() - start.millisValue();
+        int targetPicos = end.picosValue() - start.picosValue();
+        if (targetPicos < 0) {
+            targetMillis--;
+            targetPicos += FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+        }
+        this.millis = targetMillis;
+        this.picos = targetPicos;
+        this.timeUnit = timeUnit;
     }
 
     public Duration(final FDate start) {
-        this(start, new FDate(), FDates.getTimeUnit(start));
+        this(start, new FDate(), FTimeUnit.MILLISECONDS);
     }
 
     public Duration(final FDate start, final FTimeUnit timeUnit) {
@@ -103,126 +101,467 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public Duration(final FDate start, final FDate end) {
-        this(start, end, FDates.getTimeUnit(start, end));
+        this(start, end, FTimeUnit.MILLISECONDS);
     }
 
     public Duration(final FDate start, final FDate end, final FTimeUnit timeUnit) {
-        this(end.longValue(timeUnit) - start.longValue(timeUnit), timeUnit);
+        this(end.millisValue() - start.millisValue(), end.picosValue() - start.picosValue(), timeUnit);
+    }
+
+    public Duration(final long millis, final int picos, final FTimeUnit timeUnit) {
+        this.millis = millis;
+        this.picos = picos;
+        this.timeUnit = timeUnit;
     }
 
     public Duration(final long duration, final FTimeUnit timeUnit) {
-        this.duration = duration;
-        if (timeUnit == null) {
-            throw new NullPointerException("timeUnit should not be null");
+        switch (timeUnit) {
+        case MILLENIA:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_MILLENIUM;
+            picos = 0;
+            break;
+        case CENTURIES:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_CENTURY;
+            picos = 0;
+            break;
+        case DECADES:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_DECADE;
+            picos = 0;
+            break;
+        case YEARS:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_YEAR;
+            picos = 0;
+            break;
+        case MONTHS:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_MONTH;
+            picos = 0;
+            break;
+        case WEEKS:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_WEEK;
+            picos = 0;
+            break;
+        case DAYS:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_DAY;
+            picos = 0;
+            break;
+        case HOURS:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_HOUR;
+            picos = 0;
+            break;
+        case MINUTES:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_MINUTE;
+            picos = 0;
+            break;
+        case SECONDS:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_SECOND;
+            picos = 0;
+            break;
+        case MILLISECONDS:
+            millis = duration;
+            picos = 0;
+            break;
+        case MICROSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(0, duration);
+            millis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            picos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        case NANOSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addNanosecondsMaybeOverflow(0, duration);
+            millis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            picos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        case PICOSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(0, duration);
+            millis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            picos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
         }
         this.timeUnit = timeUnit;
     }
 
-    /**
-     * Creates a new duration derived from this one by multipliying with the given factor.
-     */
-    public Duration multiply(final double factor) {
-        return new Duration((long) (nanosValue() * factor), FTimeUnit.NANOSECONDS);
-    }
-
     public boolean isGreaterThan(final Duration duration) {
-        return isGreaterThan(duration.duration, duration.timeUnit);
+        return isGreaterThan(duration.millisValue(), duration.picosValue());
     }
 
     public boolean isGreaterThan(final FDate date) {
-        return isGreaterThan(date.toDurationMillis(), FTimeUnit.MILLISECONDS);
+        return isGreaterThan(date.toDurationMillis(), 0);
     }
 
     public boolean isGreaterThan(final FDate from, final FDate to) {
-        return isGreaterThan(to.millisValue() - from.millisValue(), FTimeUnit.MILLISECONDS);
+        return isGreaterThan(to.millisValue() - from.millisValue(), 0);
     }
 
     public boolean isGreaterThan(final Instant instant) {
         return isGreaterThanNanos(instant.toDurationNanos());
     }
 
-    public boolean isGreaterThan(final long duration, final FTimeUnit timeUnit) {
-        final long durationNanos = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
-        return isGreaterThanNanos(durationNanos);
+    public boolean isGreaterThanNanos(final long durationNanos) {
+        final long picosMaybeOverflow = FDatePicos.addNanosecondsMaybeOverflow(0, durationNanos);
+        final long durationMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final int durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        return isGreaterThan(durationMillis, durationPicos);
     }
 
-    public boolean isGreaterThanNanos(final long durationNanos) {
-        return nanosValue() > durationNanos;
+    public boolean isGreaterThan(final long duration, final FTimeUnit timeUnit) {
+        final long durationMillis;
+        final int durationPicos;
+        switch (timeUnit) {
+        case MILLENIA:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_MILLENIUM;
+            durationPicos = 0;
+            break;
+        case CENTURIES:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_CENTURY;
+            durationPicos = 0;
+            break;
+        case DECADES:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_DECADE;
+            durationPicos = 0;
+            break;
+        case YEARS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_YEAR;
+            durationPicos = 0;
+            break;
+        case MONTHS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_MONTH;
+            durationPicos = 0;
+            break;
+        case WEEKS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_WEEK;
+            durationPicos = 0;
+            break;
+        case DAYS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_DAY;
+            durationPicos = 0;
+            break;
+        case HOURS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_HOUR;
+            durationPicos = 0;
+            break;
+        case MINUTES:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_MINUTE;
+            durationPicos = 0;
+            break;
+        case SECONDS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_SECOND;
+            durationPicos = 0;
+            break;
+        case MILLISECONDS:
+            durationMillis = duration;
+            durationPicos = 0;
+            break;
+        case MICROSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(0, duration);
+            durationMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        case NANOSECONDS:
+            return isGreaterThanNanos(duration);
+        case PICOSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(0, duration);
+            durationMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
+        }
+        return isGreaterThan(durationMillis, durationPicos);
+    }
+
+    public boolean isGreaterThan(final long durationMillis, final int durationPicos) {
+        return millisValue() > durationMillis || (millisValue() == durationMillis && picosValue() > durationPicos);
     }
 
     public boolean isGreaterThanOrEqualTo(final Duration duration) {
-        return isGreaterThanOrEqualTo(duration.duration, duration.timeUnit);
+        return isGreaterThanOrEqualTo(duration.millisValue(), duration.picosValue());
     }
 
     public boolean isGreaterThanOrEqualTo(final FDate date) {
-        return isGreaterThanOrEqualTo(date.toDurationMillis(), FTimeUnit.MILLISECONDS);
+        return isGreaterThanOrEqualTo(date.toDurationMillis(), 0);
     }
 
     public boolean isGreaterThanOrEqualTo(final FDate from, final FDate to) {
-        return isGreaterThanOrEqualTo(to.millisValue() - from.millisValue(), FTimeUnit.MILLISECONDS);
+        return isGreaterThanOrEqualTo(to.millisValue() - from.millisValue(), 0);
     }
 
     public boolean isGreaterThanOrEqualTo(final Instant instant) {
         return isGreaterThanOrEqualToNanos(instant.toDurationNanos());
     }
 
-    public boolean isGreaterThanOrEqualTo(final long duration, final FTimeUnit timeUnit) {
-        final long durationNanos = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
-        return isGreaterThanOrEqualToNanos(durationNanos);
+    public boolean isGreaterThanOrEqualToNanos(final long durationNanos) {
+        final long picosMaybeOverflow = FDatePicos.addNanosecondsMaybeOverflow(0, durationNanos);
+        final long durationMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final int durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        return isGreaterThanOrEqualTo(durationMillis, durationPicos);
     }
 
-    public boolean isGreaterThanOrEqualToNanos(final long durationNanos) {
-        return nanosValue() >= durationNanos;
+    public boolean isGreaterThanOrEqualTo(final long duration, final FTimeUnit timeUnit) {
+        final long durationMillis;
+        final int durationPicos;
+        switch (timeUnit) {
+        case MILLENIA:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_MILLENIUM;
+            durationPicos = 0;
+            break;
+        case CENTURIES:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_CENTURY;
+            durationPicos = 0;
+            break;
+        case DECADES:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_DECADE;
+            durationPicos = 0;
+            break;
+        case YEARS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_YEAR;
+            durationPicos = 0;
+            break;
+        case MONTHS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_MONTH;
+            durationPicos = 0;
+            break;
+        case WEEKS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_WEEK;
+            durationPicos = 0;
+            break;
+        case DAYS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_DAY;
+            durationPicos = 0;
+            break;
+        case HOURS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_HOUR;
+            durationPicos = 0;
+            break;
+        case MINUTES:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_MINUTE;
+            durationPicos = 0;
+            break;
+        case SECONDS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_SECOND;
+            durationPicos = 0;
+            break;
+        case MILLISECONDS:
+            durationMillis = duration;
+            durationPicos = 0;
+            break;
+        case MICROSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(0, duration);
+            durationMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        case NANOSECONDS:
+            return isGreaterThanOrEqualToNanos(duration);
+        case PICOSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(0, duration);
+            durationMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
+        }
+        return isGreaterThanOrEqualTo(durationMillis, durationPicos);
+    }
+
+    public boolean isGreaterThanOrEqualTo(final long durationMillis, final int durationPicos) {
+        return millisValue() > durationMillis || (millisValue() == durationMillis && picosValue() >= durationPicos);
     }
 
     public boolean isLessThan(final Duration duration) {
-        return isLessThan(duration.duration, duration.timeUnit);
+        return isLessThan(duration.millisValue(), duration.picosValue());
     }
 
     public boolean isLessThan(final FDate date) {
-        return isLessThan(date.toDurationMillis(), FTimeUnit.MILLISECONDS);
+        return isLessThan(date.toDurationMillis(), 0);
     }
 
     public boolean isLessThan(final FDate from, final FDate to) {
-        return isLessThan(to.millisValue() - from.millisValue(), FTimeUnit.MILLISECONDS);
+        return isLessThan(to.millisValue() - from.millisValue(), 0);
     }
 
     public boolean isLessThan(final Instant instant) {
         return isLessThanNanos(instant.toDurationNanos());
     }
 
-    public boolean isLessThan(final long duration, final FTimeUnit timeUnit) {
-        final long durationNanos = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
-        return isLessThanNanos(durationNanos);
+    public boolean isLessThanNanos(final long durationNanos) {
+        final long picosMaybeOverflow = FDatePicos.addNanosecondsMaybeOverflow(0, durationNanos);
+        final long durationMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final int durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        return isLessThan(durationMillis, durationPicos);
     }
 
-    public boolean isLessThanNanos(final long durationNanos) {
-        return nanosValue() < durationNanos;
+    public boolean isLessThan(final long duration, final FTimeUnit timeUnit) {
+        final long durationMillis;
+        final int durationPicos;
+        switch (timeUnit) {
+        case MILLENIA:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_MILLENIUM;
+            durationPicos = 0;
+            break;
+        case CENTURIES:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_CENTURY;
+            durationPicos = 0;
+            break;
+        case DECADES:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_DECADE;
+            durationPicos = 0;
+            break;
+        case YEARS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_YEAR;
+            durationPicos = 0;
+            break;
+        case MONTHS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_MONTH;
+            durationPicos = 0;
+            break;
+        case WEEKS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_WEEK;
+            durationPicos = 0;
+            break;
+        case DAYS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_DAY;
+            durationPicos = 0;
+            break;
+        case HOURS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_HOUR;
+            durationPicos = 0;
+            break;
+        case MINUTES:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_MINUTE;
+            durationPicos = 0;
+            break;
+        case SECONDS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_SECOND;
+            durationPicos = 0;
+            break;
+        case MILLISECONDS:
+            durationMillis = duration;
+            durationPicos = 0;
+            break;
+        case MICROSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(0, duration);
+            durationMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        case NANOSECONDS:
+            return isLessThanNanos(duration);
+        case PICOSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(0, duration);
+            durationMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
+        }
+        return isLessThan(durationMillis, durationPicos);
+    }
+
+    public boolean isLessThan(final long durationMillis, final int durationPicos) {
+        return millisValue() < durationMillis || (millisValue() == durationMillis && picosValue() < durationPicos);
     }
 
     public boolean isLessThanOrEqualTo(final Duration duration) {
-        return isLessThanOrEqualTo(duration.duration, duration.timeUnit);
+        return isLessThanOrEqualTo(duration.millisValue(), duration.picosValue());
     }
 
     public boolean isLessThanOrEqualTo(final FDate date) {
-        return isLessThanOrEqualTo(date.toDurationMillis(), FTimeUnit.MILLISECONDS);
+        return isLessThanOrEqualTo(date.toDurationMillis(), 0);
     }
 
     public boolean isLessThanOrEqualTo(final FDate from, final FDate to) {
-        return isLessThanOrEqualTo(to.millisValue() - from.millisValue(), FTimeUnit.MILLISECONDS);
+        return isLessThanOrEqualTo(to.millisValue() - from.millisValue(), 0);
     }
 
     public boolean isLessThanOrEqualTo(final Instant instant) {
         return isLessThanOrEqualToNanos(instant.toDurationNanos());
     }
 
-    public boolean isLessThanOrEqualTo(final long duration, final FTimeUnit timeUnit) {
-        final long durationNanos = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
-        return isLessThanOrEqualToNanos(durationNanos);
+    public boolean isLessThanOrEqualToNanos(final long durationNanos) {
+        final long picosMaybeOverflow = FDatePicos.addNanosecondsMaybeOverflow(0, durationNanos);
+        final long durationMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final int durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        return isLessThanOrEqualTo(durationMillis, durationPicos);
     }
 
-    public boolean isLessThanOrEqualToNanos(final long durationNanos) {
-        return nanosValue() <= durationNanos;
+    public boolean isLessThanOrEqualTo(final long duration, final FTimeUnit timeUnit) {
+        final long durationMillis;
+        final int durationPicos;
+        switch (timeUnit) {
+        case MILLENIA:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_MILLENIUM;
+            durationPicos = 0;
+            break;
+        case CENTURIES:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_CENTURY;
+            durationPicos = 0;
+            break;
+        case DECADES:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_DECADE;
+            durationPicos = 0;
+            break;
+        case YEARS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_YEAR;
+            durationPicos = 0;
+            break;
+        case MONTHS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_MONTH;
+            durationPicos = 0;
+            break;
+        case WEEKS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_WEEK;
+            durationPicos = 0;
+            break;
+        case DAYS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_DAY;
+            durationPicos = 0;
+            break;
+        case HOURS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_HOUR;
+            durationPicos = 0;
+            break;
+        case MINUTES:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_MINUTE;
+            durationPicos = 0;
+            break;
+        case SECONDS:
+            durationMillis = duration * FTimeUnit.MILLISECONDS_IN_SECOND;
+            durationPicos = 0;
+            break;
+        case MILLISECONDS:
+            durationMillis = duration;
+            durationPicos = 0;
+            break;
+        case MICROSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(0, duration);
+            durationMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        case NANOSECONDS:
+            return isLessThanOrEqualToNanos(duration);
+        case PICOSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(0, duration);
+            durationMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
+        }
+        return isLessThanOrEqualTo(durationMillis, durationPicos);
+    }
+
+    public boolean isLessThanOrEqualTo(final long durationMillis, final int durationPicos) {
+        return millisValue() < durationMillis || (millisValue() == durationMillis && picosValue() <= durationPicos);
     }
 
     public FTimeUnit getTimeUnit() {
@@ -230,12 +569,40 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public void sleep() throws InterruptedException {
-        timeUnit.sleep(duration);
+        final int nanos = picos / FTimeUnit.PICOSECONDS_IN_NANOSECOND;
+        Thread.sleep(millis, nanos);
     }
 
     public void sleepRandom() throws InterruptedException {
-        final long randomDuration = PseudoRandomGenerators.getThreadLocalPseudoRandom().nextLong(nanosValue());
-        FTimeUnit.NANOSECONDS.sleep(randomDuration);
+        final IRandomGenerator random = PseudoRandomGenerators.getThreadLocalPseudoRandom();
+        final long millis = millisValue();
+        final int picos = picosValue();
+        if (millis == 0) {
+            if (picos == 0) {
+                Thread.yield();
+                return;
+            }
+            final int nanos = picos / FTimeUnit.PICOSECONDS_IN_NANOSECOND;
+            if (nanos == 0) {
+                Thread.yield();
+                return;
+            }
+            final int randomNanos = random.nextInt(nanos);
+            Thread.sleep(millis, randomNanos);
+        } else {
+            final long randomMillis = random.nextLong(millis);
+            if (picos == 0) {
+                Thread.sleep(randomMillis);
+                return;
+            }
+            final int nanos = picos / FTimeUnit.PICOSECONDS_IN_NANOSECOND;
+            if (nanos == 0) {
+                Thread.sleep(randomMillis);
+                return;
+            }
+            final int randomNanos = random.nextInt(nanos);
+            Thread.sleep(millis, randomNanos);
+        }
     }
 
     @Override
@@ -247,11 +614,16 @@ public class Duration extends Number implements Comparable<Object> {
         return Integers.checkedCast(longValue(timeUnit));
     }
 
+    public long millisValue() {
+        return millis;
+    }
+
+    public int picosValue() {
+        return picos;
+    }
+
     public long nanosValue() {
-        if (nanos == null) {
-            nanos = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
-        }
-        return nanos;
+        return millis * FTimeUnit.NANOSECONDS_IN_MILLISECOND + picos / FTimeUnit.PICOSECONDS_IN_NANOSECOND;
     }
 
     @Override
@@ -260,11 +632,54 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public long longValue(final FTimeUnit timeUnit) {
-        if (timeUnit == FTimeUnit.NANOSECONDS) {
-            return nanosValue();
-        } else {
-            return timeUnit.convert(duration, this.timeUnit);
+        final long duration;
+        switch (timeUnit) {
+        case MILLENIA:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_MILLENIUM;
+            break;
+        case CENTURIES:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_CENTURY;
+            break;
+        case DECADES:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_DECADE;
+            break;
+        case YEARS:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_YEAR;
+            break;
+        case MONTHS:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_MONTH;
+            break;
+        case WEEKS:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_WEEK;
+            break;
+        case DAYS:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_DAY;
+            break;
+        case HOURS:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_HOUR;
+            break;
+        case MINUTES:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_MINUTE;
+            break;
+        case SECONDS:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_SECOND;
+            break;
+        case MILLISECONDS:
+            duration = millis;
+            break;
+        case MICROSECONDS:
+            duration = millis * FTimeUnit.MICROSECONDS_IN_MILLISECOND + picos / FTimeUnit.PICOSECONDS_IN_MICROSECOND;
+            break;
+        case NANOSECONDS:
+            duration = millis * FTimeUnit.NANOSECONDS_IN_MILLISECOND + picos / FTimeUnit.PICOSECONDS_IN_NANOSECOND;
+            break;
+        case PICOSECONDS:
+            duration = millis * FTimeUnit.PICOSECONDS_IN_MILLISECOND + picos;
+            break;
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
         }
+        return duration;
     }
 
     @Override
@@ -282,11 +697,60 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public double doubleValue(final FTimeUnit timeUnit) {
-        if (timeUnit == FTimeUnit.NANOSECONDS) {
-            return nanosValue();
-        } else {
-            return timeUnit.asFractional().convert(duration, this.timeUnit.asFractional());
+        final double millisDouble = millis;
+        final double picosDouble = picos;
+        final double duration;
+        switch (timeUnit) {
+        case MILLENIA:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_MILLENIUM
+                    + picosDouble / FTimeUnit.PICOSECONDS_IN_MILLENIUM;
+            break;
+        case CENTURIES:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_CENTURY
+                    + picosDouble / FTimeUnit.PICOSECONDS_IN_CENTURY;
+            break;
+        case DECADES:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_DECADE + picosDouble / FTimeUnit.PICOSECONDS_IN_DECADE;
+            break;
+        case YEARS:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_YEAR + picosDouble / FTimeUnit.PICOSECONDS_IN_YEAR;
+            break;
+        case MONTHS:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_MONTH + picosDouble / FTimeUnit.PICOSECONDS_IN_MONTH;
+            break;
+        case WEEKS:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_WEEK + picosDouble / FTimeUnit.PICOSECONDS_IN_WEEK;
+            break;
+        case DAYS:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_DAY + picosDouble / FTimeUnit.PICOSECONDS_IN_DAY;
+            break;
+        case HOURS:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_HOUR + picosDouble / FTimeUnit.PICOSECONDS_IN_HOUR;
+            break;
+        case MINUTES:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_MINUTE + picosDouble / FTimeUnit.PICOSECONDS_IN_MINUTE;
+            break;
+        case SECONDS:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_SECOND + picosDouble / FTimeUnit.PICOSECONDS_IN_SECOND;
+            break;
+        case MILLISECONDS:
+            duration = millisDouble + picosDouble / FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+            break;
+        case MICROSECONDS:
+            duration = millisDouble * FTimeUnit.MICROSECONDS_IN_MILLISECOND
+                    + picosDouble / FTimeUnit.PICOSECONDS_IN_MICROSECOND;
+            break;
+        case NANOSECONDS:
+            duration = millisDouble * FTimeUnit.NANOSECONDS_IN_MILLISECOND
+                    + picosDouble / FTimeUnit.PICOSECONDS_IN_NANOSECOND;
+            break;
+        case PICOSECONDS:
+            duration = millisDouble * FTimeUnit.PICOSECONDS_IN_MILLISECOND + picosDouble;
+            break;
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
         }
+        return duration;
     }
 
     public Decimal decimalValue() {
@@ -312,55 +776,56 @@ public class Duration extends Number implements Comparable<Object> {
      * @see <a href="http://de.wikipedia.org/wiki/ISO_8601">ISO_8601</a>
      */
     public String toString(final FTimeUnit smallestTimeUnit) {
-        final int picoseconds = FDatePicos.getPicosecond(picosValue());
-        long nanoseconds = Longs.abs(nanosValue());
-        final long years = FTimeUnit.NANOSECONDS.toYears(nanoseconds);
-        nanoseconds -= FTimeUnit.YEARS.toNanos(years);
-        final long months = FTimeUnit.NANOSECONDS.toMonths(nanoseconds);
-        nanoseconds -= FTimeUnit.MONTHS.toNanos(months);
-        final long weeks = FTimeUnit.NANOSECONDS.toWeeks(nanoseconds);
-        nanoseconds -= FTimeUnit.WEEKS.toNanos(weeks);
-        final long days = FTimeUnit.NANOSECONDS.toDays(nanoseconds);
-        nanoseconds -= FTimeUnit.DAYS.toNanos(days);
-        final long hours = FTimeUnit.NANOSECONDS.toHours(nanoseconds);
-        nanoseconds -= FTimeUnit.HOURS.toNanos(hours);
-        final long minutes = FTimeUnit.NANOSECONDS.toMinutes(nanoseconds);
-        nanoseconds -= FTimeUnit.MINUTES.toNanos(minutes);
-        final long seconds = FTimeUnit.NANOSECONDS.toSeconds(nanoseconds);
-        nanoseconds -= FTimeUnit.SECONDS.toNanos(seconds);
-        final long milliseconds = FTimeUnit.NANOSECONDS.toMillis(nanoseconds);
-        nanoseconds -= FTimeUnit.MILLISECONDS.toNanos(milliseconds);
-        final long microseconds = FTimeUnit.NANOSECONDS.toMicros(nanoseconds);
-        nanoseconds -= FTimeUnit.MICROSECONDS.toNanos(microseconds);
+        int picoseconds = Integers.abs(picosValue());
+        final long microseconds = FTimeUnit.PICOSECONDS.toMicros(picoseconds);
+        picoseconds -= FTimeUnit.MICROSECONDS.toPicos(microseconds);
+        final long nanoseconds = FTimeUnit.PICOSECONDS.toNanos(picoseconds);
+        picoseconds -= FTimeUnit.NANOSECONDS.toPicos(nanoseconds);
+
+        long milliseconds = Longs.abs(millisValue());
+        final long years = FTimeUnit.MILLISECONDS.toYears(milliseconds);
+        milliseconds -= FTimeUnit.YEARS.toMillis(years);
+        final long months = FTimeUnit.MILLISECONDS.toMonths(milliseconds);
+        milliseconds -= FTimeUnit.MONTHS.toMillis(months);
+        final long weeks = FTimeUnit.MILLISECONDS.toWeeks(milliseconds);
+        milliseconds -= FTimeUnit.WEEKS.toMillis(weeks);
+        final long days = FTimeUnit.MILLISECONDS.toDays(milliseconds);
+        milliseconds -= FTimeUnit.DAYS.toMillis(days);
+        final long hours = FTimeUnit.MILLISECONDS.toHours(milliseconds);
+        milliseconds -= FTimeUnit.HOURS.toMillis(hours);
+        final long minutes = FTimeUnit.MILLISECONDS.toMinutes(milliseconds);
+        milliseconds -= FTimeUnit.MINUTES.toMillis(minutes);
+        final long seconds = FTimeUnit.MILLISECONDS.toSeconds(milliseconds);
+        milliseconds -= FTimeUnit.SECONDS.toMillis(seconds);
 
         final StringBuilder sb = new StringBuilder();
         switch (smallestTimeUnit) {
         case PICOSECONDS:
             if (picoseconds > 0) {
-                sb.insert(0, Strings.leftPad(picosValue(), 3, "0"));
+                sb.insert(0, Strings.leftPad(picoseconds, 3, "0"));
                 sb.insert(0, ".");
             }
             // fall through
         case NANOSECONDS:
-            if (nanoseconds > 0) {
+            if (nanoseconds + picoseconds > 0) {
                 sb.insert(0, Strings.leftPad(nanoseconds, 3, "0"));
                 sb.insert(0, ".");
             }
             // fall through
         case MICROSECONDS:
-            if (microseconds + nanoseconds > 0) {
+            if (microseconds + nanoseconds + picoseconds > 0) {
                 sb.insert(0, Strings.leftPad(microseconds, 3, "0"));
                 sb.insert(0, ".");
             }
             // fall through
         case MILLISECONDS:
-            if (milliseconds + microseconds + nanoseconds > 0) {
+            if (milliseconds + microseconds + nanoseconds + picoseconds > 0) {
                 sb.insert(0, Strings.leftPad(milliseconds, 3, "0"));
                 sb.insert(0, ".");
             }
             // fall through
         case SECONDS:
-            if (seconds + milliseconds + microseconds + nanoseconds > 0) {
+            if (seconds + milliseconds + microseconds + nanoseconds + picoseconds > 0) {
                 sb.insert(0, seconds);
                 sb.append("S");
             }
@@ -411,7 +876,7 @@ public class Duration extends Number implements Comparable<Object> {
             sb.append("0");
         }
         sb.insert(0, "P");
-        if (duration < 0 && !isP0(sb)) {
+        if ((millis < 0 || picos < 0) && !isP0(sb)) {
             sb.insert(0, "-");
         }
 
@@ -433,33 +898,251 @@ public class Duration extends Number implements Comparable<Object> {
      * Creates a new duration derived from this one with the added duration in nanoseconds as timeunit.
      */
     public Duration add(final long duration, final FTimeUnit timeUnit) {
-        final long comparableDuration = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
-        return new Duration(Longs.addExact(nanosValue(), comparableDuration), FTimeUnit.NANOSECONDS);
+        final long addedMillis;
+        final int addedPicos;
+        switch (timeUnit) {
+        case MILLENIA:
+            addedMillis = millis + duration * FTimeUnit.MILLISECONDS_IN_MILLENIUM;
+            addedPicos = picos;
+            break;
+        case CENTURIES:
+            addedMillis = millis + duration * FTimeUnit.MILLISECONDS_IN_CENTURY;
+            addedPicos = picos;
+            break;
+        case DECADES:
+            addedMillis = millis + duration * FTimeUnit.MILLISECONDS_IN_DECADE;
+            addedPicos = picos;
+            break;
+        case YEARS:
+            addedMillis = millis + duration * FTimeUnit.MILLISECONDS_IN_YEAR;
+            addedPicos = picos;
+            break;
+        case MONTHS:
+            addedMillis = millis + duration * FTimeUnit.MILLISECONDS_IN_MONTH;
+            addedPicos = picos;
+            break;
+        case WEEKS:
+            addedMillis = millis + duration * FTimeUnit.MILLISECONDS_IN_WEEK;
+            addedPicos = picos;
+            break;
+        case DAYS:
+            addedMillis = millis + duration * FTimeUnit.MILLISECONDS_IN_DAY;
+            addedPicos = picos;
+            break;
+        case HOURS:
+            addedMillis = millis + duration * FTimeUnit.MILLISECONDS_IN_HOUR;
+            addedPicos = picos;
+            break;
+        case MINUTES:
+            addedMillis = millis + duration * FTimeUnit.MILLISECONDS_IN_MINUTE;
+            addedPicos = picos;
+            break;
+        case SECONDS:
+            addedMillis = millis + duration * FTimeUnit.MILLISECONDS_IN_SECOND;
+            addedPicos = picos;
+            break;
+        case MILLISECONDS:
+            addedMillis = millis + duration;
+            addedPicos = picos;
+            break;
+        case MICROSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(picos, duration);
+            addedMillis = millis + FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            addedPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        case NANOSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addNanosecondsMaybeOverflow(picos, duration);
+            addedMillis = millis + FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            addedPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        case PICOSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(picos, duration);
+            addedMillis = millis + FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            addedPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
+        }
+        return new Duration(addedMillis, addedPicos, this.timeUnit);
     }
 
     public Duration subtract(final long duration, final FTimeUnit timeUnit) {
-        final long comparableDuration = FTimeUnit.NANOSECONDS.convert(duration, timeUnit);
-        return new Duration(Longs.subtractExact(nanosValue(), comparableDuration), FTimeUnit.NANOSECONDS);
+        final long subtrahendMillis;
+        final int subtrahendPicos;
+        switch (timeUnit) {
+        case MILLENIA:
+            subtrahendMillis = duration * FTimeUnit.MILLISECONDS_IN_MILLENIUM;
+            subtrahendPicos = 0;
+            break;
+        case CENTURIES:
+            subtrahendMillis = duration * FTimeUnit.MILLISECONDS_IN_CENTURY;
+            subtrahendPicos = 0;
+            break;
+        case DECADES:
+            subtrahendMillis = duration * FTimeUnit.MILLISECONDS_IN_DECADE;
+            subtrahendPicos = 0;
+            break;
+        case YEARS:
+            subtrahendMillis = duration * FTimeUnit.MILLISECONDS_IN_YEAR;
+            subtrahendPicos = 0;
+            break;
+        case MONTHS:
+            subtrahendMillis = duration * FTimeUnit.MILLISECONDS_IN_MONTH;
+            subtrahendPicos = 0;
+            break;
+        case WEEKS:
+            subtrahendMillis = duration * FTimeUnit.MILLISECONDS_IN_WEEK;
+            subtrahendPicos = 0;
+            break;
+        case DAYS:
+            subtrahendMillis = duration * FTimeUnit.MILLISECONDS_IN_DAY;
+            subtrahendPicos = 0;
+            break;
+        case HOURS:
+            subtrahendMillis = duration * FTimeUnit.MILLISECONDS_IN_HOUR;
+            subtrahendPicos = 0;
+            break;
+        case MINUTES:
+            subtrahendMillis = duration * FTimeUnit.MILLISECONDS_IN_MINUTE;
+            subtrahendPicos = 0;
+            break;
+        case SECONDS:
+            subtrahendMillis = duration * FTimeUnit.MILLISECONDS_IN_SECOND;
+            subtrahendPicos = 0;
+            break;
+        case MILLISECONDS:
+            subtrahendMillis = duration;
+            subtrahendPicos = 0;
+            break;
+        case MICROSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(0, duration);
+            subtrahendMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            subtrahendPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        case NANOSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addNanosecondsMaybeOverflow(0, duration);
+            subtrahendMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            subtrahendPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        case PICOSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(0, duration);
+            subtrahendMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            subtrahendPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
+        }
+        return subtract(subtrahendMillis, subtrahendPicos);
     }
 
-    public Duration divide(final Number dividend) {
-        final long divided = (long) (nanosValue() / dividend.doubleValue());
-        return new Duration(divided, FTimeUnit.NANOSECONDS);
+    public Duration divide(final Number divisor) {
+        return divide(divisor.doubleValue());
     }
 
-    public Duration divide(final Duration dividend) {
-        final long divided = nanosValue() / dividend.nanosValue();
-        return new Duration(divided, FTimeUnit.NANOSECONDS);
+    public Duration divide(final double divisor) {
+        if (divisor == 0.0) {
+            return Duration.ZERO;
+        }
+        final double exactMillis = millisValue() / divisor;
+        final long dividedMillis = (long) exactMillis;
+
+        final double fractionalMillis = exactMillis - dividedMillis;
+        final double carriedPicos = fractionalMillis * FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+        final double exactPicos = (picosValue() / divisor) + carriedPicos;
+
+        long finalMillis = dividedMillis + (long) (exactPicos / FTimeUnit.PICOSECONDS_IN_MILLISECOND);
+        int finalPicos = (int) (exactPicos % FTimeUnit.PICOSECONDS_IN_MILLISECOND);
+
+        if (finalPicos < 0) {
+            finalMillis--;
+            finalPicos += FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+        }
+        return new Duration(finalMillis, finalPicos, timeUnit);
     }
 
-    public Duration multiply(final Number multiplicant) {
-        final long multiplied = (long) (nanosValue() * multiplicant.doubleValue());
-        return new Duration(multiplied, FTimeUnit.NANOSECONDS);
+    public Duration divide(final Duration divisor) {
+        if (divisor == null || divisor.isZero()) {
+            return Duration.ZERO;
+        }
+
+        // 1. Convert both durations to a total millisecond decimal representation
+        final double thisTotalMillis = this.millisValue()
+                + ((double) this.picosValue() / FTimeUnit.PICOSECONDS_IN_MILLISECOND);
+
+        final double divisorTotalMillis = divisor.millisValue()
+                + ((double) divisor.picosValue() / FTimeUnit.PICOSECONDS_IN_MILLISECOND);
+
+        // 2. Calculate the exact scalar factor between them
+        final double factor = thisTotalMillis / divisorTotalMillis;
+
+        // 3. Divide this instance by that factor to scale it precisely
+        return this.divide(factor);
     }
 
-    public Duration multiply(final Duration multiplicant) {
-        final long multiplied = nanosValue() * multiplicant.nanosValue();
-        return new Duration(multiplied, FTimeUnit.NANOSECONDS);
+    public Duration divide(final double divisorMillis, final double divisorPicos) {
+        if (divisorMillis == 0.0 && divisorPicos == 0.0) {
+            return Duration.ZERO;
+        }
+
+        // 1. Divide the whole milliseconds
+        final double exactMillis = millisValue() / divisorMillis;
+        final long dividedMillis = (long) exactMillis;
+
+        // 2. Extract the fractional millisecond remainder and convert it to picoseconds
+        final double fractionalMillis = exactMillis - dividedMillis;
+        final double carriedPicos = fractionalMillis * FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+
+        // 3. Divide the existing picoseconds and add the carried amount
+        final double exactPicos = (picosValue() / divisorPicos) + carriedPicos;
+
+        // 4. Combine and normalize (in case exactPicos exceeds PICOS_PER_MILLI due to floating-point math)
+        long finalMillis = dividedMillis + (long) (exactPicos / FTimeUnit.PICOSECONDS_IN_MILLISECOND);
+        int finalPicos = (int) (exactPicos % FTimeUnit.PICOSECONDS_IN_MILLISECOND);
+
+        // Handle negative adjustments cleanly if handling signed durations
+        if (finalPicos < 0) {
+            finalMillis--;
+            finalPicos += FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+        }
+
+        return new Duration(finalMillis, finalPicos, timeUnit);
+    }
+
+    public Duration multiply(final Number multiplier) {
+        return multiply(multiplier.doubleValue());
+    }
+
+    public Duration multiply(final double multiplier) {
+        return multiply(multiplier, multiplier);
+    }
+
+    public Duration multiply(final Duration multiplier) {
+        return multiply(multiplier.millisValue(), multiplier.picosValue());
+    }
+
+    /**
+     * Creates a new duration derived from this one by multipliying with the given factor.
+     */
+    public Duration multiply(final double multiplierMillis, final double multiplierPicos) {
+        final double exactMillis = millisValue() * multiplierMillis;
+        final long baseMillis = (long) exactMillis;
+
+        // Carry fractional milliseconds down to picoseconds
+        final double fractionalMillis = exactMillis - baseMillis;
+        final long carriedPicos = (long) (fractionalMillis * FTimeUnit.PICOSECONDS_IN_MILLISECOND);
+
+        final long totalPicos = (long) (picosValue() * multiplierPicos) + carriedPicos;
+
+        final long finalMillis = baseMillis + FDatePicos.toMillisecondsOverflow(totalPicos);
+        final int finalPicos = FDatePicos.toPicosWithoutOverflow(totalPicos);
+
+        return new Duration(finalMillis, finalPicos, timeUnit);
     }
 
     /**
@@ -468,17 +1151,45 @@ public class Duration extends Number implements Comparable<Object> {
     public Duration add(final Duration duration) {
         if (duration == null) {
             return this;
-        } else {
-            return add(duration.duration, duration.timeUnit);
         }
+        return add(duration.millisValue(), duration.picosValue());
+    }
+
+    public Duration add(final long addendMillis, final int addendPicos) {
+        final long addedPicosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(picosValue(), addendPicos);
+        final int addedPicos = FDatePicos.toPicosWithoutOverflow(addedPicosMaybeOverflow);
+        final long addedMillisOverflow = FDatePicos.toMillisecondsOverflow(addedPicosMaybeOverflow);
+        final long addedMillis = millisValue() + addendMillis + addedMillisOverflow;
+        return new Duration(addedMillis, addedPicos, timeUnit);
     }
 
     public Duration subtract(final Duration duration) {
         if (duration == null) {
             return this;
-        } else {
-            return subtract(duration.duration, duration.timeUnit);
         }
+        return subtract(duration.millisValue(), duration.picosValue());
+    }
+
+    public Duration subtract(final long subtrahendMillis, final int subtrahendPicos) {
+        // 1. Safe subtraction with JVM-level underflow checking
+        long subtractedMillis = this.millisValue() - subtrahendMillis;
+        long subtractedPicos = (long) this.picosValue() - subtrahendPicos;
+
+        // 2. Standardize borrowing logic
+        if (subtractedPicos < 0) {
+            // Borrow 1 millisecond and convert it to picoseconds
+            subtractedMillis = subtractedMillis - 1;
+            subtractedPicos += FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+        }
+
+        // 3. Post-Normalization: Ensure signs don't mismatch if the final result is net-negative
+        if (subtractedMillis < 0 && subtractedPicos > 0) {
+            // If the overall duration is negative, keep the remainder negative or zero
+            subtractedMillis++;
+            subtractedPicos -= FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+        }
+
+        return new Duration(subtractedMillis, (int) subtractedPicos, timeUnit);
     }
 
     @Override
@@ -496,45 +1207,16 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public boolean equalsNotNullSafe(final Duration obj) {
-        return nanosValue() == obj.nanosValue();
+        return millisValue() == obj.millisValue() && picosValue() == obj.picosValue();
     }
 
     @Override
     public int hashCode() {
-        return Long.hashCode(nanosValue());
+        return Long.hashCode(millisValue()) * 31 + Integer.hashCode(picosValue());
     }
 
     public FDate subtractFrom(final FDate date) {
         return new FDate(date.millisValue() - millisValue(), picosValue());
-    }
-
-    private long millisValue() {
-        return longValue(FTimeUnit.MILLISECONDS);
-    }
-
-    private int picosValue() {
-        switch (timeUnit) {
-        case MILLENIA:
-        case CENTURIES:
-        case DECADES:
-        case YEARS:
-        case MONTHS:
-        case WEEKS:
-        case DAYS:
-        case HOURS:
-        case MINUTES:
-        case SECONDS:
-        case MILLISECONDS:
-            return 0;
-        case MICROSECONDS:
-            return FDatePicos.toPicosWithoutOverflow(duration * FTimeUnit.PICOSECONDS_IN_MICROSECOND);
-        case NANOSECONDS:
-            return FDatePicos.toPicosWithoutOverflow(duration * FTimeUnit.PICOSECONDS_IN_NANOSECOND);
-        case PICOSECONDS:
-            return FDatePicos.toPicosWithoutOverflow(duration);
-        default:
-            throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
-        }
     }
 
     public FDate addTo(final FDate date) {
@@ -550,15 +1232,37 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public Duration abs() {
-        return new Duration(Longs.abs(duration), timeUnit);
+        return new Duration(Longs.abs(millis), Integers.abs(picos), timeUnit);
     }
 
     public boolean isExactMultipleOfPeriod(final Duration period) {
-        return !isLessThan(period) && nanosValue() % period.nanosValue() == 0;
+        if (period == null || period.isZero()) {
+            return false;
+        }
+        if (this.isLessThan(period)) {
+            return false;
+        }
+        if (this.equals(period)) {
+            return true;
+        }
+        final BigInteger thisTotalPicos = BigInteger.valueOf(this.millisValue())
+                .multiply(BigInteger.valueOf(FTimeUnit.PICOSECONDS_IN_MILLISECOND))
+                .add(BigInteger.valueOf(this.picosValue()));
+        final BigInteger periodTotalPicos = BigInteger.valueOf(period.millisValue())
+                .multiply(BigInteger.valueOf(FTimeUnit.PICOSECONDS_IN_MILLISECOND))
+                .add(BigInteger.valueOf(period.picosValue()));
+        return thisTotalPicos.remainder(periodTotalPicos).equals(BigInteger.ZERO);
     }
 
     public double getNumMultipleOfPeriod(final Duration period) {
-        return doubleValue(FTimeUnit.NANOSECONDS) / period.doubleValue(FTimeUnit.NANOSECONDS);
+        if (period == null || period.isZero()) {
+            return Double.NaN;
+        }
+        final double thisTotal = this.millisValue()
+                + ((double) this.picosValue() / FTimeUnit.PICOSECONDS_IN_MILLISECOND);
+        final double periodTotal = period.millisValue()
+                + ((double) period.picosValue() / FTimeUnit.PICOSECONDS_IN_MILLISECOND);
+        return thisTotal / periodTotal;
     }
 
     @Override
@@ -567,7 +1271,11 @@ public class Duration extends Number implements Comparable<Object> {
             return 1;
         }
         final Duration cO = (Duration) o;
-        return Long.compare(nanosValue(), cO.nanosValue());
+        final int compareMillis = Long.compare(millisValue(), cO.millisValue());
+        if (compareMillis != 0) {
+            return compareMillis;
+        }
+        return Integer.compare(picosValue(), cO.picosValue());
     }
 
     public static IDurationAggregate valueOf(final Duration... values) {
@@ -631,7 +1339,7 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public boolean isZero() {
-        return duration == 0;
+        return millis == 0 && picos == 0;
     }
 
     public final boolean isNotZero() {
@@ -649,14 +1357,14 @@ public class Duration extends Number implements Comparable<Object> {
      * 0 is counted as positive as well here to make things simpler.
      */
     public boolean isPositiveOrZero() {
-        return duration >= 0;
+        return millis > 0 || (millis == 0 && picos >= 0);
     }
 
     /**
      * This one excludes 0 from positive.
      */
     public boolean isPositiveNonZero() {
-        return duration > 0;
+        return millis > 0 || (millis == 0 && picos > 0);
     }
 
     /**
@@ -667,15 +1375,15 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public boolean isNegativeNonZero() {
-        return duration < 0;
+        return millis < 0 || (millis == 0 && picos < 0);
     }
 
     public boolean isNegativeOrZero() {
-        return duration <= 0;
+        return millis < 0 || (millis == 0 && picos <= 0);
     }
 
     public Duration negate() {
-        return new Duration(-duration, timeUnit);
+        return new Duration(-millis, -picos, timeUnit);
     }
 
     public static Duration zeroToNull(final Duration duration) {
@@ -697,7 +1405,7 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public java.time.Duration javaTimeValue() {
-        return java.time.Duration.of(duration, timeUnit.javaTimeValue());
+        return java.time.Duration.of(longValue(), timeUnit.javaTimeValue());
     }
 
     public org.joda.time.Duration jodaTimeValue() {
@@ -790,7 +1498,7 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public String stringValue() {
-        return duration + " " + timeUnit;
+        return longValue() + " " + timeUnit;
     }
 
     public void sleepNoInterrupt() {
@@ -863,6 +1571,16 @@ public class Duration extends Number implements Comparable<Object> {
         } else {
             return value1.divide(value2);
         }
+    }
+
+    public static Duration valueOfDifference(final long start, final long end, final FTimeUnit timeUnit) {
+        final long difference = end - start;
+        return new Duration(difference, timeUnit);
+    }
+
+    public static Duration valueOfDifferenceMillis(final long startMillis, final long endMillis) {
+        final long differenceMillis = endMillis - startMillis;
+        return new Duration(differenceMillis, 0, FTimeUnit.MILLISECONDS);
     }
 
 }

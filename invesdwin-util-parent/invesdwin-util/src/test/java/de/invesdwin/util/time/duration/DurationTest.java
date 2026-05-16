@@ -27,7 +27,9 @@ public class DurationTest {
     public void testIsGreaterThan() throws InterruptedException {
         final Instant start = new Instant();
         start.sleepRelative(10, FTimeUnit.MILLISECONDS);
-        Assertions.assertThat(new Duration(start).isGreaterThan(5, FTimeUnit.MILLISECONDS)).isTrue();
+        final Instant end = new Instant();
+        final Duration duration = new Duration(start, end);
+        Assertions.assertThat(duration.isGreaterThan(5, FTimeUnit.MILLISECONDS)).isTrue();
         Assertions.assertThat(
                 new Duration(start, new Instant(0, FTimeUnit.MILLISECONDS)).isGreaterThan(5, FTimeUnit.MILLISECONDS))
                 .isFalse();
@@ -47,8 +49,6 @@ public class DurationTest {
 
     @Test
     public void testToString() {
-        System.out.println(
-                "TODO: fix overflow in duration, maybe use also a millis and picos field in duration to avoid overflow");
         Assertions.assertThat(new Duration(0, FTimeUnit.DAYS).toString()).isEqualTo("P0");
         final FDate date = new FDate();
         Assertions.assertThat(new Duration(date, date.addDays(1)).toString()).isEqualTo("P1D");
@@ -118,4 +118,5 @@ public class DurationTest {
             //CHECKSTYLE:ON
         }
     }
+
 }
