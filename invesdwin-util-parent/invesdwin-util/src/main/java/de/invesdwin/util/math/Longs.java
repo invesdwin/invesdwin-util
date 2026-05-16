@@ -407,4 +407,10 @@ public final class Longs extends ALongsStaticFacade {
         //CHECKSTYLE:ON
     }
 
+    public static long multiplyExact(final long x, final long y) {
+        //CHECKSTYLE:OFF
+        return Math.multiplyExact(x, y);
+        //CHECKSTYLE:ON
+    }
+
 }

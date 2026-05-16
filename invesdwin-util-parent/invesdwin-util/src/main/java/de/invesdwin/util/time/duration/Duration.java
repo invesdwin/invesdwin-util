@@ -60,6 +60,10 @@ public class Duration extends Number implements Comparable<Object> {
 
     private static final long serialVersionUID = 1L;
 
+    // 106 days
+    private static final long MAX_SAFE_MILLIS = 106L * FTimeUnit.MILLISECONDS_IN_DAY;
+    private static final long MIN_SAFE_MILLIS = -MAX_SAFE_MILLIS;
+
     private final long millis;
     private final int picos;
     private final FTimeUnit timeUnit;
@@ -1245,6 +1249,47 @@ public class Duration extends Number implements Comparable<Object> {
         if (this.equals(period)) {
             return true;
         }
+
+        // 1. Safe-Guard: If either duration exceeds 106 days, bypass primitive math entirely.
+        // This stops catastrophic wrap-arounds before they can trick our logic.
+        final long thisMillis = this.millisValue();
+        final long periodMillis = period.millisValue();
+        if (thisMillis > MAX_SAFE_MILLIS || thisMillis < MIN_SAFE_MILLIS || periodMillis > MAX_SAFE_MILLIS
+                || periodMillis < MIN_SAFE_MILLIS) {
+            return isExactMultipleOfPeriodBigInterval(period);
+        }
+
+        // 2. Flatten the divisor (period) completely into picoseconds.
+        // Guaranteed to fit perfectly in a long now (< 106 days)
+        final long periodPicos = (periodMillis * FTimeUnit.PICOSECONDS_IN_MILLISECOND) + period.picosValue();
+
+        // 3. Reduce components using modular arithmetic properties
+        final long milliScaleMod = FTimeUnit.PICOSECONDS_IN_MILLISECOND % periodPicos;
+        final long millisValueMod = thisMillis % periodPicos;
+
+        // 4. Pre-emptive IF-check to avoid intermediate multiplication overflow
+        if (milliScaleMod > 0 && (millisValueMod > Long.MAX_VALUE / milliScaleMod
+                || millisValueMod < Long.MIN_VALUE / milliScaleMod)) {
+            return isExactMultipleOfPeriodBigInterval(period);
+        }
+
+        // 5. Clean, allocation-free register math
+        final long carriedPicosRemainder;
+        try {
+            carriedPicosRemainder = Longs.multiplyExact(millisValueMod, milliScaleMod) % periodPicos;
+        } catch (final ArithmeticException overflow) {
+            // High-protection fallback if the mid-way scalar multiplication clips the long boundary
+            return isExactMultipleOfPeriodBigInterval(period);
+        }
+        final long totalRemainderPicos = (carriedPicosRemainder + this.picosValue()) % periodPicos;
+
+        return totalRemainderPicos == 0;
+    }
+
+    /**
+     * Allocation fallback strictly isolated for extreme macro intervals (e.g., centuries)
+     */
+    private boolean isExactMultipleOfPeriodBigInterval(final Duration period) {
         final BigInteger thisTotalPicos = BigInteger.valueOf(this.millisValue())
                 .multiply(BigInteger.valueOf(FTimeUnit.PICOSECONDS_IN_MILLISECOND))
                 .add(BigInteger.valueOf(this.picosValue()));
