@@ -13,7 +13,8 @@ public final class Threads {
     /**
      * Above 1998 character there can occur deadlocks when settings thread names
      */
-    private static final int MAX_THREAD_NAME_LENGTH = 1800;
+    public static final int MAX_THREAD_NAME_LENGTH = 1800;
+    public static final int SAFE_THREAD_NAME_LENGTH = MAX_THREAD_NAME_LENGTH / 10;
 
     private static final FastThreadLocal<String> THREAD_POOL_NAME = new FastThreadLocal<>();
 
