@@ -24,6 +24,7 @@ import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.marshallers.serde.basic.FDateSerde;
+import de.invesdwin.util.math.Floats;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.LongPair;
 import de.invesdwin.util.math.decimal.scaled.Percent;
@@ -43,7 +44,7 @@ import jakarta.persistence.Transient;
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.
  */
 @ThreadSafe
-public class FDate
+public class FDate extends Number
         implements IDate, Serializable, Cloneable, Comparable<Object>, IHistoricalValue<FDate>, IFDateProvider {
 
     public static final IComparator<FDate> COMPARATOR = IComparator.getDefaultInstance();
@@ -114,6 +115,11 @@ public class FDate
     @Deprecated
     public FDate(final long millis) {
         this(millis, 0);
+    }
+
+    public FDate(final double millisFractionalPicos) {
+        this.millis = (long) millisFractionalPicos;
+        this.picos = (int) ((millisFractionalPicos - millis) * FTimeUnit.PICOSECONDS_IN_MILLISECOND);
     }
 
     public FDate(final long millis, final int picos) {
@@ -662,8 +668,44 @@ public class FDate
         return millis;
     }
 
+    /**
+     * Returns the number of picoseconds within the millisecond, i.e. the fraction of the millisecond. E.g. 1
+     * microsecond is 1,000,000 picoseconds and 1 nanosecond is 1,000 picoseconds.
+     */
     public int picosValue() {
         return picos;
+    }
+
+    @Override
+    public double doubleValue() {
+        return millis + (double) picos / FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+    }
+
+    /**
+     * WARNING: use longValue() instead
+     */
+    @Deprecated
+    @Override
+    public int intValue() {
+        return Integers.checkedCast(millis);
+    }
+
+    /**
+     * WARNING: use millisValue() or doubleValue() instead
+     */
+    @Deprecated
+    @Override
+    public long longValue() {
+        return millis;
+    }
+
+    /**
+     * WARNING: use doubleValue() instead
+     */
+    @Deprecated
+    @Override
+    public float floatValue() {
+        return Floats.checkedCast(doubleValue());
     }
 
     public long toDurationMillis() {
@@ -738,6 +780,7 @@ public class FDate
         return new FDate((long) seconds * FTimeUnit.MILLISECONDS_IN_SECOND, 0);
     }
 
+    @Deprecated
     public static FDate valueOf(final long millis) {
         return new FDate(millis, 0);
     }
@@ -773,6 +816,18 @@ public class FDate
     public static FDate valueOf(final Long value, final FTimeUnit timeUnit) {
         if (value != null) {
             return new FDate(timeUnit.toMillis(value), 0);
+        } else {
+            return null;
+        }
+    }
+
+    public static FDate valueOf(final double millisFractionalPicos) {
+        return new FDate(millisFractionalPicos);
+    }
+
+    public static FDate valueOf(final Double millisFractionalPicos) {
+        if (millisFractionalPicos != null) {
+            return new FDate(millisFractionalPicos);
         } else {
             return null;
         }
@@ -948,6 +1003,18 @@ public class FDate
 
     public boolean equalsNotNullSafe(final FDate obj) {
         return millis == obj.millis && picos == obj.picos;
+    }
+
+    public boolean equalsNotNullSafe(final Number obj) {
+        if (obj instanceof FDate) {
+            return equalsNotNullSafe((FDate) obj);
+        } else {
+            return equalsNotNullSafe(obj.doubleValue());
+        }
+    }
+
+    public boolean equalsNotNullSafe(final double obj) {
+        return doubleValue() == obj;
     }
 
     @Override

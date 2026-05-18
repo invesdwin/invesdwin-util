@@ -5,7 +5,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.marshallers.serde.FixedLengthBufferingIteratorDelegateSerde;
 import de.invesdwin.util.marshallers.serde.ISerde;
-import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.math.timed.TimedDouble;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.time.date.FDate;
@@ -31,24 +30,14 @@ public class TimedDoubleSerde implements ISerde<TimedDouble> {
     }
 
     @Override
-    public TimedDouble fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final TimedDouble obj) {
-        return SerdeBaseMethods.toBytes(this, obj);
-    }
-
-    @Override
     public TimedDouble fromBuffer(final IByteBuffer buffer) {
         if (buffer.capacity() == 0) {
             return null;
         }
-        final long time = buffer.getLong(TIME_INDEX);
+        final FDate time = FDateSerde.getFDateNotNullSafe(buffer, TIME_INDEX);
         final double value = buffer.getDouble(VALUE_INDEX);
 
-        final TimedDouble timedMoney = new TimedDouble(FDate.valueOf(time), value);
+        final TimedDouble timedMoney = new TimedDouble(time, value);
         return timedMoney;
     }
 
@@ -57,7 +46,7 @@ public class TimedDoubleSerde implements ISerde<TimedDouble> {
         if (obj == null) {
             return 0;
         }
-        buffer.putLong(TIME_INDEX, obj.getTime().millisValue());
+        FDateSerde.putFDateNotNullSafe(buffer, TIME_INDEX, obj.getTime());
         buffer.putDouble(VALUE_INDEX, obj.doubleValue());
         return FIXED_LENGTH;
     }

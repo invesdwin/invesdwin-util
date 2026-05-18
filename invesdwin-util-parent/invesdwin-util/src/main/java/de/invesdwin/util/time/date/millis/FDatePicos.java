@@ -122,10 +122,18 @@ public final class FDatePicos {
     }
 
     public static long toMillisecondsOverflow(final long picosMaybeOverflow) {
-        return picosMaybeOverflow / FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+        long millisOverflow = picosMaybeOverflow / FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+        if (picosMaybeOverflow < 0 && picosMaybeOverflow % FTimeUnit.PICOSECONDS_IN_MILLISECOND != 0) {
+            millisOverflow--;
+        }
+        return millisOverflow;
     }
 
     public static int toPicosWithoutOverflow(final long picosMaybeOverflow) {
-        return (int) picosMaybeOverflow % FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+        final int picosWithoutOverflow = (int) (picosMaybeOverflow % FTimeUnit.PICOSECONDS_IN_MILLISECOND);
+        if (picosWithoutOverflow < 0) {
+            return picosWithoutOverflow + FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+        }
+        return picosWithoutOverflow;
     }
 }

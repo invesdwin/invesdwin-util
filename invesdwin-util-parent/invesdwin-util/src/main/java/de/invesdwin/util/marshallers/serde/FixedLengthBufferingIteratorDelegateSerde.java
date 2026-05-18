@@ -27,12 +27,7 @@ public class FixedLengthBufferingIteratorDelegateSerde<E>
         if (bytes == null || bytes.length == 0) {
             return EmptyBufferingIterator.getInstance();
         }
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final IBufferingIterator<? extends E> objs) {
-        return SerdeBaseMethods.toBytes(this, objs);
+        return ISerde.super.fromBytes(bytes);
     }
 
     @Override

@@ -65,7 +65,7 @@ public abstract class ARecursivePullingHistoricalCacheAdjustKeyProvider implemen
             try {
                 final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
                 if (newHighestAllowedKey != null) {
-                    if (key.millisValue() > newHighestAllowedKey.millisValue()) {
+                    if (key.isAfterNotNullSafe(newHighestAllowedKey)) {
                         return newHighestAllowedKey;
                     }
                 }

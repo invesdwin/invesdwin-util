@@ -11,11 +11,6 @@ public class NioByteBufferSerde implements ISerde<java.nio.ByteBuffer> {
     public static final NioByteBufferSerde GET = new NioByteBufferSerde();
 
     @Override
-    public java.nio.ByteBuffer fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
     public byte[] toBytes(final java.nio.ByteBuffer obj) {
         return new UnsafeByteBuffer(obj).asByteArray();
     }

@@ -1220,11 +1220,19 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public FDate subtractFrom(final FDate date) {
-        return new FDate(date.millisValue() - millisValue(), picosValue());
+        final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(date.picosValue(), -picosValue());
+        final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final int picosWithoutOverflow = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long subtractedMillis = date.millisValue() - millisValue() + millisOverflow;
+        return new FDate(subtractedMillis, picosWithoutOverflow);
     }
 
     public FDate addTo(final FDate date) {
-        return new FDate(date.millisValue() + millisValue(), picosValue());
+        final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(date.picosValue(), picosValue());
+        final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final int picosWithoutOverflow = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long addedMillis = date.millisValue() + millisValue() + millisOverflow;
+        return new FDate(addedMillis, picosWithoutOverflow);
     }
 
     public long subtractFrom(final long millis) {

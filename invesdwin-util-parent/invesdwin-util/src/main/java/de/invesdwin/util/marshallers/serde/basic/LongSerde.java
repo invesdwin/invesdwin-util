@@ -3,7 +3,6 @@ package de.invesdwin.util.marshallers.serde.basic;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.marshallers.serde.ISerde;
-import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
@@ -11,16 +10,6 @@ public class LongSerde implements ISerde<Long> {
 
     public static final LongSerde GET = new LongSerde();
     public static final int FIXED_LENGTH = Long.BYTES;
-
-    @Override
-    public Long fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final Long obj) {
-        return SerdeBaseMethods.toBytes(this, obj);
-    }
 
     @Override
     public Long fromBuffer(final IByteBuffer buffer) {
@@ -43,13 +32,21 @@ public class LongSerde implements ISerde<Long> {
         if (value == null) {
             buffer.putLong(index, Long.MIN_VALUE);
         } else {
-            buffer.putLong(index, value);
+            putLongNotNullSafe(buffer, index, value);
         }
     }
 
+    public static void putLongNotNullSafe(final IByteBuffer buffer, final int index, final long value) {
+        buffer.putLong(index, value);
+    }
+
     public static Long getLong(final IByteBuffer buffer, final int index) {
-        final long value = buffer.getLong(index);
+        final long value = getLongNotNullSafe(buffer, index);
         return getLong(value);
+    }
+
+    public static long getLongNotNullSafe(final IByteBuffer buffer, final int index) {
+        return buffer.getLong(index);
     }
 
     public static Long getLong(final long value) {

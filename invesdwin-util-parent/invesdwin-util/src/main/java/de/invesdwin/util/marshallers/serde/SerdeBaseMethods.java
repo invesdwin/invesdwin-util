@@ -54,7 +54,7 @@ public final class SerdeBaseMethods {
     }
 
     public static <O> O fromBuffer(final ISerde<O> serde, final IMemoryBuffer buffer) {
-        final int size = ByteBuffers.checkedCast(buffer.size());
+        final int size = ByteBuffers.checkedCastNoOverflow(buffer.size());
         final IByteBuffer byteBuffer = buffer.asByteBuffer(0, size);
         return serde.fromBuffer(byteBuffer);
     }

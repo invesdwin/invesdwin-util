@@ -5,7 +5,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.marshallers.serde.FixedLengthBufferingIteratorDelegateSerde;
 import de.invesdwin.util.marshallers.serde.ISerde;
-import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.timed.TimedBoolean;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -32,24 +31,14 @@ public class TimedBooleanSerde implements ISerde<TimedBoolean> {
     }
 
     @Override
-    public TimedBoolean fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final TimedBoolean obj) {
-        return SerdeBaseMethods.toBytes(this, obj);
-    }
-
-    @Override
     public TimedBoolean fromBuffer(final IByteBuffer buffer) {
         if (buffer.capacity() == 0) {
             return null;
         }
-        final long time = buffer.getLong(TIME_INDEX);
+        final FDate time = FDateSerde.getFDateNotNullSafe(buffer, TIME_INDEX);
         final boolean value = buffer.getBoolean(VALUE_INDEX);
 
-        final TimedBoolean timedMoney = new TimedBoolean(FDate.valueOf(time), value);
+        final TimedBoolean timedMoney = new TimedBoolean(time, value);
         return timedMoney;
     }
 
@@ -58,7 +47,7 @@ public class TimedBooleanSerde implements ISerde<TimedBoolean> {
         if (obj == null) {
             return 0;
         }
-        buffer.putLong(TIME_INDEX, obj.getTime().millisValue());
+        FDateSerde.putFDateNotNullSafe(buffer, TIME_INDEX, obj.getTime());
         buffer.putBoolean(VALUE_INDEX, obj.booleanValue());
         return FIXED_LENGTH;
     }

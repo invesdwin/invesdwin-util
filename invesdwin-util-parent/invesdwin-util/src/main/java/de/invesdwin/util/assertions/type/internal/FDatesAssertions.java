@@ -1005,7 +1005,7 @@ public class FDatesAssertions extends Dates {
      */
     public void assertHasTime(final AssertionInfo info, final FDate actual, final long timestamp) {
         assertNotNull(info, actual);
-        if (actual.millisValue() == timestamp) {
+        if (actual.millisValue() == timestamp && actual.picosValue() == 0) {
             return;
         }
         throw failures.failure(info, shouldHaveTime(FDates.toDate(actual), timestamp));

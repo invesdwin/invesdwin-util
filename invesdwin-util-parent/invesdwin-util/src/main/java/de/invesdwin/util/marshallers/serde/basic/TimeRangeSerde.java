@@ -4,7 +4,6 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.marshallers.serde.FixedLengthBufferingIteratorDelegateSerde;
 import de.invesdwin.util.marshallers.serde.ISerde;
-import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.range.TimeRange;
@@ -25,16 +24,6 @@ public class TimeRangeSerde implements ISerde<TimeRange> {
             GET, FIXED_LENGTH);
 
     public TimeRangeSerde() {}
-
-    @Override
-    public TimeRange fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final TimeRange obj) {
-        return SerdeBaseMethods.toBytes(this, obj);
-    }
 
     @Override
     public TimeRange fromBuffer(final IByteBuffer buffer) {

@@ -10,11 +10,6 @@ public class ByteBufferSerde implements ISerde<IByteBuffer> {
     public static final ByteBufferSerde GET = new ByteBufferSerde();
 
     @Override
-    public IByteBuffer fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
     public byte[] toBytes(final IByteBuffer obj) {
         return obj.asByteArray();
     }

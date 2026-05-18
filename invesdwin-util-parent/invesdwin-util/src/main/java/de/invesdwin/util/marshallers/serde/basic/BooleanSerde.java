@@ -3,7 +3,6 @@ package de.invesdwin.util.marshallers.serde.basic;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.marshallers.serde.ISerde;
-import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -13,16 +12,6 @@ public class BooleanSerde implements ISerde<Boolean> {
 
     public static final BooleanSerde GET = new BooleanSerde();
     public static final int FIXED_LENGTH = Booleans.BYTES;
-
-    @Override
-    public Boolean fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final Boolean obj) {
-        return SerdeBaseMethods.toBytes(this, obj);
-    }
 
     @Override
     public Boolean fromBuffer(final IByteBuffer buffer) {

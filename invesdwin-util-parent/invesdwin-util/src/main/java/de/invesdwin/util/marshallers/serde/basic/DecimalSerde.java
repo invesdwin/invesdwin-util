@@ -3,7 +3,6 @@ package de.invesdwin.util.marshallers.serde.basic;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.marshallers.serde.ISerde;
-import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -15,16 +14,6 @@ public final class DecimalSerde implements ISerde<Decimal> {
     public static final int FIXED_LENGTH = Decimal.BYTES;
 
     private DecimalSerde() {}
-
-    @Override
-    public Decimal fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final Decimal obj) {
-        return SerdeBaseMethods.toBytes(this, obj);
-    }
 
     @Override
     public Decimal fromBuffer(final IByteBuffer buffer) {
