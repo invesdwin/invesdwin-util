@@ -746,9 +746,67 @@ public class FDate extends Number
         return picos;
     }
 
+    @Deprecated
     @Override
     public double doubleValue() {
         return millis + (double) picos / FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+    }
+
+    @Deprecated
+    public double doubleValue(final FTimeUnit timeUnit) {
+        final double millisDouble = millis;
+        final double picosDouble = picos;
+        final double duration;
+        switch (timeUnit) {
+        case MILLENIA:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_MILLENIUM
+                    + picosDouble / FTimeUnit.PICOSECONDS_IN_MILLENIUM;
+            break;
+        case CENTURIES:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_CENTURY
+                    + picosDouble / FTimeUnit.PICOSECONDS_IN_CENTURY;
+            break;
+        case DECADES:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_DECADE + picosDouble / FTimeUnit.PICOSECONDS_IN_DECADE;
+            break;
+        case YEARS:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_YEAR + picosDouble / FTimeUnit.PICOSECONDS_IN_YEAR;
+            break;
+        case MONTHS:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_MONTH + picosDouble / FTimeUnit.PICOSECONDS_IN_MONTH;
+            break;
+        case WEEKS:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_WEEK + picosDouble / FTimeUnit.PICOSECONDS_IN_WEEK;
+            break;
+        case DAYS:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_DAY + picosDouble / FTimeUnit.PICOSECONDS_IN_DAY;
+            break;
+        case HOURS:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_HOUR + picosDouble / FTimeUnit.PICOSECONDS_IN_HOUR;
+            break;
+        case MINUTES:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_MINUTE + picosDouble / FTimeUnit.PICOSECONDS_IN_MINUTE;
+            break;
+        case SECONDS:
+            duration = millisDouble / FTimeUnit.MILLISECONDS_IN_SECOND + picosDouble / FTimeUnit.PICOSECONDS_IN_SECOND;
+            break;
+        case MILLISECONDS:
+            duration = millisDouble + picosDouble / FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+            break;
+        case MICROSECONDS:
+            duration = millisDouble * FTimeUnit.MICROSECONDS_IN_MILLISECOND
+                    + picosDouble / FTimeUnit.PICOSECONDS_IN_MICROSECOND;
+            break;
+        case NANOSECONDS:
+            duration = millisDouble * FTimeUnit.NANOSECONDS_IN_MILLISECOND
+                    + picosDouble / FTimeUnit.PICOSECONDS_IN_NANOSECOND;
+            break;
+        case PICOSECONDS:
+            return doubleValue();
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
+        }
+        return duration;
     }
 
     /**
@@ -767,6 +825,57 @@ public class FDate extends Number
     @Override
     public long longValue() {
         return millis;
+    }
+
+    @Deprecated
+    public long longValue(final FTimeUnit timeUnit) {
+        final long duration;
+        switch (timeUnit) {
+        case MILLENIA:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_MILLENIUM;
+            break;
+        case CENTURIES:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_CENTURY;
+            break;
+        case DECADES:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_DECADE;
+            break;
+        case YEARS:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_YEAR;
+            break;
+        case MONTHS:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_MONTH;
+            break;
+        case WEEKS:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_WEEK;
+            break;
+        case DAYS:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_DAY;
+            break;
+        case HOURS:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_HOUR;
+            break;
+        case MINUTES:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_MINUTE;
+            break;
+        case SECONDS:
+            duration = millis / FTimeUnit.MILLISECONDS_IN_SECOND;
+            break;
+        case MILLISECONDS:
+            return longValue();
+        case MICROSECONDS:
+            duration = millis * FTimeUnit.MICROSECONDS_IN_MILLISECOND + picos / FTimeUnit.PICOSECONDS_IN_MICROSECOND;
+            break;
+        case NANOSECONDS:
+            duration = millis * FTimeUnit.NANOSECONDS_IN_MILLISECOND + picos / FTimeUnit.PICOSECONDS_IN_NANOSECOND;
+            break;
+        case PICOSECONDS:
+            duration = millis * FTimeUnit.PICOSECONDS_IN_MILLISECOND + picos;
+            break;
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
+        }
+        return duration;
     }
 
     /**
@@ -804,10 +913,6 @@ public class FDate extends Number
 
     public Date dateValue() {
         return FDateMillis.dateValue(millis);
-    }
-
-    public long longValue(final FTimeUnit timeUnit) {
-        return FDateMillis.longValue(millis, timeUnit);
     }
 
     public Calendar calendarValue() {
