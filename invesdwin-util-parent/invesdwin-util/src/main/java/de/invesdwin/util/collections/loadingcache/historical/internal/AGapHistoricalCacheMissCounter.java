@@ -126,7 +126,7 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
 
     public void recordElementDistance(final FDate prev, final FDate next) {
         if (avgElementDistance.getCount() < MAX_SAMPLES_FOR_AVG_ELEMENTS_DISTANCE) {
-            avgElementDistance.process(next.millisValue() - prev.millisValue());
+            avgElementDistance.process(next.doubleValue() - prev.doubleValue());
         }
     }
 

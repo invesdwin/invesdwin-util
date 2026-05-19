@@ -708,12 +708,12 @@ public class FDate extends Number
         return Floats.checkedCast(doubleValue());
     }
 
-    public long toDurationMillis() {
-        return FDateMillis.now() - millisValue();
+    public Duration toDuration() {
+        return toDuration(now());
     }
 
-    public Duration toDuration() {
-        return new Duration(toDurationMillis(), FTimeUnit.MILLISECONDS);
+    public Duration toDuration(final FDate now) {
+        return new Duration(this, now(), FTimeUnit.MILLISECONDS);
     }
 
     public boolean isGreaterThan(final Duration duration) {
@@ -1005,6 +1005,7 @@ public class FDate extends Number
         return millis == obj.millis && picos == obj.picos;
     }
 
+    @Deprecated
     public boolean equalsNotNullSafe(final Number obj) {
         if (obj instanceof FDate) {
             return equalsNotNullSafe((FDate) obj);
@@ -1013,6 +1014,12 @@ public class FDate extends Number
         }
     }
 
+    @Deprecated
+    public boolean equals(final long millis) {
+        return millisValue() == millis && picosValue() == 0;
+    }
+
+    @Deprecated
     public boolean equalsNotNullSafe(final double obj) {
         return doubleValue() == obj;
     }

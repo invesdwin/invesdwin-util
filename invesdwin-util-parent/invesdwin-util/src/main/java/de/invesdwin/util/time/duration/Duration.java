@@ -19,6 +19,7 @@ import de.invesdwin.util.math.random.PseudoRandomGenerators;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.millis.FDateMillis;
 import de.invesdwin.util.time.date.millis.FDatePicos;
 import de.invesdwin.util.time.duration.internal.DurationParser;
 
@@ -85,19 +86,17 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public Duration(final Duration start, final Duration end, final FTimeUnit timeUnit) {
-        long targetMillis = end.millisValue() - start.millisValue();
-        int targetPicos = end.picosValue() - start.picosValue();
-        if (targetPicos < 0) {
-            targetMillis--;
-            targetPicos += FTimeUnit.PICOSECONDS_IN_MILLISECOND;
-        }
-        this.millis = targetMillis;
-        this.picos = targetPicos;
+        final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(end.picosValue(), -start.picosValue());
+        final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final int durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long durationMillis = end.millisValue() - start.millisValue() + millisOverflow;
+        this.millis = FDateMillis.truncate(durationMillis, timeUnit);
+        this.picos = FDatePicos.truncate(durationPicos, timeUnit);
         this.timeUnit = timeUnit;
     }
 
     public Duration(final FDate start) {
-        this(start, new FDate(), FTimeUnit.MILLISECONDS);
+        this(start, new FDate(), FTimeUnit.PICOSECONDS);
     }
 
     public Duration(final FDate start, final FTimeUnit timeUnit) {
@@ -105,16 +104,22 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public Duration(final FDate start, final FDate end) {
-        this(start, end, FTimeUnit.MILLISECONDS);
+        this(start, end, FTimeUnit.PICOSECONDS);
     }
 
     public Duration(final FDate start, final FDate end, final FTimeUnit timeUnit) {
-        this(end.millisValue() - start.millisValue(), end.picosValue() - start.picosValue(), timeUnit);
+        final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(end.picosValue(), -start.picosValue());
+        final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final int durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long durationMillis = end.millisValue() - start.millisValue() + millisOverflow;
+        this.millis = FDateMillis.truncate(durationMillis, timeUnit);
+        this.picos = FDatePicos.truncate(durationPicos, timeUnit);
+        this.timeUnit = timeUnit;
     }
 
     public Duration(final long millis, final int picos, final FTimeUnit timeUnit) {
-        this.millis = millis;
-        this.picos = picos;
+        this.millis = FDateMillis.truncate(millis, timeUnit);
+        this.picos = FDatePicos.truncate(picos, timeUnit);
         this.timeUnit = timeUnit;
     }
 
@@ -193,15 +198,23 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public boolean isGreaterThan(final FDate date) {
-        return isGreaterThan(date.toDurationMillis(), 0);
+        return isGreaterThan(date, FDate.now());
     }
 
     public boolean isGreaterThan(final FDate from, final FDate to) {
-        return isGreaterThan(to.millisValue() - from.millisValue(), 0);
+        final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(to.picosValue(), -from.picosValue());
+        final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final int durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long durationMillis = to.millisValue() - from.millisValue() + millisOverflow;
+        return isGreaterThan(durationMillis, durationPicos);
     }
 
     public boolean isGreaterThan(final Instant instant) {
         return isGreaterThanNanos(instant.toDurationNanos());
+    }
+
+    public boolean isGreaterThanMillis(final long durationMillis) {
+        return isGreaterThan(durationMillis, 0);
     }
 
     public boolean isGreaterThanNanos(final long durationNanos) {
@@ -256,9 +269,7 @@ public class Duration extends Number implements Comparable<Object> {
             durationPicos = 0;
             break;
         case MILLISECONDS:
-            durationMillis = duration;
-            durationPicos = 0;
-            break;
+            return isGreaterThanMillis(duration);
         case MICROSECONDS: {
             final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(0, duration);
             durationMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
@@ -288,15 +299,23 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public boolean isGreaterThanOrEqualTo(final FDate date) {
-        return isGreaterThanOrEqualTo(date.toDurationMillis(), 0);
+        return isGreaterThanOrEqualTo(date, FDate.now());
     }
 
     public boolean isGreaterThanOrEqualTo(final FDate from, final FDate to) {
-        return isGreaterThanOrEqualTo(to.millisValue() - from.millisValue(), 0);
+        final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(to.picosValue(), -from.picosValue());
+        final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final int durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long durationMillis = to.millisValue() - from.millisValue() + millisOverflow;
+        return isGreaterThanOrEqualTo(durationMillis, durationPicos);
     }
 
     public boolean isGreaterThanOrEqualTo(final Instant instant) {
         return isGreaterThanOrEqualToNanos(instant.toDurationNanos());
+    }
+
+    public boolean isGreaterThanOrEqualToMillis(final long durationMillis) {
+        return isGreaterThanOrEqualTo(durationMillis, 0);
     }
 
     public boolean isGreaterThanOrEqualToNanos(final long durationNanos) {
@@ -351,9 +370,7 @@ public class Duration extends Number implements Comparable<Object> {
             durationPicos = 0;
             break;
         case MILLISECONDS:
-            durationMillis = duration;
-            durationPicos = 0;
-            break;
+            return isGreaterThanOrEqualToMillis(duration);
         case MICROSECONDS: {
             final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(0, duration);
             durationMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
@@ -383,15 +400,23 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public boolean isLessThan(final FDate date) {
-        return isLessThan(date.toDurationMillis(), 0);
+        return isLessThan(date, FDate.now());
     }
 
     public boolean isLessThan(final FDate from, final FDate to) {
-        return isLessThan(to.millisValue() - from.millisValue(), 0);
+        final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(to.picosValue(), -from.picosValue());
+        final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final int durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long durationMillis = to.millisValue() - from.millisValue() + millisOverflow;
+        return isLessThan(durationMillis, durationPicos);
     }
 
     public boolean isLessThan(final Instant instant) {
         return isLessThanNanos(instant.toDurationNanos());
+    }
+
+    public boolean isLessThanMillis(final long durationMillis) {
+        return isLessThan(durationMillis, 0);
     }
 
     public boolean isLessThanNanos(final long durationNanos) {
@@ -446,9 +471,7 @@ public class Duration extends Number implements Comparable<Object> {
             durationPicos = 0;
             break;
         case MILLISECONDS:
-            durationMillis = duration;
-            durationPicos = 0;
-            break;
+            return isLessThanMillis(duration);
         case MICROSECONDS: {
             final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(0, duration);
             durationMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
@@ -478,15 +501,23 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public boolean isLessThanOrEqualTo(final FDate date) {
-        return isLessThanOrEqualTo(date.toDurationMillis(), 0);
+        return isLessThanOrEqualTo(date, FDate.now());
     }
 
     public boolean isLessThanOrEqualTo(final FDate from, final FDate to) {
-        return isLessThanOrEqualTo(to.millisValue() - from.millisValue(), 0);
+        final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(to.picosValue(), -from.picosValue());
+        final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final int durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long durationMillis = to.millisValue() - from.millisValue() + millisOverflow;
+        return isLessThanOrEqualTo(durationMillis, durationPicos);
     }
 
     public boolean isLessThanOrEqualTo(final Instant instant) {
         return isLessThanOrEqualToNanos(instant.toDurationNanos());
+    }
+
+    public boolean isLessThanOrEqualToMillis(final long durationMillis) {
+        return isLessThanOrEqualTo(durationMillis, 0);
     }
 
     public boolean isLessThanOrEqualToNanos(final long durationNanos) {
@@ -541,9 +572,7 @@ public class Duration extends Number implements Comparable<Object> {
             durationPicos = 0;
             break;
         case MILLISECONDS:
-            durationMillis = duration;
-            durationPicos = 0;
-            break;
+            return isLessThanOrEqualToMillis(duration);
         case MICROSECONDS: {
             final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(0, duration);
             durationMillis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
@@ -1160,11 +1189,11 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public Duration add(final long addendMillis, final int addendPicos) {
-        final long addedPicosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(picosValue(), addendPicos);
-        final int addedPicos = FDatePicos.toPicosWithoutOverflow(addedPicosMaybeOverflow);
-        final long addedMillisOverflow = FDatePicos.toMillisecondsOverflow(addedPicosMaybeOverflow);
-        final long addedMillis = millisValue() + addendMillis + addedMillisOverflow;
-        return new Duration(addedMillis, addedPicos, timeUnit);
+        final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(picosValue(), addendPicos);
+        final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final int durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long durationMillis = millisValue() + addendMillis + millisOverflow;
+        return new Duration(durationMillis, durationPicos, timeUnit);
     }
 
     public Duration subtract(final Duration duration) {
@@ -1175,25 +1204,11 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public Duration subtract(final long subtrahendMillis, final int subtrahendPicos) {
-        // 1. Safe subtraction with JVM-level underflow checking
-        long subtractedMillis = this.millisValue() - subtrahendMillis;
-        long subtractedPicos = (long) this.picosValue() - subtrahendPicos;
-
-        // 2. Standardize borrowing logic
-        if (subtractedPicos < 0) {
-            // Borrow 1 millisecond and convert it to picoseconds
-            subtractedMillis = subtractedMillis - 1;
-            subtractedPicos += FTimeUnit.PICOSECONDS_IN_MILLISECOND;
-        }
-
-        // 3. Post-Normalization: Ensure signs don't mismatch if the final result is net-negative
-        if (subtractedMillis < 0 && subtractedPicos > 0) {
-            // If the overall duration is negative, keep the remainder negative or zero
-            subtractedMillis++;
-            subtractedPicos -= FTimeUnit.PICOSECONDS_IN_MILLISECOND;
-        }
-
-        return new Duration(subtractedMillis, (int) subtractedPicos, timeUnit);
+        final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(picosValue(), -subtrahendPicos);
+        final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final int durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long durationMillis = millisValue() - subtrahendMillis + millisOverflow;
+        return new Duration(durationMillis, durationPicos, timeUnit);
     }
 
     @Override
@@ -1222,17 +1237,17 @@ public class Duration extends Number implements Comparable<Object> {
     public FDate subtractFrom(final FDate date) {
         final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(date.picosValue(), -picosValue());
         final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
-        final int picosWithoutOverflow = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
-        final long subtractedMillis = date.millisValue() - millisValue() + millisOverflow;
-        return new FDate(subtractedMillis, picosWithoutOverflow);
+        final int durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long durationMillis = date.millisValue() - millisValue() + millisOverflow;
+        return new FDate(durationMillis, durationPicos);
     }
 
     public FDate addTo(final FDate date) {
         final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(date.picosValue(), picosValue());
         final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
-        final int picosWithoutOverflow = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
-        final long addedMillis = date.millisValue() + millisValue() + millisOverflow;
-        return new FDate(addedMillis, picosWithoutOverflow);
+        final int durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long durationMillis = date.millisValue() + millisValue() + millisOverflow;
+        return new FDate(durationMillis, durationPicos);
     }
 
     public long subtractFrom(final long millis) {

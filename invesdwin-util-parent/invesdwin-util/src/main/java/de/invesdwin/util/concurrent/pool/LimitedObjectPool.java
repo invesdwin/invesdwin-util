@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
-import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
@@ -52,7 +51,7 @@ public class LimitedObjectPool<E> implements IObjectPool<E> {
                     }
                 } else {
                     final long curNanos = System.nanoTime();
-                    if (timeout.isGreaterThan(curNanos - waitingSinceNanos, FTimeUnit.NANOSECONDS)) {
+                    if (timeout.isGreaterThanNanos(curNanos - waitingSinceNanos)) {
                         throw new TimeoutException("Timeout exceeded: " + timeout);
                     }
                 }

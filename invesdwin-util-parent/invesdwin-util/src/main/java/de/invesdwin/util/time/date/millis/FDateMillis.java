@@ -439,11 +439,11 @@ public final class FDateMillis {
         case SECONDS:
             return truncate(millis, FDateField.Second);
         case MILLISECONDS:
-            return truncate(millis, FDateField.Millisecond);
+            //fall through
         case MICROSECONDS:
-            return millis;
+            //fall through
         case NANOSECONDS:
-            return millis;
+            //fall through
         case PICOSECONDS:
             return millis;
         default:
