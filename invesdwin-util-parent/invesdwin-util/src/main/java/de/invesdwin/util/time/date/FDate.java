@@ -21,6 +21,7 @@ import de.invesdwin.norva.marker.IDate;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalValue;
+import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.marshallers.serde.basic.FDateSerde;
@@ -130,6 +131,75 @@ public class FDate extends Number
     protected FDate(final FDate date) {
         this.millis = date.millis;
         this.picos = date.picos;
+    }
+
+    public FDate(final long duration, final FTimeUnit timeUnit) {
+        switch (timeUnit) {
+        case MILLENIA:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_MILLENIUM;
+            picos = 0;
+            break;
+        case CENTURIES:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_CENTURY;
+            picos = 0;
+            break;
+        case DECADES:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_DECADE;
+            picos = 0;
+            break;
+        case YEARS:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_YEAR;
+            picos = 0;
+            break;
+        case MONTHS:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_MONTH;
+            picos = 0;
+            break;
+        case WEEKS:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_WEEK;
+            picos = 0;
+            break;
+        case DAYS:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_DAY;
+            picos = 0;
+            break;
+        case HOURS:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_HOUR;
+            picos = 0;
+            break;
+        case MINUTES:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_MINUTE;
+            picos = 0;
+            break;
+        case SECONDS:
+            millis = duration * FTimeUnit.MILLISECONDS_IN_SECOND;
+            picos = 0;
+            break;
+        case MILLISECONDS:
+            millis = duration;
+            picos = 0;
+            break;
+        case MICROSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(0, duration);
+            millis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            picos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        case NANOSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addNanosecondsMaybeOverflow(0, duration);
+            millis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            picos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        case PICOSECONDS: {
+            final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(0, duration);
+            millis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            picos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+            break;
+        }
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
+        }
     }
 
     public FDate(final ReadableDateTime jodaTime) {
