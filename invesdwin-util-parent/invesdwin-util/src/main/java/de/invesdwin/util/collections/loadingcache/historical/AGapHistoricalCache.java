@@ -355,7 +355,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                     //request fulfilled
                     break;
                 }
-                curKey = tailKey.addMilliseconds(1);
+                curKey = tailKey.addPicoseconds(1);
             }
 
             if (!furtherValues.isEmpty()) {
@@ -532,7 +532,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private FDate determineEaliestStartOfLoadFurtherValues(final FDate key) {
         //1 day is fine for most cases
         final long readBackStepMillis = cacheMissCounter.getOptimalReadBackStepMillis();
-        return key.addMilliseconds(-readBackStepMillis);
+        return key.addMillisecondss(-readBackStepMillis);
     }
 
     protected long getInitialReadBackStepMillis() {

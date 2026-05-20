@@ -37,7 +37,6 @@ public class FDateTest {
 
     @Test
     public void testConversionDate() {
-
         final FDate today = FDate.today();
         Assertions.assertThat(new FDate(today.dateValue())).isEqualTo(today);
         final String dateStr = org.apache.commons.lang3.time.FastDateFormat.getInstance(FDate.FORMAT_ISO_DATE_TIME)
@@ -200,20 +199,24 @@ public class FDateTest {
     @Test
     public void testSetFWeekTime() {
         final FDate date = FDateBuilder.newDate(2017, 1, 1);
-        final FDate monday = date.setFWeekTime(new FWeekTime(FWeekday.Monday, 1, 1, 0, 0), WeekAdjustment.PREVIOUS);
+        final FDate monday = date.setFWeekTime(new FWeekTime(FWeekday.Monday, 1, 1, 0, 0, 0, 0, 0),
+                WeekAdjustment.PREVIOUS);
         Assertions.assertThat(monday).isEqualTo(FDateBuilder.newDate(2016, 12, 26, 1, 1));
 
-        final FDate sunday = date.setFWeekTime(new FWeekTime(FWeekday.Sunday, 1, 1, 0, 0), WeekAdjustment.PREVIOUS);
+        final FDate sunday = date.setFWeekTime(new FWeekTime(FWeekday.Sunday, 1, 1, 0, 0, 0, 0, 0),
+                WeekAdjustment.PREVIOUS);
         Assertions.assertThat(sunday).isEqualTo(FDateBuilder.newDate(2017, 1, 1, 1, 1));
     }
 
     @Test
     public void testSetFWeekTimeStays() {
         final FDate date = FDateBuilder.newDate(2017, 1, 2);
-        final FDate monday = date.setFWeekTime(new FWeekTime(FWeekday.Monday, 1, 1, 0, 0), WeekAdjustment.PREVIOUS);
+        final FDate monday = date.setFWeekTime(new FWeekTime(FWeekday.Monday, 1, 1, 0, 0, 0, 0, 0),
+                WeekAdjustment.PREVIOUS);
         Assertions.assertThat(monday).isEqualTo(FDateBuilder.newDate(2017, 1, 2, 1, 1));
 
-        final FDate sunday = date.setFWeekTime(new FWeekTime(FWeekday.Sunday, 1, 1, 0, 0), WeekAdjustment.PREVIOUS);
+        final FDate sunday = date.setFWeekTime(new FWeekTime(FWeekday.Sunday, 1, 1, 0, 0, 0, 0, 0),
+                WeekAdjustment.PREVIOUS);
         Assertions.assertThat(sunday).isEqualTo(FDateBuilder.newDate(2017, 1, 1, 1, 1));
     }
 

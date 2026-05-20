@@ -78,7 +78,7 @@ public abstract class AIterableGapHistoricalCache<V> extends AGapHistoricalCache
 
     @Override
     protected FDate innerCalculatePreviousKey(final FDate key) {
-        return key.addMilliseconds(-1);
+        return key.addPicoseconds(-1);
     }
 
 }

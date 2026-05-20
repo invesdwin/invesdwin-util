@@ -14,8 +14,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.joda.time.ReadableDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import de.invesdwin.norva.marker.IDate;
 import de.invesdwin.util.collections.Arrays;
@@ -29,6 +27,8 @@ import de.invesdwin.util.math.Floats;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.LongPair;
 import de.invesdwin.util.math.decimal.scaled.Percent;
+import de.invesdwin.util.time.date.format.FDateTimeFormatter;
+import de.invesdwin.util.time.date.format.FDateTimeFormatters;
 import de.invesdwin.util.time.date.holiday.IHolidayManager;
 import de.invesdwin.util.time.date.millis.FDateMillis;
 import de.invesdwin.util.time.date.millis.FDatePicos;
@@ -78,17 +78,35 @@ public class FDate extends Number
     public static final String FORMAT_ISO_DATE = "yyyy-MM-dd";
     public static final String FORMAT_ISO_TIME = "HH:mm:ss";
     public static final String FORMAT_ISO_TIME_MS = FORMAT_ISO_TIME + ".SSS";
+    public static final String FORMAT_ISO_TIME_US = FORMAT_ISO_TIME_MS + ".UUU";
+    public static final String FORMAT_ISO_TIME_NS = FORMAT_ISO_TIME_US + ".NNN";
+    public static final String FORMAT_ISO_TIME_PS = FORMAT_ISO_TIME_NS + ".PPP";
     public static final String FORMAT_ISO_DATE_TIME = FORMAT_ISO_DATE + "'T'" + FORMAT_ISO_TIME;
     public static final String FORMAT_ISO_DATE_TIME_SPACE = FORMAT_ISO_DATE + " " + FORMAT_ISO_TIME;
     public static final String FORMAT_ISO_DATE_TIME_MS = FORMAT_ISO_DATE + "'T'" + FORMAT_ISO_TIME_MS;
     public static final int FORMAT_ISO_DATE_TIME_MS_LENGTH = 23;
+    public static final int FORMAT_ISO_DATE_TIME_US_LENGTH = FORMAT_ISO_DATE_TIME_MS_LENGTH + 4;
+    public static final int FORMAT_ISO_DATE_TIME_NS_LENGTH = FORMAT_ISO_DATE_TIME_US_LENGTH + 4;
+    public static final int FORMAT_ISO_DATE_TIME_PS_LENGTH = FORMAT_ISO_DATE_TIME_NS_LENGTH + 4;
+    public static final String FORMAT_ISO_DATE_TIME_US = FORMAT_ISO_DATE + "'T'" + FORMAT_ISO_TIME_US;
+    public static final String FORMAT_ISO_DATE_TIME_NS = FORMAT_ISO_DATE + "'T'" + FORMAT_ISO_TIME_NS;
+    public static final String FORMAT_ISO_DATE_TIME_PS = FORMAT_ISO_DATE + "'T'" + FORMAT_ISO_TIME_PS;
     public static final String FORMAT_ISO_DATE_TIME_MS_SPACE = FORMAT_ISO_DATE + " " + FORMAT_ISO_TIME_MS;
+    public static final String FORMAT_ISO_DATE_TIME_US_SPACE = FORMAT_ISO_DATE + " " + FORMAT_ISO_TIME_US;
+    public static final String FORMAT_ISO_DATE_TIME_NS_SPACE = FORMAT_ISO_DATE + " " + FORMAT_ISO_TIME_NS;
+    public static final String FORMAT_ISO_DATE_TIME_PS_SPACE = FORMAT_ISO_DATE + " " + FORMAT_ISO_TIME_PS;
 
     public static final String FORMAT_NUMBER_DATE = "yyyyMMdd";
     public static final String FORMAT_NUMBER_TIME = "HHmmss";
     public static final String FORMAT_NUMBER_TIME_MS = FORMAT_NUMBER_TIME + "SSS";
+    public static final String FORMAT_NUMBER_TIME_US = FORMAT_NUMBER_TIME_MS + "UUU";
+    public static final String FORMAT_NUMBER_TIME_NS = FORMAT_NUMBER_TIME_US + "NNN";
+    public static final String FORMAT_NUMBER_TIME_PS = FORMAT_NUMBER_TIME_NS + "PPP";
     public static final String FORMAT_NUMBER_DATE_TIME = FORMAT_NUMBER_DATE + FORMAT_NUMBER_TIME;
     public static final String FORMAT_NUMBER_DATE_TIME_MS = FORMAT_NUMBER_DATE + FORMAT_NUMBER_TIME_MS;
+    public static final String FORMAT_NUMBER_DATE_TIME_US = FORMAT_NUMBER_DATE + FORMAT_NUMBER_TIME_US;
+    public static final String FORMAT_NUMBER_DATE_TIME_NS = FORMAT_NUMBER_DATE + FORMAT_NUMBER_TIME_NS;
+    public static final String FORMAT_NUMBER_DATE_TIME_PS = FORMAT_NUMBER_DATE + FORMAT_NUMBER_TIME_PS;
 
     public static final String FORMAT_UNDERSCORE_DATE = "yyyy_MM_dd";
     public static final String FORMAT_UNDERSCORE_TIME_MINUTE = "HH_mm";
@@ -101,6 +119,9 @@ public class FDate extends Number
     public static final String FORMAT_GERMAN_DATE = "dd.MM.yyyy";
     public static final String FORMAT_GERMAN_DATE_TIME = FORMAT_GERMAN_DATE + " " + FORMAT_ISO_TIME;
     public static final String FORMAT_GERMAN_DATE_TIME_MS = FORMAT_GERMAN_DATE + " " + FORMAT_ISO_TIME_MS;
+    public static final String FORMAT_GERMAN_DATE_TIME_US = FORMAT_GERMAN_DATE + " " + FORMAT_ISO_TIME_US;
+    public static final String FORMAT_GERMAN_DATE_TIME_NS = FORMAT_GERMAN_DATE + " " + FORMAT_ISO_TIME_NS;
+    public static final String FORMAT_GERMAN_DATE_TIME_PS = FORMAT_GERMAN_DATE + " " + FORMAT_ISO_TIME_PS;
 
     public static final FDate[] EMPTY_ARRAY = new FDate[0];
 
@@ -111,6 +132,7 @@ public class FDate extends Number
 
     public FDate() {
         this(System.currentTimeMillis(), 0);
+        //System.out.println("TODO: create via an explicit clock that defines the precision");
     }
 
     public FDate(final long millis) {
@@ -477,6 +499,12 @@ public class FDate extends Number
             return this;
         }
         return new FDate(FDateMillis.addSeconds(millis, seconds), picos);
+    }
+
+    @Deprecated
+    public FDate addMillisecondss(final long milliseconds) {
+        //System.out.println("TODO");
+        return addMilliseconds(milliseconds);
     }
 
     public FDate addMilliseconds(final long milliseconds) {
@@ -1114,17 +1142,12 @@ public class FDate extends Number
         if (Strings.isBlank(str)) {
             return null;
         }
-        DateTimeFormatter df = DateTimeFormat.forPattern(parsePattern);
+        final FDateTimeFormatter df = FDateTimeFormatter.forPattern(parsePattern);
         if (timeZone != null) {
-            df = df.withZone(timeZone.getDateTimeZone());
+            return df.parse(str, timeZone, locale);
         } else {
-            df = df.withZone(FDates.getDefaultTimeZone().getDateTimeZone());
+            return df.parse(str, FDates.getDefaultTimeZone(), locale);
         }
-        if (locale != null) {
-            df = df.withLocale(locale);
-        }
-        final DateTime date = df.parseDateTime(str);
-        return new FDate(date);
     }
 
     public static List<FDate> valueOf(final Collection<Date> list) {
@@ -1245,19 +1268,19 @@ public class FDate extends Number
 
     @Override
     public String toString() {
-        return FDateMillis.toString(millis);
+        return FDateTimeFormatters.toString(millis, picos);
     }
 
     public String toString(final FTimeZone timeZone) {
-        return FDateMillis.toString(millis, timeZone);
+        return FDateTimeFormatters.toString(millis, picos, timeZone);
     }
 
     public String toString(final String format) {
-        return FDateMillis.toString(millis, format);
+        return FDateTimeFormatters.toString(millis, picos, format);
     }
 
     public String toString(final String format, final FTimeZone timeZone) {
-        return FDateMillis.toString(millis, format, timeZone);
+        return FDateTimeFormatters.toString(millis, picos, format, timeZone);
     }
 
     public boolean isBefore(final FDate other) {
