@@ -19,6 +19,7 @@ import de.invesdwin.util.math.random.PseudoRandomGenerators;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.FTimeUnitFractional;
 import de.invesdwin.util.time.date.millis.FDateMillis;
 import de.invesdwin.util.time.date.millis.FDatePicos;
 import de.invesdwin.util.time.duration.internal.DurationParser;
@@ -90,8 +91,8 @@ public class Duration extends Number implements Comparable<Object> {
         final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
         final int durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
         final long durationMillis = end.millisValue() - start.millisValue() + millisOverflow;
-        this.millis = FDateMillis.truncate(durationMillis, timeUnit);
-        this.picos = FDatePicos.truncate(durationPicos, timeUnit);
+        this.millis = durationMillis;
+        this.picos = durationPicos;
         this.timeUnit = timeUnit;
     }
 
@@ -112,14 +113,14 @@ public class Duration extends Number implements Comparable<Object> {
         final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
         final int durationPicos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
         final long durationMillis = end.millisValue() - start.millisValue() + millisOverflow;
-        this.millis = FDateMillis.truncate(durationMillis, timeUnit);
-        this.picos = FDatePicos.truncate(durationPicos, timeUnit);
+        this.millis = durationMillis;
+        this.picos = durationPicos;
         this.timeUnit = timeUnit;
     }
 
     public Duration(final long millis, final int picos, final FTimeUnit timeUnit) {
-        this.millis = FDateMillis.truncate(millis, timeUnit);
-        this.picos = FDatePicos.truncate(picos, timeUnit);
+        this.millis = millis;
+        this.picos = picos;
         this.timeUnit = timeUnit;
     }
 
@@ -191,6 +192,33 @@ public class Duration extends Number implements Comparable<Object> {
             throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
         }
         this.timeUnit = timeUnit;
+    }
+
+    public Duration(final double millisFractionalPicos) {
+        this.millis = (long) millisFractionalPicos;
+        this.picos = (int) ((millisFractionalPicos - millis) * FTimeUnit.PICOSECONDS_IN_MILLISECOND);
+        this.timeUnit = FTimeUnit.PICOSECONDS;
+    }
+
+    public Duration(final double timeUnitFractional, final FTimeUnit timeUnit) {
+        this(timeUnitFractional, timeUnit.asFractional());
+    }
+
+    public Duration(final double timeUnitFractional, final FTimeUnitFractional timeUnit) {
+        final double millisFractional = timeUnit.toMillis(timeUnitFractional);
+        this.millis = (long) millisFractional;
+        this.picos = (int) ((millisFractional - millis) * FTimeUnit.PICOSECONDS_IN_MILLISECOND);
+        this.timeUnit = timeUnit.asNonFractional();
+    }
+
+    public Duration truncate() {
+        return truncate(timeUnit);
+    }
+
+    public Duration truncate(final FTimeUnit timeUnit) {
+        final long truncatedMillis = FDateMillis.truncate(millis, timeUnit);
+        final int truncatedPicos = FDatePicos.truncate(picos, timeUnit);
+        return new Duration(truncatedMillis, truncatedPicos, timeUnit);
     }
 
     public boolean isGreaterThan(final Duration duration) {

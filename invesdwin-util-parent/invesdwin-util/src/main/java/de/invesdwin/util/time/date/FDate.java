@@ -113,7 +113,6 @@ public class FDate extends Number
         this(System.currentTimeMillis(), 0);
     }
 
-    @Deprecated
     public FDate(final long millis) {
         this(millis, 0);
     }
@@ -121,6 +120,16 @@ public class FDate extends Number
     public FDate(final double millisFractionalPicos) {
         this.millis = (long) millisFractionalPicos;
         this.picos = (int) ((millisFractionalPicos - millis) * FTimeUnit.PICOSECONDS_IN_MILLISECOND);
+    }
+
+    public FDate(final double timeUnitFractional, final FTimeUnit timeUnit) {
+        this(timeUnitFractional, timeUnit.asFractional());
+    }
+
+    public FDate(final double timeUnitFractional, final FTimeUnitFractional timeUnit) {
+        final double millisFractional = timeUnit.toMillis(timeUnitFractional);
+        this.millis = (long) millisFractional;
+        this.picos = (int) ((millisFractional - millis) * FTimeUnit.PICOSECONDS_IN_MILLISECOND);
     }
 
     public FDate(final long millis, final int picos) {
@@ -746,13 +755,11 @@ public class FDate extends Number
         return picos;
     }
 
-    @Deprecated
     @Override
     public double doubleValue() {
         return millis + (double) picos / FTimeUnit.PICOSECONDS_IN_MILLISECOND;
     }
 
-    @Deprecated
     public double doubleValue(final FTimeUnit timeUnit) {
         final double millisDouble = millis;
         final double picosDouble = picos;
@@ -827,7 +834,6 @@ public class FDate extends Number
         return millis;
     }
 
-    @Deprecated
     public long longValue(final FTimeUnit timeUnit) {
         final long duration;
         switch (timeUnit) {
@@ -955,7 +961,6 @@ public class FDate extends Number
         return new FDate((long) seconds * FTimeUnit.MILLISECONDS_IN_SECOND, 0);
     }
 
-    @Deprecated
     public static FDate valueOf(final long millis) {
         return new FDate(millis, 0);
     }
@@ -1006,6 +1011,14 @@ public class FDate extends Number
         } else {
             return null;
         }
+    }
+
+    public static FDate valueOf(final double timeUnitFractional, final FTimeUnit timeUnit) {
+        return new FDate(timeUnitFractional, timeUnit);
+    }
+
+    public static FDate valueOf(final double timeUnitFractional, final FTimeUnitFractional timeUnit) {
+        return new FDate(timeUnitFractional, timeUnit);
     }
 
     public static FDate valueOf(final Date date) {
@@ -1164,12 +1177,32 @@ public class FDate extends Number
         return compareToNotNullSafe(o);
     }
 
+    public int compareTo(final Number o) {
+        if (o == null) {
+            return 1;
+        }
+        return compareToNotNullSafe(o);
+    }
+
+    public int compareToNotNullSafe(final Number o) {
+        if (o instanceof FDate) {
+            final FDate cO = (FDate) o;
+            return compareToNotNullSafe(cO);
+        } else {
+            return compareTo(o.doubleValue());
+        }
+    }
+
     public int compareToNotNullSafe(final FDate o) {
         final int millisCompare = Long.compare(millis, o.millis);
         if (millisCompare != 0) {
             return millisCompare;
         }
         return Integer.compare(picos, o.picos);
+    }
+
+    public int compareTo(final double obj) {
+        return Double.compare(doubleValue(), obj);
     }
 
     public boolean equals(final FDate obj) {
@@ -1180,7 +1213,10 @@ public class FDate extends Number
         return millis == obj.millis && picos == obj.picos;
     }
 
-    @Deprecated
+    public boolean equals(final Number obj) {
+        return obj != null && equalsNotNullSafe(obj);
+    }
+
     public boolean equalsNotNullSafe(final Number obj) {
         if (obj instanceof FDate) {
             return equalsNotNullSafe((FDate) obj);
@@ -1189,13 +1225,11 @@ public class FDate extends Number
         }
     }
 
-    @Deprecated
     public boolean equals(final long millis) {
         return millisValue() == millis && picosValue() == 0;
     }
 
-    @Deprecated
-    public boolean equalsNotNullSafe(final double obj) {
+    public boolean equals(final double obj) {
         return doubleValue() == obj;
     }
 
