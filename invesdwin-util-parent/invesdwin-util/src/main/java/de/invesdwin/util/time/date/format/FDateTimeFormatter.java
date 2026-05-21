@@ -15,7 +15,6 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeParserBucket;
-import org.joda.time.format.FormatUtilsAccessor;
 import org.joda.time.format.InternalParserAccessor;
 import org.joda.time.format.InternalPrinterAccessor;
 
@@ -44,16 +43,36 @@ public final class FDateTimeFormatter {
     private final InternalParserAccessor parser;
     private final ParseToken[] parseTokens;
     private final ParseToken[] parseTokensByIndex;
+    private final boolean hasCustomFractions;
 
     private FDateTimeFormatter(final String pattern) {
         this.pattern = pattern;
 
         final StringBuilder jodaPattern = new StringBuilder(pattern.length() + 5);
         final List<ParseToken> tokens = new ArrayList<>();
+        final int shift = parsePattern(pattern, jodaPattern, tokens);
+        this.parseTokens = tokens.toArray(ParseToken.EMPTY_ARRAY);
+        this.parseTokensByIndex = new ParseToken[jodaPattern.length() - shift];
+        this.hasCustomFractions = parseTokens.length > 0;
 
-        // We track TWO states:
-        // 1. Did the user ask for quotes?
-        // 2. Are we currently inside quotes in the Joda builder?
+        if (hasCustomFractions) {
+            for (int i = 0; i < parseTokensByIndex.length; i++) {
+                for (int t = 0; t < parseTokens.length; t++) {
+                    final ParseToken token = parseTokens[t];
+                    if (token.index <= i && i <= token.endIndex) {
+                        parseTokensByIndex[i] = token;
+                        break;
+                    }
+                }
+            }
+        }
+
+        this.jodaFormatter = DateTimeFormat.forPattern(jodaPattern.toString());
+        this.printer = new InternalPrinterAccessor(jodaFormatter);
+        this.parser = new InternalParserAccessor(jodaFormatter);
+    }
+
+    private int parsePattern(final String pattern, final StringBuilder jodaPattern, final List<ParseToken> tokens) {
         boolean userInsideQuotes = false;
         boolean jodaInsideQuotes = false;
         int shift = 0;
@@ -62,7 +81,6 @@ public final class FDateTimeFormatter {
             final char c = pattern.charAt(i);
 
             if (c == '\'') {
-                // Handle Joda's escaped quote '' (literal single quote)
                 if (i + 1 < pattern.length() && pattern.charAt(i + 1) == '\'') {
                     if (!jodaInsideQuotes) {
                         jodaPattern.append('\'');
@@ -70,43 +88,35 @@ public final class FDateTimeFormatter {
                         shift++;
                     }
                     jodaPattern.append("''");
-                    shift++; // '' becomes a single ' in the output, so it shifts the index by 1 more
-                    i++; // Skip the second quote
+                    shift++;
+                    i++;
                     continue;
                 }
-
-                // Standard quote: Just toggle the user's state.
-                // We DO NOT append to jodaPattern here.
-                // We let the character content drive the Joda quotes!
                 userInsideQuotes = !userInsideQuotes;
                 continue;
             }
 
             final boolean isCustomToken = (!userInsideQuotes
                     && (c == MICROSECOND_CHAR || c == NANOSECOND_CHAR || c == PICOSECOND_CHAR));
-
-            // A character NEEDS quotes if the user asked for them, OR if it's our custom token
             final boolean needsQuotes = userInsideQuotes || isCustomToken;
 
-            // Sync the actual Joda pattern quotes with our needs
             if (needsQuotes && !jodaInsideQuotes) {
                 jodaPattern.append('\'');
                 jodaInsideQuotes = true;
-                shift++; // Joda consumes this
+                shift++;
             } else if (!needsQuotes && jodaInsideQuotes) {
                 jodaPattern.append('\'');
                 jodaInsideQuotes = false;
-                shift++; // Joda consumes this
+                shift++;
             }
 
-            // Now, append the character
             if (isCustomToken) {
                 final int start = i;
                 while (i < pattern.length() && pattern.charAt(i) == c) {
                     i++;
                 }
                 final int length = i - start;
-                i--; // Adjust because the for-loop will increment
+                i--;
 
                 if (length > 3) {
                     throw new IllegalArgumentException("Precision token '" + c + "' exceeds max length of 3.");
@@ -117,34 +127,17 @@ public final class FDateTimeFormatter {
                     jodaPattern.append(c);
                 }
 
-                // The index calculation remains flawless
                 tokens.add(new ParseToken(c, length, rawIndex - shift));
             } else {
                 jodaPattern.append(c);
             }
         }
 
-        // Close the Joda quote block if the string ends while we are still inside one
         if (jodaInsideQuotes) {
             jodaPattern.append('\'');
             shift++;
         }
-
-        this.parseTokens = tokens.toArray(ParseToken.EMPTY_ARRAY);
-        this.parseTokensByIndex = new ParseToken[jodaPattern.length() - shift];
-        for (int i = 0; i < parseTokensByIndex.length; i++) {
-            for (int t = 0; t < parseTokens.length; t++) {
-                final ParseToken token = parseTokens[t];
-                if (token.index <= i && i <= token.endIndex) {
-                    parseTokensByIndex[i] = token;
-                    break;
-                }
-            }
-        }
-
-        this.jodaFormatter = DateTimeFormat.forPattern(jodaPattern.toString());
-        this.printer = new InternalPrinterAccessor(jodaFormatter);
-        this.parser = new InternalParserAccessor(jodaFormatter);
+        return shift;
     }
 
     @Override
@@ -161,8 +154,6 @@ public final class FDateTimeFormatter {
         if (formatter == null) {
             formatter = new FDateTimeFormatter(pattern);
             if (PATTERN_CACHE.size() < PATTERN_CACHE_SIZE) {
-                // the size check is not locked against concurrent access,
-                // but is accepted to be slightly off in contention scenarios.
                 final FDateTimeFormatter oldFormatter = PATTERN_CACHE.putIfAbsent(pattern, formatter);
                 if (oldFormatter != null) {
                     formatter = oldFormatter;
@@ -192,7 +183,7 @@ public final class FDateTimeFormatter {
         try {
             printTo(buf, buf.length(), buf::setCharAt, millis, picos, timeZone, locale);
         } catch (final IOException ex) {
-            // StringBuffer does not throw IOException
+            // StringBuilder does not throw IOException
         }
     }
 
@@ -203,14 +194,24 @@ public final class FDateTimeFormatter {
 
     public void printTo(final Appendable appendable, final long millis, final int picos, final FTimeZone timeZone,
             final Locale locale) throws IOException {
-        if (parseTokens.length == 0) {
+
+        // Smart delegation: Bypass buffer creation if Appendable is secretly a StringBuilder/Buffer
+        if (appendable instanceof StringBuilder) {
+            printTo((StringBuilder) appendable, millis, picos, timeZone, locale);
+            return;
+        }
+        if (appendable instanceof StringBuffer) {
+            printTo((StringBuffer) appendable, millis, picos, timeZone, locale);
+            return;
+        }
+
+        if (!hasCustomFractions) {
             jodaPrintTo(appendable, millis, timeZone, locale);
             return;
         }
 
-        // 1. Get the base string from Joda-Time
-        // We use a StringBuilder to allow us to modify the buffer in-place
-        final StringBuilder sb = new StringBuilder(jodaFormatter.getPrinter().estimatePrintedLength());
+        // 1. Get the base string from Joda-Time into a temporary modifiable buffer
+        final StringBuilder sb = new StringBuilder(printer.estimatePrintedLength());
         jodaPrintTo(sb, millis, timeZone, locale);
 
         // 2. Modify the characters directly in the StringBuilder
@@ -218,35 +219,30 @@ public final class FDateTimeFormatter {
             final ParseToken token = parseTokens[t];
             int value = token.extractor.applyAsInt(picos);
 
-            for (int i = token.length - 1; i >= 0; i--) {
-                // Setting a char at a specific index in StringBuilder is an O(1) operation
-                sb.setCharAt(token.index + i, (char) ('0' + (value % 10)));
+            for (int i = token.endIndex; i >= token.index; i--) {
+                sb.setCharAt(i, (char) ('0' + (value % 10)));
                 value /= 10;
             }
         }
 
-        // 3. Append to the final target
+        // 3. Append the finalized string to the write-only target
         appendable.append(sb);
     }
 
     private void printTo(final Appendable appendable, final int sizeBefore, final ISetCharAtFunction setCharAtF,
             final long millis, final int picos, final FTimeZone timeZone, final Locale locale) throws IOException {
 
-        // 1. Get the base string from Joda-Time
-        // We use a StringBuilder to allow us to modify the buffer in-place
         jodaPrintTo(appendable, millis, timeZone, locale);
 
-        if (parseTokens.length == 0) {
+        if (!hasCustomFractions) {
             return;
         }
 
-        // 2. Modify the characters directly in the StringBuilder
         for (int t = 0; t < parseTokens.length; t++) {
             final ParseToken token = parseTokens[t];
             int value = token.extractor.applyAsInt(picos);
 
             for (int i = token.endIndex; i >= token.index; i--) {
-                // Setting a char at a specific index in StringBuilder is an O(1) operation
                 setCharAtF.setCharAt(sizeBefore + i, (char) ('0' + (value % 10)));
                 value /= 10;
             }
@@ -255,16 +251,12 @@ public final class FDateTimeFormatter {
 
     private void jodaPrintTo(final Appendable appendable, final long millis, final FTimeZone timeZone,
             final Locale locale) {
-        //System.out.println("TODO: verify this converts the timestamp correctly");
         try {
             final Chronology chrono = timeZone.getChronology();
-            // Shift instant into local time (UTC) to avoid excessive offset
-            // calculations when printing multiple fields in a composite printer.
             DateTimeZone zone = chrono.getZone();
             int offset = zone.getOffset(millis);
             long adjustedInstant = millis + offset;
             if ((millis ^ adjustedInstant) < 0 && (millis ^ offset) >= 0) {
-                // Time zone offset overflow, so revert to UTC.
                 zone = DateTimeZone.UTC;
                 offset = 0;
                 adjustedInstant = millis;
@@ -276,81 +268,42 @@ public final class FDateTimeFormatter {
     }
 
     public FDate parse(final String text, final FTimeZone timeZone, final Locale locale) {
-        // Joda correctly skips quoted placeholders, so no replacement needed.
-        final long millis = jodaParseMillis(text, timeZone, locale);
+        final CharSequence jodaInput = hasCustomFractions ? new VirtualJodaCharSequence(text, parseTokensByIndex)
+                : text;
+        final long millis = jodaParseMillis(jodaInput, timeZone, locale);
 
         int picos = 0;
         for (int t = 0; t < parseTokens.length; t++) {
             final ParseToken token = parseTokens[t];
             int value = 0;
-            // Direct char-to-int conversion without substring or parseInt
             for (int i = 0; i < token.length; i++) {
                 final char c = text.charAt(token.index + i);
                 value = (value * 10) + (c - '0');
             }
-
-            // Apply the multiplier (e.g., 1_000_000 for micros, 1_000 for nanos, 1 for picos)
             picos += token.multiplier.applyAsInt(value);
         }
 
         return new FDate(millis, picos);
     }
 
-    private long jodaParseMillis(final String text, final FTimeZone timeZone, final Locale locale) {
+    private long jodaParseMillis(final CharSequence text, final FTimeZone timeZone, final Locale locale) {
         final Chronology chrono = timeZone.getChronology();
         final DateTimeParserBucket bucket = new DateTimeParserBucket(0, chrono, locale, jodaFormatter.getPivotYear(),
                 jodaFormatter.getDefaultYear());
-        return doParseMillis(bucket, text);
-    }
-
-    public long doParseMillis(final DateTimeParserBucket bucket, final CharSequence text) {
-        int curPos = 0;
-        while (curPos < text.length()) {
-            int newPos = parser.parseInto(bucket, text, curPos);
-            if (newPos >= 0) {
-                if (newPos >= text.length()) {
-                    return bucket.computeMillis(true, text);
-                }
-            } else {
-                newPos = -newPos;
-                if (newPos >= text.length()) {
-                    return bucket.computeMillis(true, text);
-                }
-                ParseToken parseTokenAtNewPos = parseTokensByIndex[newPos];
-                boolean found = false;
-                while (parseTokenAtNewPos != null) {
-                    found = true;
-                    // We found a custom token at the position where Joda failed to parse
-                    // This means we need to skip over this token and try parsing again
-                    newPos = parseTokenAtNewPos.endIndex + 1; // Move past the entire token
-                    if (newPos < parseTokensByIndex.length) {
-                        parseTokenAtNewPos = parseTokensByIndex[newPos];
-                    } else {
-                        break;
-                    }
-                }
-                if (!found) {
-                    newPos++;
-                }
-                curPos = newPos;
-            }
-        }
-        if (curPos == text.length()) {
-            return bucket.computeMillis(true, text);
-        }
-        throw new IllegalArgumentException(FormatUtilsAccessor.createErrorMessage(text.toString(), curPos));
+        return parser.doParseMillis(bucket, text);
     }
 
     private static class ParseToken {
         public static final ParseToken[] EMPTY_ARRAY = new ParseToken[0];
+        private final char type;
         private final int index;
         private final int length;
         private final int endIndex;
-        // Pre-calculate the value extraction function
         private final IntUnaryOperator extractor;
         private final Int2IntFunction multiplier;
 
         ParseToken(final char type, final int length, final int index) {
+            this.type = type;
             this.index = index;
             this.length = length;
             this.endIndex = index + length - 1;
@@ -378,4 +331,47 @@ public final class FDateTimeFormatter {
         void setCharAt(int index, char ch);
     }
 
+    private static final class VirtualJodaCharSequence implements CharSequence {
+        private final String delegate;
+        private final ParseToken[] parseTokensByIndex;
+        private final int offset;
+
+        VirtualJodaCharSequence(final String delegate, final ParseToken[] parseTokensByIndex) {
+            this(delegate, parseTokensByIndex, 0);
+        }
+
+        private VirtualJodaCharSequence(final String delegate, final ParseToken[] parseTokensByIndex,
+                final int offset) {
+            this.delegate = delegate;
+            this.parseTokensByIndex = parseTokensByIndex;
+            this.offset = offset;
+        }
+
+        @Override
+        public int length() {
+            return delegate.length();
+        }
+
+        @Override
+        public char charAt(final int index) {
+            final int absoluteIndex = offset + index;
+            if (absoluteIndex >= 0 && absoluteIndex < parseTokensByIndex.length) {
+                final ParseToken token = parseTokensByIndex[absoluteIndex];
+                if (token != null) {
+                    return token.type;
+                }
+            }
+            return delegate.charAt(index);
+        }
+
+        @Override
+        public CharSequence subSequence(final int start, final int end) {
+            return new VirtualJodaCharSequence(delegate.substring(start, end), parseTokensByIndex, offset + start);
+        }
+
+        @Override
+        public String toString() {
+            return delegate;
+        }
+    }
 }

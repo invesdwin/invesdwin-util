@@ -307,6 +307,16 @@ public class FDateTest {
     }
 
     @Test
+    public void testParseZoneIdZZ() {
+        final String format = "yyyy-MM-dd'T'HH:mm:ss.SSS.UUU.NNN.PPP ZZ";
+        final FDate time = new FDate();
+        final String joda = time.toString(format);
+        final String java = FDate.valueOf(time.toString(format, (FTimeZone) null), (FTimeZone) null, null, format)
+                .toString(format);
+        Assertions.assertThat(java).isEqualTo(joda);
+    }
+
+    @Test
     public void testParseZoneId() {
         final FDate time = new FDate();
         final String joda = time.toString();
@@ -315,6 +325,66 @@ public class FDateTest {
                         FDate.FORMAT_GERMAN_DATE_TIME_MS)
                 .toString();
         Assertions.assertThat(java).isEqualTo(joda);
+    }
+
+    @Test
+    public void testTimeZoneSwitching() {
+        //CHECKSTYLE:OFF
+        final FTimeZone zoneBerlin = new FTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
+        final FTimeZone zoneUtc = new FTimeZone(TimeZone.getTimeZone("UTC"));
+        //CHECKSTYLE:ON
+
+        // 1. Snapshot an absolute instant (e.g., current time)
+        final FDate curDate = new FDate();
+
+        // 2. Get the string representations explicitly for both zones
+        final String berlinStr = curDate.toString(FDate.FORMAT_ISO_DATE_TIME_PS, zoneBerlin);
+        final String utcStr = curDate.toString(FDate.FORMAT_ISO_DATE_TIME_PS, zoneUtc);
+
+        // 3. Parse the Berlin string specifying the Berlin zone
+        final FDate parsedFromBerlin = FDate.valueOf(berlinStr, zoneBerlin, FDate.FORMAT_ISO_DATE_TIME_PS);
+
+        // 4. Parse the UTC string specifying the UTC zone
+        final FDate parsedFromUtc = FDate.valueOf(utcStr, zoneUtc, FDate.FORMAT_ISO_DATE_TIME_PS);
+
+        // Under the Absolute UTC Paradigm, both objects must hold the exact same internal universal millis!
+        Assertions.assertThat(parsedFromBerlin.millisValue()).isEqualTo(parsedFromUtc.millisValue());
+
+        // 5. Cross-printing assertions should match perfectly without environmental drift
+        final String berlinAsUtcStr = parsedFromBerlin.toString(FDate.FORMAT_ISO_DATE_TIME_PS, zoneUtc);
+        Assertions.assertThat(berlinAsUtcStr).isEqualTo(utcStr);
+        final String utcAsBerlinStr = parsedFromUtc.toString(FDate.FORMAT_ISO_DATE_TIME_PS, zoneBerlin);
+        Assertions.assertThat(utcAsBerlinStr).isEqualTo(berlinStr);
+
+        /*
+         * We can also shift the internal millis to make calculations in different time zones easier, but that should be
+         * an explicit operation with an explicit result, not something that happens implicitly in the background when
+         * printing or parsing
+         */
+        final long berlinOffsetMillis = parsedFromBerlin.getTimeZoneOffsetMilliseconds(zoneBerlin);
+        final FDate parsedFromBerlinApplyFixed = parsedFromBerlin.applyTimeZoneOffset(berlinOffsetMillis);
+        final String parsedFromBerlinApplyFixedStr = parsedFromBerlinApplyFixed.toString();
+        Assertions.assertThat(parsedFromBerlinApplyFixedStr).isEqualTo(berlinStr);
+        Assertions.assertThat(parsedFromBerlinApplyFixed.millisValue()).isNotEqualTo(parsedFromBerlin.millisValue());
+        Assertions.assertThat(parsedFromBerlinApplyFixed.millisValue()).isNotEqualTo(curDate.millisValue());
+        final FDate parsedFromBerlinRevertFixed = parsedFromBerlinApplyFixed.revertTimeZoneOffset(berlinOffsetMillis);
+        final String parsedFromBerlinRevertFixedStr = parsedFromBerlinRevertFixed.toString();
+        Assertions.assertThat(parsedFromBerlinRevertFixedStr).isEqualTo(utcStr);
+        Assertions.assertThat(parsedFromBerlinRevertFixed.millisValue()).isEqualTo(parsedFromBerlin.millisValue());
+        Assertions.assertThat(parsedFromBerlinRevertFixed.millisValue()).isEqualTo(curDate.millisValue());
+
+        final FDate parsedFromBerlinApply = parsedFromBerlin.applyTimeZoneOffset(zoneBerlin);
+        final String parsedFromBerlinApplyStr = parsedFromBerlinApply.toString();
+        Assertions.assertThat(parsedFromBerlinApplyStr).isEqualTo(berlinStr);
+        Assertions.assertThat(parsedFromBerlinApply.millisValue()).isNotEqualTo(parsedFromBerlin.millisValue());
+        Assertions.assertThat(parsedFromBerlinApply.millisValue()).isNotEqualTo(curDate.millisValue());
+        @SuppressWarnings("deprecation")
+        //risky on dailight saving time changes, but should work in general since we are using the same date for parsing and applying the offset
+        final FDate parsedFromBerlinRevert = parsedFromBerlinApply.revertTimeZoneOffset(zoneBerlin);
+        final String parsedFromBerlinRevertStr = parsedFromBerlinRevert.toString();
+        Assertions.assertThat(parsedFromBerlinRevertStr).isEqualTo(utcStr);
+        Assertions.assertThat(parsedFromBerlinRevert.millisValue()).isEqualTo(parsedFromBerlin.millisValue());
+        Assertions.assertThat(parsedFromBerlinRevert.millisValue()).isEqualTo(curDate.millisValue());
     }
 
 }
