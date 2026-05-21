@@ -15,6 +15,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeParserBucket;
+import org.joda.time.format.FormatUtilsAccessor;
 import org.joda.time.format.InternalParserAccessor;
 import org.joda.time.format.InternalPrinterAccessor;
 
@@ -42,6 +43,7 @@ public final class FDateTimeFormatter {
     private final InternalPrinterAccessor printer;
     private final InternalParserAccessor parser;
     private final ParseToken[] parseTokens;
+    private final ParseToken[] parseTokensByIndex;
 
     private FDateTimeFormatter(final String pattern) {
         this.pattern = pattern;
@@ -129,6 +131,16 @@ public final class FDateTimeFormatter {
         }
 
         this.parseTokens = tokens.toArray(ParseToken.EMPTY_ARRAY);
+        this.parseTokensByIndex = new ParseToken[jodaPattern.length() - shift];
+        for (int i = 0; i < parseTokensByIndex.length; i++) {
+            for (int t = 0; t < parseTokens.length; t++) {
+                final ParseToken token = parseTokens[t];
+                if (token.index <= i && i <= token.endIndex) {
+                    parseTokensByIndex[i] = token;
+                    break;
+                }
+            }
+        }
 
         this.jodaFormatter = DateTimeFormat.forPattern(jodaPattern.toString());
         this.printer = new InternalPrinterAccessor(jodaFormatter);
@@ -288,7 +300,45 @@ public final class FDateTimeFormatter {
         final Chronology chrono = timeZone.getChronology();
         final DateTimeParserBucket bucket = new DateTimeParserBucket(0, chrono, locale, jodaFormatter.getPivotYear(),
                 jodaFormatter.getDefaultYear());
-        return parser.doParseMillis(bucket, text);
+        return doParseMillis(bucket, text);
+    }
+
+    public long doParseMillis(final DateTimeParserBucket bucket, final CharSequence text) {
+        int curPos = 0;
+        while (curPos < text.length()) {
+            int newPos = parser.parseInto(bucket, text, curPos);
+            if (newPos >= 0) {
+                if (newPos >= text.length()) {
+                    return bucket.computeMillis(true, text);
+                }
+            } else {
+                newPos = -newPos;
+                if (newPos >= text.length()) {
+                    return bucket.computeMillis(true, text);
+                }
+                ParseToken parseTokenAtNewPos = parseTokensByIndex[newPos];
+                boolean found = false;
+                while (parseTokenAtNewPos != null) {
+                    found = true;
+                    // We found a custom token at the position where Joda failed to parse
+                    // This means we need to skip over this token and try parsing again
+                    newPos = parseTokenAtNewPos.endIndex + 1; // Move past the entire token
+                    if (newPos < parseTokensByIndex.length) {
+                        parseTokenAtNewPos = parseTokensByIndex[newPos];
+                    } else {
+                        break;
+                    }
+                }
+                if (!found) {
+                    newPos++;
+                }
+                curPos = newPos;
+            }
+        }
+        if (curPos == text.length()) {
+            return bucket.computeMillis(true, text);
+        }
+        throw new IllegalArgumentException(FormatUtilsAccessor.createErrorMessage(text.toString(), curPos));
     }
 
     private static class ParseToken {
