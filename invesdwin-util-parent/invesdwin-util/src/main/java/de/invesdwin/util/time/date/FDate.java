@@ -1303,19 +1303,23 @@ public class FDate extends Number implements IDate, Serializable, Cloneable, Com
     }
 
     public boolean isBeforeNotNullSafe(final FDate other) {
-        return millis < other.millis;
+        return millisValue() < other.millisValue()
+                || (millisValue() == other.millisValue() && picosValue() < other.picosValue());
     }
 
     public boolean isBeforeOrEqualToNotNullSafe(final FDate other) {
-        return millis <= other.millis;
+        return millisValue() < other.millisValue()
+                || (millisValue() == other.millisValue() && picosValue() <= other.picosValue());
     }
 
     public boolean isAfterNotNullSafe(final FDate other) {
-        return millis > other.millis;
+        return millisValue() > other.millisValue()
+                || (millisValue() == other.millisValue() && picosValue() > other.picosValue());
     }
 
     public boolean isAfterOrEqualToNotNullSafe(final FDate other) {
-        return millis >= other.millis;
+        return millisValue() > other.millisValue()
+                || (millisValue() == other.millisValue() && picosValue() >= other.picosValue());
     }
 
     @Override
