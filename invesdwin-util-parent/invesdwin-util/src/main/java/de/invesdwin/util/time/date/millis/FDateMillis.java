@@ -649,6 +649,10 @@ public final class FDateMillis {
         return date.getMillis();
     }
 
+    /**
+     * Uses FDates.getDefaultClock().nowMillis() to allow for testing time machines and alternative time sources.
+     * Normally System.currentTimeMillis as the source.
+     */
     public static long nowMillis() {
         return FDates.getDefaultClock().nowMillis();
     }

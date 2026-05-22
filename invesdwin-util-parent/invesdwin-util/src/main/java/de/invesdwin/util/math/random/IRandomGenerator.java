@@ -2,6 +2,8 @@ package de.invesdwin.util.math.random;
 
 import java.util.Collection;
 
+import de.invesdwin.util.time.date.millis.FDateMillis;
+
 /**
  * adapted from jdk.internal.util.random.RandomSupport
  * 
@@ -116,7 +118,7 @@ public interface IRandomGenerator extends org.apache.commons.math3.random.Random
     }
 
     default void reseed() {
-        setSeed(System.currentTimeMillis() + System.identityHashCode(this));
+        setSeed(FDateMillis.nowMillis() + System.identityHashCode(this));
     }
 
 }

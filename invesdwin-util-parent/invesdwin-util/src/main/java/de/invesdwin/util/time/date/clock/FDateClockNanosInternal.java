@@ -23,9 +23,16 @@ public final class FDateClockNanosInternal implements IFDateClock {
 
     public static final FDateClockNanosInternal INSTANCE = new FDateClockNanosInternal();
 
-    private static final long OFFSET_SEED = System.currentTimeMillis() / FTimeUnit.MILLISECONDS_IN_SECOND - 1024;
+    private static final long OFFSET_SEED = newEpochSecond();
+
     @GuardedBy("none for performance")
     private static long localOffset = OFFSET_SEED;
+
+    private static long newEpochSecond() {
+        //CHECKSTYLE:OFF
+        return System.currentTimeMillis() / FTimeUnit.MILLISECONDS_IN_SECOND - 1024;
+        //CHECKSTYLE:ON
+    }
 
     @Override
     public FDate now() {
@@ -33,7 +40,7 @@ public final class FDateClockNanosInternal implements IFDateClock {
         long nanoAdjustment = jdk.internal.misc.VM.getNanoTimeAdjustment(epochSecond);
 
         if (nanoAdjustment == -1) {
-            epochSecond = System.currentTimeMillis() / FTimeUnit.MILLISECONDS_IN_SECOND - 1024;
+            epochSecond = newEpochSecond();
             nanoAdjustment = jdk.internal.misc.VM.getNanoTimeAdjustment(epochSecond);
             if (nanoAdjustment == -1) {
                 throw new InternalError("LocalOffset " + epochSecond + " is not in range");
@@ -54,7 +61,7 @@ public final class FDateClockNanosInternal implements IFDateClock {
         long nanoAdjustment = jdk.internal.misc.VM.getNanoTimeAdjustment(epochSecond);
 
         if (nanoAdjustment == -1) {
-            epochSecond = System.currentTimeMillis() / FTimeUnit.MILLISECONDS_IN_SECOND - 1024;
+            epochSecond = newEpochSecond();
             nanoAdjustment = jdk.internal.misc.VM.getNanoTimeAdjustment(epochSecond);
             if (nanoAdjustment == -1) {
                 throw new InternalError("LocalOffset " + epochSecond + " is not in range");
@@ -76,7 +83,16 @@ public final class FDateClockNanosInternal implements IFDateClock {
 
     @Override
     public long nowMillis() {
+        //CHECKSTYLE:OFF
         return System.currentTimeMillis();
+        //CHECKSTYLE:ON
+    }
+
+    @Override
+    public long elapsedNanos() {
+        //CHECKSTYLE:OFF
+        return System.nanoTime();
+        //CHECKSTYLE:ON
     }
 
     @Override

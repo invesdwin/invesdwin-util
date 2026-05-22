@@ -43,6 +43,7 @@ import de.invesdwin.util.streams.buffer.memory.delegate.slice.mutable.factory.IM
 import de.invesdwin.util.streams.buffer.memory.stream.ExpandableMemoryBufferOutputStream;
 import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferInputStream;
 import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferOutputStream;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.core.OS;
@@ -689,8 +690,8 @@ public class ChronicleDelegateMemoryBuffer implements ICloseableMemoryBuffer {
                 }
                 if (result == 0 && timeout != null) {
                     if (zeroCountNanos == -1) {
-                        zeroCountNanos = System.nanoTime();
-                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        zeroCountNanos = FDateNanos.elapsedNanos();
+                    } else if (timeout.isLessThanNanos(FDateNanos.elapsedNanos() - zeroCountNanos)) {
                         throw FastEOFException.getInstance("write timeout exceeded");
                     }
                     ASpinWait.onSpinWaitStatic();

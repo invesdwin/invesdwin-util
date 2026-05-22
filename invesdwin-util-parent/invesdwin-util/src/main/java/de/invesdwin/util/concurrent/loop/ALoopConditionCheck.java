@@ -3,6 +3,7 @@ package de.invesdwin.util.concurrent.loop;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
@@ -26,7 +27,7 @@ public abstract class ALoopConditionCheck {
     }
 
     protected long getInitialNanoTime() {
-        return System.nanoTime();
+        return FDateNanos.elapsedNanos();
     }
 
     public final boolean check() {

@@ -13,7 +13,16 @@ public interface IFDateClock extends IFDateProvider {
      */
     void now(IFDateUpdater updater);
 
+    /**
+     * Normally System.currentTimeMillis but may be overridden for testing or to use a different time source.
+     */
     long nowMillis();
+
+    /**
+     * Normally System.nanoTime but may be overridden for testing or to use a different time source. Note that this is
+     * not related to the epoch and should only be used for measuring elapsed time.
+     */
+    long elapsedNanos();
 
     @Override
     default FDate asFDate() {

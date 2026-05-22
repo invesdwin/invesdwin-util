@@ -6,6 +6,7 @@ import java.util.concurrent.locks.Lock;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.concurrent.loop.spinwait.SpinWait;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 
 @Immutable
 public final class SpinWaitingLockingStrategy implements ILockingStrategy {
@@ -25,7 +26,7 @@ public final class SpinWaitingLockingStrategy implements ILockingStrategy {
     @Override
     public void lock(final Lock lock) {
         try {
-            spinWait.awaitFulfill(lock::tryLock, System.nanoTime());
+            spinWait.awaitFulfill(lock::tryLock, FDateNanos.elapsedNanos());
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
@@ -34,7 +35,7 @@ public final class SpinWaitingLockingStrategy implements ILockingStrategy {
     @Override
     public void lockInterruptibly(final Lock lock) throws InterruptedException {
         try {
-            spinWait.awaitFulfill(lock::tryLock, System.nanoTime());
+            spinWait.awaitFulfill(lock::tryLock, FDateNanos.elapsedNanos());
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             throw e;
@@ -51,7 +52,7 @@ public final class SpinWaitingLockingStrategy implements ILockingStrategy {
     @Override
     public boolean tryLock(final Lock lock, final long time, final TimeUnit unit) throws InterruptedException {
         try {
-            return spinWait.awaitFulfill(lock::tryLock, System.nanoTime(), time, unit);
+            return spinWait.awaitFulfill(lock::tryLock, FDateNanos.elapsedNanos(), time, unit);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             throw e;

@@ -7,6 +7,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.loop.spinwait.ABaseSpinWait;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 
 @Immutable
 public final class BusyWaitingLockingStrategy implements ILockingStrategy {
@@ -47,14 +48,14 @@ public final class BusyWaitingLockingStrategy implements ILockingStrategy {
             return true;
         }
         final long nanoRemaining = TimeUnit.NANOSECONDS.convert(time, unit);
-        final long waitDeadline = System.nanoTime() + nanoRemaining;
+        final long waitDeadline = FDateNanos.elapsedNanos() + nanoRemaining;
         while (true) {
             if (lock.tryLock()) {
                 return true;
             }
             ABaseSpinWait.onSpinWaitStatic();
             Threads.throwIfInterrupted();
-            if (System.nanoTime() >= waitDeadline) {
+            if (FDateNanos.elapsedNanos() >= waitDeadline) {
                 return false;
             }
         }

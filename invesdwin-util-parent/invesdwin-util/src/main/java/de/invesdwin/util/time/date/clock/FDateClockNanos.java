@@ -35,7 +35,16 @@ public final class FDateClockNanos implements IFDateClock {
 
     @Override
     public long nowMillis() {
+        //CHECKSTYLE:OFF
         return System.currentTimeMillis();
+        //CHECKSTYLE:ON
+    }
+
+    @Override
+    public long elapsedNanos() {
+        //CHECKSTYLE:OFF
+        return System.nanoTime();
+        //CHECKSTYLE:ON
     }
 
     @Override

@@ -3,6 +3,7 @@ package de.invesdwin.util.time;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
 
 /**
@@ -23,7 +24,7 @@ public class Instant extends Number implements Comparable<Object> {
     private final long nanos;
 
     public Instant() {
-        this.nanos = System.nanoTime();
+        this.nanos = FDateNanos.elapsedNanos();
     }
 
     public Instant(final long startNanos) {
@@ -48,7 +49,7 @@ public class Instant extends Number implements Comparable<Object> {
     }
 
     public long toDurationNanos() {
-        return System.nanoTime() - nanos;
+        return FDateNanos.elapsedNanos() - nanos;
     }
 
     public void sleepRelativeNoInterrupt(final long amount, final FTimeUnit timeUnit) {

@@ -18,6 +18,7 @@ import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.clock.FDateClockNanosInternal;
 import de.invesdwin.util.time.date.holiday.HolidayManagers;
+import de.invesdwin.util.time.date.millis.FDateMillis;
 import de.invesdwin.util.time.date.millis.FDatePicos;
 import de.invesdwin.util.time.date.millis.WeekAdjustment;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
@@ -409,13 +410,13 @@ public class FDateTest {
     public void testClock() {
         final Instant start = new Instant();
         final FDate startDate = FDate.now();
-        long prevMillis = System.currentTimeMillis();
+        long prevMillis = FDateMillis.nowMillis();
         FDate prevNow = startDate;
         int index = 0;
         int identical = 0;
         int unique = 0;
         while (Duration.ONE_SECOND.isGreaterThan(start)) {
-            final long millisBefore = System.currentTimeMillis();
+            final long millisBefore = FDateMillis.nowMillis();
             final FDate now = FDate.now();
             Assertions.checkTrue(now.isAfterOrEqualToNotNullSafe(prevNow),
                     "now [%s] should be after or equal to prevNow [%s]", now, prevNow);
@@ -432,7 +433,7 @@ public class FDateTest {
                     now.millisValue(), prevMillis);
             Assertions.checkTrue(FDatePicos.isValidPicos(now.picosValue()), "now picos [%s] should be valid",
                     now.picosValue());
-            final long millisAfter = System.currentTimeMillis();
+            final long millisAfter = FDateMillis.nowMillis();
             Assertions.checkTrue(now.millisValue() >= millisBefore, "now millis [%s] should be after millisBefore [%s]",
                     now.millisValue(), millisBefore);
             Assertions.checkTrue(now.millisValue() <= millisAfter, "now millis [%s] should be before millisAfter [%s]",

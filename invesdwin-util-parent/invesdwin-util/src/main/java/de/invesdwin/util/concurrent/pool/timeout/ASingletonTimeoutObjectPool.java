@@ -9,6 +9,7 @@ import de.invesdwin.util.concurrent.WrappedScheduledExecutorService;
 import de.invesdwin.util.concurrent.pool.ICloseableObjectPool;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
@@ -46,7 +47,7 @@ public abstract class ASingletonTimeoutObjectPool<E> implements ICloseableObject
 
     protected final boolean isTimeoutExceeded() {
         return singleton != null && referenceCount <= 0 && timeoutStartNanos != 0
-                && System.nanoTime() - timeoutStartNanos >= timeoutMillis;
+                && FDateNanos.elapsedNanos() - timeoutStartNanos >= timeoutMillis;
     }
 
     @Override
@@ -74,7 +75,7 @@ public abstract class ASingletonTimeoutObjectPool<E> implements ICloseableObject
             if (referenceCount <= 0) {
                 referenceCount = 0;
                 do {
-                    timeoutStartNanos = System.nanoTime();
+                    timeoutStartNanos = FDateNanos.elapsedNanos();
                 } while (timeoutStartNanos == 0);
             }
         } else {

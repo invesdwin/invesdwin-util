@@ -12,6 +12,7 @@ import de.invesdwin.util.log.ILog;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.AEstimatedRemainingDuration;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -27,7 +28,7 @@ public class ProgressCountingCloseableIterator<E> implements ICloseableIterator<
     private final AEstimatedRemainingDuration estimatedRemainingDuration = new AEstimatedRemainingDuration() {
         @Override
         protected Duration getElapsedDuration() {
-            return new Duration(System.nanoTime() - startNanos, FTimeUnit.NANOSECONDS);
+            return new Duration(FDateNanos.elapsedNanos() - startNanos, FTimeUnit.NANOSECONDS);
         }
 
         @Override
@@ -48,7 +49,7 @@ public class ProgressCountingCloseableIterator<E> implements ICloseableIterator<
         this.delegate = delegate;
         this.size = size;
         this.loopInterruptedCheck = new LoopInterruptedCheck(newCheckInterval());
-        this.startNanos = System.nanoTime();
+        this.startNanos = FDateNanos.elapsedNanos();
         //prevent initial 0s estimate
         Assertions.checkNotNull(estimatedRemainingDuration.getEstimatedRemainingDuration());
     }
@@ -67,7 +68,7 @@ public class ProgressCountingCloseableIterator<E> implements ICloseableIterator<
         final E next = delegate.next();
         count++;
         if (log.isInfoEnabled() && loopInterruptedCheck.checkNoInterrupt()) {
-            final long elapsedNanos = System.nanoTime() - startNanos;
+            final long elapsedNanos = FDateNanos.elapsedNanos() - startNanos;
             final Duration duration = new Duration(elapsedNanos, FTimeUnit.NANOSECONDS);
             log.info("%s(%s) loading at %s (%s/%s) processing %s during %s. Estimated remaining duration: %s",
                     ProgressCountingCloseableIterator.class.getSimpleName(), name,
@@ -82,7 +83,7 @@ public class ProgressCountingCloseableIterator<E> implements ICloseableIterator<
     public void close() {
         delegate.close();
         if (logged) {
-            final long elapsedNanos = System.nanoTime() - startNanos;
+            final long elapsedNanos = FDateNanos.elapsedNanos() - startNanos;
             final Duration duration = new Duration(elapsedNanos, FTimeUnit.NANOSECONDS);
             log.info("%s(%s) finished at %s (%s/%s) processing %s after %s",
                     ProgressCountingCloseableIterator.class.getSimpleName(), name,

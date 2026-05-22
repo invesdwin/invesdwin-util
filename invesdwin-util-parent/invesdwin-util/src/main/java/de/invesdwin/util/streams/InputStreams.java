@@ -24,6 +24,7 @@ import de.invesdwin.util.lang.uri.URIs;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
 import io.netty.util.concurrent.FastThreadLocal;
 
@@ -362,8 +363,8 @@ public final class InputStreams {
             if (count == 0) {
                 if (timeout != null) {
                     if (zeroCountNanos == -1) {
-                        zeroCountNanos = System.nanoTime();
-                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        zeroCountNanos = FDateNanos.elapsedNanos();
+                    } else if (timeout.isLessThanNanos(FDateNanos.elapsedNanos() - zeroCountNanos)) {
                         //timeout exceeded
                         onTimeoutF.run();
                         return length - remaining;
@@ -395,8 +396,8 @@ public final class InputStreams {
             if (count == 0) {
                 if (timeout != null) {
                     if (zeroCountNanos == -1) {
-                        zeroCountNanos = System.nanoTime();
-                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        zeroCountNanos = FDateNanos.elapsedNanos();
+                    } else if (timeout.isLessThanNanos(FDateNanos.elapsedNanos() - zeroCountNanos)) {
                         //timeout exceeded
                         onTimeoutF.run();
                         return length - remaining;
@@ -441,8 +442,8 @@ public final class InputStreams {
             if (count == 0) {
                 if (timeout != null) {
                     if (zeroCountNanos == -1) {
-                        zeroCountNanos = System.nanoTime();
-                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        zeroCountNanos = FDateNanos.elapsedNanos();
+                    } else if (timeout.isLessThanNanos(FDateNanos.elapsedNanos() - zeroCountNanos)) {
                         //timeout exceeded
                         onTimeoutF.run();
                         return length - remaining;

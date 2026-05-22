@@ -867,7 +867,7 @@ public class StripedNonBlockingIdentityHashMap<K, V> extends AbstractMap<K, V>
         protected abstract boolean isExpired(K key, V value);
 
         protected void beforeExpire() {
-            // now = System.nanoTime();
+            // now = FDateNanos.elapsedNanos();
         }
 
         /**
