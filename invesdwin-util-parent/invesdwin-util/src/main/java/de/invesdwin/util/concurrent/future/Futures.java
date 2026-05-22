@@ -141,7 +141,7 @@ public final class Futures extends AFuturesStaticFacade {
         }
     }
 
-    //////////// GET TIMEOUT UNIT ////////////
+    //////////// GET TIMEOUT UNIT
 
     public static <T> T get(final Future<T> future, final long timeout, final TimeUnit unit)
             throws InterruptedException, TimeoutException {
@@ -227,7 +227,7 @@ public final class Futures extends AFuturesStaticFacade {
         }
     }
 
-    //////////// GET DURATION ////////////
+    //////////// GET DURATION
 
     public static <T> T get(final Future<T> future, final Duration timeout)
             throws InterruptedException, TimeoutException {
@@ -256,7 +256,7 @@ public final class Futures extends AFuturesStaticFacade {
         return getPropagatingNoInterrupt(future, timeout.longValue(), timeout.getTimeUnit().timeUnitValue());
     }
 
-    //////////// GET ARRAY ////////////
+    //////////// GET ARRAY
 
     @SafeVarargs
     public static <T> List<T> get(final Future<T>... futures) throws InterruptedException, TimeoutException {
@@ -288,7 +288,7 @@ public final class Futures extends AFuturesStaticFacade {
         return getPropagatingNoInterrupt(Arrays.asList(futures));
     }
 
-    //////////// GET ITERABLE ////////////
+    //////////// GET ITERABLE
 
     public static <T> List<T> get(final Iterable<? extends Future<T>> futures) throws InterruptedException {
         try {
@@ -375,7 +375,7 @@ public final class Futures extends AFuturesStaticFacade {
         }
     }
 
-    //////////// SUBMIT AND GET ////////////
+    //////////// SUBMIT AND GET
 
     public static <T> T submitAndGet(final ExecutorService executor, final Callable<T> task)
             throws InterruptedException {
@@ -411,7 +411,7 @@ public final class Futures extends AFuturesStaticFacade {
         return getPropagatingNoInterrupt(future);
     }
 
-    //////////// SUBMIT AND GET COLLECTION ////////////
+    //////////// SUBMIT AND GET COLLECTION
 
     public static <T> List<T> submitAndGet(final ExecutorService executor,
             final Collection<? extends Callable<T>> tasks) throws InterruptedException {
@@ -487,7 +487,7 @@ public final class Futures extends AFuturesStaticFacade {
         Assertions.checkNull(getPropagatingNoInterrupt(future));
     }
 
-    //////////// WAIT TIMEOUT UNIT ////////////
+    //////////// WAIT TIMEOUT UNIT
 
     public static <T> void wait(final Future<T> future, final long timeout, final TimeUnit unit)
             throws InterruptedException, TimeoutException {
@@ -519,7 +519,7 @@ public final class Futures extends AFuturesStaticFacade {
         Assertions.checkNull(getPropagatingNoInterrupt(future, timeout, unit));
     }
 
-    //////////// WAIT DURATION ////////////
+    //////////// WAIT DURATION
 
     public static <T> void wait(final Future<T> future, final Duration timeout)
             throws InterruptedException, TimeoutException {
@@ -548,7 +548,7 @@ public final class Futures extends AFuturesStaticFacade {
         Assertions.checkNull(getPropagatingNoInterrupt(future, timeout));
     }
 
-    //////////// WAIT ARRAY ////////////
+    //////////// WAIT ARRAY
 
     @SafeVarargs
     public static <T> void wait(final Future<? extends T>... futures) throws InterruptedException {
@@ -580,7 +580,7 @@ public final class Futures extends AFuturesStaticFacade {
         waitPropagatingNoInterrupt(Arrays.asList(futures));
     }
 
-    //////////// WAIT ITERABLE ////////////
+    //////////// WAIT ITERABLE
 
     public static <T> void wait(final Iterable<? extends Future<? extends T>> futures) throws InterruptedException {
         try {
@@ -650,7 +650,7 @@ public final class Futures extends AFuturesStaticFacade {
         }
     }
 
-    //////////// SUBMIT AND WAIT ////////////
+    //////////// SUBMIT AND WAIT
 
     public static void submitAndWait(final ExecutorService executor, final Runnable task) throws InterruptedException {
         final Future<?> future = executor.submit(task);
@@ -684,7 +684,7 @@ public final class Futures extends AFuturesStaticFacade {
         waitPropagatingNoInterrupt(future);
     }
 
-    ////////////SUBMIT AND WAIT COLLECTION ////////////
+    //////////// SUBMIT AND WAIT COLLECTION
 
     public static void submitAndWait(final ExecutorService executor, final Collection<? extends Runnable> tasks)
             throws InterruptedException {
@@ -731,7 +731,7 @@ public final class Futures extends AFuturesStaticFacade {
         return futures;
     }
 
-    //////////// SUBMIT AND WAIT FAIL FAST COLLECTION ////////////
+    //////////// SUBMIT AND WAIT FAIL FAST COLLECTION
 
     /**
      * Returns with the first exception and aborts remaining tasks. This is useful for caller runs or similar throttled
@@ -784,7 +784,7 @@ public final class Futures extends AFuturesStaticFacade {
         FDate lastFailFastCheck = FDates.MIN_DATE;
         for (final Runnable task : tasks) {
             futures.add(executor.submit(task));
-            if (new Duration(lastFailFastCheck, new FDate()).isGreaterThan(5, FTimeUnit.SECONDS)) {
+            if (new Duration(lastFailFastCheck, FDate.now()).isGreaterThan(5, FTimeUnit.SECONDS)) {
                 //failfast on exceptions
                 for (final Future<?> future : futures) {
                     if (future.isDone()) {
@@ -799,7 +799,7 @@ public final class Futures extends AFuturesStaticFacade {
                         }
                     }
                 }
-                lastFailFastCheck = new FDate();
+                lastFailFastCheck = FDate.now();
             }
         }
         return futures;
@@ -812,7 +812,7 @@ public final class Futures extends AFuturesStaticFacade {
         FDate lastFailFastCheck = FDates.MIN_DATE;
         for (final Runnable task : tasks) {
             futures.add(executor.submit(task));
-            if (new Duration(lastFailFastCheck, new FDate()).isGreaterThan(5, FTimeUnit.SECONDS)) {
+            if (new Duration(lastFailFastCheck, FDate.now()).isGreaterThan(5, FTimeUnit.SECONDS)) {
                 //failfast on exceptions
                 for (final Future<?> future : futures) {
                     if (future.isDone()) {
@@ -827,7 +827,7 @@ public final class Futures extends AFuturesStaticFacade {
                         }
                     }
                 }
-                lastFailFastCheck = new FDate();
+                lastFailFastCheck = FDate.now();
             }
         }
         return futures;
@@ -840,7 +840,7 @@ public final class Futures extends AFuturesStaticFacade {
         FDate lastFailFastCheck = FDates.MIN_DATE;
         for (final Runnable task : tasks) {
             futures.add(executor.submit(task));
-            if (new Duration(lastFailFastCheck, new FDate()).isGreaterThan(5, FTimeUnit.SECONDS)) {
+            if (new Duration(lastFailFastCheck, FDate.now()).isGreaterThan(5, FTimeUnit.SECONDS)) {
                 //failfast on exceptions
                 for (final Future<?> future : futures) {
                     if (future.isDone()) {
@@ -855,7 +855,7 @@ public final class Futures extends AFuturesStaticFacade {
                         }
                     }
                 }
-                lastFailFastCheck = new FDate();
+                lastFailFastCheck = FDate.now();
             }
         }
         return futures;

@@ -16,6 +16,8 @@ import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.time.date.clock.FDateClockNanosInternal;
+import de.invesdwin.util.time.date.clock.IFDateClock;
 import de.invesdwin.util.time.date.millis.FDatesMillis;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
@@ -41,6 +43,7 @@ public final class FDates {
     public static final long MILLISECONDS_IN_SECOND = FTimeUnit.MILLISECONDS_IN_SECOND;
     private static FTimeZone defaultTimeZone;
     private static FTimeZone systemTimeZone;
+    private static IFDateClock defaultClock = FDateClockNanosInternal.INSTANCE;
 
     static {
         final FTimeZone def = new FTimeZone(TimeZone.getDefault());
@@ -64,6 +67,14 @@ public final class FDates {
 
     public static FTimeZone getSystemTimeZone() {
         return systemTimeZone;
+    }
+
+    public static IFDateClock getDefaultClock() {
+        return defaultClock;
+    }
+
+    public static void setDefaultClock(final IFDateClock defaultClock) {
+        FDates.defaultClock = defaultClock;
     }
 
     public static ICloseableIterable<FDate> iterable(final FDate start, final FDate end, final Duration increment) {
@@ -865,7 +876,7 @@ public final class FDates {
 
     public static FDate nullToNow(final FDate time) {
         if (time == null) {
-            return new FDate();
+            return FDate.now();
         } else {
             return time;
         }

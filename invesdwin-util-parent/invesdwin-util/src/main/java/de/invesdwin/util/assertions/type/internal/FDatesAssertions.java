@@ -213,9 +213,9 @@ public class FDatesAssertions extends Dates {
     public void assertIsEqualWithPrecision(final AssertionInfo info, final FDate actual, final FDate other,
             final TimeUnit precision) {
         assertNotNull(info, actual);
-        final Calendar calendarActual = new FDate().calendarValue();
+        final Calendar calendarActual = FDate.now().calendarValue();
         calendarActual.setTime(actual.dateValue());
-        final Calendar calendarOther = new FDate().calendarValue();
+        final Calendar calendarOther = FDate.now().calendarValue();
         calendarOther.setTime(other.dateValue());
         switch (precision) {
         case DAYS:

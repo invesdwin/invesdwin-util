@@ -108,7 +108,7 @@ public class StringsTest {
         private List<PrettyToStringVO> collection;
         private Map<Object, PrettyToStringVO> map;
         private Object nulll;
-        private final FDate date = new FDate();
+        private final FDate date = FDate.now();
         private final transient boolean someInvisibleState = true;
 
         public PrettyToStringVO() {
@@ -161,7 +161,7 @@ public class StringsTest {
                     .add("map", map)
                     //            private Object nulll;
                     .add("nulll", nulll)
-                    //            private final FDate date = new FDate();
+                    //            private final FDate date = FDate.now();
                     .add("date", date)
                     //            private final transient boolean someInvisibleState = true;
                     .add("someInvisibleState", someInvisibleState);

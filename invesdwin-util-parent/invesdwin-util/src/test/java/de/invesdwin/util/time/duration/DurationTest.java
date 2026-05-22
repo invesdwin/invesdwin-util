@@ -37,7 +37,7 @@ public class DurationTest {
 
     @Test
     public void testIsGreaterThanFDate() throws InterruptedException {
-        final FDate start = new FDate().addMinutes(-1);
+        final FDate start = FDate.now().addMinutes(-1);
         Assertions.assertThat(new Duration(start).isGreaterThan(55, FTimeUnit.SECONDS)).isTrue();
         Assertions.assertThat(new Duration(start).isGreaterThan(65, FTimeUnit.SECONDS)).isFalse();
     }
@@ -50,7 +50,7 @@ public class DurationTest {
     @Test
     public void testToString() {
         Assertions.assertThat(new Duration(0, FTimeUnit.DAYS).toString()).isEqualTo("P0");
-        final FDate date = new FDate();
+        final FDate date = FDate.now();
         Assertions.assertThat(new Duration(date, date.addDays(1)).toString()).isEqualTo("P1D");
         Assertions.assertThat(new Duration(date.addDays(1), date).toString()).isEqualTo("-P1D");
         Assertions.assertThat(new Duration(66, FTimeUnit.MINUTES).toString(FTimeUnit.HOURS)).isEqualTo("PT1H");

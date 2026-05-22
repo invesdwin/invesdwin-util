@@ -50,7 +50,7 @@ public abstract class AEstimatedRemainingDuration extends AValueObject {
     }
 
     private Duration getEstimatedFullDuration(final Percent progressPercent) {
-        final FDate curTime = new FDate();
+        final FDate curTime = FDate.now();
         if (new Duration(lastUpdate, curTime).isGreaterThan(Duration.ONE_SECOND)) {
             lastUpdate = curTime;
             final Duration elapsedDuration = getElapsedDuration();

@@ -136,4 +136,8 @@ public final class FDatePicos {
         }
         return picosWithoutOverflow;
     }
+
+    public static boolean isValidPicos(final int picos) {
+        return picos >= 0 && picos <= END_OF_DAY_PICOS;
+    }
 }

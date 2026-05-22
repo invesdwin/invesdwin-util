@@ -649,16 +649,16 @@ public final class FDateMillis {
         return date.getMillis();
     }
 
-    public static long now() {
-        return System.currentTimeMillis();
+    public static long nowMillis() {
+        return FDates.getDefaultClock().nowMillis();
     }
 
     public static long today(final FTimeZone timeZone) {
-        return withoutTime(now(), timeZone);
+        return withoutTime(nowMillis(), timeZone);
     }
 
     public static long today() {
-        return withoutTime(now());
+        return withoutTime(nowMillis());
     }
 
     public static boolean isBefore(final long millis, final long other) {

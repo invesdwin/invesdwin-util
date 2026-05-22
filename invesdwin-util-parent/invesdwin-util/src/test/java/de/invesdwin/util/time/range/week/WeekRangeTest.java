@@ -31,7 +31,7 @@ public class WeekRangeTest {
 
     @Test
     public void testParse() {
-        final FDate sunday = new FDate().setFWeekday(FWeekday.Sunday, WeekAdjustment.PREVIOUS);
+        final FDate sunday = FDate.now().setFWeekday(FWeekday.Sunday, WeekAdjustment.PREVIOUS);
         final WeekRange range = new WeekRange(new FWeekTime(sunday.addDays(-1)), new FWeekTime(sunday));
         final String str = range.toString();
         final WeekRange parsed = WeekRange.valueOf(str);

@@ -26,7 +26,7 @@ public class FDatesTest {
 
     @Test
     public void testApplyTimeZone() {
-        final FDate now = new FDate();
+        final FDate now = FDate.now();
         final FDate utcTime = now.applyTimeZoneOffset(FTimeZone.UTC);
         //CHECKSTYLE:OFF
         System.out.println(

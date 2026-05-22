@@ -45,8 +45,8 @@ import jakarta.persistence.Transient;
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.
  */
 @ThreadSafe
-public class FDate extends Number
-        implements IDate, Serializable, Cloneable, Comparable<Object>, IHistoricalValue<FDate>, IFDateProvider {
+public class FDate extends Number implements IDate, Serializable, Cloneable, Comparable<Object>,
+        IHistoricalValue<FDate>, IFDateProvider, IFDateData {
 
     public static final IComparator<FDate> COMPARATOR = IComparator.getDefaultInstance();
 
@@ -130,11 +130,6 @@ public class FDate extends Number
     @Transient
     private transient Object extension;
 
-    public FDate() {
-        this(System.currentTimeMillis(), 0);
-        //System.out.println("TODO: create via an explicit clock that defines the precision");
-    }
-
     public FDate(final long millis) {
         this(millis, 0);
     }
@@ -159,9 +154,9 @@ public class FDate extends Number
         this.picos = picos;
     }
 
-    protected FDate(final FDate date) {
-        this.millis = date.millis;
-        this.picos = date.picos;
+    public FDate(final IFDateData date) {
+        this.millis = date.millisValue();
+        this.picos = date.picosValue();
     }
 
     public FDate(final long duration, final FTimeUnit timeUnit) {
@@ -247,11 +242,6 @@ public class FDate extends Number
 
     public FDate(final java.time.LocalDateTime javaTime) {
         this(javaTime.atZone(ZoneId.systemDefault()));
-    }
-
-    public FDate(final java.time.Instant javaTime) {
-        this(javaTime.toEpochMilli(),
-                javaTime.getNano() % FTimeUnit.NANOSECONDS_IN_MILLISECOND * FTimeUnit.PICOSECONDS_IN_NANOSECOND);
     }
 
     public FDate(final Calendar calendar) {
@@ -771,6 +761,7 @@ public class FDate extends Number
     /**
      * Returns the number of milliseconds since January 1, 1970, 00:00:00 GMT.
      */
+    @Override
     public long millisValue() {
         return millis;
     }
@@ -779,6 +770,7 @@ public class FDate extends Number
      * Returns the number of picoseconds within the millisecond, i.e. the fraction of the millisecond. E.g. 1
      * microsecond is 1,000,000 picoseconds and 1 nanosecond is 1,000 picoseconds.
      */
+    @Override
     public int picosValue() {
         return picos;
     }
@@ -985,8 +977,21 @@ public class FDate extends Number
         return FDateMillis.javaDateValue(millis, timeZone);
     }
 
-    public static FDate valueOfSeconds(final int seconds) {
-        return new FDate((long) seconds * FTimeUnit.MILLISECONDS_IN_SECOND, 0);
+    public static FDate valueOf(final java.time.Instant instant) {
+        return valueOfEpochSeconds(instant.getEpochSecond(), instant.getNano());
+    }
+
+    public static FDate valueOfEpochSeconds(final long seconds) {
+        final long millis = seconds * FTimeUnit.MILLISECONDS_IN_SECOND;
+        return new FDate(millis, 0);
+    }
+
+    public static FDate valueOfEpochSeconds(final long seconds, final long nanos) {
+        final long picosMaybeOverflow = nanos * FTimeUnit.PICOSECONDS_IN_NANOSECOND;
+        final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+        final int picos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
+        final long millis = seconds * FTimeUnit.MILLISECONDS_IN_SECOND + millisOverflow;
+        return new FDate(millis, picos);
     }
 
     public static FDate valueOf(final long millis) {
@@ -1167,15 +1172,19 @@ public class FDate extends Number
     }
 
     public static FDate now() {
-        return new FDate();
+        return FDates.getDefaultClock().asFDate();
+    }
+
+    public static FDate nowMillis() {
+        return new FDate(FDateMillis.nowMillis(), 0);
     }
 
     public static FDate today(final FTimeZone timeZone) {
-        return new FDate(FDateMillis.today(timeZone), 0);
+        return new FDate(FDateMillis.today(timeZone));
     }
 
     public static FDate today() {
-        return new FDate(FDateMillis.today(), 0);
+        return new FDate(FDateMillis.today());
     }
 
     @Override
@@ -1483,7 +1492,7 @@ public class FDate extends Number
     }
 
     public boolean isWithoutTime() {
-        return millis % FTimeUnit.MILLISECONDS_IN_DAY == 0;
+        return millis % FTimeUnit.MILLISECONDS_IN_DAY == 0 && picos == 0;
     }
 
 }

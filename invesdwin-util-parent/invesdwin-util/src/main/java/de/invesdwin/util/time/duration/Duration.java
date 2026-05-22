@@ -97,11 +97,11 @@ public class Duration extends Number implements Comparable<Object> {
     }
 
     public Duration(final FDate start) {
-        this(start, new FDate(), FTimeUnit.PICOSECONDS);
+        this(start, FDate.now(), FTimeUnit.PICOSECONDS);
     }
 
     public Duration(final FDate start, final FTimeUnit timeUnit) {
-        this(start, new FDate(), timeUnit);
+        this(start, FDate.now(), timeUnit);
     }
 
     public Duration(final FDate start, final FDate end) {

@@ -13,11 +13,16 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.date.clock.FDateClockNanosInternal;
 import de.invesdwin.util.time.date.holiday.HolidayManagers;
+import de.invesdwin.util.time.date.millis.FDatePicos;
 import de.invesdwin.util.time.date.millis.WeekAdjustment;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.date.timezone.TimeZones;
+import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.range.week.FWeekTime;
 
 @NotThreadSafe
@@ -25,9 +30,11 @@ public class FDateTest {
 
     @BeforeAll
     public static void beforeClass() {
+        Reflections.disableJavaModuleSystemRestrictions();
+        FDates.setDefaultClock(FDateClockNanosInternal.INSTANCE);
         final TimeZone newTimeZone = TimeZones.getTimeZone("UTC");
         FDates.setDefaultTimeZone(new FTimeZone(newTimeZone));
-        final FDate curDate = new FDate();
+        final FDate curDate = FDate.now();
         final String dateStr = curDate.toString();
         TimeZone.setDefault(newTimeZone);
         //joda needs another call explicitly since it might have cached the value too early...
@@ -44,7 +51,7 @@ public class FDateTest {
         final String fdateStr = today.toString(FDate.FORMAT_ISO_DATE_TIME);
         Assertions.assertThat(dateStr).isEqualTo(fdateStr);
         Assertions.assertThat(dateStr).endsWith("T00:00:00");
-        System.out.println(new FDate().dateValue()); //SUPPRESS CHECKSTYLE single line
+        System.out.println(FDate.now().dateValue()); //SUPPRESS CHECKSTYLE single line
     }
 
     @Test
@@ -77,7 +84,7 @@ public class FDateTest {
     @Test
     public void testIterable() {
         int iterations = 0;
-        final FDate time = new FDate();
+        final FDate time = FDate.now();
         for (final FDate date : FDates.iterable(time, time, FTimeUnit.DAYS, 1)) {
             System.out.println(String.format("%s", date)); //SUPPRESS CHECKSTYLE single line
             iterations++;
@@ -88,7 +95,7 @@ public class FDateTest {
     @Test
     public void testIterableReverse() {
         int iterations = 0;
-        final FDate time = new FDate();
+        final FDate time = FDate.now();
         for (final FDate date : FDates.iterable(time, time, FTimeUnit.DAYS, -1)) {
             System.out.println(String.format("%s", date)); //SUPPRESS CHECKSTYLE single line
             iterations++;
@@ -307,9 +314,9 @@ public class FDateTest {
     }
 
     @Test
-    public void testParseZoneIdZZ() {
+    public void testParseZoneId_ZZ() {
         final String format = "yyyy-MM-dd'T'HH:mm:ss.SSS.UUU.NNN.PPP ZZ";
-        final FDate time = new FDate();
+        final FDate time = FDate.now();
         final String joda = time.toString(format);
         final String java = FDate.valueOf(time.toString(format, (FTimeZone) null), (FTimeZone) null, null, format)
                 .toString(format);
@@ -317,8 +324,19 @@ public class FDateTest {
     }
 
     @Test
-    public void testParseZoneId() {
-        final FDate time = new FDate();
+    public void testParseZoneId_PS() {
+        final FDate time = FDate.now();
+        final String joda = time.toString();
+        final String java = FDate
+                .valueOf(time.toString(FDate.FORMAT_GERMAN_DATE_TIME_PS, (FTimeZone) null), (FTimeZone) null, null,
+                        FDate.FORMAT_GERMAN_DATE_TIME_PS)
+                .toString();
+        Assertions.assertThat(java).isEqualTo(joda);
+    }
+
+    @Test
+    public void testParseZoneId_MS() {
+        final FDate time = FDate.nowMillis();
         final String joda = time.toString();
         final String java = FDate
                 .valueOf(time.toString(FDate.FORMAT_GERMAN_DATE_TIME_MS, (FTimeZone) null), (FTimeZone) null, null,
@@ -335,7 +353,7 @@ public class FDateTest {
         //CHECKSTYLE:ON
 
         // 1. Snapshot an absolute instant (e.g., current time)
-        final FDate curDate = new FDate();
+        final FDate curDate = FDate.now();
 
         // 2. Get the string representations explicitly for both zones
         final String berlinStr = curDate.toString(FDate.FORMAT_ISO_DATE_TIME_PS, zoneBerlin);
@@ -385,6 +403,50 @@ public class FDateTest {
         Assertions.assertThat(parsedFromBerlinRevertStr).isEqualTo(utcStr);
         Assertions.assertThat(parsedFromBerlinRevert.millisValue()).isEqualTo(parsedFromBerlin.millisValue());
         Assertions.assertThat(parsedFromBerlinRevert.millisValue()).isEqualTo(curDate.millisValue());
+    }
+
+    @Test
+    public void testClock() {
+        final Instant start = new Instant();
+        final FDate startDate = FDate.now();
+        long prevMillis = System.currentTimeMillis();
+        FDate prevNow = startDate;
+        int index = 0;
+        int identical = 0;
+        int unique = 0;
+        while (Duration.ONE_SECOND.isGreaterThan(start)) {
+            final long millisBefore = System.currentTimeMillis();
+            final FDate now = FDate.now();
+            Assertions.checkTrue(now.isAfterOrEqualToNotNullSafe(prevNow),
+                    "now [%s] should be after or equal to prevNow [%s]", now, prevNow);
+            if (now.equalsNotNullSafe(prevNow)) {
+                identical++;
+            } else {
+                unique++;
+            }
+            //CHECKSTYLE:OFF
+            //            System.out.println(
+            //                    index + ": " + now + " identical=" + identical + " unique=" + unique + " duration=" + new Duration(startDate, now));
+            //CHECKSTYLE:ON
+            Assertions.checkTrue(now.millisValue() >= prevMillis, "now millis [%s] should be after prevMillis [%s]",
+                    now.millisValue(), prevMillis);
+            Assertions.checkTrue(FDatePicos.isValidPicos(now.picosValue()), "now picos [%s] should be valid",
+                    now.picosValue());
+            final long millisAfter = System.currentTimeMillis();
+            Assertions.checkTrue(now.millisValue() >= millisBefore, "now millis [%s] should be after millisBefore [%s]",
+                    now.millisValue(), millisBefore);
+            Assertions.checkTrue(now.millisValue() <= millisAfter, "now millis [%s] should be before millisAfter [%s]",
+                    now.millisValue(), millisAfter);
+
+            prevMillis = millisAfter;
+            prevNow = now;
+            index++;
+        }
+        //CHECKSTYLE:OFF
+        System.out.println("From [" + startDate + "] to [" + prevNow + "] over [" + new Duration(startDate, prevNow)
+                + "] there were [" + index + "] iterations with [" + identical + "] identical and [" + unique
+                + "] unique dates.");
+        //CHECKSTYLE:ON
     }
 
 }
