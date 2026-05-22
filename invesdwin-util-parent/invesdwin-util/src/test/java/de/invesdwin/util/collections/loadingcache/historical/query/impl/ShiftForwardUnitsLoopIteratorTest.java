@@ -61,7 +61,7 @@ public class ShiftForwardUnitsLoopIteratorTest {
                 }
 
                 /////////////// minus
-                final FDate requestMinus = request.addMilliseconds(-1);
+                final FDate requestMinus = request.addPicoseconds(-1);
                 final ShiftForwardUnitsLoopIterator<FDate> loopMinus = new ShiftForwardUnitsLoopIterator<FDate>(
                         requestMinus, shiftForwardUnits, (t) -> t, request(requestMinus).iterator());
                 final List<FDate> nextValuesMinus = Lists.toListWithoutHasNext(loopMinus);
@@ -87,7 +87,7 @@ public class ShiftForwardUnitsLoopIteratorTest {
                 }
 
                 ///////// plus
-                final FDate requestPlus = request.addMilliseconds(1);
+                final FDate requestPlus = request.addPicoseconds(1);
                 final ShiftForwardUnitsLoopIterator<FDate> loopPlus = new ShiftForwardUnitsLoopIterator<FDate>(
                         requestPlus, shiftForwardUnits, (t) -> t, request(requestPlus).iterator());
                 final List<FDate> nextValuesPlus = Lists.toListWithoutHasNext(loopPlus);

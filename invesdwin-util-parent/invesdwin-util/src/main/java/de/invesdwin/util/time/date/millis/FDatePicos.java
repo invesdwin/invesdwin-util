@@ -55,7 +55,7 @@ public final class FDatePicos {
         case MICROSECONDS:
             return truncateMicroseconds(picos);
         case NANOSECONDS:
-            return trucateNanoseconds(picos);
+            return truncateNanoseconds(picos);
         case PICOSECONDS:
             return picos;
         default:
@@ -63,7 +63,7 @@ public final class FDatePicos {
         }
     }
 
-    public static int trucateNanoseconds(final int picos) {
+    public static int truncateNanoseconds(final int picos) {
         return picos / FTimeUnit.PICOSECONDS_IN_NANOSECOND * FTimeUnit.PICOSECONDS_IN_NANOSECOND;
     }
 
@@ -139,5 +139,21 @@ public final class FDatePicos {
 
     public static boolean isValidPicos(final int picos) {
         return picos >= 0 && picos <= END_OF_DAY_PICOS;
+    }
+
+    public static boolean isSameMicrosecond(final int picos1, final int picos2) {
+        return truncateMicroseconds(picos1) == truncateMicroseconds(picos2);
+    }
+
+    public static boolean isSameNanosecond(final int picos1, final int picos2) {
+        return truncateNanoseconds(picos1) == truncateNanoseconds(picos2);
+    }
+
+    public static boolean isSamePicosecond(final int picos1, final int picos2) {
+        return picos1 == picos2;
+    }
+
+    public static boolean isSameTruncated(final int picos1, final int picos2, final FTimeUnit field) {
+        return picos1 == picos2 || truncate(picos1, field) == truncate(picos2, field);
     }
 }

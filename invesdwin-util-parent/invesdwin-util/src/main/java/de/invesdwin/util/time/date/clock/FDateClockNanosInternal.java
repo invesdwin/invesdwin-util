@@ -79,4 +79,9 @@ public final class FDateClockNanosInternal implements IFDateClock {
         return System.currentTimeMillis();
     }
 
+    @Override
+    public FTimeUnit getPrecision() {
+        return FTimeUnit.NANOSECONDS;
+    }
+
 }

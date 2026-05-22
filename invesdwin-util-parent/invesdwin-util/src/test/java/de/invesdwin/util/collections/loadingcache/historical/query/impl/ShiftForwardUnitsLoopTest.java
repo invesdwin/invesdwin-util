@@ -55,7 +55,7 @@ public class ShiftForwardUnitsLoopTest {
                 }
 
                 /////////////// minus
-                final FDate requestMinus = request.addMilliseconds(-1);
+                final FDate requestMinus = request.addPicoseconds(-1);
                 final ShiftForwardUnitsLoop<FDate> loopMinus = new ShiftForwardUnitsLoop<FDate>(requestMinus,
                         shiftForwardUnits, (t) -> t);
                 loopMinus.loop(request(requestMinus));
@@ -75,7 +75,7 @@ public class ShiftForwardUnitsLoopTest {
                 }
 
                 ///////// plus
-                final FDate requestPlus = request.addMilliseconds(1);
+                final FDate requestPlus = request.addPicoseconds(1);
                 final ShiftForwardUnitsLoop<FDate> loopPlus = new ShiftForwardUnitsLoop<FDate>(requestPlus,
                         shiftForwardUnits, (t) -> t);
                 loopPlus.loop(request(requestPlus));

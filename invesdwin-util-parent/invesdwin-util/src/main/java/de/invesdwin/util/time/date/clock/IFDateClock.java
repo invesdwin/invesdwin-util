@@ -1,6 +1,7 @@
 package de.invesdwin.util.time.date.clock;
 
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.date.IFDateProvider;
 
 public interface IFDateClock extends IFDateProvider {
@@ -18,5 +19,7 @@ public interface IFDateClock extends IFDateProvider {
     default FDate asFDate() {
         return now();
     }
+
+    FTimeUnit getPrecision();
 
 }

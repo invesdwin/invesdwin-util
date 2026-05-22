@@ -54,9 +54,9 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<IHistoricalEntry<V
         final IHistoricalEntry<V> highestEntryFirst = cList.get(highestIndexFirst);
         final int lowestIndexLast = cList.size() - 1;
         final IHistoricalEntry<V> lowestEntryLast = cList.get(lowestIndexLast);
-        if (highestEntryFirst.getKey().isBefore(lowestEntryLast.getKey())) {
+        if (highestEntryFirst.getKey().isBeforeNotNullSafe(lowestEntryLast.getKey())) {
             return filterAllowedElementsReverse(cList);
-        } else if (highestEntryFirst.getKey().equals(lowestEntryLast.getKey())) {
+        } else if (highestEntryFirst.getKey().equalsNotNullSafe(lowestEntryLast.getKey())) {
             final IHistoricalEntry<V> onlyEntry = cList.get(0);
             if (isAddAllowed(onlyEntry)) {
                 @SuppressWarnings("unchecked")
@@ -105,7 +105,7 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<IHistoricalEntry<V
             final IHistoricalEntry<V> highestEntryFirst, final int highestIndexFirst, final int lowestIndexLast) {
         final boolean newMaxEntry;
         Integer maxIndex = null;
-        if (maxEntry == null || maxEntry.getKey().isBefore(highestEntryFirst.getKey())) {
+        if (maxEntry == null || maxEntry.getKey().isBeforeNotNullSafe(highestEntryFirst.getKey())) {
             maxEntry = highestEntryFirst;
             maxIndex = highestIndexFirst;
             newMaxEntry = true;
@@ -115,7 +115,7 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<IHistoricalEntry<V
         //from 0 until cList.size()-1
         for (int i = highestIndexFirst; i < lowestIndexLast; i++) {
             final IHistoricalEntry<V> curEntry = cList.get(i);
-            if (maxEntry.getKey().isAfter(curEntry.getKey())) {
+            if (maxEntry.getKey().isAfterNotNullSafe(curEntry.getKey())) {
                 maxIndex = i;
                 if (newMaxEntry) {
                     maxIndex--;
@@ -130,7 +130,7 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<IHistoricalEntry<V
             final IHistoricalEntry<V> highestEntryLast, final int highestIndexLast, final int lowestIndexFirst) {
         final boolean newMaxEntry;
         Integer maxIndex = null;
-        if (maxEntry == null || maxEntry.getKey().isBefore(highestEntryLast.getKey())) {
+        if (maxEntry == null || maxEntry.getKey().isBeforeNotNullSafe(highestEntryLast.getKey())) {
             maxEntry = highestEntryLast;
             maxIndex = highestIndexLast;
             newMaxEntry = true;
@@ -141,7 +141,7 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<IHistoricalEntry<V
         //from lowstIndexLast until highestIndexFirst
         for (int i = highestIndexLast; i >= lowestIndexFirst; i--) {
             final IHistoricalEntry<V> curEntry = cList.get(i);
-            if (maxEntry.getKey().isAfter(curEntry.getKey())) {
+            if (maxEntry.getKey().isAfterNotNullSafe(curEntry.getKey())) {
                 maxIndex = i;
                 if (newMaxEntry) {
                     maxIndex++;
@@ -156,7 +156,7 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<IHistoricalEntry<V
             final int highestIndexFirst, final int lowestIndexLast) {
         final boolean newMinEntry;
         Integer minIndex = null;
-        if (minEntry == null || minEntry.getKey().isAfter(lowestEntryLast.getKey())) {
+        if (minEntry == null || minEntry.getKey().isAfterNotNullSafe(lowestEntryLast.getKey())) {
             minEntry = lowestEntryLast;
             minIndex = lowestIndexLast;
             newMinEntry = true;
@@ -167,7 +167,7 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<IHistoricalEntry<V
         //from lowstIndexLast until highestIndexFirst
         for (int i = lowestIndexLast; i >= highestIndexFirst; i--) {
             final IHistoricalEntry<V> curEntry = cList.get(i);
-            if (minEntry.getKey().isBefore(curEntry.getKey())) {
+            if (minEntry.getKey().isBeforeNotNullSafe(curEntry.getKey())) {
                 minIndex = i;
                 if (newMinEntry) {
                     minIndex++;
@@ -182,7 +182,7 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<IHistoricalEntry<V
             final IHistoricalEntry<V> lowestEntryLast, final int highestIndexFirst, final int lowestIndexLast) {
         final boolean newMinEntry;
         Integer minIndex = null;
-        if (minEntry == null || minEntry.getKey().isAfter(lowestEntryLast.getKey())) {
+        if (minEntry == null || minEntry.getKey().isAfterNotNullSafe(lowestEntryLast.getKey())) {
             minEntry = lowestEntryLast;
             minIndex = lowestIndexLast;
             newMinEntry = true;
@@ -193,7 +193,7 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<IHistoricalEntry<V
         //from 0 until cList.size()-1
         for (int i = lowestIndexLast; i < highestIndexFirst; i++) {
             final IHistoricalEntry<V> curEntry = cList.get(i);
-            if (minEntry.getKey().isBefore(curEntry.getKey())) {
+            if (minEntry.getKey().isBeforeNotNullSafe(curEntry.getKey())) {
                 minIndex = i;
                 if (newMinEntry) {
                     minIndex--;
@@ -217,12 +217,12 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<IHistoricalEntry<V
             maxEntry = e;
             return true;
         } else {
-            if (e.getKey().equals(minEntry.getKey()) || e.getKey().equals(maxEntry.getKey())) {
+            if (e.getKey().equalsNotNullSafe(minEntry.getKey()) || e.getKey().equalsNotNullSafe(maxEntry.getKey())) {
                 return false;
             } else {
-                if (e.getKey().isBefore(minEntry.getKey())) {
+                if (e.getKey().isBeforeNotNullSafe(minEntry.getKey())) {
                     minEntry = e;
-                } else if (e.getKey().isAfter(maxEntry.getKey())) {
+                } else if (e.getKey().isAfterNotNullSafe(maxEntry.getKey())) {
                     maxEntry = e;
                 }
                 return true;

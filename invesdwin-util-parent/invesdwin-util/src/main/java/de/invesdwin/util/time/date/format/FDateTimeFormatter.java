@@ -238,6 +238,11 @@ public final class FDateTimeFormatter {
             return;
         }
 
+        if (!FDatePicos.isValidPicos(picos)) {
+            throw new IllegalArgumentException(
+                    "Picos value out of range [0 to " + FDatePicos.END_OF_DAY_PICOS + "]: " + picos);
+        }
+
         for (int t = 0; t < parseTokens.length; t++) {
             final ParseToken token = parseTokens[t];
             int value = token.extractor.applyAsInt(picos);

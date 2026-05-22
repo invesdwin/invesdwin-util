@@ -235,41 +235,41 @@ public final class FDateMillis {
         return newMillis;
     }
 
-    public static long addYears(final long millis, final int years, final FTimeZone timeZone) {
+    public static long addYears(final long millis, final long years, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(millis, timeZone);
         return revertTimeZoneOffset(addYears(applyTimeZoneOffset(millis, offset), years), offset);
     }
 
-    public static long addYears(final long millis, final int years) {
+    public static long addYears(final long millis, final long years) {
         return add(millis, FTimeUnit.YEARS, years);
     }
 
-    public static long addMonths(final long millis, final int months, final FTimeZone timeZone) {
+    public static long addMonths(final long millis, final long months, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(millis, timeZone);
         return revertTimeZoneOffset(addMonths(applyTimeZoneOffset(millis, offset), months), offset);
     }
 
-    public static long addMonths(final long millis, final int months) {
+    public static long addMonths(final long millis, final long months) {
         return add(millis, FTimeUnit.MONTHS, months);
     }
 
-    public static long addWeeks(final long millis, final int weeks) {
+    public static long addWeeks(final long millis, final long weeks) {
         return addDays(millis, weeks * FTimeUnit.DAYS_IN_WEEK);
     }
 
-    public static long addDays(final long millis, final int days) {
+    public static long addDays(final long millis, final long days) {
         return addMilliseconds(millis, FDates.MILLISECONDS_IN_DAY * days);
     }
 
-    public static long addHours(final long millis, final int hours) {
+    public static long addHours(final long millis, final long hours) {
         return addMilliseconds(millis, FDates.MILLISECONDS_IN_HOUR * hours);
     }
 
-    public static long addMinutes(final long millis, final int minutes) {
+    public static long addMinutes(final long millis, final long minutes) {
         return addMilliseconds(millis, FDates.MILLISECONDS_IN_MINUTE * minutes);
     }
 
-    public static long addSeconds(final long millis, final int seconds) {
+    public static long addSeconds(final long millis, final long seconds) {
         return addMilliseconds(millis, FDates.MILLISECONDS_IN_SECOND * seconds);
     }
 

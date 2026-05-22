@@ -73,12 +73,12 @@ public class FDateTest {
         final FDate monday = FDateBuilder.newDate(2015, 8, 10);
         Assertions.assertThat(monday.getFWeekday()).isEqualTo(FWeekday.Monday);
         Assertions.assertThat(FDates.isSameWeek(wednesday, monday)).isTrue();
-        Assertions.assertThat(FDates.isSameWeek(wednesday, monday.addMilliseconds(-1))).isFalse();
+        Assertions.assertThat(FDates.isSameWeek(wednesday, monday.addPicoseconds(-1))).isFalse();
 
-        final FDate sunday = FDateBuilder.newDate(2015, 8, 16).addDays(1).addMilliseconds(-1);
+        final FDate sunday = FDateBuilder.newDate(2015, 8, 16).addDays(1).addPicoseconds(-1);
         Assertions.assertThat(sunday.getFWeekday()).isEqualTo(FWeekday.Sunday);
         Assertions.assertThat(FDates.isSameWeek(wednesday, sunday)).isTrue();
-        Assertions.assertThat(FDates.isSameWeek(wednesday, sunday.addMilliseconds(1))).isFalse();
+        Assertions.assertThat(FDates.isSameWeek(wednesday, sunday.addPicoseconds(1))).isFalse();
     }
 
     @Test
@@ -174,7 +174,7 @@ public class FDateTest {
     @Test
     public void testIterateDays() {
         final FDate fromDate = FDateBuilder.newDate(2000, 1, 1);
-        final FDate toDate = fromDate.addDays(1).addMilliseconds(-1);
+        final FDate toDate = fromDate.addDays(1).addPicoseconds(-1);
         final ICloseableIterator<FDate> iterator = FDates.iterable(fromDate, toDate, FTimeUnit.DAYS, 1).iterator();
         final FDate next = iterator.next();
         Assertions.assertThat(next).isEqualTo(fromDate);

@@ -532,7 +532,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private FDate determineEaliestStartOfLoadFurtherValues(final FDate key) {
         //1 day is fine for most cases
         final long readBackStepMillis = cacheMissCounter.getOptimalReadBackStepMillis();
-        return key.addMillisecondss(-readBackStepMillis);
+        return key.addMilliseconds(-readBackStepMillis);
     }
 
     protected long getInitialReadBackStepMillis() {

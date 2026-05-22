@@ -18,6 +18,7 @@ import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.date.clock.FDateClockNanosInternal;
 import de.invesdwin.util.time.date.clock.IFDateClock;
+import de.invesdwin.util.time.date.millis.FDatePicos;
 import de.invesdwin.util.time.date.millis.FDatesMillis;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
@@ -82,7 +83,7 @@ public final class FDates {
     }
 
     public static ICloseableIterable<FDate> iterable(final FDate start, final FDate end, final FTimeUnit timeUnit,
-            final int incrementAmount) {
+            final long incrementAmount) {
         return new FDateIterable(start, end, timeUnit, incrementAmount);
     }
 
@@ -92,7 +93,7 @@ public final class FDates {
     }
 
     public static ICloseableIterable<FDate> iterableNoThrow(final FDate start, final FDate end,
-            final FTimeUnit timeUnit, final int incrementAmount) {
+            final FTimeUnit timeUnit, final long incrementAmount) {
         if (incrementAmount == 0) {
             return EmptyCloseableIterable.getInstance();
         } else if (start.isBeforeNotNullSafe(end) && incrementAmount < 0) {
@@ -108,10 +109,10 @@ public final class FDates {
         private final FDate startFinal;
         private final FDate endFinal;
         private final FTimeUnit timeUnit;
-        private final int incrementAmount;
+        private final long incrementAmount;
 
         FDateIterable(final FDate startFinal, final FDate endFinal, final FTimeUnit timeUnit,
-                final int incrementAmount) {
+                final long incrementAmount) {
             this.startFinal = startFinal;
             this.endFinal = endFinal;
             this.timeUnit = timeUnit;
@@ -467,7 +468,34 @@ public final class FDates {
         if (date1 == null || date2 == null) {
             return false;
         } else {
-            return date1.millisValue() == date2.millisValue();
+            return FDatesMillis.isSameMillisecond(date1.millisValue(), date2.millisValue());
+        }
+    }
+
+    public static boolean isSameMicrosecond(final FDate date1, final FDate date2) {
+        if (date1 == null || date2 == null) {
+            return false;
+        } else {
+            return date1.millisValue() == date2.millisValue()
+                    && FDatePicos.isSameMicrosecond(date1.picosValue(), date2.picosValue());
+        }
+    }
+
+    public static boolean isSameNanosecond(final FDate date1, final FDate date2) {
+        if (date1 == null || date2 == null) {
+            return false;
+        } else {
+            return date1.millisValue() == date2.millisValue()
+                    && FDatePicos.isSameNanosecond(date1.picosValue(), date2.picosValue());
+        }
+    }
+
+    public static boolean isSamePicosecond(final FDate date1, final FDate date2) {
+        if (date1 == null || date2 == null) {
+            return false;
+        } else {
+            return FDatesMillis.isSameMillisecond(date1.millisValue(), date2.millisValue())
+                    && FDatePicos.isSamePicosecond(date1.picosValue(), date2.picosValue());
         }
     }
 

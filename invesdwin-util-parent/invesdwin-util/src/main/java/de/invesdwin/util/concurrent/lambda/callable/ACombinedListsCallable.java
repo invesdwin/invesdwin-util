@@ -31,7 +31,7 @@ public abstract class ACombinedListsCallable<E> implements Callable<List<E>> {
 
         for (final E l : lower) {
             final FDate lTime = extractTime(l);
-            if (lTime.isBefore(firstTimeHigher)) {
+            if (lTime.isBeforeNotNullSafe(firstTimeHigher)) {
                 combined.add(l);
             } else {
                 break;

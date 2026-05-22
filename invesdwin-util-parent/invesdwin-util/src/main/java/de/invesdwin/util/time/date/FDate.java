@@ -428,73 +428,67 @@ public class FDate extends Number implements IDate, Serializable, Cloneable, Com
         return new FDate(FDateMillis.setMillisecond(millis, millisecond), picos);
     }
 
-    public FDate addYears(final int years, final FTimeZone timeZone) {
+    public FDate addYears(final long years, final FTimeZone timeZone) {
         if (years == 0) {
             return this;
         }
         return new FDate(FDateMillis.addYears(millis, years, timeZone), picos);
     }
 
-    public FDate addYears(final int years) {
+    public FDate addYears(final long years) {
         if (years == 0) {
             return this;
         }
         return new FDate(FDateMillis.addYears(millis, years), picos);
     }
 
-    public FDate addMonths(final int months, final FTimeZone timeZone) {
+    public FDate addMonths(final long months, final FTimeZone timeZone) {
         if (months == 0) {
             return this;
         }
         return new FDate(FDateMillis.addMonths(millis, months, timeZone), picos);
     }
 
-    public FDate addMonths(final int months) {
+    public FDate addMonths(final long months) {
         if (months == 0) {
             return this;
         }
         return new FDate(FDateMillis.addMonths(millis, months), picos);
     }
 
-    public FDate addWeeks(final int weeks) {
+    public FDate addWeeks(final long weeks) {
         if (weeks == 0) {
             return this;
         }
         return new FDate(FDateMillis.addWeeks(millis, weeks), picos);
     }
 
-    public FDate addDays(final int days) {
+    public FDate addDays(final long days) {
         if (days == 0) {
             return this;
         }
         return new FDate(FDateMillis.addDays(millis, days), picos);
     }
 
-    public FDate addHours(final int hours) {
+    public FDate addHours(final long hours) {
         if (hours == 0) {
             return this;
         }
         return new FDate(FDateMillis.addHours(millis, hours), picos);
     }
 
-    public FDate addMinutes(final int minutes) {
+    public FDate addMinutes(final long minutes) {
         if (minutes == 0) {
             return this;
         }
         return new FDate(FDateMillis.addMinutes(millis, minutes), picos);
     }
 
-    public FDate addSeconds(final int seconds) {
+    public FDate addSeconds(final long seconds) {
         if (seconds == 0) {
             return this;
         }
         return new FDate(FDateMillis.addSeconds(millis, seconds), picos);
-    }
-
-    @Deprecated
-    public FDate addMillisecondss(final long milliseconds) {
-        //System.out.println("TODO");
-        return addMilliseconds(milliseconds);
     }
 
     public FDate addMilliseconds(final long milliseconds) {
@@ -1172,7 +1166,7 @@ public class FDate extends Number implements IDate, Serializable, Cloneable, Com
     }
 
     public static FDate now() {
-        return FDates.getDefaultClock().asFDate();
+        return FDates.getDefaultClock().now();
     }
 
     public static FDate nowMillis() {
@@ -1189,7 +1183,7 @@ public class FDate extends Number implements IDate, Serializable, Cloneable, Com
 
     @Override
     public int hashCode() {
-        return Long.hashCode(millis);
+        return Long.hashCode(millis) + 31 * Integer.hashCode(picos);
     }
 
     @Override
