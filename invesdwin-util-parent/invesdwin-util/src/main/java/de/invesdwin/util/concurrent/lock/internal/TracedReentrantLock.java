@@ -169,4 +169,9 @@ public class TracedReentrantLock implements IReentrantLock {
     public ILockTrace getLockTrace() {
         return lockTrace;
     }
+
+    @Override
+    public boolean isDisabled() {
+        return delegate.isDisabled();
+    }
 }

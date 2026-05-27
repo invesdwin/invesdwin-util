@@ -140,7 +140,7 @@ public final class FDates {
 
                     @Override
                     public boolean hasNext() {
-                        return first || spot.isBefore(endFinal);
+                        return first || spot.isBeforeNotNullSafe(endFinal);
                     }
 
                     @Override
@@ -891,7 +891,7 @@ public final class FDates {
                     break;
                 }
                 final FDate nextToKey = toKeys[nextToKeyIndex];
-                if (nextToKey.isBeforeOrEqualTo(fromKey)) {
+                if (nextToKey.isBeforeOrEqualToNotNullSafe(fromKey)) {
                     toKeyIndex = nextToKeyIndex;
                 } else {
                     break;

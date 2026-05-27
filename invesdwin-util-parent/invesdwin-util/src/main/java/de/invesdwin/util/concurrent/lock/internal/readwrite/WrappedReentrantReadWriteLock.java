@@ -121,4 +121,9 @@ public class WrappedReentrantReadWriteLock implements IReentrantReadWriteLock {
         return writeLock.getLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return false;
+    }
+
 }

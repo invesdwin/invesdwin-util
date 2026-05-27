@@ -84,7 +84,7 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<IHistoricalEntry<V
         final IHistoricalEntry<V> highestEntryLast = cList.get(highestIndexLast);
         final int lowestIndexFirst = 0;
         final IHistoricalEntry<V> lowestEntryFirst = cList.get(lowestIndexFirst);
-        if (highestEntryLast.getKey().isBeforeOrEqualTo(lowestEntryFirst.getKey())) {
+        if (highestEntryLast.getKey().isBeforeOrEqualToNotNullSafe(lowestEntryFirst.getKey())) {
             throw new IllegalArgumentException("Expecting ascending order: first[" + lowestEntryFirst.getKey()
                     + "] < last[" + highestEntryLast.getKey() + "]");
         }

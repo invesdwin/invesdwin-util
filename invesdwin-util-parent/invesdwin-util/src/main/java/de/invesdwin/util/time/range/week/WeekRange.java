@@ -151,7 +151,7 @@ public class WeekRange extends AValueObject implements IWeekRangeData {
         }
         final FDate weekendFrom = time.setFWeekTime(from, WeekAdjustment.PREVIOUS);
         FDate weekendTo = time.setFWeekTime(to, WeekAdjustment.PREVIOUS);
-        if (weekendTo.isBeforeOrEqualTo(weekendFrom)) {
+        if (weekendTo.isBeforeOrEqualToNotNullSafe(weekendFrom)) {
             weekendTo = weekendTo.addWeeks(1);
         }
         return FDates.isBetweenInclusiveNotNullSafe(time, weekendFrom, weekendTo);
@@ -170,7 +170,7 @@ public class WeekRange extends AValueObject implements IWeekRangeData {
         }
         final FDate weekendFrom = time.setFWeekTime(from, WeekAdjustment.PREVIOUS);
         FDate weekendTo = time.setFWeekTime(to, WeekAdjustment.PREVIOUS);
-        if (weekendTo.isBeforeOrEqualTo(weekendFrom)) {
+        if (weekendTo.isBeforeOrEqualToNotNullSafe(weekendFrom)) {
             weekendTo = weekendTo.addWeeks(1);
         }
         return FDates.isBetweenExclusiveNotNullSafe(time, weekendFrom, weekendTo);

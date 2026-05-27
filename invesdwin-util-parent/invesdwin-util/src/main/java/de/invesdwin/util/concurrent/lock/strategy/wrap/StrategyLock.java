@@ -100,4 +100,9 @@ public final class StrategyLock implements ILock {
         return delegate.getLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return delegate.isDisabled() || strategy.isDisabled();
+    }
+
 }

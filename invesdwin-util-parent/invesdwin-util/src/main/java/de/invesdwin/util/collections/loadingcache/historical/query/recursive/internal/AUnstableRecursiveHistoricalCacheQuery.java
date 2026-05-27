@@ -267,8 +267,8 @@ public abstract class AUnstableRecursiveHistoricalCacheQuery<V> implements IRecu
         final Optional<V> cachedResult = cachedRecursionResults.get(previousKey);
         if (cachedResult != null) {
             return cachedResult.orElse(null);
-        } else if (previousKey.isBeforeOrEqualTo(firstRecursionKey) || lastRecursionKey.equals(firstAvailableKey)
-                || key.equals(previousKey)) {
+        } else if (previousKey.isBeforeOrEqualToNotNullSafe(firstRecursionKey)
+                || lastRecursionKey.equalsNotNullSafe(firstAvailableKey) || key.equalsNotNullSafe(previousKey)) {
             return getInitialValue(previousKey);
         } else {
             throw new ResetCacheRuntimeException(parent + ": the values between " + firstRecursionKey + " and "

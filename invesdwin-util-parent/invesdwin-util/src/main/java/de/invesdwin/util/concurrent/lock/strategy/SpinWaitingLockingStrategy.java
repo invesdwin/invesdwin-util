@@ -61,4 +61,9 @@ public final class SpinWaitingLockingStrategy implements ILockingStrategy {
         }
     }
 
+    @Override
+    public boolean isDisabled() {
+        return false;
+    }
+
 }

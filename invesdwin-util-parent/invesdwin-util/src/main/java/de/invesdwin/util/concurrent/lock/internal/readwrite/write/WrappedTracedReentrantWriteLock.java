@@ -165,4 +165,9 @@ public class WrappedTracedReentrantWriteLock implements IReentrantWriteLock {
         return lockTrace;
     }
 
+    @Override
+    public boolean isDisabled() {
+        return false;
+    }
+
 }

@@ -70,7 +70,7 @@ public abstract class ANonRecursivePullingHistoricalCacheAdjustKeyProvider
                 clear();
             }
 
-            if (purge || curHighestAllowedKeyCopy.isBefore(newHighestAllowedKey)) {
+            if (purge || curHighestAllowedKeyCopy.isBeforeNotNullSafe(newHighestAllowedKey)) {
                 curHighestAllowedKey = newHighestAllowedKey;
                 prevHighestAllowedKey = curHighestAllowedKeyCopy;
             }

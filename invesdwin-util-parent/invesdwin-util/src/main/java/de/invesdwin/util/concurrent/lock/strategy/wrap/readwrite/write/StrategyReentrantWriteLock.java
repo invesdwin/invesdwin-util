@@ -101,4 +101,9 @@ public final class StrategyReentrantWriteLock implements IReentrantWriteLock {
         return delegate.getLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return delegate.isDisabled() || strategy.isDisabled();
+    }
+
 }

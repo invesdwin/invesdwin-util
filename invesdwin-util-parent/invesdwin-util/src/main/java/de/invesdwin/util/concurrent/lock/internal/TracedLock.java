@@ -144,4 +144,9 @@ public final class TracedLock implements ILock {
         return lockTrace;
     }
 
+    @Override
+    public boolean isDisabled() {
+        return delegate.isDisabled();
+    }
+
 }

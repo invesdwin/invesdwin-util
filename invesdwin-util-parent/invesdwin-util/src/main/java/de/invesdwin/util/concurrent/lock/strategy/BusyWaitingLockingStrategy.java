@@ -61,4 +61,9 @@ public final class BusyWaitingLockingStrategy implements ILockingStrategy {
         }
     }
 
+    @Override
+    public boolean isDisabled() {
+        return false;
+    }
+
 }

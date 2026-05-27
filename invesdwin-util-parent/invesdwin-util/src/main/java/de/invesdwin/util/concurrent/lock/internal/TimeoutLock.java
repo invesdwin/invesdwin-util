@@ -90,4 +90,9 @@ public final class TimeoutLock implements ILock {
         return delegate.getLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return delegate.isDisabled();
+    }
+
 }

@@ -84,4 +84,9 @@ public class TimeoutReadWriteLock implements IReadWriteLock {
         return delegate.getLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return delegate.isDisabled();
+    }
+
 }

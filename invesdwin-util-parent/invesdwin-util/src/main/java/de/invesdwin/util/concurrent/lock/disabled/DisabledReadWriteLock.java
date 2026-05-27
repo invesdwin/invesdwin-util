@@ -59,4 +59,9 @@ public class DisabledReadWriteLock implements IReadWriteLock {
         return Locks.getDefaultLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return true;
+    }
+
 }

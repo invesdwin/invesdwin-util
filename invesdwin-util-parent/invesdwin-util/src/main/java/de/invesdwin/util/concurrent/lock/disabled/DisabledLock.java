@@ -75,4 +75,9 @@ public class DisabledLock implements ILock {
         return Locks.getDefaultLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return true;
+    }
+
 }

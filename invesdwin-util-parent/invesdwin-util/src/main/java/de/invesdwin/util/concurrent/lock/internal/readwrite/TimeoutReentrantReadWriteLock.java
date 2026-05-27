@@ -131,4 +131,8 @@ public class TimeoutReentrantReadWriteLock implements IReentrantReadWriteLock {
         return delegate.getLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return delegate.isDisabled();
+    }
 }

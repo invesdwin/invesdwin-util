@@ -13,4 +13,6 @@ public interface ILockingStrategy {
 
     boolean tryLock(Lock lock, long time, TimeUnit unit) throws InterruptedException;
 
+    boolean isDisabled();
+
 }

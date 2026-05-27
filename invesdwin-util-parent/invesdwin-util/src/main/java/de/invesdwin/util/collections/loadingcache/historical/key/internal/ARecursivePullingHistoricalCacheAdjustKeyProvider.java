@@ -90,7 +90,7 @@ public abstract class ARecursivePullingHistoricalCacheAdjustKeyProvider implemen
                 clear();
             }
 
-            if (purge || curHighestAllowedKeyCopy.isBefore(newHighestAllowedKey)) {
+            if (purge || curHighestAllowedKeyCopy.isBeforeNotNullSafe(newHighestAllowedKey)) {
                 for (final FDate keyToRemove : keysToRemoveOnNewHighestAllowedKey) {
                     //only parent will actually be used to search without being adjusted
                     //and we don't want to keep references to all those others using this properly
@@ -137,7 +137,8 @@ public abstract class ARecursivePullingHistoricalCacheAdjustKeyProvider implemen
     }
 
     private void rememberKeyToRemove(final FDate key) {
-        if (curHighestAllowedKey != null && key.isAfter(curHighestAllowedKey)) {
+        final FDate curHighestAllowedKeyCopy = curHighestAllowedKey;
+        if (curHighestAllowedKeyCopy != null && key.isAfterNotNullSafe(curHighestAllowedKeyCopy)) {
             keysToRemoveOnNewHighestAllowedKey.add(key);
         }
     }

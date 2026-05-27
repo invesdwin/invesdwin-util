@@ -98,4 +98,9 @@ public class WrappedReadLock implements ILock {
         return Locks.getDefaultLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return false;
+    }
+
 }
