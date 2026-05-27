@@ -29,7 +29,8 @@ public abstract class ACombinedListsCallable<E> implements Callable<List<E>> {
 
         final List<E> combined = new ArrayList<E>();
 
-        for (final E l : lower) {
+        for (int i = 0; i < lower.size(); i++) {
+            final E l = lower.get(i);
             final FDate lTime = extractTime(l);
             if (lTime.isBeforeNotNullSafe(firstTimeHigher)) {
                 combined.add(l);

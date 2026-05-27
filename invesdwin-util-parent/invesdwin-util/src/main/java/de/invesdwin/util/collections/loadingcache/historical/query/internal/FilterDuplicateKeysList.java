@@ -59,7 +59,6 @@ public class FilterDuplicateKeysList<V> extends ADelegateList<IHistoricalEntry<V
         } else if (highestEntryFirst.getKey().equalsNotNullSafe(lowestEntryLast.getKey())) {
             final IHistoricalEntry<V> onlyEntry = cList.get(0);
             if (isAddAllowed(onlyEntry)) {
-                @SuppressWarnings("unchecked")
                 final List<IHistoricalEntry<V>> onlyEntryList = Arrays.asList(onlyEntry);
                 return onlyEntryList;
             } else {
