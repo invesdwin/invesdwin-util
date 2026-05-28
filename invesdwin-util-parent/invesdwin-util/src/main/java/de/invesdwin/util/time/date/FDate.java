@@ -1,7 +1,6 @@
 package de.invesdwin.util.time.date;
 
 import java.io.Serializable;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -12,8 +11,10 @@ import java.util.Locale;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.ReadableDateTime;
+import org.joda.time.ReadablePartial;
 
 import de.invesdwin.norva.marker.IDate;
 import de.invesdwin.util.collections.Arrays;
@@ -113,8 +114,19 @@ public class FDate extends Number implements IDate, Serializable, Cloneable, Com
     public static final String FORMAT_UNDERSCORE_DATE_TIME_MINUTE = FORMAT_UNDERSCORE_DATE + "_"
             + FORMAT_UNDERSCORE_TIME_MINUTE;
     public static final String FORMAT_UNDERSCORE_TIME = FORMAT_UNDERSCORE_TIME_MINUTE + "_ss";
+    public static final String FORMAT_UNDERSCORE_TIME_MS = FORMAT_UNDERSCORE_TIME + "_SSS";
+    public static final String FORMAT_UNDERSCORE_TIME_US = FORMAT_UNDERSCORE_TIME_MS + "_UUU";
+    public static final String FORMAT_UNDERSCORE_TIME_NS = FORMAT_UNDERSCORE_TIME_US + "_NNN";
+    public static final String FORMAT_UNDERSCORE_TIME_PS = FORMAT_UNDERSCORE_TIME_NS + "_PPP";
     public static final String FORMAT_UNDERSCORE_DATE_TIME = FORMAT_UNDERSCORE_DATE + "_" + FORMAT_UNDERSCORE_TIME;
-    public static final String FORMAT_UNDERSCORE_DATE_TIME_MS = FORMAT_UNDERSCORE_DATE_TIME + "_SSS";
+    public static final String FORMAT_UNDERSCORE_DATE_TIME_MS = FORMAT_UNDERSCORE_DATE + "_"
+            + FORMAT_UNDERSCORE_TIME_MS;
+    public static final String FORMAT_UNDERSCORE_DATE_TIME_US = FORMAT_UNDERSCORE_DATE + "_"
+            + FORMAT_UNDERSCORE_TIME_US;
+    public static final String FORMAT_UNDERSCORE_DATE_TIME_NS = FORMAT_UNDERSCORE_DATE + "_"
+            + FORMAT_UNDERSCORE_TIME_NS;
+    public static final String FORMAT_UNDERSCORE_DATE_TIME_PS = FORMAT_UNDERSCORE_DATE + "_"
+            + FORMAT_UNDERSCORE_TIME_PS;
 
     public static final String FORMAT_GERMAN_DATE = "dd.MM.yyyy";
     public static final String FORMAT_GERMAN_DATE_TIME = FORMAT_GERMAN_DATE + " " + FORMAT_ISO_TIME;
@@ -229,27 +241,39 @@ public class FDate extends Number implements IDate, Serializable, Cloneable, Com
     }
 
     public FDate(final ReadableDateTime jodaTime) {
-        this(jodaTime.getMillis(), 0);
+        this(FDateMillis.valueOfNotNullSafe(jodaTime), 0);
     }
 
     public FDate(final LocalDateTime jodaTime) {
-        this(jodaTime.toDateTime().getMillis(), 0);
+        this(FDateMillis.valueOfNotNullSafe(jodaTime), 0);
+    }
+
+    public FDate(final ReadablePartial jodaDate) {
+        this(FDateMillis.valueOfNotNullSafe(jodaDate), 0);
+    }
+
+    public FDate(final LocalDate jodaDate) {
+        this(FDateMillis.valueOfNotNullSafe(jodaDate), 0);
     }
 
     public FDate(final java.time.ZonedDateTime javaTime) {
-        this(javaTime.toInstant().toEpochMilli(), 0);
+        this(FDateMillis.valueOfNotNullSafe(javaTime), 0);
+    }
+
+    public FDate(final java.time.LocalDate javaDate) {
+        this(FDateMillis.valueOfNotNullSafe(javaDate), 0);
     }
 
     public FDate(final java.time.LocalDateTime javaTime) {
-        this(javaTime.atZone(ZoneId.systemDefault()));
+        this(FDateMillis.valueOfNotNullSafe(javaTime), 0);
     }
 
     public FDate(final Calendar calendar) {
-        this(calendar.getTime());
+        this(FDateMillis.valueOfNotNullSafe(calendar), 0);
     }
 
     public FDate(final Date date) {
-        this(date.getTime(), 0);
+        this(FDateMillis.valueOfNotNullSafe(date), 0);
     }
 
     public int getYear(final FTimeZone timeZone) {
@@ -955,6 +979,14 @@ public class FDate extends Number implements IDate, Serializable, Cloneable, Com
         return FDateMillis.javaTimeValueZoned(millis, timeZone);
     }
 
+    public LocalDate jodaDateValue() {
+        return FDateMillis.jodaDateValue(millis);
+    }
+
+    public LocalDate jodaDateValue(final FTimeZone timeZone) {
+        return FDateMillis.jodaDateValue(millis, timeZone);
+    }
+
     public java.time.LocalDateTime javaTimeValue() {
         return FDateMillis.javaTimeValue(millis);
     }
@@ -1072,6 +1104,22 @@ public class FDate extends Number implements IDate, Serializable, Cloneable, Com
         }
     }
 
+    public static FDate valueOf(final ReadablePartial jodaDate) {
+        if (jodaDate != null) {
+            return new FDate(jodaDate);
+        } else {
+            return null;
+        }
+    }
+
+    public static FDate valueOf(final LocalDate jodaDate) {
+        if (jodaDate != null) {
+            return new FDate(jodaDate);
+        } else {
+            return null;
+        }
+    }
+
     public static FDate valueOf(final LocalDateTime jodaTime) {
         if (jodaTime != null) {
             return new FDate(jodaTime);
@@ -1080,19 +1128,27 @@ public class FDate extends Number implements IDate, Serializable, Cloneable, Com
         }
     }
 
-    public static FDate valueOf(final java.time.LocalDateTime time) {
-        if (time != null) {
-            return new FDate(time);
+    public static FDate valueOf(final java.time.LocalDateTime javaTime) {
+        if (javaTime != null) {
+            return new FDate(javaTime);
         } else {
             return null;
         }
     }
 
-    public static FDate valueOf(final java.time.ZonedDateTime time) {
-        if (time == null) {
+    public static FDate valueOf(final java.time.LocalDate javaDate) {
+        if (javaDate != null) {
+            return new FDate(javaDate);
+        } else {
+            return null;
+        }
+    }
+
+    public static FDate valueOf(final java.time.ZonedDateTime javaTime) {
+        if (javaTime == null) {
             return null;
         } else {
-            return new FDate(time);
+            return new FDate(javaTime);
         }
     }
 

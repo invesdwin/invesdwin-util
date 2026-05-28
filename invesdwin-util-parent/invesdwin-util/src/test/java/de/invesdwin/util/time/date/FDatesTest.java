@@ -75,16 +75,16 @@ public class FDatesTest {
     }
 
     @Test
-    public void testStartsWithIsoDateTimeMsFormat() {
+    public void testStartsWithIsoDateTimPsFormat() {
         //2016-08-04T06:05:00.000
-        Assertions.checkTrue(FDates.isIsoDateTimeMsFormat("2016-08-04T06:05:00.000"));
-        Assertions.checkFalse(FDates.isIsoDateTimeMsFormat("A2016-08-04T06:05:00.000"));
-        Assertions.checkFalse(FDates.isIsoDateTimeMsFormat("2016-08-04T06:05:00.000A"));
-        Assertions.checkTrue(FDates.startsWithIsoDateTimeMsFormat("2016-08-04T06:05:00.000"));
-        Assertions.checkTrue(FDates.startsWithIsoDateTimeMsFormat("2016-08-04T06:05:00.000ASDF"));
-        Assertions.checkFalse(FDates.startsWithIsoDateTimeMsFormat("A2016-08-04T06:05:00.000"));
-        Assertions.checkTrue(FDates.startsWithIsoDateTimeMsFormat("A2016-08-04T06:05:00.000", 1));
-        Assertions.checkTrue(FDates.startsWithIsoDateTimeMsFormat("A2016-08-04T06:05:00.000ASDF", 1));
+        Assertions.checkTrue(FDates.isIsoDateTimePsFormat("2016-08-04T06:05:00.000.000.000.000"));
+        Assertions.checkFalse(FDates.isIsoDateTimePsFormat("A2016-08-04T06:05:00.000.000.000.000"));
+        Assertions.checkFalse(FDates.isIsoDateTimePsFormat("2016-08-04T06:05:00.000.000.000.000A"));
+        Assertions.checkTrue(FDates.startsWithIsoDateTimePsFormat("2016-08-04T06:05:00.000.000.000.000"));
+        Assertions.checkTrue(FDates.startsWithIsoDateTimePsFormat("2016-08-04T06:05:00.000.000.000.000ASDF"));
+        Assertions.checkFalse(FDates.startsWithIsoDateTimePsFormat("A2016-08-04T06:05:00.000.000.000.000"));
+        Assertions.checkTrue(FDates.startsWithIsoDateTimePsFormat("A2016-08-04T06:05:00.000.000.000.000", 1));
+        Assertions.checkTrue(FDates.startsWithIsoDateTimePsFormat("A2016-08-04T06:05:00.000.000.000.000ASDF", 1));
     }
 
 }

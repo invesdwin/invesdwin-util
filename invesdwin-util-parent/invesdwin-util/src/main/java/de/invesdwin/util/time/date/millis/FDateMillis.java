@@ -1,6 +1,6 @@
 package de.invesdwin.util.time.date.millis;
 
-import java.time.ZonedDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -10,8 +10,11 @@ import javax.annotation.concurrent.Immutable;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeField;
 import org.joda.time.DurationField;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
 import org.joda.time.ReadableDateTime;
+import org.joda.time.ReadablePartial;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -522,6 +525,14 @@ public final class FDateMillis {
         return new LocalDateTime(millis);
     }
 
+    public static LocalDate jodaDateValue(final long millis) {
+        return new LocalDate(millis, FDates.getDefaultTimeZone().getChronology());
+    }
+
+    public static LocalDate jodaDateValue(final long millis, final FTimeZone timeZone) {
+        return new LocalDate(millis, timeZone.getChronology());
+    }
+
     public static DateTime jodaTimeValueZoned(final long millis) {
         return new DateTime(millis, FDates.getDefaultTimeZone().getChronology());
     }
@@ -530,7 +541,7 @@ public final class FDateMillis {
         return java.time.Instant.ofEpochMilli(millis).atZone(FDates.getDefaultTimeZone().getZoneId());
     }
 
-    public static ZonedDateTime javaTimeValueZoned(final long millis, final FTimeZone timeZone) {
+    public static java.time.ZonedDateTime javaTimeValueZoned(final long millis, final FTimeZone timeZone) {
         return java.time.Instant.ofEpochMilli(millis).atZone(timeZone.getZoneId());
     }
 
@@ -558,40 +569,120 @@ public final class FDateMillis {
         if (date == null) {
             return MISSING_VALUE;
         } else {
-            return date.millisValue();
+            return valueOfNotNullSafe(date);
         }
+    }
+
+    public static long valueOfNotNullSafe(final FDate date) {
+        return date.millisValue();
     }
 
     public static long valueOf(final Date date) {
         if (date == null) {
             return MISSING_VALUE;
         } else {
-            return date.getTime();
+            return valueOfNotNullSafe(date);
         }
+    }
+
+    public static long valueOfNotNullSafe(final Date date) {
+        return date.getTime();
     }
 
     public static long valueOf(final Calendar calendar) {
         if (calendar == null) {
             return MISSING_VALUE;
         } else {
-            return calendar.getTimeInMillis();
+            return valueOfNotNullSafe(calendar);
         }
+    }
+
+    public static long valueOfNotNullSafe(final Calendar calendar) {
+        return calendar.getTimeInMillis();
     }
 
     public static long valueOf(final ReadableDateTime jodaTime) {
         if (jodaTime == null) {
             return MISSING_VALUE;
         } else {
-            return jodaTime.getMillis();
+            return valueOfNotNullSafe(jodaTime);
         }
+    }
+
+    public static long valueOfNotNullSafe(final ReadableDateTime jodaTime) {
+        return jodaTime.getMillis();
+    }
+
+    public static long valueOf(final LocalDate jodaDate) {
+        if (jodaDate == null) {
+            return MISSING_VALUE;
+        } else {
+            return valueOfNotNullSafe(jodaDate);
+        }
+    }
+
+    public static long valueOfNotNullSafe(final LocalDate jodaDate) {
+        return valueOfNotNullSafe(jodaDate.toLocalDateTime(LocalTime.MIDNIGHT));
+    }
+
+    public static long valueOf(final ReadablePartial jodaTime) {
+        if (jodaTime == null) {
+            return MISSING_VALUE;
+        } else {
+            return valueOfNotNullSafe(jodaTime);
+        }
+    }
+
+    public static long valueOfNotNullSafe(final ReadablePartial jodaDate) {
+        return valueOfNotNullSafe(jodaDate.toDateTime(new DateTime(0L, FDates.getDefaultTimeZone().getChronology())));
     }
 
     public static long valueOf(final LocalDateTime jodaTime) {
         if (jodaTime == null) {
             return MISSING_VALUE;
         } else {
-            return jodaTime.toDateTime().getMillis();
+            return valueOfNotNullSafe(jodaTime);
         }
+    }
+
+    public static long valueOfNotNullSafe(final LocalDateTime jodaTime) {
+        return jodaTime.toDateTime().getMillis();
+    }
+
+    public static long valueOf(final java.time.ZonedDateTime javaTime) {
+        if (javaTime == null) {
+            return MISSING_VALUE;
+        } else {
+            return valueOfNotNullSafe(javaTime);
+        }
+    }
+
+    public static long valueOfNotNullSafe(final java.time.ZonedDateTime javaTime) {
+        return javaTime.toInstant().toEpochMilli();
+    }
+
+    public static long valueOf(final java.time.LocalDateTime javaTime) {
+        if (javaTime == null) {
+            return MISSING_VALUE;
+        } else {
+            return valueOfNotNullSafe(javaTime);
+        }
+    }
+
+    public static long valueOfNotNullSafe(final java.time.LocalDateTime javaTime) {
+        return valueOfNotNullSafe(javaTime.atZone(ZoneId.systemDefault()));
+    }
+
+    public static long valueOf(final java.time.LocalDate javaDate) {
+        if (javaDate == null) {
+            return MISSING_VALUE;
+        } else {
+            return valueOfNotNullSafe(javaDate);
+        }
+    }
+
+    public static long valueOfNotNullSafe(final java.time.LocalDate javaTime) {
+        return valueOfNotNullSafe(javaTime.atStartOfDay(ZoneId.systemDefault()));
     }
 
     public static long valueOf(final String str, final String... parsePatterns) {
