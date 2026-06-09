@@ -25,11 +25,11 @@ All of these types are immutable in nature, which makes code for calculations sa
 #### `Decimal` 
 This type wraps a `double` value and handles rounding properly when needed internally to increase precision of calculations for mathematical use cases where performance is crititcal while a good precision is required. It eases working with `double` by providing a fluent API with `ScaledDecimals` (e.g. `ByteSize` or `Percent`, more complex ones like `Money`, `Price` or `Amount` are used in other frameworks built on this) to make transformations between units easier and aggregate functions (e.g. sum, avg, ...) to ease working with lots of `Decimals`. It makes `double` more like `BigDecimal`, without being as slow as `BigDecimal`, nor being as imprecise as `double` normally is. And the API makes mathematical code much easier to write and understand.
 #### `FDate`
-This stands for "Fast Date". It is essentially a long value and is suitable as a key in maps. Each time operation is handled by the fastest time library available, which is [Joda-Time](http://www.joda.org/joda-time) mostly. Also comes with a `FDateBuilder` that makes creation of specific dates easier.
+This stands for "Fast Date". It is essentially a long value for millis and an int value for picos (within the millisecond). It is suitable as a key in maps and supports transient metadata extensions for in-memory shortcuts (e.g. for mapping the data to an index in arbitrary data sources). Each time operation is handled by the fastest time library available, which is [Joda-Time](http://www.joda.org/joda-time) mostly with extensions for up to picosecond precision. Also comes with a `FDateBuilder` that makes creation of specific dates easier and an `FDateTimeFormatter` that supports parsing and formatting dates with up to picoseconds precision. Per default the `IFDateClock` implementation tracks up to nanosecond precision on supported JVMs. The picoseconds part is useful for enumerating multiple events on the same timestamp by incrementing the picoseconds as an index to make them unique for storage.
 #### `Instant`
-Makes time-tracking in batch processing easier, prints itself out as a Duration with the precision of System.nanoTime().
+Makes time-tracking in batch processes easier, prints itself out as a Duration with the precision of System.nanoTime().
 #### `Duration`
-Useful for time duration calculations and prints them out as an extended version of [ISO-8601 Duration](https://en.wikipedia.org/wiki/ISO_8601#Durations)
+Useful for time duration calculations and prints them out as an extended version of [ISO-8601 Duration](https://en.wikipedia.org/wiki/ISO_8601#Durations) which also supports up to picosecond precision.
 
 ## Caches
 #### `ALoadingCache`
