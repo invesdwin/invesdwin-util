@@ -17,7 +17,7 @@ public class TimeRangeSerde implements ISerde<TimeRange> {
     public static final int TO_INDEX = FROM_INDEX + FROM_SIZE;
     public static final int TO_SIZE = FDate.BYTES;
 
-    public static final int FIXED_LENGTH = TO_INDEX + +TO_SIZE;
+    public static final int FIXED_LENGTH = TO_INDEX + TO_SIZE;
 
     public static final TimeRangeSerde GET = new TimeRangeSerde();
     public static final FixedLengthBufferingIteratorDelegateSerde<TimeRange> GET_LIST = new FixedLengthBufferingIteratorDelegateSerde<TimeRange>(

@@ -149,6 +149,8 @@ public class FDate extends Number implements IDate, Serializable, Cloneable, Com
     public FDate(final double millisFractionalPicos) {
         this.millis = (long) millisFractionalPicos;
         this.picos = (int) ((millisFractionalPicos - millis) * FTimeUnit.PICOSECONDS_IN_MILLISECOND);
+        assert FDatePicos.isValidPicos(picos) : "Picos value out of range [0 to " + FDatePicos.END_OF_DAY_PICOS + "]: "
+                + picos;
     }
 
     public FDate(final double timeUnitFractional, final FTimeUnit timeUnit) {
@@ -159,16 +161,22 @@ public class FDate extends Number implements IDate, Serializable, Cloneable, Com
         final double millisFractional = timeUnit.toMillis(timeUnitFractional);
         this.millis = (long) millisFractional;
         this.picos = (int) ((millisFractional - millis) * FTimeUnit.PICOSECONDS_IN_MILLISECOND);
+        assert FDatePicos.isValidPicos(picos) : "Picos value out of range [0 to " + FDatePicos.END_OF_DAY_PICOS + "]: "
+                + picos;
     }
 
     public FDate(final long millis, final int picos) {
         this.millis = millis;
         this.picos = picos;
+        assert FDatePicos.isValidPicos(picos) : "Picos value out of range [0 to " + FDatePicos.END_OF_DAY_PICOS + "]: "
+                + picos;
     }
 
     public FDate(final IFDateData date) {
         this.millis = date.millisValue();
         this.picos = date.picosValue();
+        assert FDatePicos.isValidPicos(picos) : "Picos value out of range [0 to " + FDatePicos.END_OF_DAY_PICOS + "]: "
+                + picos;
     }
 
     public FDate(final long duration, final FTimeUnit timeUnit) {
@@ -238,6 +246,8 @@ public class FDate extends Number implements IDate, Serializable, Cloneable, Com
         default:
             throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
         }
+        assert FDatePicos.isValidPicos(picos) : "Picos value out of range [0 to " + FDatePicos.END_OF_DAY_PICOS + "]: "
+                + picos;
     }
 
     public FDate(final ReadableDateTime jodaTime) {
