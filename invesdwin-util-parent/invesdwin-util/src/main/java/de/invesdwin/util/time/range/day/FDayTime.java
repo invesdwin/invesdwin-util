@@ -17,7 +17,7 @@ public class FDayTime extends ADayTime<FDayTime> implements IDayTimeData {
     public static final IComparator<FDayTime> COMPARATOR = new ACriteriaComparator<FDayTime>() {
         @Override
         public Comparable<?> getCompareCriteriaNotNullSafe(final FDayTime e) {
-            return e.intValue();
+            return e.longValue();
         }
     };
 
@@ -67,42 +67,42 @@ public class FDayTime extends ADayTime<FDayTime> implements IDayTimeData {
 
     @Override
     public boolean isBefore(final FDayTime other) {
-        return other != null && intValue() < other.intValue();
+        return other != null && longValue() < other.longValue();
     }
 
     @Override
     public boolean isBeforeOrEqualTo(final FDayTime other) {
-        return other != null && intValue() <= other.intValue();
+        return other != null && longValue() <= other.longValue();
     }
 
     @Override
     public boolean isAfter(final FDayTime other) {
-        return other != null && intValue() > other.intValue();
+        return other != null && longValue() > other.longValue();
     }
 
     @Override
     public boolean isAfterOrEqualTo(final FDayTime other) {
-        return other != null && intValue() >= other.intValue();
+        return other != null && longValue() >= other.longValue();
     }
 
     @Override
     public boolean isBeforeNotNullSafe(final FDayTime other) {
-        return intValue() < other.intValue();
+        return longValue() < other.longValue();
     }
 
     @Override
     public boolean isBeforeOrEqualToNotNullSafe(final FDayTime other) {
-        return intValue() <= other.intValue();
+        return longValue() <= other.longValue();
     }
 
     @Override
     public boolean isAfterNotNullSafe(final FDayTime other) {
-        return intValue() > other.intValue();
+        return longValue() > other.longValue();
     }
 
     @Override
     public boolean isAfterOrEqualToNotNullSafe(final FDayTime other) {
-        return intValue() >= other.intValue();
+        return longValue() >= other.longValue();
     }
 
     @Override
@@ -215,7 +215,7 @@ public class FDayTime extends ADayTime<FDayTime> implements IDayTimeData {
         } else if (value instanceof FDayTime) {
             return (FDayTime) value;
         } else {
-            return valueOf(value.intValue(), false);
+            return valueOf(value.longValue(), false);
         }
     }
 

@@ -5,31 +5,30 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public class DayTimeDTO implements IDayTimeData {
 
-    private int intValue;
+    private long longValue;
 
-    public DayTimeDTO() {
-    }
+    public DayTimeDTO() {}
 
-    public DayTimeDTO(final int intValue) {
-        this.intValue = intValue;
+    public DayTimeDTO(final long longValue) {
+        this.longValue = longValue;
     }
 
     public DayTimeDTO(final IDayTimeData dayTimeData) {
-        this.intValue = dayTimeData.intValue();
+        this.longValue = dayTimeData.longValue();
     }
 
     @Override
-    public int intValue() {
-        return intValue;
+    public long longValue() {
+        return longValue;
     }
 
-    public void setIntValue(final int intValue) {
-        this.intValue = intValue;
+    public void setLongValue(final int longValue) {
+        this.longValue = longValue;
     }
 
     @Override
     public String toString() {
-        return FDayTime.valueOf(intValue, false).toString();
+        return FDayTime.valueOf(longValue, false).toString();
     }
 
 }
