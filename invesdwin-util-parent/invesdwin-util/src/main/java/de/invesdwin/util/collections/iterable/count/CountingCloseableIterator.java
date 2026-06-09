@@ -8,6 +8,7 @@ import de.invesdwin.util.lang.string.ProcessedEventsRateString;
 import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.log.ILog;
 import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
@@ -29,7 +30,7 @@ public class CountingCloseableIterator<E> implements ICloseableIterator<E> {
         this.name = name;
         this.delegate = delegate;
         this.loopInterruptedCheck = new LoopInterruptedCheck(newCheckInterval());
-        this.startNanos = System.nanoTime();
+        this.startNanos = FDateNanos.elapsedNanos();
     }
 
     protected Duration newCheckInterval() {
@@ -46,7 +47,7 @@ public class CountingCloseableIterator<E> implements ICloseableIterator<E> {
         final E next = delegate.next();
         count++;
         if (log.isInfoEnabled() && loopInterruptedCheck.checkNoInterrupt()) {
-            final long elapsedNanos = System.nanoTime() - startNanos;
+            final long elapsedNanos = FDateNanos.elapsedNanos() - startNanos;
             final Duration duration = new Duration(elapsedNanos, FTimeUnit.NANOSECONDS);
             log.info("%s(%s) loading at %s processing %s during %s", CountingCloseableIterator.class.getSimpleName(),
                     name, count, new ProcessedEventsRateString(count, duration), duration);
@@ -64,7 +65,7 @@ public class CountingCloseableIterator<E> implements ICloseableIterator<E> {
     public void close() {
         delegate.close();
         if (logged) {
-            final long elapsedNanos = System.nanoTime() - startNanos;
+            final long elapsedNanos = FDateNanos.elapsedNanos() - startNanos;
             final Duration duration = new Duration(elapsedNanos, FTimeUnit.NANOSECONDS);
             log.info("%s(%s) finished at %s processing %s after %s", CountingCloseableIterator.class.getSimpleName(),
                     name, count, new ProcessedEventsRateString(count, duration), duration);

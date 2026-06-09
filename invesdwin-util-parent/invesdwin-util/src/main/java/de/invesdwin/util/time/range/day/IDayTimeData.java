@@ -8,10 +8,10 @@ public interface IDayTimeData {
     IComparator<IDayTimeData> COMPARATOR = new ACriteriaComparator<IDayTimeData>() {
         @Override
         public Comparable<?> getCompareCriteriaNotNullSafe(final IDayTimeData e) {
-            return e.intValue();
+            return e.longValue();
         }
     };
 
-    int intValue();
+    long longValue();
 
 }

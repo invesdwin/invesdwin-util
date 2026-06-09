@@ -3,7 +3,6 @@ package de.invesdwin.util.marshallers.serde.lookup.request;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.marshallers.serde.ISerde;
-import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -22,16 +21,6 @@ public class RequestArgsSerde implements ISerde<Object[]> {
             this.fixedArrayLength = providers.length;
         }
         this.maxSerdeProviderIndex = providers.length - 1;
-    }
-
-    @Override
-    public Object[] fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final Object[] obj) {
-        return SerdeBaseMethods.toBytes(this, obj);
     }
 
     @Override

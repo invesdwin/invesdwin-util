@@ -35,6 +35,7 @@ import de.invesdwin.util.swing.listener.ADelegateMouseMotionListener;
 import de.invesdwin.util.swing.text.Hotkey;
 import de.invesdwin.util.swing.text.KeyGrabberTextField;
 import de.invesdwin.util.swing.text.ToolTipFormatter;
+import de.invesdwin.util.time.date.millis.FDateMillis;
 
 @Immutable
 public final class Components {
@@ -194,7 +195,7 @@ public final class Components {
         final Point locationOnComponent = new Point(locationOnScreen);
         SwingUtilities.convertPointFromScreen(locationOnComponent, component);
         if (component.contains(locationOnComponent)) {
-            listener.mouseMoved(new MouseEvent(component, -1, System.currentTimeMillis(), 0, locationOnComponent.x,
+            listener.mouseMoved(new MouseEvent(component, -1, FDateMillis.nowMillis(), 0, locationOnComponent.x,
                     locationOnComponent.y, locationOnScreen.x, locationOnScreen.y, 0, false, 0));
         }
     }
@@ -261,7 +262,7 @@ public final class Components {
 
         final Point mousePoint = getMouseLocationOnComponentWithActiveWindow(component);
         final int id = -1;
-        final long when = System.currentTimeMillis();
+        final long when = FDateMillis.nowMillis();
         final int modifiers = 0;
         final int x;
         final int y;

@@ -46,7 +46,7 @@ public abstract class ABufferingRetrievalCloseableIterable<T> implements IClosea
                     return null;
                 }
                 if (curList.isEmpty()) {
-                    final FDate nextDate = curDate.addMilliseconds(1);
+                    final FDate nextDate = curDate.addPicoseconds(1);
                     if (!wasFullResponse || nextDate.isAfter(toDate)) {
                         close(); // end reached
                     } else {

@@ -21,6 +21,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.assertions.Executable;
 import de.invesdwin.util.assertions.ThrowingSupplier;
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.time.date.millis.FDateMillis;
 
 @Immutable
 public final class AssertTimeout {
@@ -55,7 +56,7 @@ public final class AssertTimeout {
     static <T> T assertTimeout(final java.time.Duration timeout, final ThrowingSupplier<T> supplier,
             final Supplier<String> messageSupplier) {
         final long timeoutInMillis = timeout.toMillis();
-        final long start = System.currentTimeMillis();
+        final long start = FDateMillis.nowMillis();
         T result = null;
         try {
             result = supplier.get();
@@ -63,7 +64,7 @@ public final class AssertTimeout {
             throw Throwables.propagate(ex);
         }
 
-        final long timeElapsed = System.currentTimeMillis() - start;
+        final long timeElapsed = FDateMillis.nowMillis() - start;
         if (timeElapsed > timeoutInMillis) {
             AssertionUtils.fail(AssertionUtils.buildPrefix(AssertionUtils.nullSafeGet(messageSupplier))
                     + "execution exceeded timeout of " + timeoutInMillis + " ms by " + (timeElapsed - timeoutInMillis)

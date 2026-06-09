@@ -25,7 +25,7 @@ public final class FDateDeserializer extends JsonDeserializer<FDate> {
         if (string.length() == 0) {
             return null;
         }
-        return FDate.valueOf(string, FDate.FORMAT_ISO_DATE_TIME_MS);
+        return FDate.valueOf(string, FDate.FORMAT_ISO_DATE_TIME_PS);
     }
 
 }

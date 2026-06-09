@@ -123,4 +123,9 @@ public final class WrappedLock implements ILock {
         return Locks.getDefaultLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return false;
+    }
+
 }

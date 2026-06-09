@@ -101,7 +101,7 @@ public final class Files extends AFilesStaticFacade {
         if (!directory.exists()) {
             return;
         }
-        final FDate thresholdDate = new FDate().subtract(threshold);
+        final FDate thresholdDate = FDate.now().subtract(threshold);
         final Iterator<File> filesToDelete = iterateFiles(directory, new AgeFileFilter(thresholdDate.dateValue(), true),
                 TrueFileFilter.INSTANCE);
         while (filesToDelete.hasNext()) {

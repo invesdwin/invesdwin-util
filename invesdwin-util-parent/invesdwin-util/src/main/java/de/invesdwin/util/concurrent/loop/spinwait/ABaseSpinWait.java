@@ -11,6 +11,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
 
 @Immutable
@@ -105,7 +106,7 @@ public abstract class ABaseSpinWait {
     }
 
     protected boolean isSpinAllowed(final long waitingSinceNanos) {
-        return (System.nanoTime() - waitingSinceNanos) < skipSpinAfterWaitingSince;
+        return (FDateNanos.elapsedNanos() - waitingSinceNanos) < skipSpinAfterWaitingSince;
     }
 
     protected boolean awaitFulfill(final ISpinWaitCondition condition, final Instant waitingSince) throws Exception {
@@ -149,14 +150,14 @@ public abstract class ABaseSpinWait {
                 onSpinWait();
             }
         }
-        final long waitDeadline = System.nanoTime() + nanosRemaining;
+        final long waitDeadline = FDateNanos.elapsedNanos() + nanosRemaining;
         final Thread thread = Thread.currentThread();
         int timedSpins = 0;
         while (true) {
             if (condition.isConditionFulfilled()) {
                 return true;
             }
-            nanosRemaining = waitDeadline - System.nanoTime();
+            nanosRemaining = waitDeadline - FDateNanos.elapsedNanos();
             if (nanosRemaining <= 0L) {
                 //we have exceeded maxWait
                 return false;

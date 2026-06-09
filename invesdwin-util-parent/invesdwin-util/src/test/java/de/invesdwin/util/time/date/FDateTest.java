@@ -13,11 +13,17 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.date.clock.FDateClockNanosInternal;
 import de.invesdwin.util.time.date.holiday.HolidayManagers;
+import de.invesdwin.util.time.date.millis.FDateMillis;
+import de.invesdwin.util.time.date.millis.FDatePicos;
 import de.invesdwin.util.time.date.millis.WeekAdjustment;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.date.timezone.TimeZones;
+import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.range.week.FWeekTime;
 
 @NotThreadSafe
@@ -25,9 +31,11 @@ public class FDateTest {
 
     @BeforeAll
     public static void beforeClass() {
+        Reflections.disableJavaModuleSystemRestrictions();
+        FDates.setDefaultClock(FDateClockNanosInternal.INSTANCE);
         final TimeZone newTimeZone = TimeZones.getTimeZone("UTC");
         FDates.setDefaultTimeZone(new FTimeZone(newTimeZone));
-        final FDate curDate = new FDate();
+        final FDate curDate = FDate.now();
         final String dateStr = curDate.toString();
         TimeZone.setDefault(newTimeZone);
         //joda needs another call explicitly since it might have cached the value too early...
@@ -37,7 +45,6 @@ public class FDateTest {
 
     @Test
     public void testConversionDate() {
-
         final FDate today = FDate.today();
         Assertions.assertThat(new FDate(today.dateValue())).isEqualTo(today);
         final String dateStr = org.apache.commons.lang3.time.FastDateFormat.getInstance(FDate.FORMAT_ISO_DATE_TIME)
@@ -45,7 +52,7 @@ public class FDateTest {
         final String fdateStr = today.toString(FDate.FORMAT_ISO_DATE_TIME);
         Assertions.assertThat(dateStr).isEqualTo(fdateStr);
         Assertions.assertThat(dateStr).endsWith("T00:00:00");
-        System.out.println(new FDate().dateValue()); //SUPPRESS CHECKSTYLE single line
+        System.out.println(FDate.now().dateValue()); //SUPPRESS CHECKSTYLE single line
     }
 
     @Test
@@ -67,18 +74,18 @@ public class FDateTest {
         final FDate monday = FDateBuilder.newDate(2015, 8, 10);
         Assertions.assertThat(monday.getFWeekday()).isEqualTo(FWeekday.Monday);
         Assertions.assertThat(FDates.isSameWeek(wednesday, monday)).isTrue();
-        Assertions.assertThat(FDates.isSameWeek(wednesday, monday.addMilliseconds(-1))).isFalse();
+        Assertions.assertThat(FDates.isSameWeek(wednesday, monday.addPicoseconds(-1))).isFalse();
 
-        final FDate sunday = FDateBuilder.newDate(2015, 8, 16).addDays(1).addMilliseconds(-1);
+        final FDate sunday = FDateBuilder.newDate(2015, 8, 16).addDays(1).addPicoseconds(-1);
         Assertions.assertThat(sunday.getFWeekday()).isEqualTo(FWeekday.Sunday);
         Assertions.assertThat(FDates.isSameWeek(wednesday, sunday)).isTrue();
-        Assertions.assertThat(FDates.isSameWeek(wednesday, sunday.addMilliseconds(1))).isFalse();
+        Assertions.assertThat(FDates.isSameWeek(wednesday, sunday.addPicoseconds(1))).isFalse();
     }
 
     @Test
     public void testIterable() {
         int iterations = 0;
-        final FDate time = new FDate();
+        final FDate time = FDate.now();
         for (final FDate date : FDates.iterable(time, time, FTimeUnit.DAYS, 1)) {
             System.out.println(String.format("%s", date)); //SUPPRESS CHECKSTYLE single line
             iterations++;
@@ -89,7 +96,7 @@ public class FDateTest {
     @Test
     public void testIterableReverse() {
         int iterations = 0;
-        final FDate time = new FDate();
+        final FDate time = FDate.now();
         for (final FDate date : FDates.iterable(time, time, FTimeUnit.DAYS, -1)) {
             System.out.println(String.format("%s", date)); //SUPPRESS CHECKSTYLE single line
             iterations++;
@@ -168,7 +175,7 @@ public class FDateTest {
     @Test
     public void testIterateDays() {
         final FDate fromDate = FDateBuilder.newDate(2000, 1, 1);
-        final FDate toDate = fromDate.addDays(1).addMilliseconds(-1);
+        final FDate toDate = fromDate.addDays(1).addPicoseconds(-1);
         final ICloseableIterator<FDate> iterator = FDates.iterable(fromDate, toDate, FTimeUnit.DAYS, 1).iterator();
         final FDate next = iterator.next();
         Assertions.assertThat(next).isEqualTo(fromDate);
@@ -200,20 +207,24 @@ public class FDateTest {
     @Test
     public void testSetFWeekTime() {
         final FDate date = FDateBuilder.newDate(2017, 1, 1);
-        final FDate monday = date.setFWeekTime(new FWeekTime(FWeekday.Monday, 1, 1, 0, 0), WeekAdjustment.PREVIOUS);
+        final FDate monday = date.setFWeekTime(new FWeekTime(FWeekday.Monday, 1, 1, 0, 0, 0, 0, 0),
+                WeekAdjustment.PREVIOUS);
         Assertions.assertThat(monday).isEqualTo(FDateBuilder.newDate(2016, 12, 26, 1, 1));
 
-        final FDate sunday = date.setFWeekTime(new FWeekTime(FWeekday.Sunday, 1, 1, 0, 0), WeekAdjustment.PREVIOUS);
+        final FDate sunday = date.setFWeekTime(new FWeekTime(FWeekday.Sunday, 1, 1, 0, 0, 0, 0, 0),
+                WeekAdjustment.PREVIOUS);
         Assertions.assertThat(sunday).isEqualTo(FDateBuilder.newDate(2017, 1, 1, 1, 1));
     }
 
     @Test
     public void testSetFWeekTimeStays() {
         final FDate date = FDateBuilder.newDate(2017, 1, 2);
-        final FDate monday = date.setFWeekTime(new FWeekTime(FWeekday.Monday, 1, 1, 0, 0), WeekAdjustment.PREVIOUS);
+        final FDate monday = date.setFWeekTime(new FWeekTime(FWeekday.Monday, 1, 1, 0, 0, 0, 0, 0),
+                WeekAdjustment.PREVIOUS);
         Assertions.assertThat(monday).isEqualTo(FDateBuilder.newDate(2017, 1, 2, 1, 1));
 
-        final FDate sunday = date.setFWeekTime(new FWeekTime(FWeekday.Sunday, 1, 1, 0, 0), WeekAdjustment.PREVIOUS);
+        final FDate sunday = date.setFWeekTime(new FWeekTime(FWeekday.Sunday, 1, 1, 0, 0, 0, 0, 0),
+                WeekAdjustment.PREVIOUS);
         Assertions.assertThat(sunday).isEqualTo(FDateBuilder.newDate(2017, 1, 1, 1, 1));
     }
 
@@ -304,14 +315,139 @@ public class FDateTest {
     }
 
     @Test
-    public void testParseZoneId() {
-        final FDate time = new FDate();
+    public void testParseZoneId_ZZ() {
+        final String format = "yyyy-MM-dd'T'HH:mm:ss.SSS.UUU.NNN.PPP ZZ";
+        final FDate time = FDate.now();
+        final String joda = time.toString(format);
+        final String java = FDate.valueOf(time.toString(format, (FTimeZone) null), (FTimeZone) null, null, format)
+                .toString(format);
+        Assertions.assertThat(java).isEqualTo(joda);
+    }
+
+    @Test
+    public void testParseZoneId_PS() {
+        final FDate time = FDate.now();
+        final String joda = time.toString();
+        final String java = FDate
+                .valueOf(time.toString(FDate.FORMAT_GERMAN_DATE_TIME_PS, (FTimeZone) null), (FTimeZone) null, null,
+                        FDate.FORMAT_GERMAN_DATE_TIME_PS)
+                .toString();
+        Assertions.assertThat(java).isEqualTo(joda);
+    }
+
+    @Test
+    public void testParseZoneId_MS() {
+        final FDate time = FDate.nowMillis();
         final String joda = time.toString();
         final String java = FDate
                 .valueOf(time.toString(FDate.FORMAT_GERMAN_DATE_TIME_MS, (FTimeZone) null), (FTimeZone) null, null,
                         FDate.FORMAT_GERMAN_DATE_TIME_MS)
                 .toString();
         Assertions.assertThat(java).isEqualTo(joda);
+    }
+
+    @Test
+    public void testTimeZoneSwitching() {
+        //CHECKSTYLE:OFF
+        final FTimeZone zoneBerlin = new FTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
+        final FTimeZone zoneUtc = new FTimeZone(TimeZone.getTimeZone("UTC"));
+        //CHECKSTYLE:ON
+
+        // 1. Snapshot an absolute instant (e.g., current time)
+        final FDate curDate = FDate.now();
+
+        // 2. Get the string representations explicitly for both zones
+        final String berlinStr = curDate.toString(FDate.FORMAT_ISO_DATE_TIME_PS, zoneBerlin);
+        final String utcStr = curDate.toString(FDate.FORMAT_ISO_DATE_TIME_PS, zoneUtc);
+
+        // 3. Parse the Berlin string specifying the Berlin zone
+        final FDate parsedFromBerlin = FDate.valueOf(berlinStr, zoneBerlin, FDate.FORMAT_ISO_DATE_TIME_PS);
+
+        // 4. Parse the UTC string specifying the UTC zone
+        final FDate parsedFromUtc = FDate.valueOf(utcStr, zoneUtc, FDate.FORMAT_ISO_DATE_TIME_PS);
+
+        // Under the Absolute UTC Paradigm, both objects must hold the exact same internal universal millis!
+        Assertions.assertThat(parsedFromBerlin.millisValue()).isEqualTo(parsedFromUtc.millisValue());
+
+        // 5. Cross-printing assertions should match perfectly without environmental drift
+        final String berlinAsUtcStr = parsedFromBerlin.toString(FDate.FORMAT_ISO_DATE_TIME_PS, zoneUtc);
+        Assertions.assertThat(berlinAsUtcStr).isEqualTo(utcStr);
+        final String utcAsBerlinStr = parsedFromUtc.toString(FDate.FORMAT_ISO_DATE_TIME_PS, zoneBerlin);
+        Assertions.assertThat(utcAsBerlinStr).isEqualTo(berlinStr);
+
+        /*
+         * We can also shift the internal millis to make calculations in different time zones easier, but that should be
+         * an explicit operation with an explicit result, not something that happens implicitly in the background when
+         * printing or parsing
+         */
+        final long berlinOffsetMillis = parsedFromBerlin.getTimeZoneOffsetMilliseconds(zoneBerlin);
+        final FDate parsedFromBerlinApplyFixed = parsedFromBerlin.applyTimeZoneOffset(berlinOffsetMillis);
+        final String parsedFromBerlinApplyFixedStr = parsedFromBerlinApplyFixed.toString();
+        Assertions.assertThat(parsedFromBerlinApplyFixedStr).isEqualTo(berlinStr);
+        Assertions.assertThat(parsedFromBerlinApplyFixed.millisValue()).isNotEqualTo(parsedFromBerlin.millisValue());
+        Assertions.assertThat(parsedFromBerlinApplyFixed.millisValue()).isNotEqualTo(curDate.millisValue());
+        final FDate parsedFromBerlinRevertFixed = parsedFromBerlinApplyFixed.revertTimeZoneOffset(berlinOffsetMillis);
+        final String parsedFromBerlinRevertFixedStr = parsedFromBerlinRevertFixed.toString();
+        Assertions.assertThat(parsedFromBerlinRevertFixedStr).isEqualTo(utcStr);
+        Assertions.assertThat(parsedFromBerlinRevertFixed.millisValue()).isEqualTo(parsedFromBerlin.millisValue());
+        Assertions.assertThat(parsedFromBerlinRevertFixed.millisValue()).isEqualTo(curDate.millisValue());
+
+        final FDate parsedFromBerlinApply = parsedFromBerlin.applyTimeZoneOffset(zoneBerlin);
+        final String parsedFromBerlinApplyStr = parsedFromBerlinApply.toString();
+        Assertions.assertThat(parsedFromBerlinApplyStr).isEqualTo(berlinStr);
+        Assertions.assertThat(parsedFromBerlinApply.millisValue()).isNotEqualTo(parsedFromBerlin.millisValue());
+        Assertions.assertThat(parsedFromBerlinApply.millisValue()).isNotEqualTo(curDate.millisValue());
+        @SuppressWarnings("deprecation")
+        //risky on dailight saving time changes, but should work in general since we are using the same date for parsing and applying the offset
+        final FDate parsedFromBerlinRevert = parsedFromBerlinApply.revertTimeZoneOffset(zoneBerlin);
+        final String parsedFromBerlinRevertStr = parsedFromBerlinRevert.toString();
+        Assertions.assertThat(parsedFromBerlinRevertStr).isEqualTo(utcStr);
+        Assertions.assertThat(parsedFromBerlinRevert.millisValue()).isEqualTo(parsedFromBerlin.millisValue());
+        Assertions.assertThat(parsedFromBerlinRevert.millisValue()).isEqualTo(curDate.millisValue());
+    }
+
+    @Test
+    public void testClock() {
+        final Instant start = new Instant();
+        final FDate startDate = FDate.now();
+        long prevMillis = FDateMillis.nowMillis();
+        FDate prevNow = startDate;
+        int index = 0;
+        int identical = 0;
+        int unique = 0;
+        while (Duration.ONE_SECOND.isGreaterThan(start)) {
+            final long millisBefore = FDateMillis.nowMillis();
+            final FDate now = FDate.now();
+            Assertions.checkTrue(now.isAfterOrEqualToNotNullSafe(prevNow),
+                    "now [%s] should be after or equal to prevNow [%s]", now, prevNow);
+            if (now.equalsNotNullSafe(prevNow)) {
+                identical++;
+            } else {
+                unique++;
+            }
+            //CHECKSTYLE:OFF
+            //            System.out.println(
+            //                    index + ": " + now + " identical=" + identical + " unique=" + unique + " duration=" + new Duration(startDate, now));
+            //CHECKSTYLE:ON
+            Assertions.checkTrue(now.millisValue() >= prevMillis, "now millis [%s] should be after prevMillis [%s]",
+                    now.millisValue(), prevMillis);
+            Assertions.checkTrue(FDatePicos.isValidPicos(now.picosValue()), "now picos [%s] should be valid",
+                    now.picosValue());
+            final long millisAfter = FDateMillis.nowMillis();
+            Assertions.checkTrue(now.millisValue() >= millisBefore, "now millis [%s] should be after millisBefore [%s]",
+                    now.millisValue(), millisBefore);
+            Assertions.checkTrue(now.millisValue() <= millisAfter, "now millis [%s] should be before millisAfter [%s]",
+                    now.millisValue(), millisAfter);
+
+            prevMillis = millisAfter;
+            prevNow = now;
+            index++;
+        }
+        //CHECKSTYLE:OFF
+        System.out.println("From [" + startDate + "] to [" + prevNow + "] over [" + new Duration(startDate, prevNow)
+                + "] there were [" + index + "] iterations with [" + identical + "] identical and [" + unique
+                + "] unique dates.");
+        //CHECKSTYLE:ON
     }
 
 }

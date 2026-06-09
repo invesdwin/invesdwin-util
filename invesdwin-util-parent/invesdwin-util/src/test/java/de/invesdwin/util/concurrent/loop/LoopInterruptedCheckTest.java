@@ -58,10 +58,10 @@ public class LoopInterruptedCheckTest {
 
     private void testLoopAlwaysDate() throws InterruptedException {
         final Instant start = new Instant();
-        FDate prevInterruptCheck = new FDate();
+        FDate prevInterruptCheck = FDate.now();
         int iterations = 0;
         for (int i = 0; i < SECONDS;) {
-            final FDate curTime = new FDate();
+            final FDate curTime = FDate.now();
             if (new Duration(prevInterruptCheck, curTime).isGreaterThanOrEqualTo(Duration.ONE_SECOND)) {
                 Threads.throwIfInterrupted();
                 prevInterruptCheck = curTime;

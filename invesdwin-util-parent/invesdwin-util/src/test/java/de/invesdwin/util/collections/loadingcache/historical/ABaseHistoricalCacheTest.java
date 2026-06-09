@@ -586,7 +586,7 @@ public abstract class ABaseHistoricalCacheTest {
             } else {
                 final List<FDate> list = new ArrayList<FDate>();
                 for (final FDate d : entities) {
-                    if (!d.isBefore(key)) {
+                    if (!d.isBeforeNotNullSafe(key)) {
                         list.add(d);
                     }
                 }
@@ -615,7 +615,7 @@ public abstract class ABaseHistoricalCacheTest {
                     if (previousE == null) {
                         previousE = e;
                     } else {
-                        if (key.isAfter(e)) {
+                        if (key.isAfterNotNullSafe(e)) {
                             previousE = e;
                         } else {
                             break;

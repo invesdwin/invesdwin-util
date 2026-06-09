@@ -53,7 +53,7 @@ public abstract class ANonRecursivePullingHistoricalCacheAdjustKeyProvider
         }
         final FDate newHighestAllowedKey = getHighestAllowedKeyUpdateCached();
         if (newHighestAllowedKey != null) {
-            if (key.millisValue() > newHighestAllowedKey.millisValue()) {
+            if (key.isAfterNotNullSafe(newHighestAllowedKey)) {
                 return newHighestAllowedKey;
             }
         }
@@ -70,7 +70,7 @@ public abstract class ANonRecursivePullingHistoricalCacheAdjustKeyProvider
                 clear();
             }
 
-            if (purge || curHighestAllowedKeyCopy.isBefore(newHighestAllowedKey)) {
+            if (purge || curHighestAllowedKeyCopy.isBeforeNotNullSafe(newHighestAllowedKey)) {
                 curHighestAllowedKey = newHighestAllowedKey;
                 prevHighestAllowedKey = curHighestAllowedKeyCopy;
             }

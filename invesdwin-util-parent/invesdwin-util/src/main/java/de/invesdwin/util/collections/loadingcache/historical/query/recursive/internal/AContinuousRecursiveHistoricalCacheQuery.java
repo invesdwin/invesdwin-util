@@ -234,7 +234,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                     //no data found
                     return null;
                 }
-                if (previousKey == null || previousKey.isBeforeOrEqualTo(firstAvailableKey)) {
+                if (previousKey == null || previousKey.isBeforeOrEqualToNotNullSafe(firstAvailableKey)) {
                     return getInitialValue(previousKey);
                 }
 
@@ -246,7 +246,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                         final Optional<V> cachedResult = cachedRecursionResults.getIfPresent(previousKey);
                         if (cachedResult != null) {
                             return cachedResult.orElse(null);
-                        } else if (previousKey.isBeforeOrEqualTo(firstRecursionKey)
+                        } else if (previousKey.isBeforeOrEqualToNotNullSafe(firstRecursionKey)
                                 || lastRecursionKey.equals(firstAvailableKey) || key.equals(previousKey)) {
                             return getInitialValue(previousKey);
                         } else {
@@ -334,7 +334,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
                 return highestRecursionResult;
             }
             final IBufferingIterator<FDate> recursionKeysIterator = newRecursionKeysIterator(previousKey);
-            if (firstRecursionKey == null || firstRecursionKey.isAfterOrEqualTo(previousKey)) {
+            if (firstRecursionKey == null || firstRecursionKey.isAfterOrEqualToNotNullSafe(previousKey)) {
                 return getInitialValue(previousKey);
             }
             FDate curRecursionKey = null;
@@ -370,7 +370,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
         if (shouldAppendHighestRecursionResults) {
             if (!highestRecursionResultsAsc.isEmpty()) {
                 final FDate highestRecursionKey = highestRecursionResultsAsc.lastKey();
-                if (highestRecursionKey != null && highestRecursionKey.isAfter(key)) {
+                if (highestRecursionKey != null && highestRecursionKey.isAfterNotNullSafe(key)) {
                     return;
                 }
             }
@@ -399,7 +399,7 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
             if (recursionKeys.isEmpty() && !previousKey.equalsNotNullSafe(newPreviousKey)) {
                 recursionKeys.add(previousKey);
             }
-            if (newPreviousKey.isAfterOrEqualTo(previousKey)) {
+            if (newPreviousKey.isAfterOrEqualToNotNullSafe(previousKey)) {
                 //start or end reached
                 break;
             } else if (highestRecursionResultsAsc.containsKey(newPreviousKey)) {

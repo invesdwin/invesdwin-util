@@ -132,4 +132,9 @@ public final class StrategyReentrantReadWriteLock implements IReentrantReadWrite
     public ILockTrace getLockTrace() {
         return delegate.getLockTrace();
     }
+
+    @Override
+    public boolean isDisabled() {
+        return delegate.isDisabled() || strategy.isDisabled();
+    }
 }

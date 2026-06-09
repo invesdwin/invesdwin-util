@@ -610,4 +610,16 @@ public final class Integers extends AIntegersStaticFacade {
         return (int) Doubles.sqrt(value);
     }
 
+    public static int floorMod(final int x, final int y) {
+        //CHECKSTYLE:OFF
+        return Math.floorMod(x, y);
+        //CHECKSTYLE:ON
+    }
+
+    public static int floorMod(final long x, final int y) {
+        //CHECKSTYLE:OFF
+        return Math.floorMod(x, y);
+        //CHECKSTYLE:ON
+    }
+
 }

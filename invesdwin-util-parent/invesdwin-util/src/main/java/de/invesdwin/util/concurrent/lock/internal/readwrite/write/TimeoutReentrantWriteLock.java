@@ -95,4 +95,9 @@ public class TimeoutReentrantWriteLock implements IReentrantWriteLock {
         return delegate.getLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return delegate.isDisabled();
+    }
+
 }

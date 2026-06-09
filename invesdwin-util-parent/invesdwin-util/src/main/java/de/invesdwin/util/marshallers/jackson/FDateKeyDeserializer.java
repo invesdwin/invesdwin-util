@@ -22,7 +22,7 @@ public final class FDateKeyDeserializer extends KeyDeserializer {
         if (Strings.isEmpty(key)) {
             return null;
         }
-        return FDate.valueOf(key, FDate.FORMAT_ISO_DATE_TIME_MS);
+        return FDate.valueOf(key, FDate.FORMAT_ISO_DATE_TIME_PS);
     }
 
 }

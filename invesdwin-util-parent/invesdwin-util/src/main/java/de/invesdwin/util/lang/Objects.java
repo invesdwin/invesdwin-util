@@ -62,6 +62,102 @@ public final class Objects extends AObjectsStaticFacade {
         return org.apache.commons.lang3.ObjectUtils.firstNonNull(values);
     }
 
+    public static boolean equals(final double a, final double b) {
+        return Double.doubleToLongBits(a) == Double.doubleToLongBits(b);
+    }
+
+    public static boolean equals(final Double a, final double b) {
+        return a != null && Double.doubleToLongBits(a.doubleValue()) == Double.doubleToLongBits(b);
+    }
+
+    public static boolean equals(final double a, final Double b) {
+        return b != null && Double.doubleToLongBits(a) == Double.doubleToLongBits(b.doubleValue());
+    }
+
+    public static boolean equals(final float a, final float b) {
+        return Float.floatToIntBits(a) == Float.floatToIntBits(b);
+    }
+
+    public static boolean equals(final Float a, final float b) {
+        return a != null && Float.floatToIntBits(a.floatValue()) == Float.floatToIntBits(b);
+    }
+
+    public static boolean equals(final float a, final Float b) {
+        return b != null && Float.floatToIntBits(a) == Float.floatToIntBits(b.floatValue());
+    }
+
+    public static boolean equals(final long a, final long b) {
+        return a == b;
+    }
+
+    public static boolean equals(final Long a, final long b) {
+        return a != null && a.longValue() == b;
+    }
+
+    public static boolean equals(final long a, final Long b) {
+        return b != null && a == b.longValue();
+    }
+
+    public static boolean equals(final int a, final int b) {
+        return a == b;
+    }
+
+    public static boolean equals(final Integer a, final int b) {
+        return a != null && a.intValue() == b;
+    }
+
+    public static boolean equals(final int a, final Integer b) {
+        return b != null && a == b.intValue();
+    }
+
+    public static boolean equals(final short a, final short b) {
+        return a == b;
+    }
+
+    public static boolean equals(final Short a, final short b) {
+        return a != null && a.shortValue() == b;
+    }
+
+    public static boolean equals(final short a, final Short b) {
+        return b != null && a == b.shortValue();
+    }
+
+    public static boolean equals(final char a, final char b) {
+        return a == b;
+    }
+
+    public static boolean equals(final Character a, final char b) {
+        return a != null && a.charValue() == b;
+    }
+
+    public static boolean equals(final char a, final Character b) {
+        return b != null && a == b.charValue();
+    }
+
+    public static boolean equals(final byte a, final byte b) {
+        return a == b;
+    }
+
+    public static boolean equals(final Byte a, final byte b) {
+        return a != null && a.byteValue() == b;
+    }
+
+    public static boolean equals(final byte a, final Byte b) {
+        return b != null && a == b.byteValue();
+    }
+
+    public static boolean equals(final boolean a, final boolean b) {
+        return a == b;
+    }
+
+    public static boolean equals(final Boolean a, final boolean b) {
+        return a != null && a.booleanValue() == b;
+    }
+
+    public static boolean equals(final boolean a, final Boolean b) {
+        return b != null && a == b.booleanValue();
+    }
+
     //CHECKSTYLE:OFF
     public static boolean equals(@Nullable final Object a, @Nullable final Object b) {
         //CHECKSTYLE:ON

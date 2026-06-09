@@ -69,4 +69,9 @@ public class TracedReadWriteLock implements IReadWriteLock {
         return writeLock.getLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return delegate.isDisabled();
+    }
+
 }

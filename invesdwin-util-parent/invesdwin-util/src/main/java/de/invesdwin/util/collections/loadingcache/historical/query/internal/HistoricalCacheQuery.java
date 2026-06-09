@@ -438,7 +438,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                             } else {
                                 nextEntry = future.getNextEntryCached(currentEntryKey, 1);
                                 nextEntryKey = extractKey(nextEntry);
-                                if (nextEntry != null && !nextEntryKey.isAfter(currentEntryKey)) {
+                                if (nextEntry != null && !nextEntryKey.isAfterNotNullSafe(currentEntryKey)) {
                                     nextEntry = null;
                                     nextEntryKey = null;
                                 }
@@ -580,11 +580,11 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                 return null;
             }
             final FDate previousKey = previousEntry.getKey();
-            if (!firstTry && !previousKey.isBefore(curKey)) {
+            if (!firstTry && !previousKey.isBeforeNotNullSafe(curKey)) {
                 return null;
             }
             curKey = previousKey;
-            if (curKey.isBefore(from)) {
+            if (curKey.isBeforeNotNullSafe(from)) {
                 return null;
             }
             final Optional<V> optionalCurValue = Optional.ofNullable(previousEntry.getValue());
@@ -625,11 +625,11 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                 return null;
             }
             final FDate previousKey = previousEntry.getKey();
-            if (!firstTry && !previousKey.isBefore(curKey)) {
+            if (!firstTry && !previousKey.isBeforeNotNullSafe(curKey)) {
                 return null;
             }
             curKey = previousKey;
-            if (curKey.isBefore(from)) {
+            if (curKey.isBeforeNotNullSafe(from)) {
                 return null;
             }
             final Optional<V> optionalCurValue = Optional.ofNullable(previousEntry.getValue());
@@ -670,7 +670,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                 return null;
             }
             final FDate previousKey = previousEntry.getKey();
-            if (curTry > 0 && !previousKey.isBefore(curKey)) {
+            if (curTry > 0 && !previousKey.isBeforeNotNullSafe(curKey)) {
                 return null;
             }
             curKey = previousKey;
@@ -715,7 +715,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
                 return null;
             }
             final FDate previousKey = previousEntry.getKey();
-            if (curTry > 0 && !previousKey.isBefore(curKey)) {
+            if (curTry > 0 && !previousKey.isBeforeNotNullSafe(curKey)) {
                 return null;
             }
             curKey = previousKey;

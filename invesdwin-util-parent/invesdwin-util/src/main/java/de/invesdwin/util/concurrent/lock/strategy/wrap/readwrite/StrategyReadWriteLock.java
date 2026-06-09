@@ -83,4 +83,9 @@ public final class StrategyReadWriteLock implements IReadWriteLock {
         return delegate.getLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return delegate.isDisabled() || strategy.isDisabled();
+    }
+
 }

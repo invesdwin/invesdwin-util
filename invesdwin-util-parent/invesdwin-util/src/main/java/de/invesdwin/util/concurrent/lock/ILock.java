@@ -54,4 +54,6 @@ public interface ILock extends Lock, ICloseableLock {
 
     ILockTrace getLockTrace();
 
+    boolean isDisabled();
+
 }

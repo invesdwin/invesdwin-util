@@ -9,20 +9,16 @@ import de.invesdwin.util.time.date.FDate;
 @Immutable
 public class IndexedByteBuffer {
 
-    private final long index;
+    private final FDate index;
     private final IByteBufferProvider byteBuffer;
 
-    public IndexedByteBuffer(final long index, final IByteBufferProvider byteBuffer) {
+    public IndexedByteBuffer(final FDate index, final IByteBufferProvider byteBuffer) {
         this.index = index;
         this.byteBuffer = byteBuffer;
     }
 
-    public long getIndex() {
+    public FDate getIndex() {
         return index;
-    }
-
-    public FDate getTime() {
-        return new FDate(index);
     }
 
     public IByteBufferProvider getByteBuffer() {

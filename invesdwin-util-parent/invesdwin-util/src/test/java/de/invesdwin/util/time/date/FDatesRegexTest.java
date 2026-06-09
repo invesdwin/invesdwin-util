@@ -72,7 +72,7 @@ public class FDatesRegexTest {
         final Instant start = new Instant();
         long countTrue = 0;
         for (int i = 0; i < COUNT_LOOPS; i++) {
-            if (FDates.startsWithIsoDateTimeMsFormat("ASDF2016-08-04T06:05:00.000ASDF", 4)) {
+            if (FDates.startsWithIsoDateTimePsFormat("ASDF2016-08-04T06:05:00.000ASDF", 4)) {
                 countTrue++;
             }
         }

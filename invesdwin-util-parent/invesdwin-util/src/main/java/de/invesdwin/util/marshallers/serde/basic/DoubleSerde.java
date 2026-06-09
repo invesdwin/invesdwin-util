@@ -3,7 +3,6 @@ package de.invesdwin.util.marshallers.serde.basic;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.marshallers.serde.ISerde;
-import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -14,16 +13,6 @@ public final class DoubleSerde implements ISerde<Double> {
     public static final int FIXED_LENGTH = Double.BYTES;
 
     private DoubleSerde() {}
-
-    @Override
-    public Double fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final Double obj) {
-        return SerdeBaseMethods.toBytes(this, obj);
-    }
 
     @Override
     public Double fromBuffer(final IByteBuffer buffer) {

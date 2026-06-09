@@ -29,7 +29,7 @@ public abstract class AIterableGapHistoricalCache<V> extends AGapHistoricalCache
         return new ASkippingIterable<V>(getDelegate()) {
             @Override
             protected boolean skip(final V element) {
-                return extractKey(null, element).isBefore(key);
+                return extractKey(null, element).isBeforeNotNullSafe(key);
             }
         };
     }
@@ -47,7 +47,7 @@ public abstract class AIterableGapHistoricalCache<V> extends AGapHistoricalCache
                     previousE = e;
                 } else {
                     final FDate eKey = extractKey(null, e);
-                    if (key.isAfter(eKey)) {
+                    if (key.isAfterNotNullSafe(eKey)) {
                         previousE = e;
                     } else {
                         break;
@@ -67,7 +67,7 @@ public abstract class AIterableGapHistoricalCache<V> extends AGapHistoricalCache
                 final V value = delegate.next();
                 final FDate valueKey = extractKey(null, value);
 
-                if (valueKey.isAfter(key)) {
+                if (valueKey.isAfterNotNullSafe(key)) {
                     return valueKey;
                 }
             }
@@ -78,7 +78,7 @@ public abstract class AIterableGapHistoricalCache<V> extends AGapHistoricalCache
 
     @Override
     protected FDate innerCalculatePreviousKey(final FDate key) {
-        return key.addMilliseconds(-1);
+        return key.addPicoseconds(-1);
     }
 
 }

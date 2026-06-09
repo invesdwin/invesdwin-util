@@ -4,13 +4,14 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.collections.iterable.skip.ASkippingIterable;
+import de.invesdwin.util.collections.iterable.skip.ATimeRangeSkippingIterable;
+import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
-abstract class AFilterSkippingIterable<E> extends ASkippingIterable<E> {
+abstract class AFilterSkippingIterable<E> extends ATimeRangeSkippingIterable<E> {
 
-    AFilterSkippingIterable(final ICloseableIterable<? extends E> delegate) {
-        super(delegate);
+    AFilterSkippingIterable(final ICloseableIterable<? extends E> delegate, final FDate from, final FDate to) {
+        super(delegate, from, to);
     }
 
     @SuppressWarnings("unchecked")

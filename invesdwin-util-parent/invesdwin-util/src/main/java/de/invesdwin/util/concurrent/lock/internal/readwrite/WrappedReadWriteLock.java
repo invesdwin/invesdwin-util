@@ -75,4 +75,9 @@ public class WrappedReadWriteLock implements IReadWriteLock {
         return writeLock.getLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return false;
+    }
+
 }

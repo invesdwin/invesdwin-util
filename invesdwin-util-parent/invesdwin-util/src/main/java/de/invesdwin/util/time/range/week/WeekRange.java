@@ -151,7 +151,7 @@ public class WeekRange extends AValueObject implements IWeekRangeData {
         }
         final FDate weekendFrom = time.setFWeekTime(from, WeekAdjustment.PREVIOUS);
         FDate weekendTo = time.setFWeekTime(to, WeekAdjustment.PREVIOUS);
-        if (weekendTo.isBeforeOrEqualTo(weekendFrom)) {
+        if (weekendTo.isBeforeOrEqualToNotNullSafe(weekendFrom)) {
             weekendTo = weekendTo.addWeeks(1);
         }
         return FDates.isBetweenInclusiveNotNullSafe(time, weekendFrom, weekendTo);
@@ -170,7 +170,7 @@ public class WeekRange extends AValueObject implements IWeekRangeData {
         }
         final FDate weekendFrom = time.setFWeekTime(from, WeekAdjustment.PREVIOUS);
         FDate weekendTo = time.setFWeekTime(to, WeekAdjustment.PREVIOUS);
-        if (weekendTo.isBeforeOrEqualTo(weekendFrom)) {
+        if (weekendTo.isBeforeOrEqualToNotNullSafe(weekendFrom)) {
             weekendTo = weekendTo.addWeeks(1);
         }
         return FDates.isBetweenExclusiveNotNullSafe(time, weekendFrom, weekendTo);
@@ -193,7 +193,7 @@ public class WeekRange extends AValueObject implements IWeekRangeData {
                 return new WeekRange(from, to);
             } else {
                 throw new IllegalArgumentException("Expecting two arguments for from and to (e.g. ["
-                        + new WeekRange(new FWeekTime(new FDate().addDays(-1)), new FWeekTime(new FDate())) + "])");
+                        + new WeekRange(new FWeekTime(FDate.now().addDays(-1)), new FWeekTime(FDate.now())) + "])");
             }
         } catch (final Throwable t) {
             throw new RuntimeException("Args: " + Arrays.toString(args) + " from " + value, t);

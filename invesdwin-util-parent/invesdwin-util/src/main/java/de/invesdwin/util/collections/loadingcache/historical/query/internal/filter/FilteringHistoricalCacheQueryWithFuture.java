@@ -43,7 +43,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
             return null;
         }
         final int adjShiftForwardUnits;
-        if (curKey.isBefore(key)) {
+        if (curKey.isBeforeNotNullSafe(key)) {
             adjShiftForwardUnits = shiftForwardUnits + 1;
         } else {
             if (shiftForwardUnits == 0) {
@@ -52,7 +52,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
             adjShiftForwardUnits = shiftForwardUnits;
         }
         final FDate result = delegate.getNextKey(curKey, adjShiftForwardUnits);
-        if (result == null || result.isBefore(key)) {
+        if (result == null || result.isBeforeNotNullSafe(key)) {
             return null;
         } else {
             return result;
@@ -72,7 +72,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
             return null;
         }
         final int adjShiftForwardUnits;
-        if (curEntry.getKey().isBefore(key)) {
+        if (curEntry.getKey().isBeforeNotNullSafe(key)) {
             adjShiftForwardUnits = shiftForwardUnits + 1;
         } else {
             if (shiftForwardUnits == 0) {
@@ -81,7 +81,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
             adjShiftForwardUnits = shiftForwardUnits;
         }
         final IHistoricalEntry<V> result = delegate.getNextEntry(curEntry.getKey(), adjShiftForwardUnits);
-        if (result == null || result.getKey().isBefore(key)) {
+        if (result == null || result.getKey().isBeforeNotNullSafe(key)) {
             return null;
         } else {
             return result;
@@ -133,16 +133,21 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
             return null;
         }
         final int adjShiftForwardUnits;
-        if (curKey.isBefore(key)) {
+        if (curKey.isBeforeNotNullSafe(key)) {
             adjShiftForwardUnits = shiftForwardUnits + 1;
         } else {
             adjShiftForwardUnits = shiftForwardUnits;
         }
         final ICloseableIterable<FDate> result = delegate.getNextKeys(curKey, adjShiftForwardUnits);
-        return new AFilterSkippingIterable<FDate>(result) {
+        return new AFilterSkippingIterable<FDate>(result, key, null) {
             @Override
-            protected boolean skip(final FDate element) {
-                return element.isBefore(key);
+            protected FDate extractEndTime(final FDate element) {
+                return element;
+            }
+
+            @Override
+            protected String getName() {
+                return "FilteringHistoricalCacheQueryWithFuture.getNextKeys";
             }
         };
     }
@@ -154,17 +159,22 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
             return null;
         }
         final int adjShiftForwardUnits;
-        if (curEntry.getKey().isBefore(key)) {
+        if (curEntry.getKey().isBeforeNotNullSafe(key)) {
             adjShiftForwardUnits = shiftForwardUnits + 1;
         } else {
             adjShiftForwardUnits = shiftForwardUnits;
         }
         final ICloseableIterable<IHistoricalEntry<V>> result = delegate.getNextEntries(curEntry.getKey(),
                 adjShiftForwardUnits);
-        return new AFilterSkippingIterable<IHistoricalEntry<V>>(result) {
+        return new AFilterSkippingIterable<IHistoricalEntry<V>>(result, key, null) {
             @Override
-            protected boolean skip(final IHistoricalEntry<V> element) {
-                return element.getKey().isBefore(key);
+            protected FDate extractEndTime(final IHistoricalEntry<V> element) {
+                return element.getKey();
+            }
+
+            @Override
+            protected String getName() {
+                return "FilteringHistoricalCacheQueryWithFuture.getNextEntries";
             }
         };
     }
@@ -176,7 +186,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
             return null;
         }
         final int adjShiftForwardUnits;
-        if (curKey.isBefore(key)) {
+        if (curKey.isBeforeNotNullSafe(key)) {
             adjShiftForwardUnits = shiftForwardUnits + 1;
         } else {
             if (shiftForwardUnits == 0) {
@@ -185,7 +195,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
             adjShiftForwardUnits = shiftForwardUnits;
         }
         final FDate result = delegate.getNextKeyCached(curKey, adjShiftForwardUnits);
-        if (result == null || result.isBefore(key)) {
+        if (result == null || result.isBeforeNotNullSafe(key)) {
             return null;
         } else {
             return result;
@@ -205,7 +215,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
             return null;
         }
         final int adjShiftForwardUnits;
-        if (curEntry.getKey().isBefore(key)) {
+        if (curEntry.getKey().isBeforeNotNullSafe(key)) {
             adjShiftForwardUnits = shiftForwardUnits + 1;
         } else {
             if (shiftForwardUnits == 0) {
@@ -214,7 +224,7 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
             adjShiftForwardUnits = shiftForwardUnits;
         }
         final IHistoricalEntry<V> result = delegate.getNextEntryCached(curEntry.getKey(), adjShiftForwardUnits);
-        if (result == null || result.getKey().isBefore(key)) {
+        if (result == null || result.getKey().isBeforeNotNullSafe(key)) {
             return null;
         } else {
             return result;
@@ -266,16 +276,21 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
             return null;
         }
         final int adjShiftForwardUnits;
-        if (curKey.isBefore(key)) {
+        if (curKey.isBeforeNotNullSafe(key)) {
             adjShiftForwardUnits = shiftForwardUnits + 1;
         } else {
             adjShiftForwardUnits = shiftForwardUnits;
         }
         final ICloseableIterable<FDate> result = delegate.getNextKeysCached(curKey, adjShiftForwardUnits);
-        return new AFilterSkippingIterable<FDate>(result) {
+        return new AFilterSkippingIterable<FDate>(result, key, null) {
             @Override
-            protected boolean skip(final FDate element) {
-                return element.isBefore(key);
+            protected FDate extractEndTime(final FDate element) {
+                return element;
+            }
+
+            @Override
+            protected String getName() {
+                return "FilteringHistoricalCacheQueryWithFuture.getNextKeysCached";
             }
         };
     }
@@ -287,17 +302,22 @@ public class FilteringHistoricalCacheQueryWithFuture<V> extends FilteringHistori
             return null;
         }
         final int adjShiftForwardUnits;
-        if (curEntry.getKey().isBefore(key)) {
+        if (curEntry.getKey().isBeforeNotNullSafe(key)) {
             adjShiftForwardUnits = shiftForwardUnits + 1;
         } else {
             adjShiftForwardUnits = shiftForwardUnits;
         }
         final ICloseableIterable<IHistoricalEntry<V>> result = delegate.getNextEntriesCached(curEntry.getKey(),
                 adjShiftForwardUnits);
-        return new AFilterSkippingIterable<IHistoricalEntry<V>>(result) {
+        return new AFilterSkippingIterable<IHistoricalEntry<V>>(result, key, null) {
             @Override
-            protected boolean skip(final IHistoricalEntry<V> element) {
-                return element.getKey().isBefore(key);
+            protected FDate extractEndTime(final IHistoricalEntry<V> element) {
+                return element.getKey();
+            }
+
+            @Override
+            protected String getName() {
+                return "FilteringHistoricalCacheQueryWithFuture.getNextEntriesCached";
             }
         };
     }

@@ -32,4 +32,9 @@ public final class DefaultLockingStrategy implements ILockingStrategy {
         return lock.tryLock(time, unit);
     }
 
+    @Override
+    public boolean isDisabled() {
+        return false;
+    }
+
 }

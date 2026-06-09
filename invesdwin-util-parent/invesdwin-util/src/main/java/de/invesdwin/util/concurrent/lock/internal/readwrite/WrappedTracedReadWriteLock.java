@@ -25,7 +25,8 @@ public class WrappedTracedReadWriteLock implements IReadWriteLock {
         this.name = name;
         this.delegate = delegate;
         this.readLock = new WrappedTracedReadLock(lockTrace, name + "_readLock", this, delegate.readLock());
-        this.writeLock = new WrappedTracedWriteLock(lockTrace, readLock.getName(), name + "_writeLock", delegate.writeLock());
+        this.writeLock = new WrappedTracedWriteLock(lockTrace, readLock.getName(), name + "_writeLock",
+                delegate.writeLock());
     }
 
     @Override
@@ -73,6 +74,11 @@ public class WrappedTracedReadWriteLock implements IReadWriteLock {
     @Override
     public ILockTrace getLockTrace() {
         return writeLock.getLockTrace();
+    }
+
+    @Override
+    public boolean isDisabled() {
+        return false;
     }
 
 }

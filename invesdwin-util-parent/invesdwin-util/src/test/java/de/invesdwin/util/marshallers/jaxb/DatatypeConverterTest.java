@@ -12,7 +12,7 @@ public class DatatypeConverterTest {
 
     @Test
     public void testDateTime() {
-        final FDate date1 = new FDate();
+        final FDate date1 = FDate.nowMillis();
         final String str1 = DatatypeConverter.printDateTime(date1);
         final FDate date2 = DatatypeConverter.parseDateTime(str1);
         final String str2 = DatatypeConverter.printDateTime(date2);

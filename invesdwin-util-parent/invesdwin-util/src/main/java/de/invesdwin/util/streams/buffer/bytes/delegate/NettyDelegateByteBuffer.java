@@ -38,6 +38,7 @@ import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferOutputStream;
 import de.invesdwin.util.streams.buffer.bytes.stream.ExpandableByteBufferOutputStream;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -580,8 +581,8 @@ public class NettyDelegateByteBuffer implements IByteBuffer {
                 }
                 if (result == 0 && timeout != null) {
                     if (zeroCountNanos == -1) {
-                        zeroCountNanos = System.nanoTime();
-                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        zeroCountNanos = FDateNanos.elapsedNanos();
+                    } else if (timeout.isLessThanNanos(FDateNanos.elapsedNanos() - zeroCountNanos)) {
                         throw FastEOFException.getInstance("write timeout exceeded");
                     }
                     ASpinWait.onSpinWaitStatic();

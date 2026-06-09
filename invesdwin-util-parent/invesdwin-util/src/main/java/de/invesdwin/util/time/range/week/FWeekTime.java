@@ -27,12 +27,13 @@ public class FWeekTime extends ADayTime<FWeekTime> implements IWeekTimeData {
     private final FWeekday weekday;
 
     public FWeekTime(final FDate date) {
-        this(date.getFWeekday(), date.getHour(), date.getMinute(), date.getSecond(), date.getMillisecond());
+        this(date.getFWeekday(), date.getHour(), date.getMinute(), date.getSecond(), date.getMillisecond(),
+                date.getMicrosecond(), date.getNanosecond(), date.getPicosecond());
     }
 
-    public FWeekTime(final FWeekday weekday, final int hour, final int minute, final int second,
-            final int millisecond) {
-        super(hour, minute, second, millisecond);
+    public FWeekTime(final FWeekday weekday, final int hour, final int minute, final int second, final int millisecond,
+            final int microsecond, final int nanosecond, final int picosecond) {
+        super(hour, minute, second, millisecond, microsecond, nanosecond, picosecond);
         if (weekday == null) {
             throw new NullPointerException("weekday should not be null");
         }
@@ -129,12 +130,12 @@ public class FWeekTime extends ADayTime<FWeekTime> implements IWeekTimeData {
     }
 
     /**
-     * WhhmmssSSS
+     * WhhmmssSSSUUUNNNPPP
      */
     @Override
     public long longValue() {
-        //weekday * 1_hh_mm_ss_SSS + hour * 1_mm_ss_SSS + minute * 1_ss_SSS + second * 1_SSS + millisecond
-        return weekday.jodaTimeValue() * 1_00_00_00_000L + innerIntValue();
+        //weekday * 1_hh_mm_ss_SSS_UUU_NNN_PPP + ...
+        return weekday.jodaTimeValue() * 1_00_00_00_000_000_000_000L + innerLongValue();
     }
 
     @Override
@@ -158,53 +159,38 @@ public class FWeekTime extends ADayTime<FWeekTime> implements IWeekTimeData {
     private static FWeekTime valueOfNumeric(final String value, final boolean max) {
         try {
             final int length = value.length();
-            if (length != 1 && length != 3 && length != 5 && length != 7 && length != 10) {
-                throw new IllegalArgumentException("Expecting between 1, 3, 5, 7 or 10 characters but got " + length);
-            }
+            assertValidLength(length);
             final FWeekday weekday = FWeekday.valueOfJodaTime(Integer.parseInt(value.substring(0, 1)));
-            final int hour;
-            if (length > 1) {
-                hour = Integer.parseInt(value.substring(1, 3));
-            } else {
-                if (max) {
-                    hour = 23;
-                } else {
-                    hour = 0;
-                }
-            }
-            final int minute;
-            if (length > 3) {
-                minute = Integer.parseInt(value.substring(3, 5));
-            } else {
-                if (max) {
-                    minute = 59;
-                } else {
-                    minute = 0;
-                }
-            }
-            final int second;
-            if (length > 5) {
-                second = Integer.parseInt(value.substring(5, 7));
-            } else {
-                if (max) {
-                    second = 59;
-                } else {
-                    second = 0;
-                }
-            }
-            final int millisecond;
-            if (length > 7) {
-                millisecond = Integer.parseInt(value.substring(7, 10));
-            } else {
-                if (max) {
-                    millisecond = 999;
-                } else {
-                    millisecond = 0;
-                }
-            }
-            return new FWeekTime(weekday, hour, minute, second, millisecond);
+            final int hour = parseField(value, 1, 3, length, MAX_HOUR, max);
+            final int minute = parseField(value, 3, 5, length, MAX_MINUTE, max);
+            final int second = parseField(value, 5, 7, length, MAX_SECOND, max);
+            final int millisecond = parseField(value, 7, 10, length, MAX_MILLISECOND, max);
+            final int microsecond = parseField(value, 10, 13, length, MAX_MICROSECOND, max);
+            final int nanosecond = parseField(value, 13, 16, length, MAX_NANOSECOND, max);
+            final int picosecond = parseField(value, 16, 19, length, MAX_PICOSECOND, max);
+            return new FWeekTime(weekday, hour, minute, second, millisecond, microsecond, nanosecond, picosecond);
         } catch (final Throwable t) {
-            throw new RuntimeException("Expected format D[1-7]HH[0-23]MM[0-59]SS[0-59]SSS[0-999] at: " + value, t);
+            throw new RuntimeException(
+                    "Expected format D[1-7]HH[0-23]MM[0-59]SS[0-59]SSS[0-999]UUU[0-999]NNN[0-999]PPP[0-999] at: "
+                            + value,
+                    t);
+        }
+    }
+
+    private static void assertValidLength(final int length) {
+        switch (length) {
+        case 1:
+        case 3:
+        case 5:
+        case 7:
+        case 10:
+        case 13:
+        case 16:
+        case 19:
+            return;
+        default:
+            throw new IllegalArgumentException(
+                    "Expecting between 1, 3, 5, 7, 10, 13, 16 or 19 characters but got " + length);
         }
     }
 
@@ -242,7 +228,10 @@ public class FWeekTime extends ADayTime<FWeekTime> implements IWeekTimeData {
                 .add(hour, FTimeUnit.HOURS)
                 .add(minute, FTimeUnit.MINUTES)
                 .add(second, FTimeUnit.SECONDS)
-                .add(millisecond, FTimeUnit.MILLISECONDS);
+                .add(millisecond, FTimeUnit.MILLISECONDS)
+                .add(microsecond, FTimeUnit.MICROSECONDS)
+                .add(nanosecond, FTimeUnit.NANOSECONDS)
+                .add(picosecond, FTimeUnit.PICOSECONDS);
     }
 
     @Override

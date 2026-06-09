@@ -27,7 +27,9 @@ public class DurationTest {
     public void testIsGreaterThan() throws InterruptedException {
         final Instant start = new Instant();
         start.sleepRelative(10, FTimeUnit.MILLISECONDS);
-        Assertions.assertThat(new Duration(start).isGreaterThan(5, FTimeUnit.MILLISECONDS)).isTrue();
+        final Instant end = new Instant();
+        final Duration duration = new Duration(start, end);
+        Assertions.assertThat(duration.isGreaterThan(5, FTimeUnit.MILLISECONDS)).isTrue();
         Assertions.assertThat(
                 new Duration(start, new Instant(0, FTimeUnit.MILLISECONDS)).isGreaterThan(5, FTimeUnit.MILLISECONDS))
                 .isFalse();
@@ -35,7 +37,7 @@ public class DurationTest {
 
     @Test
     public void testIsGreaterThanFDate() throws InterruptedException {
-        final FDate start = new FDate().addMinutes(-1);
+        final FDate start = FDate.now().addMinutes(-1);
         Assertions.assertThat(new Duration(start).isGreaterThan(55, FTimeUnit.SECONDS)).isTrue();
         Assertions.assertThat(new Duration(start).isGreaterThan(65, FTimeUnit.SECONDS)).isFalse();
     }
@@ -48,28 +50,32 @@ public class DurationTest {
     @Test
     public void testToString() {
         Assertions.assertThat(new Duration(0, FTimeUnit.DAYS).toString()).isEqualTo("P0");
-        final FDate date = new FDate();
+        final FDate date = FDate.now();
         Assertions.assertThat(new Duration(date, date.addDays(1)).toString()).isEqualTo("P1D");
         Assertions.assertThat(new Duration(date.addDays(1), date).toString()).isEqualTo("-P1D");
         Assertions.assertThat(new Duration(66, FTimeUnit.MINUTES).toString(FTimeUnit.HOURS)).isEqualTo("PT1H");
         Assertions.assertThat(new Duration(-66, FTimeUnit.MINUTES).toString(FTimeUnit.HOURS)).isEqualTo("-PT1H");
         Assertions.assertThat(new Duration(-66, FTimeUnit.MINUTES).toString(FTimeUnit.DAYS)).isEqualTo("P0");
         Assertions.assertThat(new Duration(10, FTimeUnit.MINUTES).toString()).isEqualTo("PT10M");
-        Assertions.assertThat(new Duration(new FDate(0),
-                new FDate(0).addYears(1)
-                        .addDays(FTimeUnit.DAYS_IN_MONTH)
-                        .addWeeks(1)
-                        .addDays(1)
-                        .addHours(1)
-                        .addMinutes(1)
-                        .addSeconds(1)
-                        .addMilliseconds(1)).toString())
-                .isEqualTo("P1Y1M1W1DT1H1M1.001S");
+        Assertions
+                .assertThat(new Duration(new FDate(0, 0),
+                        new FDate(0, 0).addYears(1)
+                                .addDays(FTimeUnit.DAYS_IN_MONTH)
+                                .addWeeks(1)
+                                .addDays(1)
+                                .addHours(1)
+                                .addMinutes(1)
+                                .addSeconds(1)
+                                .addMilliseconds(1)
+                                .addMicroseconds(1)
+                                .addNanoseconds(1)
+                                .addPicoseconds(1)).toString(FTimeUnit.PICOSECONDS))
+                .isEqualTo("P1Y1M1W1DT1H1M1.001.001.001.001S");
     }
 
     @Test
     public void testDurationParser() {
-        final String durationStr = "P1Y1M1W1DT1H1M1.001.001.001S";
+        final String durationStr = "P1Y1M1W1DT1H1M1.001.001.001.001S";
         final Duration duration = Duration.valueOf(durationStr);
         Assertions.assertThat(duration.toString()).isEqualTo(durationStr);
     }
@@ -112,4 +118,5 @@ public class DurationTest {
             //CHECKSTYLE:ON
         }
     }
+
 }

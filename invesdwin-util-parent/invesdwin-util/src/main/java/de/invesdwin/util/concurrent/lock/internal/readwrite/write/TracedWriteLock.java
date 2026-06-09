@@ -160,4 +160,9 @@ public class TracedWriteLock implements ILock {
         return lockTrace;
     }
 
+    @Override
+    public boolean isDisabled() {
+        return delegate.isDisabled();
+    }
+
 }

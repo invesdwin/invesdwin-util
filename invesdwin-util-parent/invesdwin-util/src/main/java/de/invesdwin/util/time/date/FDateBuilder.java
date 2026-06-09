@@ -16,6 +16,9 @@ public class FDateBuilder {
     private int minutes = 0;
     private int seconds = 0;
     private int milliseconds = 0;
+    private int microseconds = 0;
+    private int nanoseconds = 0;
+    private int picoseconds = 0;
     private FTimeZone timeZone = FDates.getDefaultTimeZone();
 
     public void reset() {
@@ -27,6 +30,9 @@ public class FDateBuilder {
         minutes = 0;
         seconds = 0;
         milliseconds = 0;
+        microseconds = 0;
+        nanoseconds = 0;
+        picoseconds = 0;
         timeZone = FDates.getDefaultTimeZone();
     }
 
@@ -42,6 +48,9 @@ public class FDateBuilder {
         this.minutes = time.getMinute();
         this.seconds = time.getSecond();
         this.milliseconds = time.getMillisecond();
+        this.microseconds = time.getMicrosecond();
+        this.nanoseconds = time.getNanosecond();
+        this.picoseconds = time.getPicosecond();
         return this;
     }
 
@@ -57,9 +66,17 @@ public class FDateBuilder {
         return this;
     }
 
+    public int getYears() {
+        return years;
+    }
+
     public FDateBuilder setMonths(final int months) {
         this.months = months;
         return this;
+    }
+
+    public int getMonths() {
+        return months;
     }
 
     public FDateBuilder setFWeekday(final FWeekday weekday) {
@@ -67,9 +84,17 @@ public class FDateBuilder {
         return this;
     }
 
+    public FWeekday getFWeekday() {
+        return weekday;
+    }
+
     public FDateBuilder setWeekday(final int weekday) {
         this.weekday = FWeekday.valueOfIndex(weekday);
         return this;
+    }
+
+    public int getWeekday() {
+        return weekday.indexValue();
     }
 
     public FDateBuilder setDays(final int days) {
@@ -77,9 +102,17 @@ public class FDateBuilder {
         return this;
     }
 
+    public int getDays() {
+        return days;
+    }
+
     public FDateBuilder setHours(final int hours) {
         this.hours = hours;
         return this;
+    }
+
+    public int getHours() {
+        return hours;
     }
 
     public FDateBuilder setMinutes(final int minutes) {
@@ -87,9 +120,17 @@ public class FDateBuilder {
         return this;
     }
 
+    public int getMinutes() {
+        return minutes;
+    }
+
     public FDateBuilder setSeconds(final int seconds) {
         this.seconds = seconds;
         return this;
+    }
+
+    public int getSeconds() {
+        return seconds;
     }
 
     public FDateBuilder setMilliseconds(final int milliseconds) {
@@ -97,13 +138,39 @@ public class FDateBuilder {
         return this;
     }
 
+    public int getMilliseconds() {
+        return milliseconds;
+    }
+
+    public FDateBuilder setMicroseconds(final int microseconds) {
+        this.microseconds = microseconds;
+        return this;
+    }
+
+    public int getMicroseconds() {
+        return microseconds;
+    }
+
+    public FDateBuilder setNanoseconds(final int nanoseconds) {
+        this.nanoseconds = nanoseconds;
+        return this;
+    }
+
+    public int getNanoseconds() {
+        return nanoseconds;
+    }
+
     public FDateBuilder setTimeZone(final FTimeZone timeZone) {
         this.timeZone = timeZone;
         return this;
     }
 
+    public FTimeZone getTimeZone() {
+        return timeZone;
+    }
+
     public FDate getDate() {
-        return new FDate(getMillis());
+        return new FDate(getMillis(), getPicos());
     }
 
     public long getMillis() {
@@ -112,6 +179,10 @@ public class FDateBuilder {
             dateTime = timeZone.getDateTimeFieldWeekday().set(dateTime, weekday.jodaTimeValue());
         }
         return dateTime;
+    }
+
+    public int getPicos() {
+        return newPicos(microseconds, nanoseconds, picoseconds);
     }
 
     public static FDate newDate(final int years) {
@@ -146,7 +217,31 @@ public class FDateBuilder {
 
     public static FDate newDate(final int years, final int months, final int days, final int hours, final int minutes,
             final int seconds, final int milliseconds, final FTimeZone timeZone) {
-        return new FDate(newMillis(years, months, days, hours, minutes, seconds, milliseconds, timeZone));
+        return new FDate(newMillis(years, months, days, hours, minutes, seconds, milliseconds, timeZone), 0);
+    }
+
+    public static FDate newDate(final int years, final int months, final int days, final int hours, final int minutes,
+            final int seconds, final int milliseconds, final int microseconds) {
+        return newDate(years, months, days, hours, minutes, seconds, milliseconds, microseconds, 0);
+    }
+
+    public static FDate newDate(final int years, final int months, final int days, final int hours, final int minutes,
+            final int seconds, final int milliseconds, final int microseconds, final int nanoseconds) {
+        return newDate(years, months, days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds, 0);
+    }
+
+    public static FDate newDate(final int years, final int months, final int days, final int hours, final int minutes,
+            final int seconds, final int milliseconds, final int microseconds, final int nanoseconds,
+            final int picoseconds) {
+        return newDate(years, months, days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds,
+                picoseconds, FDates.getDefaultTimeZone());
+    }
+
+    public static FDate newDate(final int years, final int months, final int days, final int hours, final int minutes,
+            final int seconds, final int milliseconds, final int microseconds, final int nanoseconds,
+            final int picoseconds, final FTimeZone timeZone) {
+        return new FDate(newMillis(years, months, days, hours, minutes, seconds, milliseconds, timeZone),
+                newPicos(microseconds, nanoseconds, picoseconds));
     }
 
     public static long newMillis(final int years) {
@@ -185,6 +280,31 @@ public class FDateBuilder {
         final long dateTime = timeZone.getChronology()
                 .getDateTimeMillis(years, months, days, hours, minutes, seconds, milliseconds);
         return dateTime;
+    }
+
+    public static int newPicos(final int microseconds) {
+        assertValidField("microseconds", microseconds, FTimeUnit.MICROSECONDS_IN_MILLISECOND);
+        return microseconds * FTimeUnit.PICOSECONDS_IN_MICROSECOND;
+    }
+
+    public static int newPicos(final int microseconds, final int nanoseconds) {
+        assertValidField("microseconds", microseconds, FTimeUnit.MICROSECONDS_IN_MILLISECOND);
+        assertValidField("nanoseconds", nanoseconds, FTimeUnit.NANOSECONDS_IN_MICROSECOND);
+        return microseconds * FTimeUnit.PICOSECONDS_IN_MICROSECOND + nanoseconds * FTimeUnit.PICOSECONDS_IN_NANOSECOND;
+    }
+
+    public static int newPicos(final int microseconds, final int nanoseconds, final int picoseconds) {
+        assertValidField("microseconds", microseconds, FTimeUnit.MICROSECONDS_IN_MILLISECOND);
+        assertValidField("nanoseconds", nanoseconds, FTimeUnit.NANOSECONDS_IN_MICROSECOND);
+        assertValidField("picoseconds", picoseconds, FTimeUnit.PICOSECONDS_IN_NANOSECOND);
+        return microseconds * FTimeUnit.PICOSECONDS_IN_MICROSECOND + nanoseconds * FTimeUnit.PICOSECONDS_IN_NANOSECOND
+                + picoseconds;
+    }
+
+    private static void assertValidField(final String field, final int value, final int max) {
+        if (value < 0 || value >= max) {
+            throw new IllegalArgumentException(field + " must be between 0 and " + (max - 1) + ": " + value);
+        }
     }
 
 }

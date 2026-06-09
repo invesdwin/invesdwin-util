@@ -251,4 +251,9 @@ public class FileChannelLock implements Closeable, ILock {
         return Locks.getDefaultLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return false;
+    }
+
 }

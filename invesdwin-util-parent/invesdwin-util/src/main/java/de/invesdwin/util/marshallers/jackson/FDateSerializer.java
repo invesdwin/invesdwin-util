@@ -21,6 +21,6 @@ public final class FDateSerializer extends JsonSerializer<FDate> {
     @Override
     public void serialize(final FDate value, final JsonGenerator gen, final SerializerProvider serializers)
             throws IOException {
-        gen.writeString(FDates.toString(value, FDate.FORMAT_ISO_DATE_TIME_MS));
+        gen.writeString(FDates.toString(value, FDate.FORMAT_ISO_DATE_TIME_PS));
     }
 }
