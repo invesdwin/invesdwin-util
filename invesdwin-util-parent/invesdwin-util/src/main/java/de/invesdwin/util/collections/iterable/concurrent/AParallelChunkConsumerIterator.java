@@ -12,10 +12,12 @@ import com.google.common.util.concurrent.ListenableFuture;
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
+import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.string.description.TextDescription;
 
 @ThreadSafe
@@ -89,11 +91,12 @@ public abstract class AParallelChunkConsumerIterator<R, E> extends ACloseableIte
                 final int chunkSize, final WrappedExecutorService limitExecutor) {
             this.chunkSize = chunkSize;
             this.requests = requests;
-            this.consumerExecutor = Executors.newFixedThreadPool(name, chunkSize).setDynamicThreadName(false);
+            final String truncatedName = Strings.truncate(name, Threads.SAFE_THREAD_NAME_LENGTH);
+            this.consumerExecutor = Executors.newFixedThreadPool(truncatedName, chunkSize).setDynamicThreadName(false);
             if (limitExecutor != null) {
                 this.limitExecutor = limitExecutor;
             } else {
-                this.limitExecutor = Executors.newDisabledExecutor(name);
+                this.limitExecutor = Executors.newDisabledExecutor(truncatedName);
             }
         }
 

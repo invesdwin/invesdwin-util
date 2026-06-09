@@ -177,6 +177,7 @@ public final class Files extends AFilesStaticFacade {
     public static String normalizePathMaxLength(final String path) {
         final StringBuilder sb = new StringBuilder();
         int lengthSinceLastSeparator = 0;
+        boolean checkLeadingSpace = false;
         for (int i = 0; i < path.length(); i++) {
             final char c = path.charAt(i);
             if (c == '/' || c == '\\') {
@@ -184,11 +185,22 @@ public final class Files extends AFilesStaticFacade {
             } else {
                 lengthSinceLastSeparator++;
                 if (lengthSinceLastSeparator >= MAX_FILE_NAME_LENGTH) {
+                    for (int s = sb.length() - 1; s >= 0; s--) {
+                        if (sb.charAt(s) == ' ') {
+                            sb.setCharAt(s, '_');
+                        }
+                    }
                     sb.append(File.separatorChar);
                     lengthSinceLastSeparator = 0;
+                    checkLeadingSpace = true;
                 }
             }
-            sb.append(c);
+            if (checkLeadingSpace && c == ' ') {
+                sb.append('_');
+            } else {
+                sb.append(c);
+                checkLeadingSpace = false;
+            }
         }
         if (sb.length() != path.length()) {
             return sb.toString();
