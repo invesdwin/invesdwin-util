@@ -537,7 +537,7 @@ public final class Doubles extends ADoublesStaticFacade {
         }
     }
 
-    private static double sqrtUnchecked(final double value) {
+    public static double sqrtUnchecked(final double value) {
         //CHECKSTYLE:OFF
         return Math.sqrt(value);
         //CHECKSTYLE:ON
