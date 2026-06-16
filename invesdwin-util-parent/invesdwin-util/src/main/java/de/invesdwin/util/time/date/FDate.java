@@ -226,20 +226,29 @@ public class FDate extends Number implements IDate, Serializable, Cloneable, Com
             picos = 0;
             break;
         case MICROSECONDS: {
-            final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(0, duration);
-            millis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            final long milliseconds = duration / FTimeUnit.MICROSECONDS_IN_MILLISECOND;
+            final long microseconds = duration % FTimeUnit.MICROSECONDS_IN_MILLISECOND;
+            final long picosMaybeOverflow = FDatePicos.addMicrosecondsMaybeOverflow(0, microseconds);
+            final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            millis = milliseconds + millisOverflow;
             picos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
             break;
         }
         case NANOSECONDS: {
-            final long picosMaybeOverflow = FDatePicos.addNanosecondsMaybeOverflow(0, duration);
-            millis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            final long milliseconds = duration / FTimeUnit.NANOSECONDS_IN_MILLISECOND;
+            final long nanoseconds = duration % FTimeUnit.NANOSECONDS_IN_MILLISECOND;
+            final long picosMaybeOverflow = FDatePicos.addNanosecondsMaybeOverflow(0, nanoseconds);
+            final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            millis = milliseconds + millisOverflow;
             picos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
             break;
         }
         case PICOSECONDS: {
-            final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(0, duration);
-            millis = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            final long milliseconds = duration / FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+            final long picoseconds = duration % FTimeUnit.PICOSECONDS_IN_MILLISECOND;
+            final long picosMaybeOverflow = FDatePicos.addPicosecondsMaybeOverflow(0, picoseconds);
+            final long millisOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
+            millis = milliseconds + millisOverflow;
             picos = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
             break;
         }
