@@ -176,7 +176,8 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             return false;
         }
 
-        final boolean isEvictedBeforeCurrentFurtherValues = (value == null || extractKey(null, value).isAfter(key))
+        final boolean isEvictedBeforeCurrentFurtherValues = (value == null
+                || extractKey(null, value).isAfterNotNullSafe(key))
                 && (key.isAfter(minKeyInDB) || key.isAfter(minKeyInDBFromLoadFurtherValues));
         if (isEvictedBeforeCurrentFurtherValues) {
             return true;
@@ -184,7 +185,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
         final boolean mightBeEvictedAfterFurtherValues = value != null && furtherValues.isEmpty();
         if (mightBeEvictedAfterFurtherValues) {
             final FDate valueKey = extractKey(null, value);
-            final boolean isEvictedAfterCurrentFurtherValues = valueKey.isBefore(key)
+            final boolean isEvictedAfterCurrentFurtherValues = valueKey.isBeforeNotNullSafe(key)
                     && valueKey.isBeforeOrEqualTo(maxKeyInDB);
             if (isEvictedAfterCurrentFurtherValues) {
                 return true;
@@ -335,7 +336,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 if (!furtherValuesEmpty) {
                     final FDate tailKey = innerExtractKey(furtherValues.getTail());
                     final FDate newTailKey = innerExtractKey(newFurtherValuesBuffer.getTail());
-                    if (newTailKey.isAfter(tailKey)) {
+                    if (newTailKey.isAfterNotNullSafe(tailKey)) {
                         //skip duplicates on further queries
                         skipDuplicates(key, curKey, newFurtherValuesBuffer);
                     } else {
@@ -350,12 +351,12 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 }
                 final FDate tailKey = innerExtractKey(furtherValues.getTail());
                 maybeLimitOptimalReadBackStepByLoadFurtherValuesRange(furtherValuesEmpty, tailKey);
-                if (tailKey.isAfterOrEqualTo(key) || tailKey.equals(maxKeyInDB)
+                if (tailKey.isAfterOrEqualToNotNullSafe(key) || tailKey.equals(maxKeyInDB)
                         || curKey.isAfterOrEqualToNotNullSafe(tailKey)) {
                     //request fulfilled
                     break;
                 }
-                curKey = tailKey.addMilliseconds(1);
+                curKey = tailKey.addPicoseconds(1);
             }
 
             if (!furtherValues.isEmpty()) {
@@ -378,7 +379,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
     private void skipDuplicates(final FDate key, final FDate curKey,
             final BufferingIterator<V> newFurtherValuesBuffer) {
         while (!newFurtherValuesBuffer.isEmpty()
-                && innerExtractKey(newFurtherValuesBuffer.getHead()).isBefore(curKey)) {
+                && innerExtractKey(newFurtherValuesBuffer.getHead()).isBeforeNotNullSafe(curKey)) {
             newFurtherValuesBuffer.next();
         }
     }
@@ -400,7 +401,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
                 return false;
             }
             final boolean isEndReachedAnyway = tailKey.equals(maxKeyInDB) && key.isBeforeOrEqualTo(maxKeyInDB)
-                    && headKey.isBeforeOrEqualTo(key);
+                    && headKey.isBeforeOrEqualToNotNullSafe(key);
             return !isEndReachedAnyway;
         }
         final boolean keyIsBeforeMinKeyFromLoadFurtherValues = newMinKey
@@ -457,7 +458,7 @@ public abstract class AGapHistoricalCache<V> extends AHistoricalCache<V> {
             for (int i = 0; i < lastValuesFromFurtherValues.size(); i++) {
                 final V lastValueFromFurtherValues = lastValuesFromFurtherValues.get(i);
                 final FDate keyLastValueFromFurtherValues = extractKey(null, lastValueFromFurtherValues);
-                if (keyLastValueFromFurtherValues.isBeforeOrEqualTo(key)) {
+                if (keyLastValueFromFurtherValues.isBeforeOrEqualToNotNullSafe(key)) {
                     prevValue = lastValueFromFurtherValues;
                     prevKey = keyLastValueFromFurtherValues;
                 } else {

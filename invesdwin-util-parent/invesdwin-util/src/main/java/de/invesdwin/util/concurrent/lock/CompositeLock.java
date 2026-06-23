@@ -148,4 +148,9 @@ public class CompositeLock implements ILock {
         return Locks.getDefaultLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return locks[0].isDisabled();
+    }
+
 }

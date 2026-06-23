@@ -32,7 +32,7 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
     private final DoubleStreamAvg avgElementDistance = new DoubleStreamAvg();
 
     public void checkSuccessiveCacheEvictions(final FDate key) {
-        if (key.isBeforeOrEqualTo(successiveCacheEvictionsToMinKey)) {
+        if (key.isBeforeOrEqualToNotNullSafe(successiveCacheEvictionsToMinKey)) {
             if (successiveCacheEvictionsFromMaxKey == null) {
                 successiveCacheEvictionsFromMaxKey = key;
             }
@@ -126,7 +126,7 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
 
     public void recordElementDistance(final FDate prev, final FDate next) {
         if (avgElementDistance.getCount() < MAX_SAMPLES_FOR_AVG_ELEMENTS_DISTANCE) {
-            avgElementDistance.process(next.millisValue() - prev.millisValue());
+            avgElementDistance.process(next.doubleValue() - prev.doubleValue());
         }
     }
 

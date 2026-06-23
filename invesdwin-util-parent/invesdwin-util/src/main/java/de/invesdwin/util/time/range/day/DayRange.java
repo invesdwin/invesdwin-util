@@ -195,7 +195,7 @@ public class DayRange extends AValueObject implements IDayRangeData {
                 return new DayRange(from, to);
             } else {
                 throw new IllegalArgumentException("Expecting two arguments for from and to (e.g. ["
-                        + new DayRange(new FDayTime(new FDate().addDays(-1)), new FDayTime(new FDate())) + "])");
+                        + new DayRange(new FDayTime(FDate.now().addDays(-1)), new FDayTime(FDate.now())) + "])");
             }
         } catch (final Throwable t) {
             throw new RuntimeException("Args: " + Arrays.toString(args) + " from " + value, t);

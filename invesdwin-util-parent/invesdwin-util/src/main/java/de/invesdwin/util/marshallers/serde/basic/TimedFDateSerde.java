@@ -5,7 +5,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.marshallers.serde.FixedLengthBufferingIteratorDelegateSerde;
 import de.invesdwin.util.marshallers.serde.ISerde;
-import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.TimedFDate;
@@ -31,24 +30,14 @@ public class TimedFDateSerde implements ISerde<TimedFDate> {
     }
 
     @Override
-    public TimedFDate fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final TimedFDate obj) {
-        return SerdeBaseMethods.toBytes(this, obj);
-    }
-
-    @Override
     public TimedFDate fromBuffer(final IByteBuffer buffer) {
         if (buffer.capacity() == 0) {
             return null;
         }
-        final long time = buffer.getLong(TIME_INDEX);
-        final long value = buffer.getLong(VALUE_INDEX);
+        final FDate time = FDateSerde.getFDateNotNullSafe(buffer, TIME_INDEX);
+        final FDate value = FDateSerde.getFDateNotNullSafe(buffer, VALUE_INDEX);
 
-        final TimedFDate timedMoney = new TimedFDate(FDate.valueOf(time), FDate.valueOf(value));
+        final TimedFDate timedMoney = new TimedFDate(time, value);
         return timedMoney;
     }
 
@@ -57,8 +46,8 @@ public class TimedFDateSerde implements ISerde<TimedFDate> {
         if (obj == null) {
             return 0;
         }
-        buffer.putLong(TIME_INDEX, obj.getTime().millisValue());
-        buffer.putLong(VALUE_INDEX, obj.getValue().millisValue());
+        FDateSerde.putFDateNotNullSafe(buffer, TIME_INDEX, obj.getTime());
+        FDateSerde.putFDateNotNullSafe(buffer, VALUE_INDEX, obj.getValue());
         return FIXED_LENGTH;
     }
 

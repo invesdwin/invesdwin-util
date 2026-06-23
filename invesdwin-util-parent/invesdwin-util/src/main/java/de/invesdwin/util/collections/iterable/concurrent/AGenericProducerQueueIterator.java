@@ -15,9 +15,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
+import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.string.description.TextDescription;
 
 @NotThreadSafe
@@ -102,7 +104,9 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
 
     public AGenericProducerQueueIterator(final String name, final int queueSize) {
         super(new TextDescription(name));
-        this.finalizer = new GenericProducerQueueIteratorFinalizer(name, newExecutor(name), isShutdownExecutor());
+        final String truncatedName = Strings.truncate(name, Threads.SAFE_THREAD_NAME_LENGTH);
+        this.finalizer = new GenericProducerQueueIteratorFinalizer(name, newExecutor(truncatedName),
+                isShutdownExecutor());
         this.queue = new LinkedBlockingDeque<E>(queueSize);
         this.queueSize = queueSize;
         this.drainedLock = Locks
@@ -115,7 +119,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     };
 
     protected ExecutorService newExecutor(final String name) {
-        return Executors.newFixedThreadPool(name, 1);
+        return Executors.newFixedThreadPool(name, 1).setDynamicThreadName(false);
     }
 
     protected void start() {

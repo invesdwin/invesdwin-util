@@ -264,13 +264,13 @@ public class TimeRange extends AValueObject {
     public TimeRange asNonNullNow() {
         final FDate usedFrom;
         if (from == null) {
-            usedFrom = new FDate();
+            usedFrom = FDate.now();
         } else {
             usedFrom = from;
         }
         final FDate usedTo;
         if (to == null) {
-            usedTo = new FDate();
+            usedTo = FDate.now();
         } else {
             usedTo = to;
         }

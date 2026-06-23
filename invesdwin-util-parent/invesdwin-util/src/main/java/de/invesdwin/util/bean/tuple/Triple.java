@@ -24,7 +24,7 @@ public class Triple<FIRST, SECOND, THIRD> extends Pair<FIRST, SECOND> implements
     private final THIRD third;
 
     /**
-     * Creates a new </code>{@link Triple}</code>.
+     * Creates a new <code>{@link Triple}</code>.
      * 
      * @param first
      *            the 1st. value in this tuple.

@@ -89,7 +89,7 @@ public class AHistoricalCacheTest {
         final List<FDate> list = new ArrayList<FDate>();
         final IRandomGenerator r = PseudoRandomGenerators.newPseudoRandom();
         for (long i = 0L; i < COUNT_RAND; i++) {
-            list.add(new FDate(r.nextLong(Long.MIN_VALUE, Long.MAX_VALUE)));
+            list.add(new FDate(r.nextLong(Long.MIN_VALUE, Long.MAX_VALUE), 0));
         }
         final Instant start = new Instant();
         for (int i = 0; i < COUNT_LOOPS; i++) {

@@ -40,6 +40,7 @@ import de.invesdwin.util.streams.buffer.memory.extend.internal.MappedExpandableM
 import de.invesdwin.util.streams.buffer.memory.stream.ExpandableMemoryBufferOutputStream;
 import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferInputStream;
 import de.invesdwin.util.streams.buffer.memory.stream.MemoryBufferOutputStream;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
@@ -322,8 +323,8 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
                 }
                 if (result == 0 && timeout != null) {
                     if (zeroCountNanos == -1) {
-                        zeroCountNanos = System.nanoTime();
-                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        zeroCountNanos = FDateNanos.elapsedNanos();
+                    } else if (timeout.isLessThanNanos(FDateNanos.elapsedNanos() - zeroCountNanos)) {
                         throw FastEOFException.getInstance("write timeout exceeded");
                     }
                     ASpinWait.onSpinWaitStatic();

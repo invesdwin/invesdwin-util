@@ -5,7 +5,6 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.marshallers.serde.FixedLengthBufferingIteratorDelegateSerde;
 import de.invesdwin.util.marshallers.serde.ISerde;
-import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.TimedDecimal;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -34,24 +33,14 @@ public class TimedDecimalSerde implements ISerde<TimedDecimal> {
     public TimedDecimalSerde() {}
 
     @Override
-    public TimedDecimal fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final TimedDecimal obj) {
-        return SerdeBaseMethods.toBytes(this, obj);
-    }
-
-    @Override
     public TimedDecimal fromBuffer(final IByteBuffer buffer) {
         if (buffer.capacity() == 0) {
             return null;
         }
-        final long time = buffer.getLong(TIME_INDEX);
+        final FDate time = FDateSerde.getFDateNotNullSafe(buffer, TIME_INDEX);
         final double value = buffer.getDouble(VALUE_INDEX);
 
-        final TimedDecimal timedMoney = new TimedDecimal(FDate.valueOf(time), value);
+        final TimedDecimal timedMoney = new TimedDecimal(time, value);
         return timedMoney;
     }
 
@@ -60,7 +49,7 @@ public class TimedDecimalSerde implements ISerde<TimedDecimal> {
         if (obj == null) {
             return 0;
         }
-        buffer.putLong(TIME_INDEX, obj.getTime().millisValue());
+        FDateSerde.putFDateNotNullSafe(buffer, TIME_INDEX, obj.getTime());
         buffer.putDouble(VALUE_INDEX, obj.doubleValue());
         return FIXED_LENGTH;
     }

@@ -407,4 +407,22 @@ public final class Longs extends ALongsStaticFacade {
         //CHECKSTYLE:ON
     }
 
+    public static long multiplyExact(final long x, final long y) {
+        //CHECKSTYLE:OFF
+        return Math.multiplyExact(x, y);
+        //CHECKSTYLE:ON
+    }
+
+    public static long floorDiv(final long x, final int y) {
+        //CHECKSTYLE:OFF
+        return Math.floorDiv(x, y);
+        //CHECKSTYLE:ON
+    }
+
+    public static long floorDiv(final long x, final long y) {
+        //CHECKSTYLE:OFF
+        return Math.floorDiv(x, y);
+        //CHECKSTYLE:ON
+    }
+
 }

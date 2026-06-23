@@ -15,6 +15,10 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.time.date.clock.FDateClockNanosInternal;
+import de.invesdwin.util.time.date.clock.IFDateClock;
+import de.invesdwin.util.time.date.millis.FDatePicos;
 import de.invesdwin.util.time.date.millis.FDatesMillis;
 import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
@@ -40,6 +44,7 @@ public final class FDates {
     public static final long MILLISECONDS_IN_SECOND = FTimeUnit.MILLISECONDS_IN_SECOND;
     private static FTimeZone defaultTimeZone;
     private static FTimeZone systemTimeZone;
+    private static IFDateClock defaultClock = FDateClockNanosInternal.INSTANCE;
 
     static {
         final FTimeZone def = new FTimeZone(TimeZone.getDefault());
@@ -65,12 +70,20 @@ public final class FDates {
         return systemTimeZone;
     }
 
+    public static IFDateClock getDefaultClock() {
+        return defaultClock;
+    }
+
+    public static void setDefaultClock(final IFDateClock defaultClock) {
+        FDates.defaultClock = defaultClock;
+    }
+
     public static ICloseableIterable<FDate> iterable(final FDate start, final FDate end, final Duration increment) {
         return iterable(start, end, increment.getTimeUnit(), increment.intValue());
     }
 
     public static ICloseableIterable<FDate> iterable(final FDate start, final FDate end, final FTimeUnit timeUnit,
-            final int incrementAmount) {
+            final long incrementAmount) {
         return new FDateIterable(start, end, timeUnit, incrementAmount);
     }
 
@@ -80,7 +93,7 @@ public final class FDates {
     }
 
     public static ICloseableIterable<FDate> iterableNoThrow(final FDate start, final FDate end,
-            final FTimeUnit timeUnit, final int incrementAmount) {
+            final FTimeUnit timeUnit, final long incrementAmount) {
         if (incrementAmount == 0) {
             return EmptyCloseableIterable.getInstance();
         } else if (start.isBeforeNotNullSafe(end) && incrementAmount < 0) {
@@ -96,10 +109,10 @@ public final class FDates {
         private final FDate startFinal;
         private final FDate endFinal;
         private final FTimeUnit timeUnit;
-        private final int incrementAmount;
+        private final long incrementAmount;
 
         FDateIterable(final FDate startFinal, final FDate endFinal, final FTimeUnit timeUnit,
-                final int incrementAmount) {
+                final long incrementAmount) {
             this.startFinal = startFinal;
             this.endFinal = endFinal;
             this.timeUnit = timeUnit;
@@ -127,7 +140,7 @@ public final class FDates {
 
                     @Override
                     public boolean hasNext() {
-                        return first || spot.isBefore(endFinal);
+                        return first || spot.isBeforeNotNullSafe(endFinal);
                     }
 
                     @Override
@@ -455,7 +468,34 @@ public final class FDates {
         if (date1 == null || date2 == null) {
             return false;
         } else {
-            return date1.millisValue() == date2.millisValue();
+            return FDatesMillis.isSameMillisecond(date1.millisValue(), date2.millisValue());
+        }
+    }
+
+    public static boolean isSameMicrosecond(final FDate date1, final FDate date2) {
+        if (date1 == null || date2 == null) {
+            return false;
+        } else {
+            return date1.millisValue() == date2.millisValue()
+                    && FDatePicos.isSameMicrosecond(date1.picosValue(), date2.picosValue());
+        }
+    }
+
+    public static boolean isSameNanosecond(final FDate date1, final FDate date2) {
+        if (date1 == null || date2 == null) {
+            return false;
+        } else {
+            return date1.millisValue() == date2.millisValue()
+                    && FDatePicos.isSameNanosecond(date1.picosValue(), date2.picosValue());
+        }
+    }
+
+    public static boolean isSamePicosecond(final FDate date1, final FDate date2) {
+        if (date1 == null || date2 == null) {
+            return false;
+        } else {
+            return FDatesMillis.isSameMillisecond(date1.millisValue(), date2.millisValue())
+                    && FDatePicos.isSamePicosecond(date1.picosValue(), date2.picosValue());
         }
     }
 
@@ -556,25 +596,33 @@ public final class FDates {
     }
 
     public static FDate avg(final FDate first, final FDate second) {
-        return new FDate((first.millisValue() + second.millisValue()) / 2);
+        final long avgMillis = (first.millisValue() + second.millisValue()) / 2;
+        final int avgPicos = Integers.avg(first.picosValue(), second.picosValue());
+        return new FDate(avgMillis, avgPicos);
     }
 
     public static FDate avg(final FDate... values) {
-        double sum = 0;
+        double sumMillis = 0;
+        double sumPicos = 0;
         for (final FDate value : values) {
-            sum += value.millisValue();
+            sumMillis += value.millisValue();
+            sumPicos += value.picosValue();
         }
-        final double avg = sum / values.length;
-        return new FDate((long) avg);
+        final double avgMillis = sumMillis / values.length;
+        final double avgPicos = sumPicos / values.length;
+        return new FDate((long) avgMillis, (int) avgPicos);
     }
 
     public static FDate avg(final Collection<FDate> values) {
-        double sum = 0;
+        double sumMillis = 0;
+        double sumPicos = 0;
         for (final FDate value : values) {
-            sum += value.millisValue();
+            sumMillis += value.millisValue();
+            sumPicos += value.picosValue();
         }
-        final double avg = sum / values.size();
-        return new FDate((long) avg);
+        final double avgMillis = sumMillis / values.size();
+        final double avgPicos = sumPicos / values.size();
+        return new FDate((long) avgMillis, (int) avgPicos);
     }
 
     public static int bisect(final FDate[] keys, final FDate skippingKeysAbove,
@@ -843,7 +891,7 @@ public final class FDates {
                     break;
                 }
                 final FDate nextToKey = toKeys[nextToKeyIndex];
-                if (nextToKey.isBeforeOrEqualTo(fromKey)) {
+                if (nextToKey.isBeforeOrEqualToNotNullSafe(fromKey)) {
                     toKeyIndex = nextToKeyIndex;
                 } else {
                     break;
@@ -856,7 +904,7 @@ public final class FDates {
 
     public static FDate nullToNow(final FDate time) {
         if (time == null) {
-            return new FDate();
+            return FDate.now();
         } else {
             return time;
         }
@@ -877,20 +925,20 @@ public final class FDates {
         return a.compareToNotNullSafe(b);
     }
 
-    public static boolean isIsoDateTimeMsFormat(final String str) {
-        return str.length() == FDate.FORMAT_ISO_DATE_TIME_MS_LENGTH && startsWithIsoDateTimeMsFormat(str);
+    public static boolean isIsoDateTimePsFormat(final String str) {
+        return str.length() == FDate.FORMAT_ISO_DATE_TIME_PS_LENGTH && startsWithIsoDateTimePsFormat(str);
     }
 
-    public static boolean startsWithIsoDateTimeMsFormat(final String str) {
-        return startsWithIsoDateTimeMsFormat(str, 0);
+    public static boolean startsWithIsoDateTimePsFormat(final String str) {
+        return startsWithIsoDateTimePsFormat(str, 0);
     }
 
     //CHECKSTYLE:OFF
-    public static boolean startsWithIsoDateTimeMsFormat(final String str, final int startIndex) {
+    public static boolean startsWithIsoDateTimePsFormat(final String str, final int startIndex) {
         //CHECKSTYLE:ON
-        //2016-08-04T06:05:00.000
+        //2016-08-04T06:05:00.000.000.000.000
         int position = startIndex;
-        if (str.length() < startIndex + FDate.FORMAT_ISO_DATE_TIME_MS_LENGTH) {
+        if (str.length() < startIndex + FDate.FORMAT_ISO_DATE_TIME_PS_LENGTH) {
             return false;
         }
         //0 2
@@ -1004,6 +1052,66 @@ public final class FDates {
             return false;
         }
         //22 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //23 .
+        position++;
+        if (str.charAt(position) != '.') {
+            return false;
+        }
+        //24 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //25 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //26 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //27 .
+        position++;
+        if (str.charAt(position) != '.') {
+            return false;
+        }
+        //28 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //29 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //30 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //31 .
+        position++;
+        if (str.charAt(position) != '.') {
+            return false;
+        }
+        //32 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //33 0
+        position++;
+        if (!Character.isDigit(str.charAt(position))) {
+            return false;
+        }
+        //34 0
         position++;
         if (!Character.isDigit(str.charAt(position))) {
             return false;

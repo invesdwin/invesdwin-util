@@ -123,4 +123,9 @@ public class WrappedWriteLock implements ILock {
         return Locks.getDefaultLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return false;
+    }
+
 }

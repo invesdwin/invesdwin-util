@@ -5,7 +5,7 @@ import de.invesdwin.util.time.date.FDate;
 public interface IHolidayManager {
 
     default boolean isHoliday(final long millis) {
-        return isHoliday(new FDate(millis));
+        return isHoliday(new FDate(millis, 0));
     }
 
     boolean isHoliday(FDate date);

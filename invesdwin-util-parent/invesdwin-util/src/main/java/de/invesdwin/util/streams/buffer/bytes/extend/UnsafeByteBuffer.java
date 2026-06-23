@@ -34,6 +34,7 @@ import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferInputStream;
 import de.invesdwin.util.streams.buffer.bytes.stream.ByteBufferOutputStream;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.delegate.ByteDelegateMemoryBuffer;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
@@ -366,8 +367,8 @@ public class UnsafeByteBuffer extends UnsafeBuffer implements ICloseableByteBuff
                 }
                 if (result == 0 && timeout != null) {
                     if (zeroCountNanos == -1) {
-                        zeroCountNanos = System.nanoTime();
-                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        zeroCountNanos = FDateNanos.elapsedNanos();
+                    } else if (timeout.isLessThanNanos(FDateNanos.elapsedNanos() - zeroCountNanos)) {
                         throw FastEOFException.getInstance("write timeout exceeded");
                     }
                     ASpinWait.onSpinWaitStatic();

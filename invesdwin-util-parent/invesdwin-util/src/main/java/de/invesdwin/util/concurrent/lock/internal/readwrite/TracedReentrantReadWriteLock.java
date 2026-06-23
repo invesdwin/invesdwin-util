@@ -116,4 +116,9 @@ public class TracedReentrantReadWriteLock implements IReentrantReadWriteLock {
         return writeLock.getLockTrace();
     }
 
+    @Override
+    public boolean isDisabled() {
+        return delegate.isDisabled();
+    }
+
 }

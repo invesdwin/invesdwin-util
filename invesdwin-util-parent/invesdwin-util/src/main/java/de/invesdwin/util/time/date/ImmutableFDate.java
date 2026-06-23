@@ -9,8 +9,8 @@ public final class ImmutableFDate extends FDate {
         super(time);
     }
 
-    private ImmutableFDate(final long time) {
-        super(time);
+    private ImmutableFDate(final long millis, final int picos) {
+        super(millis, picos);
     }
 
     @Deprecated
@@ -35,8 +35,12 @@ public final class ImmutableFDate extends FDate {
         return new ImmutableFDate(time);
     }
 
-    public static ImmutableFDate valueOf(final long time) {
-        return new ImmutableFDate(time);
+    public static ImmutableFDate valueOf(final long millis) {
+        return new ImmutableFDate(millis, 0);
+    }
+
+    public static ImmutableFDate valueOf(final long millis, final int picos) {
+        return new ImmutableFDate(millis, picos);
     }
 
 }

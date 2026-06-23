@@ -134,4 +134,9 @@ public final class StrategyReentrantLock implements IReentrantLock {
     public ILockTrace getLockTrace() {
         return delegate.getLockTrace();
     }
+
+    @Override
+    public boolean isDisabled() {
+        return delegate.isDisabled() || strategy.isDisabled();
+    }
 }

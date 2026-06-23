@@ -4,7 +4,6 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.concurrent.reference.TimedReference;
 import de.invesdwin.util.marshallers.serde.ISerde;
-import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.time.date.FDate;
 
@@ -42,24 +41,14 @@ public class TimedReferenceSerde<V> implements ISerde<TimedReference<V>> {
     }
 
     @Override
-    public TimedReference<V> fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final TimedReference<V> obj) {
-        return SerdeBaseMethods.toBytes(this, obj);
-    }
-
-    @Override
     public TimedReference<V> fromBuffer(final IByteBuffer buffer) {
         if (buffer.capacity() == 0) {
             return null;
         }
-        final long time = buffer.getLong(TIME_INDEX);
+        final FDate time = FDateSerde.getFDateNotNullSafe(buffer, TIME_INDEX);
         final V value = valueSerde.fromBuffer(buffer.sliceFrom(VALUE_INDEX));
 
-        final TimedReference<V> timedReference = new TimedReference<V>(FDate.valueOf(time), value);
+        final TimedReference<V> timedReference = new TimedReference<V>(time, value);
         return timedReference;
     }
 
@@ -68,7 +57,7 @@ public class TimedReferenceSerde<V> implements ISerde<TimedReference<V>> {
         if (obj == null) {
             return 0;
         }
-        buffer.putLong(TIME_INDEX, obj.getTime().millisValue());
+        FDateSerde.putFDateNotNullSafe(buffer, TIME_INDEX, obj.getTime());
         final int valueSize = valueSerde.toBuffer(buffer.sliceFrom(VALUE_INDEX), obj.get());
         return VALUE_INDEX + valueSize;
     }

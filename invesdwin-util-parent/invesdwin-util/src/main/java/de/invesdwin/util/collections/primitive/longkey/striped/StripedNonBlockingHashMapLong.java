@@ -1023,7 +1023,7 @@ public class StripedNonBlockingHashMapLong<V> extends AbstractMap<Long, V>
         protected abstract boolean isExpired(long key, V value);
 
         protected void beforeExpire() {
-            // now = System.nanoTime();
+            // now = FDateNanos.elapsedNanos();
         }
 
         /**

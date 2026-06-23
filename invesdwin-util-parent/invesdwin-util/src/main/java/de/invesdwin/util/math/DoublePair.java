@@ -18,7 +18,7 @@ public class DoublePair extends AValueObject implements IPair<Double, Double> {
     private final double second;
 
     /**
-     * Creates a new </code>{@link DoublePair}</code>.
+     * Creates a new <code>{@link DoublePair}</code>.
      * 
      * @param first
      *            the 1st. value in this tuple.

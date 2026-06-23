@@ -51,4 +51,6 @@ public interface IReadWriteLock extends ReadWriteLock {
 
     ILockTrace getLockTrace();
 
+    boolean isDisabled();
+
 }

@@ -209,7 +209,9 @@ public class MemoryMappedFile implements IMemoryMappedFile {
                 this.address = OSAccessor.mapUnaligned(channel, MapMode.READ_ONLY, this.offset, this.length);
             } else {
                 this.raf = new RandomAccessFile(this.file, "rw");
-                raf.setLength(this.length);
+                if (raf.length() < this.length) {
+                    raf.setLength(this.length);
+                }
                 this.channel = raf.getChannel();
                 this.address = OSAccessor.mapUnaligned(channel, MapMode.READ_WRITE, this.offset, this.length);
             }

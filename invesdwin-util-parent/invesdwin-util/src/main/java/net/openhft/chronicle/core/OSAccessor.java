@@ -14,6 +14,7 @@ import de.invesdwin.util.math.Longs;
 @Immutable
 public final class OSAccessor {
 
+    private static final long MAX_MAP_SIZE = 4L << 30;
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(OSAccessor.class);
     private static final AtomicLong MEMORY_MAPPED;
     private static final MethodHandle UNMAPP0_MH;
@@ -27,9 +28,9 @@ public final class OSAccessor {
 
     public static long mapUnaligned(final FileChannel fileChannel, final FileChannel.MapMode mode, final long start,
             final long size) throws IOException, IllegalArgumentException {
-        if (OS.isWindows() && size > 4L << 30) {
-            throw new IllegalArgumentException(
-                    "Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
+        if (OS.isWindows() && size > MAX_MAP_SIZE) {
+            throw new IllegalArgumentException("Mapping more than 4096 MiB [" + MAX_MAP_SIZE
+                    + "] is unusable on Windows, size = " + (size >> 20) + " MiB [" + size + "]");
         }
         final long address = OS.map0(fileChannel, OS.imodeFor(mode), start, size);
         final long threshold = Longs.min(64 * size, 32L << 40);

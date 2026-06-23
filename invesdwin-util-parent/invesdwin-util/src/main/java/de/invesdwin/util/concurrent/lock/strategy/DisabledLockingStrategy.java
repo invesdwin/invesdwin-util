@@ -26,4 +26,9 @@ public final class DisabledLockingStrategy implements ILockingStrategy {
         return true;
     }
 
+    @Override
+    public boolean isDisabled() {
+        return true;
+    }
+
 }

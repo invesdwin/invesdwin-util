@@ -174,4 +174,9 @@ public class WrappedTracedReentrantLock implements IReentrantLock {
     public ILockTrace getLockTrace() {
         return lockTrace;
     }
+
+    @Override
+    public boolean isDisabled() {
+        return false;
+    }
 }

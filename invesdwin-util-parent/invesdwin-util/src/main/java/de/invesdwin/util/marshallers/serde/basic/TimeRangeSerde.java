@@ -4,7 +4,6 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.marshallers.serde.FixedLengthBufferingIteratorDelegateSerde;
 import de.invesdwin.util.marshallers.serde.ISerde;
-import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.range.TimeRange;
@@ -18,23 +17,13 @@ public class TimeRangeSerde implements ISerde<TimeRange> {
     public static final int TO_INDEX = FROM_INDEX + FROM_SIZE;
     public static final int TO_SIZE = FDate.BYTES;
 
-    public static final int FIXED_LENGTH = TO_INDEX + +TO_SIZE;
+    public static final int FIXED_LENGTH = TO_INDEX + TO_SIZE;
 
     public static final TimeRangeSerde GET = new TimeRangeSerde();
     public static final FixedLengthBufferingIteratorDelegateSerde<TimeRange> GET_LIST = new FixedLengthBufferingIteratorDelegateSerde<TimeRange>(
             GET, FIXED_LENGTH);
 
     public TimeRangeSerde() {}
-
-    @Override
-    public TimeRange fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final TimeRange obj) {
-        return SerdeBaseMethods.toBytes(this, obj);
-    }
 
     @Override
     public TimeRange fromBuffer(final IByteBuffer buffer) {
@@ -48,8 +37,8 @@ public class TimeRangeSerde implements ISerde<TimeRange> {
 
     public static int putTimeRange(final IByteBuffer buffer, final int index, final TimeRange timeRange) {
         if (timeRange == null) {
-            buffer.putLong(index + FROM_INDEX, Long.MIN_VALUE);
-            buffer.putLong(index + TO_INDEX, Long.MIN_VALUE);
+            FDateSerde.putFDate(buffer, index + FROM_INDEX, null);
+            FDateSerde.putFDate(buffer, index + TO_INDEX, null);
         } else {
             FDateSerde.putFDate(buffer, index + FROM_INDEX, timeRange.getFrom());
             FDateSerde.putFDate(buffer, index + TO_INDEX, timeRange.getTo());
@@ -58,12 +47,12 @@ public class TimeRangeSerde implements ISerde<TimeRange> {
     }
 
     public static TimeRange getTimeRange(final IByteBuffer buffer, final int index) {
-        final long from = buffer.getLong(index + FROM_INDEX);
-        final long to = buffer.getLong(index + TO_INDEX);
-        if (from == Long.MIN_VALUE && to == Long.MIN_VALUE) {
+        final FDate from = FDateSerde.getFDate(buffer, index + FROM_INDEX);
+        final FDate to = FDateSerde.getFDate(buffer, index + TO_INDEX);
+        if (from == null && to == null) {
             return null;
         } else {
-            return new TimeRange(FDateSerde.getFDate(from), FDateSerde.getFDate(to));
+            return new TimeRange(from, to);
         }
     }
 

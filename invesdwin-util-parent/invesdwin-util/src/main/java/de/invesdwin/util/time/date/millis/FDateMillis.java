@@ -1,6 +1,6 @@
 package de.invesdwin.util.time.date.millis;
 
-import java.time.ZonedDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -10,8 +10,11 @@ import javax.annotation.concurrent.Immutable;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeField;
 import org.joda.time.DurationField;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
 import org.joda.time.ReadableDateTime;
+import org.joda.time.ReadablePartial;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -29,10 +32,6 @@ import de.invesdwin.util.time.date.timezone.FTimeZone;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.range.day.FDayTime;
 import de.invesdwin.util.time.range.week.FWeekTime;
-import io.netty.util.concurrent.FastThreadLocal;
-import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 /**
  * FDate stands for an immutable Fast Date implementation by utilizing heavy caching.
@@ -41,28 +40,6 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 public final class FDateMillis {
 
     public static final long MISSING_VALUE = Long.MIN_VALUE;
-
-    private static final FastThreadLocal<FDateToStringCached> CACHED_TO_STRING_HOLDER = new FastThreadLocal<FDateToStringCached>() {
-        @Override
-        protected FDateToStringCached initialValue() throws Exception {
-            return new FDateToStringCached();
-        };
-    };
-
-    private static final class FDateToStringCached {
-
-        private static final int MAX_SIZE = 10;
-        private final Long2ObjectMap<String> millis_toString = new Long2ObjectOpenHashMap<>(MAX_SIZE);
-
-        public String toString(final long millis) {
-            if (millis_toString.size() >= MAX_SIZE) {
-                millis_toString.clear();
-            }
-            return millis_toString.computeIfAbsent(millis,
-                    (Long2ObjectFunction<String>) key -> FDateMillis.toString(key, FDate.FORMAT_ISO_DATE_TIME_MS));
-        }
-
-    }
 
     private FDateMillis() {}
 
@@ -261,41 +238,41 @@ public final class FDateMillis {
         return newMillis;
     }
 
-    public static long addYears(final long millis, final int years, final FTimeZone timeZone) {
+    public static long addYears(final long millis, final long years, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(millis, timeZone);
         return revertTimeZoneOffset(addYears(applyTimeZoneOffset(millis, offset), years), offset);
     }
 
-    public static long addYears(final long millis, final int years) {
+    public static long addYears(final long millis, final long years) {
         return add(millis, FTimeUnit.YEARS, years);
     }
 
-    public static long addMonths(final long millis, final int months, final FTimeZone timeZone) {
+    public static long addMonths(final long millis, final long months, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(millis, timeZone);
         return revertTimeZoneOffset(addMonths(applyTimeZoneOffset(millis, offset), months), offset);
     }
 
-    public static long addMonths(final long millis, final int months) {
+    public static long addMonths(final long millis, final long months) {
         return add(millis, FTimeUnit.MONTHS, months);
     }
 
-    public static long addWeeks(final long millis, final int weeks) {
+    public static long addWeeks(final long millis, final long weeks) {
         return addDays(millis, weeks * FTimeUnit.DAYS_IN_WEEK);
     }
 
-    public static long addDays(final long millis, final int days) {
+    public static long addDays(final long millis, final long days) {
         return addMilliseconds(millis, FDates.MILLISECONDS_IN_DAY * days);
     }
 
-    public static long addHours(final long millis, final int hours) {
+    public static long addHours(final long millis, final long hours) {
         return addMilliseconds(millis, FDates.MILLISECONDS_IN_HOUR * hours);
     }
 
-    public static long addMinutes(final long millis, final int minutes) {
+    public static long addMinutes(final long millis, final long minutes) {
         return addMilliseconds(millis, FDates.MILLISECONDS_IN_MINUTE * minutes);
     }
 
-    public static long addSeconds(final long millis, final int seconds) {
+    public static long addSeconds(final long millis, final long seconds) {
         return addMilliseconds(millis, FDates.MILLISECONDS_IN_SECOND * seconds);
     }
 
@@ -324,16 +301,16 @@ public final class FDateMillis {
         return newMillis;
     }
 
-    public static long add(final long millis, final FTimeUnit field, final int value, final FTimeZone timeZone) {
+    public static long add(final long millis, final FTimeUnit field, final long value, final FTimeZone timeZone) {
         final long offset = getTimeZoneOffsetMilliseconds(millis, timeZone);
         return revertTimeZoneOffset(add(applyTimeZoneOffset(millis, offset), field, value), offset);
     }
 
-    public static long add(final long millis, final FTimeUnit field, final int amount) {
+    public static long add(final long millis, final FTimeUnit field, final long amount) {
         if (amount == 0) {
             return millis;
         }
-        final int usedAmount;
+        final long usedAmount;
         final DurationField usedField;
         switch (field) {
         case MILLENIA:
@@ -348,10 +325,25 @@ public final class FDateMillis {
             usedField = FTimeUnit.YEARS.durationFieldValue();
             usedAmount = amount * FTimeUnit.YEARS_IN_DECADE;
             break;
-        default:
+        case YEARS:
+        case MONTHS:
+        case WEEKS:
+        case DAYS:
+        case HOURS:
+        case MINUTES:
+        case SECONDS:
+        case MILLISECONDS:
             usedField = field.durationFieldValue();
             usedAmount = amount;
             break;
+        case MICROSECONDS:
+            return millis + FDatePicos.toMillisecondsOverflow(amount * FTimeUnit.PICOSECONDS_IN_MICROSECOND);
+        case NANOSECONDS:
+            return millis + FDatePicos.toMillisecondsOverflow(amount * FTimeUnit.PICOSECONDS_IN_NANOSECOND);
+        case PICOSECONDS:
+            return millis + FDatePicos.toMillisecondsOverflow(amount);
+        default:
+            throw UnknownArgumentException.newInstance(FTimeUnit.class, field);
         }
         final long newMillis = usedField.add(millis, usedAmount);
         return newMillis;
@@ -424,7 +416,13 @@ public final class FDateMillis {
         case SECONDS:
             return truncate(millis, FDateField.Second);
         case MILLISECONDS:
-            return truncate(millis, FDateField.Millisecond);
+            //fall through
+        case MICROSECONDS:
+            //fall through
+        case NANOSECONDS:
+            //fall through
+        case PICOSECONDS:
+            return millis;
         default:
             throw UnknownArgumentException.newInstance(FTimeUnit.class, timeUnit);
         }
@@ -527,6 +525,14 @@ public final class FDateMillis {
         return new LocalDateTime(millis);
     }
 
+    public static LocalDate jodaDateValue(final long millis) {
+        return new LocalDate(millis, FDates.getDefaultTimeZone().getChronology());
+    }
+
+    public static LocalDate jodaDateValue(final long millis, final FTimeZone timeZone) {
+        return new LocalDate(millis, timeZone.getChronology());
+    }
+
     public static DateTime jodaTimeValueZoned(final long millis) {
         return new DateTime(millis, FDates.getDefaultTimeZone().getChronology());
     }
@@ -535,7 +541,7 @@ public final class FDateMillis {
         return java.time.Instant.ofEpochMilli(millis).atZone(FDates.getDefaultTimeZone().getZoneId());
     }
 
-    public static ZonedDateTime javaTimeValueZoned(final long millis, final FTimeZone timeZone) {
+    public static java.time.ZonedDateTime javaTimeValueZoned(final long millis, final FTimeZone timeZone) {
         return java.time.Instant.ofEpochMilli(millis).atZone(timeZone.getZoneId());
     }
 
@@ -563,40 +569,120 @@ public final class FDateMillis {
         if (date == null) {
             return MISSING_VALUE;
         } else {
-            return date.millisValue();
+            return valueOfNotNullSafe(date);
         }
+    }
+
+    public static long valueOfNotNullSafe(final FDate date) {
+        return date.millisValue();
     }
 
     public static long valueOf(final Date date) {
         if (date == null) {
             return MISSING_VALUE;
         } else {
-            return date.getTime();
+            return valueOfNotNullSafe(date);
         }
+    }
+
+    public static long valueOfNotNullSafe(final Date date) {
+        return date.getTime();
     }
 
     public static long valueOf(final Calendar calendar) {
         if (calendar == null) {
             return MISSING_VALUE;
         } else {
-            return calendar.getTimeInMillis();
+            return valueOfNotNullSafe(calendar);
         }
+    }
+
+    public static long valueOfNotNullSafe(final Calendar calendar) {
+        return calendar.getTimeInMillis();
     }
 
     public static long valueOf(final ReadableDateTime jodaTime) {
         if (jodaTime == null) {
             return MISSING_VALUE;
         } else {
-            return jodaTime.getMillis();
+            return valueOfNotNullSafe(jodaTime);
         }
+    }
+
+    public static long valueOfNotNullSafe(final ReadableDateTime jodaTime) {
+        return jodaTime.getMillis();
+    }
+
+    public static long valueOf(final LocalDate jodaDate) {
+        if (jodaDate == null) {
+            return MISSING_VALUE;
+        } else {
+            return valueOfNotNullSafe(jodaDate);
+        }
+    }
+
+    public static long valueOfNotNullSafe(final LocalDate jodaDate) {
+        return valueOfNotNullSafe(jodaDate.toLocalDateTime(LocalTime.MIDNIGHT));
+    }
+
+    public static long valueOf(final ReadablePartial jodaTime) {
+        if (jodaTime == null) {
+            return MISSING_VALUE;
+        } else {
+            return valueOfNotNullSafe(jodaTime);
+        }
+    }
+
+    public static long valueOfNotNullSafe(final ReadablePartial jodaDate) {
+        return valueOfNotNullSafe(jodaDate.toDateTime(new DateTime(0L, FDates.getDefaultTimeZone().getChronology())));
     }
 
     public static long valueOf(final LocalDateTime jodaTime) {
         if (jodaTime == null) {
             return MISSING_VALUE;
         } else {
-            return jodaTime.toDateTime().getMillis();
+            return valueOfNotNullSafe(jodaTime);
         }
+    }
+
+    public static long valueOfNotNullSafe(final LocalDateTime jodaTime) {
+        return jodaTime.toDateTime().getMillis();
+    }
+
+    public static long valueOf(final java.time.ZonedDateTime javaTime) {
+        if (javaTime == null) {
+            return MISSING_VALUE;
+        } else {
+            return valueOfNotNullSafe(javaTime);
+        }
+    }
+
+    public static long valueOfNotNullSafe(final java.time.ZonedDateTime javaTime) {
+        return javaTime.toInstant().toEpochMilli();
+    }
+
+    public static long valueOf(final java.time.LocalDateTime javaTime) {
+        if (javaTime == null) {
+            return MISSING_VALUE;
+        } else {
+            return valueOfNotNullSafe(javaTime);
+        }
+    }
+
+    public static long valueOfNotNullSafe(final java.time.LocalDateTime javaTime) {
+        return valueOfNotNullSafe(javaTime.atZone(ZoneId.systemDefault()));
+    }
+
+    public static long valueOf(final java.time.LocalDate javaDate) {
+        if (javaDate == null) {
+            return MISSING_VALUE;
+        } else {
+            return valueOfNotNullSafe(javaDate);
+        }
+    }
+
+    public static long valueOfNotNullSafe(final java.time.LocalDate javaTime) {
+        return valueOfNotNullSafe(javaTime.atStartOfDay(ZoneId.systemDefault()));
     }
 
     public static long valueOf(final String str, final String... parsePatterns) {
@@ -654,40 +740,20 @@ public final class FDateMillis {
         return date.getMillis();
     }
 
-    public static long now() {
-        return System.currentTimeMillis();
+    /**
+     * Uses FDates.getDefaultClock().nowMillis() to allow for testing time machines and alternative time sources.
+     * Normally System.currentTimeMillis as the source.
+     */
+    public static long nowMillis() {
+        return FDates.getDefaultClock().nowMillis();
     }
 
     public static long today(final FTimeZone timeZone) {
-        return withoutTime(now(), timeZone);
+        return withoutTime(nowMillis(), timeZone);
     }
 
     public static long today() {
-        return withoutTime(now());
-    }
-
-    public static String toString(final long millis) {
-        final FDateToStringCached cachedToString = CACHED_TO_STRING_HOLDER.get();
-        return cachedToString.toString(millis);
-    }
-
-    public static String toString(final long millis, final FTimeZone timeZone) {
-        return toString(millis, FDate.FORMAT_ISO_DATE_TIME_MS, timeZone);
-    }
-
-    public static String toString(final long millis, final String format) {
-        return toString(millis, format, null);
-    }
-
-    public static String toString(final long millis, final String format, final FTimeZone timeZone) {
-        final DateTime delegate = new DateTime(millis, FDates.getDefaultTimeZone().getChronology());
-        DateTimeFormatter df = DateTimeFormat.forPattern(format);
-        if (timeZone != null) {
-            df = df.withZone(timeZone.getDateTimeZone());
-        } else {
-            df = df.withZone(FDates.getDefaultTimeZone().getDateTimeZone());
-        }
-        return df.print(delegate);
+        return withoutTime(nowMillis());
     }
 
     public static boolean isBefore(final long millis, final long other) {

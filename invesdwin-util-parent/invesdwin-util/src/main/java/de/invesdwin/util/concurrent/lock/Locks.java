@@ -28,6 +28,7 @@ import de.invesdwin.util.concurrent.lock.trace.EnabledLockTrace;
 import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.string.UniqueNameGenerator;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
 
 @StaticFacadeDefinition(name = "de.invesdwin.util.concurrent.lock.internal.ALocksStaticFacade", targets = {
@@ -454,13 +455,13 @@ public final class Locks extends ALocksStaticFacade {
         boolean success = false;
         try {
             final long limitNanos = unit.toNanos(time);
-            final long startNanos = System.nanoTime();
+            final long startNanos = FDateNanos.elapsedNanos();
             final int limit = locks.length - 1;
             while (i < limit) {
                 i++;
                 final Lock lock = locks[i];
                 final long remainingNanos = !success ? limitNanos // No need to calculate remaining time in first iteration
-                        : limitNanos - (System.nanoTime() - startNanos); // recalculate in subsequent iterations
+                        : limitNanos - (FDateNanos.elapsedNanos() - startNanos); // recalculate in subsequent iterations
 
                 // Note if remaining time is <= 0, we still try to obtain additional locks, supplying zero or negative
                 // timeouts to those locks, which should treat it as a non-blocking tryLock() per API docs...
@@ -491,13 +492,13 @@ public final class Locks extends ALocksStaticFacade {
         boolean success = false;
         try {
             final long limitNanos = unit.toNanos(time);
-            final long startNanos = System.nanoTime();
+            final long startNanos = FDateNanos.elapsedNanos();
             final int limit = locks.size() - 1;
             while (i < limit) {
                 i++;
                 final Lock lock = locks.get(i);
                 final long remainingNanos = !success ? limitNanos // No need to calculate remaining time in first iteration
-                        : limitNanos - (System.nanoTime() - startNanos); // recalculate in subsequent iterations
+                        : limitNanos - (FDateNanos.elapsedNanos() - startNanos); // recalculate in subsequent iterations
 
                 // Note if remaining time is <= 0, we still try to obtain additional locks, supplying zero or negative
                 // timeouts to those locks, which should treat it as a non-blocking tryLock() per API docs...

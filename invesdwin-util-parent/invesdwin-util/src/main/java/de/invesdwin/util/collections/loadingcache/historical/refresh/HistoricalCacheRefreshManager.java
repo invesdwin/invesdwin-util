@@ -38,7 +38,7 @@ public final class HistoricalCacheRefreshManager {
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
             .getXLogger(HistoricalCacheRefreshManager.class);
 
-    private static volatile FDate lastRefresh = new FDate();
+    private static volatile FDate lastRefresh = FDate.now();
     private static volatile long lastRefreshMillis = lastRefresh.millisValue();
     @GuardedBy("HistoricalCacheRefreshManager.class")
     private static ScheduledExecutorService executor;
@@ -60,7 +60,7 @@ public final class HistoricalCacheRefreshManager {
      */
     public static synchronized void forceRefresh() {
         LOG.warn("Forcing refresh on historical caches");
-        lastRefresh = new FDate();
+        lastRefresh = FDate.now();
         lastRefreshMillis = lastRefresh.millisValue();
     }
 
@@ -70,7 +70,7 @@ public final class HistoricalCacheRefreshManager {
 
     public static boolean maybeRefresh(final Duration refreshInterval) {
         if (new Duration(lastRefresh).isGreaterThanOrEqualTo(refreshInterval)
-                || !FDates.isSameJulianDay(lastRefresh, new FDate())) {
+                || !FDates.isSameJulianDay(lastRefresh, FDate.now())) {
             forceRefresh();
             return true;
         }

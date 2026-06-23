@@ -18,7 +18,7 @@ public class LongPair extends AValueObject implements IPair<Long, Long> {
     private final long second;
 
     /**
-     * Creates a new </code>{@link LongPair}</code>.
+     * Creates a new <code>{@link LongPair}</code>.
      * 
      * @param first
      *            the 1st. value in this tuple.

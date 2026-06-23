@@ -25,12 +25,7 @@ public class DynamicLengthListDelegateSerde<E>
         if (bytes == null || bytes.length == 0) {
             return Collections.emptyList();
         }
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final List<? extends E> objs) {
-        return SerdeBaseMethods.toBytes(this, objs);
+        return ISerde.super.fromBytes(bytes);
     }
 
     @Override

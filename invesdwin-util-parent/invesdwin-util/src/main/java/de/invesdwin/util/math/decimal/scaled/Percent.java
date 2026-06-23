@@ -159,9 +159,9 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
     /**
      * AKA: HoldingPeriodReturnPerUnit in Percent (multiplied by 100)
      */
-    public static double newProfitLossPerUnitPercent(final double openPriceAbsolute,
+    public static double newProfitLossPerUnitPercent(final double fillPriceAbsolute,
             final double profitLossPerUnitAbsolute) {
-        return newHoldingPeriodReturnRate(openPriceAbsolute, profitLossPerUnitAbsolute) * 100D;
+        return newHoldingPeriodReturnRate(fillPriceAbsolute, profitLossPerUnitAbsolute) * 100D;
     }
 
     public static double newHoldingPeriodReturnRate(final double initialValue, final double profitLoss) {

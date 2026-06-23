@@ -28,6 +28,7 @@ import de.invesdwin.util.math.random.IRandomGenerator;
 import de.invesdwin.util.math.random.PseudoRandomGenerators;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
@@ -63,7 +64,7 @@ public final class MemoryLimit {
     private static volatile double prevFreeMemoryRate = getFreeMemoryRate();
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(MemoryLimit.class);
     private static final ConcurrentMap<Integer, AMemoryLimitClearable<?>> IDENTITY_CLEARABLE;
-    private static long lastClearCacheSweepNanos = System.nanoTime();
+    private static long lastClearCacheSweepNanos = FDateNanos.elapsedNanos();
 
     static {
         IDENTITY_CLEARABLE = Caffeine.newBuilder()
@@ -110,7 +111,7 @@ public final class MemoryLimit {
             return false;
         }
         try {
-            if (CLEAR_CACHE_INTERVAL.isGreaterThanNanos(System.nanoTime() - lastClearCacheSweepNanos)) {
+            if (CLEAR_CACHE_INTERVAL.isGreaterThanNanos(FDateNanos.elapsedNanos() - lastClearCacheSweepNanos)) {
                 return false;
             }
             if (IDENTITY_CLEARABLE.isEmpty()) {
@@ -131,7 +132,7 @@ public final class MemoryLimit {
                 }
                 clearables[randomIndex] = null;
             }
-            lastClearCacheSweepNanos = System.nanoTime();
+            lastClearCacheSweepNanos = FDateNanos.elapsedNanos();
             return cleared;
         } finally {
             CLEAR_CACHE_SWEEP_LOCK.unlock();
@@ -366,7 +367,7 @@ public final class MemoryLimit {
         }
 
         public boolean maybeClear() {
-            if (CLEAR_CACHE_INTERVAL.isGreaterThanNanos(System.nanoTime() - lastClearedNanos)) {
+            if (CLEAR_CACHE_INTERVAL.isGreaterThanNanos(FDateNanos.elapsedNanos() - lastClearedNanos)) {
                 return false;
             }
             final Lock lock;
@@ -399,7 +400,7 @@ public final class MemoryLimit {
                 }
                 logWarning(holder, name, size);
                 internalClear(cache);
-                lastClearedNanos = System.nanoTime();
+                lastClearedNanos = FDateNanos.elapsedNanos();
                 return true;
             } finally {
                 lock.unlock();

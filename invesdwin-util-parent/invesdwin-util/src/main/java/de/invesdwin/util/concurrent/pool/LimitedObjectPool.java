@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
-import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
@@ -40,7 +40,7 @@ public class LimitedObjectPool<E> implements IObjectPool<E> {
     @Override
     public E borrowObject() {
         try {
-            final long waitingSinceNanos = System.nanoTime();
+            final long waitingSinceNanos = FDateNanos.elapsedNanos();
             while (true) {
                 if (leasedWait.awaitFulfill(waitingSinceNanos)) {
                     //make sure that maximum size can not be exceeded by parallel leasing
@@ -51,8 +51,8 @@ public class LimitedObjectPool<E> implements IObjectPool<E> {
                         }
                     }
                 } else {
-                    final long curNanos = System.nanoTime();
-                    if (timeout.isGreaterThan(curNanos - waitingSinceNanos, FTimeUnit.NANOSECONDS)) {
+                    final long curNanos = FDateNanos.elapsedNanos();
+                    if (timeout.isGreaterThanNanos(curNanos - waitingSinceNanos)) {
                         throw new TimeoutException("Timeout exceeded: " + timeout);
                     }
                 }

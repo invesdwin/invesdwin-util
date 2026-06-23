@@ -5,6 +5,9 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.util.marshallers.serde.ISerde;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.IByteBufferProvider;
+import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
+import de.invesdwin.util.streams.buffer.memory.IMemoryBufferProvider;
 
 @Immutable
 public class NullSerde<O> implements ISerde<O> {
@@ -35,6 +38,36 @@ public class NullSerde<O> implements ISerde<O> {
 
     @Override
     public int toBuffer(final IByteBuffer buffer, final O obj) {
+        return 0;
+    }
+
+    @Override
+    public O fromBuffer(final IMemoryBuffer buffer) {
+        return null;
+    }
+
+    @Override
+    public long toBuffer(final IMemoryBuffer buffer, final O obj) {
+        return 0;
+    }
+
+    @Override
+    public O fromBuffer(final IByteBufferProvider buffer) {
+        return null;
+    }
+
+    @Override
+    public int toBuffer(final IByteBufferProvider buffer, final O obj) {
+        return 0;
+    }
+
+    @Override
+    public O fromBuffer(final IMemoryBufferProvider buffer) {
+        return null;
+    }
+
+    @Override
+    public long toBuffer(final IMemoryBufferProvider buffer, final O obj) {
         return 0;
     }
 

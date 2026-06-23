@@ -8,6 +8,7 @@ import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
@@ -43,7 +44,7 @@ public class SynchronizedLoopInterruptedCheck implements ILoopInterruptedCheck {
     }
 
     protected long getInitialNanoTime() {
-        return System.nanoTime();
+        return FDateNanos.elapsedNanos();
     }
 
     @Override

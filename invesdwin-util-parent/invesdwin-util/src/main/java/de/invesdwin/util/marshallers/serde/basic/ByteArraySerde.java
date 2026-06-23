@@ -4,7 +4,6 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.marshallers.serde.ISerde;
-import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -28,16 +27,6 @@ public final class ByteArraySerde implements ISerde<byte[][]> {
 
     private ByteArraySerde(final Integer fixedArrayCount) {
         this.fixedArrayCount = fixedArrayCount;
-    }
-
-    @Override
-    public byte[][] fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final byte[][] obj) {
-        return SerdeBaseMethods.toBytes(this, obj);
     }
 
     @Override

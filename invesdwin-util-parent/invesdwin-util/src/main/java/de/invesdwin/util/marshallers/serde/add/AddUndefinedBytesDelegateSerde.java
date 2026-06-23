@@ -3,7 +3,6 @@ package de.invesdwin.util.marshallers.serde.add;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.marshallers.serde.ISerde;
-import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
@@ -26,16 +25,6 @@ public class AddUndefinedBytesDelegateSerde<O> implements ISerde<O> {
 
     public Integer getFixedLength() {
         return fixedLength;
-    }
-
-    @Override
-    public O fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final O obj) {
-        return SerdeBaseMethods.toBytes(this, obj);
     }
 
     @Override

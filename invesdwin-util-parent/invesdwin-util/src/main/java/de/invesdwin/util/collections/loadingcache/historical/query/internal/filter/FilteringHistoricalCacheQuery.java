@@ -95,7 +95,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public FDate getPreviousKey(final FDate key, final int shiftBackUnits) {
         final FDate result = delegate.getPreviousKey(key, shiftBackUnits);
-        if (result == null || result.isAfter(key)) {
+        if (result == null || result.isAfterNotNullSafe(key)) {
             //prevent nullpointers
             return key;
         } else {
@@ -109,10 +109,15 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
          * need to go directly against getKey so that recursive queries work properly with shift keys delegates
          */
         final ICloseableIterable<FDate> result = delegate.getPreviousKeys(key, shiftBackUnits);
-        return new AFilterSkippingIterable<FDate>(result) {
+        return new AFilterSkippingIterable<FDate>(result, null, key) {
             @Override
-            protected boolean skip(final FDate element) {
-                return element.isAfter(key);
+            protected FDate extractEndTime(final FDate element) {
+                return element;
+            }
+
+            @Override
+            protected String getName() {
+                return "FilteringHistoricalCacheQuery.getPreviousKeys";
             }
         };
     }
@@ -120,7 +125,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public IHistoricalEntry<V> getPreviousEntry(final FDate key, final int shiftBackUnits) {
         final IHistoricalEntry<V> result = delegate.getPreviousEntry(key, shiftBackUnits);
-        if (result == null || result.getKey().isAfter(key)) {
+        if (result == null || result.getKey().isAfterNotNullSafe(key)) {
             return null;
         } else {
             return result;
@@ -136,10 +141,15 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public ICloseableIterable<IHistoricalEntry<V>> getPreviousEntries(final FDate key, final int shiftBackUnits) {
         final ICloseableIterable<IHistoricalEntry<V>> result = delegate.getPreviousEntries(key, shiftBackUnits);
-        return new AFilterSkippingIterable<IHistoricalEntry<V>>(result) {
+        return new AFilterSkippingIterable<IHistoricalEntry<V>>(result, null, key) {
             @Override
-            protected boolean skip(final IHistoricalEntry<V> element) {
-                return element.getKey().isAfter(key);
+            protected FDate extractEndTime(final IHistoricalEntry<V> element) {
+                return element.getKey();
+            }
+
+            @Override
+            protected String getName() {
+                return "FilteringHistoricalCacheQuery.getPreviousEntries";
             }
         };
     }
@@ -181,32 +191,30 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     @Override
     public ICloseableIterable<FDate> getKeys(final FDate from, final FDate to) {
-        return new AFilterSkippingIterable<FDate>(delegate.getKeys(from, to)) {
+        return new AFilterSkippingIterable<FDate>(delegate.getKeys(from, to), from, to) {
             @Override
-            protected boolean skip(final FDate element) {
-                if (element.isAfter(to)) {
-                    return true;
-                }
-                if (element.isBefore(from)) {
-                    return true;
-                }
-                return false;
+            protected FDate extractEndTime(final FDate element) {
+                return element;
+            }
+
+            @Override
+            protected String getName() {
+                return "FilteringHistoricalCacheQuery.getKeys";
             }
         };
     }
 
     @Override
     public ICloseableIterable<IHistoricalEntry<V>> getEntries(final FDate from, final FDate to) {
-        return new AFilterSkippingIterable<IHistoricalEntry<V>>(delegate.getEntries(from, to)) {
+        return new AFilterSkippingIterable<IHistoricalEntry<V>>(delegate.getEntries(from, to), from, to) {
             @Override
-            protected boolean skip(final IHistoricalEntry<V> element) {
-                if (element.getKey().isAfter(to)) {
-                    return true;
-                }
-                if (element.getKey().isBefore(from)) {
-                    return true;
-                }
-                return false;
+            protected FDate extractEndTime(final IHistoricalEntry<V> element) {
+                return element.getKey();
+            }
+
+            @Override
+            protected String getName() {
+                return "FilteringHistoricalCacheQuery.getEntries";
             }
         };
     }
@@ -258,32 +266,30 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
 
     @Override
     public ICloseableIterable<FDate> getKeysCached(final FDate from, final FDate to) {
-        return new AFilterSkippingIterable<FDate>(delegate.getKeysCached(from, to)) {
+        return new AFilterSkippingIterable<FDate>(delegate.getKeysCached(from, to), from, to) {
             @Override
-            protected boolean skip(final FDate element) {
-                if (element.isAfter(to)) {
-                    return true;
-                }
-                if (element.isBefore(from)) {
-                    return true;
-                }
-                return false;
+            protected FDate extractEndTime(final FDate element) {
+                return element;
+            }
+
+            @Override
+            protected String getName() {
+                return "FilteringHistoricalCacheQuery.getKeysCached";
             }
         };
     }
 
     @Override
     public ICloseableIterable<IHistoricalEntry<V>> getEntriesCached(final FDate from, final FDate to) {
-        return new AFilterSkippingIterable<IHistoricalEntry<V>>(delegate.getEntriesCached(from, to)) {
+        return new AFilterSkippingIterable<IHistoricalEntry<V>>(delegate.getEntriesCached(from, to), from, to) {
             @Override
-            protected boolean skip(final IHistoricalEntry<V> element) {
-                if (element.getKey().isAfter(to)) {
-                    return true;
-                }
-                if (element.getKey().isBefore(from)) {
-                    return true;
-                }
-                return false;
+            protected FDate extractEndTime(final IHistoricalEntry<V> element) {
+                return element.getKey();
+            }
+
+            @Override
+            protected String getName() {
+                return "FilteringHistoricalCacheQuery.getEntriesCached";
             }
         };
     }
@@ -326,7 +332,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public FDate getPreviousKeyWithSameValueBetween(final FDate from, final FDate to, final V value) {
         final FDate result = delegate.getPreviousKeyWithSameValueBetween(from, to, value);
-        if (result == null || (result.isBefore(from) || result.isAfter(to))) {
+        if (result == null || (result.isBeforeNotNullSafe(from) || result.isAfterNotNullSafe(to))) {
             return null;
         } else {
             return result;
@@ -342,7 +348,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public IHistoricalEntry<V> getPreviousEntryWithSameValueBetween(final FDate from, final FDate to, final V value) {
         final IHistoricalEntry<V> result = delegate.getPreviousEntryWithSameValueBetween(from, to, value);
-        if (result == null || (result.getKey().isBefore(from) || result.getKey().isAfter(to))) {
+        if (result == null || (result.getKey().isBeforeNotNullSafe(from) || result.getKey().isAfterNotNullSafe(to))) {
             return null;
         } else {
             return result;
@@ -352,7 +358,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public FDate getPreviousKeyWithDifferentValueBetween(final FDate from, final FDate to, final V value) {
         final FDate result = delegate.getPreviousKeyWithDifferentValueBetween(from, to, value);
-        if (result == null || (result.isBefore(from) || result.isAfter(to))) {
+        if (result == null || (result.isBeforeNotNullSafe(from) || result.isAfterNotNullSafe(to))) {
             return null;
         } else {
             return result;
@@ -369,7 +375,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     public IHistoricalEntry<V> getPreviousEntryWithDifferentValueBetween(final FDate from, final FDate to,
             final V value) {
         final IHistoricalEntry<V> result = delegate.getPreviousEntryWithDifferentValueBetween(from, to, value);
-        if (result == null || (result.getKey().isBefore(from) || result.getKey().isAfter(to))) {
+        if (result == null || (result.getKey().isBeforeNotNullSafe(from) || result.getKey().isAfterNotNullSafe(to))) {
             return null;
         } else {
             return result;
@@ -379,7 +385,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public FDate getPreviousKeyWithSameValue(final FDate key, final int maxShiftBackUnits, final V value) {
         final FDate result = delegate.getPreviousKeyWithSameValue(key, maxShiftBackUnits, value);
-        if (result == null || result.isAfter(key)) {
+        if (result == null || result.isAfterNotNullSafe(key)) {
             return null;
         } else {
             return result;
@@ -396,7 +402,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     public IHistoricalEntry<V> getPreviousEntryWithSameValue(final FDate key, final int maxShiftBackUnits,
             final V value) {
         final IHistoricalEntry<V> result = delegate.getPreviousEntryWithSameValue(key, maxShiftBackUnits, value);
-        if (result == null || result.getKey().isAfter(key)) {
+        if (result == null || result.getKey().isAfterNotNullSafe(key)) {
             return null;
         } else {
             return result;
@@ -406,7 +412,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     @Override
     public FDate getPreviousKeyWithDifferentValue(final FDate key, final int maxShiftBackUnits, final V value) {
         final FDate result = delegate.getPreviousKeyWithDifferentValue(key, maxShiftBackUnits, value);
-        if (result == null || result.isAfter(key)) {
+        if (result == null || result.isAfterNotNullSafe(key)) {
             return null;
         } else {
             return result;
@@ -423,7 +429,7 @@ public class FilteringHistoricalCacheQuery<V> implements IHistoricalCacheQuery<V
     public IHistoricalEntry<V> getPreviousEntryWithDifferentValue(final FDate key, final int maxShiftBackUnits,
             final V value) {
         final IHistoricalEntry<V> result = delegate.getPreviousEntryWithDifferentValue(key, maxShiftBackUnits, value);
-        if (result == null || result.getKey().isAfter(key)) {
+        if (result == null || result.getKey().isAfterNotNullSafe(key)) {
             return null;
         } else {
             return result;

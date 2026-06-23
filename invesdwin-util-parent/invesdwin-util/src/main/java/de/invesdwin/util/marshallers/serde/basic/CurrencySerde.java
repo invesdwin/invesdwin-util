@@ -8,7 +8,6 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Currencies;
 import de.invesdwin.util.lang.string.Charsets;
 import de.invesdwin.util.marshallers.serde.ISerde;
-import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -22,16 +21,6 @@ public final class CurrencySerde implements ISerde<Currency> {
     public static final int FIXED_LENGTH = Currencies.BYTES;
 
     private CurrencySerde() {}
-
-    @Override
-    public Currency fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final Currency obj) {
-        return SerdeBaseMethods.toBytes(this, obj);
-    }
 
     @Override
     public Currency fromBuffer(final IByteBuffer buffer) {

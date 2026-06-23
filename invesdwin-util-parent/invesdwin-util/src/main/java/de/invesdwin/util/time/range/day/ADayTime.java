@@ -16,32 +16,34 @@ public abstract class ADayTime<E extends ADayTime<E>> extends Number implements 
     public static final int MAX_MINUTE = 59;
     public static final int MAX_SECOND = 59;
     public static final int MAX_MILLISECOND = 999;
+    public static final int MAX_MICROSECOND = 999;
+    public static final int MAX_NANOSECOND = 999;
+    public static final int MAX_PICOSECOND = 999;
 
     protected final byte hour;
     protected final byte minute;
     protected final byte second;
     protected final short millisecond;
+    protected final short microsecond;
+    protected final short nanosecond;
+    protected final short picosecond;
 
-    protected ADayTime(final int hour, final int minute, final int second, final int millisecond) {
-        if (hour < MIN || hour > MAX_HOUR) {
-            throw new IllegalArgumentException("hour should be between [" + MIN + "] and [" + MAX_HOUR + "]: " + hour);
-        }
-        if (minute < MIN || minute > MAX_MINUTE) {
-            throw new IllegalArgumentException(
-                    "minute should be between [" + MIN + "] and [" + MAX_MINUTE + "]: " + minute);
-        }
-        if (second < MIN || second > MAX_SECOND) {
-            throw new IllegalArgumentException(
-                    "second should be between [" + MIN + "] and [" + MAX_SECOND + "]: " + second);
-        }
-        if (millisecond < MIN || millisecond > MAX_MILLISECOND) {
-            throw new IllegalArgumentException(
-                    "millisecond should be between [" + MIN + "] and [" + MAX_MILLISECOND + "]: " + millisecond);
-        }
+    protected ADayTime(final int hour, final int minute, final int second, final int millisecond, final int microsecond,
+            final int nanosecond, final int picosecond) {
+        assertValidField("hour", hour, MIN, MAX_HOUR);
+        assertValidField("minute", minute, MIN, MAX_MINUTE);
+        assertValidField("second", second, MIN, MAX_SECOND);
+        assertValidField("millisecond", millisecond, MIN, MAX_MILLISECOND);
+        assertValidField("microsecond", microsecond, MIN, MAX_MICROSECOND);
+        assertValidField("nanosecond", nanosecond, MIN, MAX_NANOSECOND);
+        assertValidField("picosecond", picosecond, MIN, MAX_PICOSECOND);
         this.hour = Bytes.checkedCast(hour);
         this.minute = Bytes.checkedCast(minute);
         this.second = Bytes.checkedCast(second);
         this.millisecond = Shorts.checkedCast(millisecond);
+        this.microsecond = Shorts.checkedCast(microsecond);
+        this.nanosecond = Shorts.checkedCast(nanosecond);
+        this.picosecond = Shorts.checkedCast(picosecond);
     }
 
     public int getHour() {
@@ -60,27 +62,46 @@ public abstract class ADayTime<E extends ADayTime<E>> extends Number implements 
         return millisecond;
     }
 
+    public short getMicrosecond() {
+        return microsecond;
+    }
+
+    public short getNanosecond() {
+        return nanosecond;
+    }
+
+    public short getPicosecond() {
+        return picosecond;
+    }
+
     @Override
     public abstract String toString();
 
     protected String innerToString() {
         return Strings.leftPad(hour, 2, '0') + ":" + Strings.leftPad(minute, 2, '0') + ":"
-                + Strings.leftPad(second, 2, '0') + "." + Strings.leftPad(millisecond, 3, '0');
+                + Strings.leftPad(second, 2, '0') + "." + Strings.leftPad(millisecond, 3, '0') + "."
+                + Strings.leftPad(microsecond, 3, '0') + "." + Strings.leftPad(nanosecond, 3, '0') + "."
+                + Strings.leftPad(picosecond, 3, '0');
     }
 
     public abstract String toNumberString();
 
     protected String innerToNumberString() {
         return Strings.leftPad(hour, 2, '0') + Strings.leftPad(minute, 2, '0') + Strings.leftPad(second, 2, '0')
-                + Strings.leftPad(millisecond, 3, '0');
+                + Strings.leftPad(millisecond, 3, '0') + Strings.leftPad(microsecond, 3, '0')
+                + Strings.leftPad(nanosecond, 3, '0') + Strings.leftPad(picosecond, 3, '0');
     }
 
     /**
-     * hhmmssSSS
+     * hhmmssSSSUUUNNNPPP
+     * 
+     * hour * 1_mm_ss_SSS_UUU_NNN_PPP + minute * 1_ss_SSS_UUU_NNN_PPP + second * 1_SSS_UUU_NNN_PPP + millisecond *
+     * 1_UUU_NNN_PPP + microsecond * 1_NNN_PPP + nanosecond * 1_PPP + picosecond
      */
-    protected int innerIntValue() {
-        //hour * 1_mm_ss_SSS + minute * 1_ss_SSS + second * 1_SSS + millisecond
-        return getHour() * 1_00_00_000 + getMinute() * 1_00_000 + getSecond() * 1_000 + getMillisecond();
+    protected long innerLongValue() {
+        return getHour() * 1_00_00_000_000_000_000L + getMinute() * 1_00_000_000_000_000L
+                + getSecond() * 1_000_000_000_000L + getMillisecond() * 1_000_000_000L + getMicrosecond() * 1_000_000L
+                + getNanosecond() * 1_000L + getPicosecond();
     }
 
     @Override
@@ -92,8 +113,12 @@ public abstract class ADayTime<E extends ADayTime<E>> extends Number implements 
     public abstract boolean equalsNotNullSafe(E obj);
 
     protected boolean innerEqualsNotNullSafe(final ADayTime<E> obj) {
+        //CHECKSTYLE:OFF
         return Objects.equals(obj.hour, hour) && Objects.equals(obj.minute, minute)
-                && Objects.equals(obj.second, second) && Objects.equals(obj.millisecond, millisecond);
+                && Objects.equals(obj.second, second) && Objects.equals(obj.millisecond, millisecond)
+                && Objects.equals(obj.microsecond, microsecond) && Objects.equals(obj.nanosecond, nanosecond)
+                && Objects.equals(obj.picosecond, picosecond);
+        //CHECKSTYLE:ON
     }
 
     public abstract boolean isBefore(E other);
@@ -124,5 +149,24 @@ public abstract class ADayTime<E extends ADayTime<E>> extends Number implements 
     public abstract E subtract(Duration duration);
 
     public abstract E add(Duration duration);
+
+    protected static void assertValidField(final String name, final int value, final int min, final int max) {
+        if (value < min || value > max) {
+            throw new IllegalArgumentException(name + " should be between [" + min + "] and [" + max + "]: " + value);
+        }
+    }
+
+    protected static int parseField(final String value, final int startIndex, final int endIndex, final int length,
+            final int maxValue, final boolean max) {
+        if (length > startIndex) {
+            return Integer.parseInt(value.substring(startIndex, endIndex));
+        } else {
+            if (max) {
+                return maxValue;
+            } else {
+                return 0;
+            }
+        }
+    }
 
 }

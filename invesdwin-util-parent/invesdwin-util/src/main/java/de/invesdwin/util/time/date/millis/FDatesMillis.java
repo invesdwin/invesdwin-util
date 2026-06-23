@@ -22,11 +22,11 @@ public final class FDatesMillis {
     private FDatesMillis() {}
 
     public static LongIterable iterable(final long start, final long end, final Duration increment) {
-        return new FDateMillisIterable(start, end, increment.getTimeUnit(), increment.intValue());
+        return new FDateMillisIterable(start, end, increment.getTimeUnit(), increment.longValue());
     }
 
     public static LongIterable iterable(final long start, final long end, final FTimeUnit timeUnit,
-            final int incrementAmount) {
+            final long incrementAmount) {
         return new FDateMillisIterable(start, end, timeUnit, incrementAmount);
     }
 
@@ -34,10 +34,10 @@ public final class FDatesMillis {
         private final Long startFinal;
         private final Long endFinal;
         private final FTimeUnit timeUnit;
-        private final int incrementAmount;
+        private final long incrementAmount;
 
         FDateMillisIterable(final Long startFinal, final Long endFinal, final FTimeUnit timeUnit,
-                final int incrementAmount) {
+                final long incrementAmount) {
             this.startFinal = startFinal;
             this.endFinal = endFinal;
             this.timeUnit = timeUnit;

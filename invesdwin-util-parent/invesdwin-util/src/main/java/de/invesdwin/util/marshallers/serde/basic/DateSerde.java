@@ -5,7 +5,6 @@ import java.util.Date;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.marshallers.serde.ISerde;
-import de.invesdwin.util.marshallers.serde.SerdeBaseMethods;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
 @Immutable
@@ -13,16 +12,6 @@ public class DateSerde implements ISerde<Date> {
 
     public static final DateSerde GET = new DateSerde();
     public static final int FIXED_LENGTH = Long.BYTES;
-
-    @Override
-    public Date fromBytes(final byte[] bytes) {
-        return SerdeBaseMethods.fromBytes(this, bytes);
-    }
-
-    @Override
-    public byte[] toBytes(final Date obj) {
-        return SerdeBaseMethods.toBytes(this, obj);
-    }
 
     @Override
     public Date fromBuffer(final IByteBuffer buffer) {

@@ -43,6 +43,7 @@ import de.invesdwin.util.streams.buffer.bytes.extend.internal.UninitializedDirec
 import de.invesdwin.util.streams.buffer.bytes.internal.direct.DirectExpandableByteBufferPool;
 import de.invesdwin.util.streams.buffer.bytes.internal.heap.HeapExpandableByteBufferPool;
 import de.invesdwin.util.streams.buffer.bytes.internal.mapped.MappedExpandableByteBufferPool;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
 
 @Immutable
@@ -529,8 +530,8 @@ public final class ByteBuffers {
             }
             if (count == 0 && timeout != null) {
                 if (zeroCountNanos == -1) {
-                    zeroCountNanos = System.nanoTime();
-                } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                    zeroCountNanos = FDateNanos.elapsedNanos();
+                } else if (timeout.isLessThanNanos(FDateNanos.elapsedNanos() - zeroCountNanos)) {
                     throw FastEOFException.getInstance("read timeout exceeded");
                 }
                 ASpinWait.onSpinWaitStatic();
@@ -562,8 +563,8 @@ public final class ByteBuffers {
                 }
                 if (count == 0 && timeout != null) {
                     if (zeroCountNanos == -1) {
-                        zeroCountNanos = System.nanoTime();
-                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        zeroCountNanos = FDateNanos.elapsedNanos();
+                    } else if (timeout.isLessThanNanos(FDateNanos.elapsedNanos() - zeroCountNanos)) {
                         throw FastEOFException.getInstance("read timeout exceeded");
                     }
                     ASpinWait.onSpinWaitStatic();
@@ -601,8 +602,8 @@ public final class ByteBuffers {
                 }
                 if (count == 0 && timeout != null) {
                     if (zeroCountNanos == -1) {
-                        zeroCountNanos = System.nanoTime();
-                    } else if (timeout.isLessThanNanos(System.nanoTime() - zeroCountNanos)) {
+                        zeroCountNanos = FDateNanos.elapsedNanos();
+                    } else if (timeout.isLessThanNanos(FDateNanos.elapsedNanos() - zeroCountNanos)) {
                         throw FastEOFException.getInstance("write timeout exceeded");
                     }
                     ASpinWait.onSpinWaitStatic();
