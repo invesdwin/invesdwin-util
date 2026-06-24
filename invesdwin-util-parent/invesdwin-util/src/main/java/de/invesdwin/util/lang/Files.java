@@ -401,6 +401,16 @@ public final class Files extends AFilesStaticFacade {
         }
     }
 
+    public static String removeExtensions(final String fileName) {
+        final int i = fileName.indexOf('.');
+        if (i < 0) {
+            return fileName;
+        } else {
+            final String name = fileName.substring(0, i);
+            return name;
+        }
+    }
+
     public static File prefixExtension(final File f, final String prefix) {
         final String newExtension = prefix + getExtension(f);
         return setExtension(f, newExtension);
