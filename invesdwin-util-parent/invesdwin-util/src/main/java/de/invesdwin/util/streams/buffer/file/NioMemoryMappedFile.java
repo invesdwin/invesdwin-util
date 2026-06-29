@@ -30,6 +30,11 @@ import de.invesdwin.util.streams.buffer.memory.extend.UnsafeMemoryBuffer;
 @NotThreadSafe
 public class NioMemoryMappedFile implements IMemoryMappedFile {
 
+    /**
+     * Limit of sun.nio.ch.FileChannelImpl.map(MapMode, long, long)
+     */
+    public static final long MAX_SIZE = Integer.MAX_VALUE;
+
     private final boolean closeAllowed;
     private final NioMemoryMappedFileFinalizer finalizer;
     private final AtomicInteger refCount = new AtomicInteger();

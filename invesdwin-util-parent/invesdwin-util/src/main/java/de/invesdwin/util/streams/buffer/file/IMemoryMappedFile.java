@@ -5,13 +5,22 @@ import java.io.File;
 import java.io.IOException;
 
 import de.invesdwin.util.lang.OperatingSystem;
+import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
 public interface IMemoryMappedFile extends Closeable {
 
-    long MAX_SEGMENT_SIZE_WINDOWS = (long) ByteSizeScale.BYTES.convert(4, ByteSizeScale.GIGABYTES);
+    /**
+     * Unsafe calls can map 4gb (see OSAccessor.mapUnaligned) with long addressing.
+     */
+    long MAX_SEGMENT_SIZE_WINDOWS_UNSAFE = (long) ByteSizeScale.BYTES.convert(4, ByteSizeScale.GIGABYTES);
+    /**
+     * NioMemoryMappedFile can only allocate Integer.MAX_VALUE because MappedByteBuffer uses int addressing.
+     */
+    long MAX_SEGMENT_SIZE_WINDOWS_SAFE = NioMemoryMappedFile.MAX_SIZE;
+    long MAX_SEGMENT_SIZE_WINDOWS = Longs.min(MAX_SEGMENT_SIZE_WINDOWS_UNSAFE, MAX_SEGMENT_SIZE_WINDOWS_SAFE);
     long MAX_SEGMENT_SIZE = OperatingSystem.isWindows() ? MAX_SEGMENT_SIZE_WINDOWS : Long.MAX_VALUE;
 
     File getFile();
