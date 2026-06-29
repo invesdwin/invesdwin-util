@@ -11,6 +11,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.OperatingSystem;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
@@ -27,7 +28,7 @@ import net.openhft.chronicle.core.OSAccessor;
  *
  */
 @NotThreadSafe
-public class MemoryMappedFile implements IMemoryMappedFile {
+public final class MemoryMappedFile implements IMemoryMappedFile {
 
     private final boolean closeAllowed;
     private final MemoryMappedFileFinalizer finalizer;
@@ -44,7 +45,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
      * @throws Exception
      *             in case there was an error creating the memory mapped file
      */
-    public MemoryMappedFile(final boolean closeAllowed, final File file, final long offset, final long length,
+    private MemoryMappedFile(final boolean closeAllowed, final File file, final long offset, final long length,
             final boolean readOnly, final boolean deleteOnClose) throws IOException {
         if (length < 0) {
             throw new IllegalArgumentException("length must be non-negative: " + length);
@@ -197,8 +198,9 @@ public class MemoryMappedFile implements IMemoryMappedFile {
                 this.address = OSAccessor.mapUnaligned(channel, MapMode.READ_ONLY, this.offset, this.length);
             } else {
                 this.raf = new RandomAccessFile(this.file, "rw");
-                if (raf.length() < this.length) {
-                    raf.setLength(this.length);
+                final long limit = this.offset + this.length;
+                if (raf.length() < limit) {
+                    raf.setLength(limit);
                 }
                 this.channel = raf.getChannel();
                 this.address = OSAccessor.mapUnaligned(channel, MapMode.READ_WRITE, this.offset, this.length);
@@ -231,6 +233,15 @@ public class MemoryMappedFile implements IMemoryMappedFile {
             return false;
         }
 
+    }
+
+    public static IMemoryMappedFile map(final boolean closeAllowed, final File file, final long offset,
+            final long length, final boolean readOnly, final boolean deleteOnClose) throws IOException {
+        if (OperatingSystem.isWindows()) {
+            return new NioMemoryMappedFile(closeAllowed, file, offset, length, readOnly, deleteOnClose);
+        } else {
+            return new MemoryMappedFile(closeAllowed, file, offset, length, readOnly, deleteOnClose);
+        }
     }
 
 }

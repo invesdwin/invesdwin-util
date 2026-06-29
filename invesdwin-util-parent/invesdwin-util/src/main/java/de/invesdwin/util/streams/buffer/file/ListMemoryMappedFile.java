@@ -84,7 +84,7 @@ public class ListMemoryMappedFile implements IMemoryMappedFile {
             } else {
                 long bufferPosition = offset - position;
                 if (maxSegmentSize >= bufferPosition + length) {
-                    list.add(new MemoryMappedFile(closeAllowed, newFile(file, position, separateFiles), bufferPosition,
+                    list.add(MemoryMappedFile.map(closeAllowed, newFile(file, position, separateFiles), bufferPosition,
                             length, readOnly, deleteOnClose));
                     return list;
                 } else {
@@ -100,7 +100,7 @@ public class ListMemoryMappedFile implements IMemoryMappedFile {
                             mappedPosition = position;
                         }
                         final long toCopy = Longs.min(remaining, maxSegmentSize - bufferPosition);
-                        list.add(new MemoryMappedFile(closeAllowed, newFile(file, position, separateFiles),
+                        list.add(MemoryMappedFile.map(closeAllowed, newFile(file, position, separateFiles),
                                 mappedPosition, toCopy, readOnly, false));
                         remaining -= toCopy;
                         i += toCopy;

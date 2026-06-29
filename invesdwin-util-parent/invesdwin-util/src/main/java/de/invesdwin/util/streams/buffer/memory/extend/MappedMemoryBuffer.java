@@ -30,12 +30,12 @@ public class MappedMemoryBuffer extends UnsafeMemoryBuffer implements Closeable 
 
     private static final class MappedMemoryBufferFinalizer extends AFinalizer {
 
-        private MemoryMappedFile mappedFile;
+        private IMemoryMappedFile mappedFile;
 
         private MappedMemoryBufferFinalizer(final File file, final long length, final boolean deleteOnClose) {
             try {
                 Files.forceMkdirParent(file);
-                mappedFile = new MemoryMappedFile(true, file, 0, length, false, deleteOnClose);
+                mappedFile = MemoryMappedFile.map(true, file, 0, length, false, deleteOnClose);
             } catch (final IOException e) {
                 throw new UncheckedIOException(e);
             }

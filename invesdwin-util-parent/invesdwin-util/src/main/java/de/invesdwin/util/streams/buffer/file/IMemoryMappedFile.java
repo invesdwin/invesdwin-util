@@ -55,7 +55,7 @@ public interface IMemoryMappedFile extends Closeable {
             return new SegmentedMemoryMappedFile(MAX_SEGMENT_SIZE, closeAllowed, file, index, length, readOnly,
                     deleteOnClose, false);
         } else {
-            return new MemoryMappedFile(closeAllowed, file, index, length, readOnly, deleteOnClose);
+            return MemoryMappedFile.map(closeAllowed, file, index, length, readOnly, deleteOnClose);
         }
     }
 

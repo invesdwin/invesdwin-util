@@ -21,12 +21,11 @@ import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.extend.UnsafeMemoryBuffer;
 
 /**
- * Class for direct access to a memory mapped file.
- * 
- * This class was inspired from an entry in Bryce Nyeggen's blog
- *
- * https://github.com/caplogic/Mappedbus/blob/master/src/main/io/mappedbus/MemoryMappedFile.java
- *
+ * By using MappedByteBuffer we avoid anonymous mappings on windows that first allocate to the pagefile to then switch
+ * to the actual memory mapped file afterwards. This avoids errors like "The paging file is too small for this operation
+ * to be completed" or "Die Auslagerungsdatei ist zu klein, um diesen Vorgang durchzuführen" even though the allocation
+ * should be backed directly by a file. Though be aware that a recent version of JDK is required for this to work
+ * correctly.
  */
 @NotThreadSafe
 public class NioMemoryMappedFile implements IMemoryMappedFile {
@@ -205,8 +204,9 @@ public class NioMemoryMappedFile implements IMemoryMappedFile {
                 this.address = BufferUtil.address(mappedByteBuffer);
             } else {
                 this.raf = new RandomAccessFile(this.file, "rw");
-                if (raf.length() < this.length) {
-                    raf.setLength(this.length);
+                final long limit = this.offset + this.length;
+                if (raf.length() < limit) {
+                    raf.setLength(limit);
                 }
                 this.channel = raf.getChannel();
                 this.mappedByteBuffer = channel.map(MapMode.READ_WRITE, this.offset, this.length);
