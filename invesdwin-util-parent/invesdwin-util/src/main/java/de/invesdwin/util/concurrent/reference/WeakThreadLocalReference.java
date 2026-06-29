@@ -1,7 +1,5 @@
 package de.invesdwin.util.concurrent.reference;
 
-import java.util.Optional;
-
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.jspecify.annotations.Nullable;
@@ -66,12 +64,15 @@ public class WeakThreadLocalReference<V> implements IMutableReference<V> {
     public V get() {
         final LoadingCache<Object, Reference> map = THREAD_LOCAL.get();
         final Reference reference = map.get(key);
-        final Optional<V> optional = (Optional<V>) reference.get();
-        if (optional != null) {
-            return optional.orElse(null);
+        if (reference.isValueNull()) {
+            return null;
+        }
+        final Object value = reference.getValue();
+        if (value != null) {
+            return (V) value;
         } else {
             final V initialValue = initialValue();
-            reference.set(initialValue, isCloseOnRemoval());
+            reference.setValue(initialValue, isCloseOnRemoval());
             return initialValue;
         }
     }
@@ -83,7 +84,7 @@ public class WeakThreadLocalReference<V> implements IMutableReference<V> {
             map.invalidate(key);
         } else {
             final Reference reference = map.get(key);
-            reference.set(value, isCloseOnRemoval());
+            reference.setValue(value, isCloseOnRemoval());
         }
     }
 
@@ -106,14 +107,20 @@ public class WeakThreadLocalReference<V> implements IMutableReference<V> {
     private static final class Reference implements ISafeCloseable {
 
         private Object value;
+        private boolean valueNull;
         private boolean closeOnRemoval;
 
-        public void set(final Object value, final boolean closeOnRemoval) {
+        public void setValue(final Object value, final boolean closeOnRemoval) {
+            this.valueNull = value == null;
             this.value = value;
             this.closeOnRemoval = closeOnRemoval;
         }
 
-        public Object get() {
+        public boolean isValueNull() {
+            return valueNull;
+        }
+
+        public Object getValue() {
             return value;
         }
 
