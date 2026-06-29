@@ -187,11 +187,6 @@ public class ListMemoryMappedFile implements IMemoryMappedFile {
     }
 
     @Override
-    public java.nio.ByteBuffer getMappedByteBuffer() {
-        throw new UnsupportedOperationException("invalid on segmented mapped memory files");
-    }
-
-    @Override
     public long wrapAdjustment() {
         return offset;
     }

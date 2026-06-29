@@ -86,6 +86,17 @@ public class MemoryBuffersTest {
 
     @Test
     public void testMemoryBuffers() throws IOException {
+        testBufferOrdered(MemoryBuffers.allocate(BUFFER_SIZE));
+        testBufferOrdered(MemoryBuffers.allocateDirect(BUFFER_SIZE));
+        testBufferOrdered(MemoryBuffers.allocateExpandable(BUFFER_SIZE));
+        testBufferOrdered(MemoryBuffers.allocateDirectExpandable(BUFFER_SIZE));
+        testBufferOrdered(MemoryBuffers.allocateExpandable());
+        testBufferOrdered(MemoryBuffers.allocateDirectExpandable());
+        testBufferOrdered(MemoryBuffers.allocateMappedExpandable());
+    }
+
+    @Test
+    public void testByteBuffers() throws IOException {
         testBufferOrdered(new UnsafeMemoryBuffer(ByteBuffers.allocate(BUFFER_SIZE).byteArray()));
         testBufferOrdered(new UnsafeMemoryBuffer(ByteBuffers.allocateDirect(BUFFER_SIZE).nioByteBuffer()));
     }

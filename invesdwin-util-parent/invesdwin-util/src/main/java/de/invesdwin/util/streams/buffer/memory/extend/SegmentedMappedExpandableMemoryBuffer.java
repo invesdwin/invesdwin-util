@@ -55,7 +55,7 @@ public class SegmentedMappedExpandableMemoryBuffer extends ADelegateCloseableMem
         private SegmentedMemoryMappedFile mappedFile;
         private IMemoryBuffer delegate;
 
-        private ChunkedMappedExpandableBufferFinalizer(final File file, final int initialCapacity,
+        private ChunkedMappedExpandableBufferFinalizer(final File file, final long initialCapacity,
                 final boolean deleteOnClose) {
             this.file = file;
             this.deleteOnClose = deleteOnClose;
@@ -96,22 +96,22 @@ public class SegmentedMappedExpandableMemoryBuffer extends ADelegateCloseableMem
         this(INITIAL_CAPACITY);
     }
 
-    public SegmentedMappedExpandableMemoryBuffer(final int initialCapacity) {
+    public SegmentedMappedExpandableMemoryBuffer(final long initialCapacity) {
         this(initialCapacity, SegmentedMappedExpandableMemoryBuffer.class.getSimpleName());
     }
 
-    public SegmentedMappedExpandableMemoryBuffer(final int initialCapacity, final String name) {
+    public SegmentedMappedExpandableMemoryBuffer(final long initialCapacity, final String name) {
         this(initialCapacity,
                 new File(
                         new File(Files.getTempDirectory(), SegmentedMappedExpandableMemoryBuffer.class.getSimpleName()),
                         Files.normalizeFilename(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
     }
 
-    public SegmentedMappedExpandableMemoryBuffer(final int initialCapacity, final File file) {
+    public SegmentedMappedExpandableMemoryBuffer(final long initialCapacity, final File file) {
         this(initialCapacity, file, true);
     }
 
-    public SegmentedMappedExpandableMemoryBuffer(final int initialCapacity, final File file,
+    public SegmentedMappedExpandableMemoryBuffer(final long initialCapacity, final File file,
             final boolean deleteOnClose) {
         this.finalizer = new ChunkedMappedExpandableBufferFinalizer(file, initialCapacity, deleteOnClose);
         this.finalizer.register(this);

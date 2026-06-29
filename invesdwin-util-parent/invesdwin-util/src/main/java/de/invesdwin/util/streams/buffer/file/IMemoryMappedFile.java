@@ -32,8 +32,6 @@ public interface IMemoryMappedFile extends Closeable {
 
     long addressOffset();
 
-    java.nio.ByteBuffer getMappedByteBuffer();
-
     long wrapAdjustment();
 
     long capacity();

@@ -9,6 +9,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.agrona.BufferUtil;
+import org.agrona.IoUtil;
+
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
@@ -16,7 +19,6 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.extend.UnsafeMemoryBuffer;
-import net.openhft.chronicle.core.OSAccessor;
 
 /**
  * Class for direct access to a memory mapped file.
@@ -27,10 +29,10 @@ import net.openhft.chronicle.core.OSAccessor;
  *
  */
 @NotThreadSafe
-public class MemoryMappedFile implements IMemoryMappedFile {
+public class NioMemoryMappedFile implements IMemoryMappedFile {
 
     private final boolean closeAllowed;
-    private final MemoryMappedFileFinalizer finalizer;
+    private final NioMemoryMappedFileFinalizer finalizer;
     private final AtomicInteger refCount = new AtomicInteger();
     private boolean markedForClose;
 
@@ -44,13 +46,13 @@ public class MemoryMappedFile implements IMemoryMappedFile {
      * @throws Exception
      *             in case there was an error creating the memory mapped file
      */
-    public MemoryMappedFile(final boolean closeAllowed, final File file, final long offset, final long length,
+    public NioMemoryMappedFile(final boolean closeAllowed, final File file, final long offset, final long length,
             final boolean readOnly, final boolean deleteOnClose) throws IOException {
         if (length < 0) {
             throw new IllegalArgumentException("length must be non-negative: " + length);
         }
         this.closeAllowed = closeAllowed;
-        this.finalizer = new MemoryMappedFileFinalizer(file, offset, length, readOnly, deleteOnClose);
+        this.finalizer = new NioMemoryMappedFileFinalizer(file, offset, length, readOnly, deleteOnClose);
         this.finalizer.register(this);
     }
 
@@ -67,6 +69,10 @@ public class MemoryMappedFile implements IMemoryMappedFile {
     @Override
     public File getFile() {
         return finalizer.file;
+    }
+
+    public java.nio.MappedByteBuffer getMappedByteBuffer() {
+        return finalizer.mappedByteBuffer;
     }
 
     @Override
@@ -141,14 +147,14 @@ public class MemoryMappedFile implements IMemoryMappedFile {
     public IMemoryBuffer newMemoryBuffer(final long index, final long length) {
         final File file = finalizer.file;
         final long address = addressOffset() + index;
-        return new MappedMemoryBuffer(address, length, file, index);
+        return new NioMappedMemoryBuffer(address, length, file, index);
     }
 
-    private static final class MappedMemoryBuffer extends UnsafeMemoryBuffer {
+    private static final class NioMappedMemoryBuffer extends UnsafeMemoryBuffer {
         private final File file;
         private final long index;
 
-        private MappedMemoryBuffer(final long address, final long length, final File file, final long index) {
+        private NioMappedMemoryBuffer(final long address, final long length, final File file, final long index) {
             super(address, length);
             this.file = file;
             this.index = index;
@@ -176,7 +182,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
         }
     }
 
-    private static final class MemoryMappedFileFinalizer extends AFinalizer {
+    private static final class NioMemoryMappedFileFinalizer extends AFinalizer {
         private final File file;
         private final long offset;
         private final long length;
@@ -185,23 +191,26 @@ public class MemoryMappedFile implements IMemoryMappedFile {
         private final long address;
         private boolean deleteOnClose;
         private volatile boolean cleaned;
+        private java.nio.MappedByteBuffer mappedByteBuffer;
 
-        private MemoryMappedFileFinalizer(final File file, final long offset, final long length, final boolean readOnly,
-                final boolean deleteOnClose) throws IOException {
+        private NioMemoryMappedFileFinalizer(final File file, final long offset, final long length,
+                final boolean readOnly, final boolean deleteOnClose) throws IOException {
             this.file = file;
             this.offset = offset;
             this.length = length;
             if (readOnly) {
                 this.raf = new RandomAccessFile(this.file, "r");
                 this.channel = raf.getChannel();
-                this.address = OSAccessor.mapUnaligned(channel, MapMode.READ_ONLY, this.offset, this.length);
+                this.mappedByteBuffer = channel.map(MapMode.READ_ONLY, this.offset, this.length);
+                this.address = BufferUtil.address(mappedByteBuffer);
             } else {
                 this.raf = new RandomAccessFile(this.file, "rw");
                 if (raf.length() < this.length) {
                     raf.setLength(this.length);
                 }
                 this.channel = raf.getChannel();
-                this.address = OSAccessor.mapUnaligned(channel, MapMode.READ_WRITE, this.offset, this.length);
+                this.mappedByteBuffer = channel.map(MapMode.READ_WRITE, this.offset, this.length);
+                this.address = BufferUtil.address(mappedByteBuffer);
             }
             this.deleteOnClose = deleteOnClose;
         }
@@ -209,8 +218,12 @@ public class MemoryMappedFile implements IMemoryMappedFile {
         @Override
         protected void clean() {
             cleaned = true;
+            final java.nio.MappedByteBuffer mappedByteBufferCopy = mappedByteBuffer;
+            if (mappedByteBufferCopy != null) {
+                IoUtil.unmap(mappedByteBufferCopy);
+                mappedByteBuffer = null;
+            }
             try {
-                OSAccessor.unmapUnaligned(address, this.length);
                 channel.close();
                 raf.close();
                 if (deleteOnClose) {
