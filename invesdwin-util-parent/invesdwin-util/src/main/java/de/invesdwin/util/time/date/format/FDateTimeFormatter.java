@@ -887,6 +887,18 @@ public final class FDateTimeFormatter extends java.text.Format {
     }
 
     //CHECKSTYLE:OFF
+    public FDateTimeFormatter withTimeZoneId(final String timeZoneId) {
+        //CHECKSTYLE:OF
+        if (timeZoneId == null) {
+            return withTimeZone(null);
+        } else if (timeZone != null && Objects.equals(this.timeZone.getId(), timeZoneId)) {
+            return this;
+        } else {
+            return withTimeZone(FTimeZone.valueOf(timeZoneId));
+        }
+    }
+
+    //CHECKSTYLE:OFF
     public FDateTimeFormatter withTimeZone(final FTimeZone timeZone) {
         //CHECKSTYLE:OF
         if (Objects.equals(this.timeZone, timeZone)) {
