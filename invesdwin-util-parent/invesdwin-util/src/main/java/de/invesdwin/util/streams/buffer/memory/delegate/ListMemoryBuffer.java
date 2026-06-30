@@ -25,7 +25,6 @@ import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.math.Longs;
-import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.EmptyByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -172,7 +171,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 if (capacity >= bufferPosition + Long.BYTES) {
                     return buffer.getLong(bufferPosition);
                 } else {
-                    final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
+                    final byte[] readBuffer = ByteBuffers.allocateByteArray(Long.BYTES);
                     final long limit = index + Long.BYTES;
                     int ri = 0;
                     for (long i = index; i < limit;) {
@@ -219,7 +218,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 if (capacity >= bufferPosition + Integer.BYTES) {
                     return buffer.getInt(bufferPosition);
                 } else {
-                    final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
+                    final byte[] readBuffer = ByteBuffers.allocateByteArray(Integer.BYTES);
                     final long limit = index + Integer.BYTES;
                     int ri = 0;
                     for (long i = index; i < limit;) {
@@ -284,7 +283,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 if (capacity >= bufferPosition + Short.BYTES) {
                     return buffer.getShort(bufferPosition);
                 } else {
-                    final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
+                    final byte[] readBuffer = ByteBuffers.allocateByteArray(Short.BYTES);
                     final long limit = index + Short.BYTES;
                     int ri = 0;
                     for (long i = index; i < limit;) {
@@ -326,7 +325,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
                 if (capacity >= bufferPosition + Character.BYTES) {
                     return buffer.getChar(bufferPosition);
                 } else {
-                    final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
+                    final byte[] readBuffer = ByteBuffers.allocateByteArray(Character.BYTES);
                     final long limit = index + Character.BYTES;
                     int ri = 0;
                     for (long i = index; i < limit;) {
@@ -393,7 +392,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public void putLong(final long index, final long value) {
-        final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
+        final byte[] writeBuffer = ByteBuffers.allocateByteArray(Long.BYTES);
         writeBuffer[0] = (byte) (value >>> 56);
         writeBuffer[1] = (byte) (value >>> 48);
         writeBuffer[2] = (byte) (value >>> 40);
@@ -413,7 +412,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public void putInt(final long index, final int value) {
-        final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
+        final byte[] writeBuffer = ByteBuffers.allocateByteArray(Integer.BYTES);
         writeBuffer[0] = (byte) (value >>> 24);
         writeBuffer[1] = (byte) (value >>> 16);
         writeBuffer[2] = (byte) (value >>> 8);
@@ -451,7 +450,7 @@ public class ListMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public void putShort(final long index, final short value) {
-        final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
+        final byte[] writeBuffer = ByteBuffers.allocateByteArray(Short.BYTES);
         writeBuffer[0] = (byte) (value >>> 8);
         writeBuffer[1] = (byte) (value);
         putBytes(index, writeBuffer, 0, Short.BYTES);
@@ -465,10 +464,10 @@ public class ListMemoryBuffer implements IMemoryBuffer {
 
     @Override
     public void putChar(final long index, final char value) {
-        final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
+        final byte[] writeBuffer = ByteBuffers.allocateByteArray(Character.BYTES);
         writeBuffer[0] = (byte) (value >>> 8);
         writeBuffer[1] = (byte) (value);
-        putBytes(index, writeBuffer, 0, Short.BYTES);
+        putBytes(index, writeBuffer, 0, Character.BYTES);
     }
 
     @Override
