@@ -26,6 +26,7 @@ import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
 import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
+import io.netty.util.concurrent.FastThreadLocal;
 
 /**
  * Extracted from java.io.DataInputStream
@@ -34,12 +35,30 @@ import de.invesdwin.util.time.duration.Duration;
 public final class InputStreams {
 
     public static final InputStream[] EMPTY_ARRAY = new InputStream[0];
+    public static final FastThreadLocal<byte[]> LONG_BUFFER_HOLDER = new FastThreadLocal<byte[]>() {
+        @Override
+        protected byte[] initialValue() throws Exception {
+            return ByteBuffers.allocateByteArray(8);
+        }
+    };
+    private static final FastThreadLocal<char[]> LINE_BUFFER_HOLDER = new FastThreadLocal<char[]>() {
+        @Override
+        protected char[] initialValue() throws Exception {
+            return new char[128];
+        }
+    };
+    private static final FastThreadLocal<byte[]> COPY_BUFFER_HOLDER = new FastThreadLocal<byte[]>() {
+        @Override
+        protected byte[] initialValue() throws Exception {
+            return new byte[IOUtils.DEFAULT_BUFFER_SIZE];
+        }
+    };
 
     private InputStreams() {}
 
     public static String readLine(final InputStream pIn) throws IOException {
         InputStream in = pIn;
-        char[] lineBuffer = new char[128];
+        char[] lineBuffer = LINE_BUFFER_HOLDER.get();
         char[] buf = lineBuffer;
 
         int room = buf.length;
@@ -69,6 +88,7 @@ public final class InputStreams {
                     room = buf.length - offset - 1;
                     System.arraycopy(lineBuffer, 0, buf, 0, offset);
                     lineBuffer = buf;
+                    LINE_BUFFER_HOLDER.set(lineBuffer);
                 }
                 buf[offset++] = (char) c;
                 break;
@@ -187,7 +207,7 @@ public final class InputStreams {
     }
 
     public static long readLong(final InputStream in) throws IOException {
-        final byte[] readBuffer = ByteBuffers.allocateByteArray(Long.BYTES);
+        final byte[] readBuffer = LONG_BUFFER_HOLDER.get();
         readFullyNoTimeout(in, readBuffer, 0, 8);
         //CHECKSTYLE:OFF
         return (((long) readBuffer[0] << 56) + ((long) (readBuffer[1] & 255) << 48)
@@ -364,7 +384,7 @@ public final class InputStreams {
             final IThrowingTimeoutRunnable onTimeoutF) throws IOException, TimeoutException {
         long zeroCountNanos = -1L;
 
-        final byte[] array = new byte[IOUtils.DEFAULT_BUFFER_SIZE];
+        final byte[] array = COPY_BUFFER_HOLDER.get();
 
         long remaining = length;
         while (remaining > 0) {

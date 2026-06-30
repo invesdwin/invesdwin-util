@@ -22,6 +22,7 @@ import de.invesdwin.util.collections.array.base.IBaseArrayId;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.streams.InputStreams;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.SlicedDelegateByteBuffer;
@@ -221,7 +222,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
         if (capacity >= bufferPosition + Long.BYTES) {
             return buffer.getLong(bufferPosition);
         } else {
-            final byte[] readBuffer = ByteBuffers.allocateByteArray(Long.BYTES);
+            final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
             final int limit = index + Long.BYTES;
             for (int i = index, ri = 0; i < limit;) {
                 if (bufferPosition >= capacity) {
@@ -259,7 +260,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
         if (capacity >= bufferPosition + Integer.BYTES) {
             return buffer.getInt(bufferPosition);
         } else {
-            final byte[] readBuffer = ByteBuffers.allocateByteArray(Integer.BYTES);
+            final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
             final int limit = index + Integer.BYTES;
             for (int i = index, ri = 0; i < limit;) {
                 if (bufferPosition >= capacity) {
@@ -315,7 +316,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
         if (capacity >= bufferPosition + Short.BYTES) {
             return buffer.getShort(bufferPosition);
         } else {
-            final byte[] readBuffer = ByteBuffers.allocateByteArray(Short.BYTES);
+            final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
             final int limit = index + Short.BYTES;
             for (int i = index, ri = 0; i < limit;) {
                 if (bufferPosition >= capacity) {
@@ -348,7 +349,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
         if (capacity >= bufferPosition + Character.BYTES) {
             return buffer.getChar(bufferPosition);
         } else {
-            final byte[] readBuffer = ByteBuffers.allocateByteArray(Character.BYTES);
+            final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
             final int limit = index + Character.BYTES;
             for (int i = index, ri = 0; i < limit;) {
                 if (bufferPosition >= capacity) {
@@ -399,7 +400,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
 
     @Override
     public void putLong(final int index, final long value) {
-        final byte[] writeBuffer = ByteBuffers.allocateByteArray(Long.BYTES);
+        final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
         writeBuffer[0] = (byte) (value >>> 56);
         writeBuffer[1] = (byte) (value >>> 48);
         writeBuffer[2] = (byte) (value >>> 40);
@@ -419,7 +420,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
 
     @Override
     public void putInt(final int index, final int value) {
-        final byte[] writeBuffer = ByteBuffers.allocateByteArray(Integer.BYTES);
+        final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
         writeBuffer[0] = (byte) (value >>> 24);
         writeBuffer[1] = (byte) (value >>> 16);
         writeBuffer[2] = (byte) (value >>> 8);
@@ -457,7 +458,7 @@ public class SegmentedByteBuffer implements IByteBuffer {
 
     @Override
     public void putShort(final int index, final short value) {
-        final byte[] writeBuffer = ByteBuffers.allocateByteArray(Short.BYTES);
+        final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
         writeBuffer[0] = (byte) (value >>> 8);
         writeBuffer[1] = (byte) (value);
         putBytes(index, writeBuffer, 0, Short.BYTES);
@@ -471,10 +472,10 @@ public class SegmentedByteBuffer implements IByteBuffer {
 
     @Override
     public void putChar(final int index, final char value) {
-        final byte[] writeBuffer = ByteBuffers.allocateByteArray(Character.BYTES);
+        final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
         writeBuffer[0] = (byte) (value >>> 8);
         writeBuffer[1] = (byte) (value);
-        putBytes(index, writeBuffer, 0, Character.BYTES);
+        putBytes(index, writeBuffer, 0, Short.BYTES);
     }
 
     @Override
