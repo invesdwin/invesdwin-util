@@ -37,12 +37,12 @@ public class HeapGenericLargeArray<E> implements IGenericLargeArray<E> {
 
     @Override
     public void set(final long index, final E value) {
-        values[ByteBuffers.checkedCast(index)] = value;
+        values[ByteBuffers.checkedCastNoOverflow(index)] = value;
     }
 
     @Override
     public E get(final long index) {
-        return values[ByteBuffers.checkedCast(index)];
+        return values[ByteBuffers.checkedCastNoOverflow(index)];
     }
 
     @Override
@@ -60,6 +60,7 @@ public class HeapGenericLargeArray<E> implements IGenericLargeArray<E> {
         return new SliceDelegateGenericLargeArray<E>(this, fromIndex, length);
     }
 
+    @Override
     public E[] asArray() {
         return values;
     }
@@ -74,6 +75,7 @@ public class HeapGenericLargeArray<E> implements IGenericLargeArray<E> {
         }
     }
 
+    @Override
     public E[] asArrayCopy() {
         return values.clone();
     }
