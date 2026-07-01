@@ -655,8 +655,11 @@ public final class Files extends AFilesStaticFacade {
     }
 
     public static void setLength(final File file, final long newLength) {
-        try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
-            raf.setLength(newLength);
+        try {
+            Files.forceMkdirParent(file);
+            try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+                raf.setLength(newLength);
+            }
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
