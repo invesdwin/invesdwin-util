@@ -35,12 +35,12 @@ public class HeapBooleanLargeArray implements IBooleanLargeArray {
 
     @Override
     public void set(final long index, final boolean value) {
-        values[ByteBuffers.checkedCast(index)] = value;
+        values[ByteBuffers.checkedCastNoOverflow(index)] = value;
     }
 
     @Override
     public boolean get(final long index) {
-        return values[ByteBuffers.checkedCast(index)];
+        return values[ByteBuffers.checkedCastNoOverflow(index)];
     }
 
     @Override
@@ -58,6 +58,7 @@ public class HeapBooleanLargeArray implements IBooleanLargeArray {
         return new SliceDelegateBooleanLargeArray(this, fromIndex, length);
     }
 
+    @Override
     public boolean[] asArray() {
         return values;
     }
@@ -72,6 +73,7 @@ public class HeapBooleanLargeArray implements IBooleanLargeArray {
         }
     }
 
+    @Override
     public boolean[] asArrayCopy() {
         return values.clone();
     }
