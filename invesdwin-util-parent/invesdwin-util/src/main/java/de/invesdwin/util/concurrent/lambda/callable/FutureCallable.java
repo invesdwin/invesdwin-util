@@ -1,6 +1,7 @@
 package de.invesdwin.util.concurrent.lambda.callable;
 
 import java.util.concurrent.Future;
+import java.util.function.Supplier;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -9,25 +10,19 @@ import de.invesdwin.util.concurrent.future.Futures;
 @ThreadSafe
 public final class FutureCallable<E> implements ISafeCallable<E> {
 
-    private Future<E> future;
-    private E value;
+    private Supplier<E> value;
 
     private FutureCallable(final Future<E> future) {
-        this.future = future;
+        this.value = () -> {
+            final E newValue = Futures.getNoInterrupt(future);
+            value = () -> newValue;
+            return newValue;
+        };
     }
 
     @Override
     public E call() {
-        if (future != null) {
-            synchronized (this) {
-                final Future<E> futureCopy = future;
-                if (futureCopy != null) {
-                    value = Futures.getNoInterrupt(futureCopy);
-                    future = null;
-                }
-            }
-        }
-        return value;
+        return value.get();
     }
 
     public static <T> FutureCallable<T> of(final Future<T> future) {
