@@ -66,6 +66,134 @@ public final class DisabledLog implements ILog {
     public void trace(final Marker marker, final String msg, final Throwable t) {}
 
     @Override
+    public void trace(final Marker marker, final Message message) {}
+
+    @Override
+    public void trace(final Marker marker, final Message message, final Throwable throwable) {}
+
+    @Override
+    public void trace(final Marker marker, final MessageSupplier messageSupplier) {}
+
+    @Override
+    public void trace(final Marker marker, final MessageSupplier messageSupplier, final Throwable throwable) {}
+
+    @Override
+    public void trace(final Marker marker, final CharSequence message) {}
+
+    @Override
+    public void trace(final Marker marker, final CharSequence message, final Throwable throwable) {}
+
+    @Override
+    public void trace(final Marker marker, final Object message) {}
+
+    @Override
+    public void trace(final Marker marker, final Object message, final Throwable throwable) {}
+
+    @Override
+    public void trace(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {}
+
+    @Override
+    public void trace(final Marker marker, final Supplier<?> messageSupplier) {}
+
+    @Override
+    public void trace(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {}
+
+    @Override
+    public void trace(final Message message) {}
+
+    @Override
+    public void trace(final Message message, final Throwable throwable) {}
+
+    @Override
+    public void trace(final MessageSupplier messageSupplier) {}
+
+    @Override
+    public void trace(final MessageSupplier messageSupplier, final Throwable throwable) {}
+
+    @Override
+    public void trace(final CharSequence message) {}
+
+    @Override
+    public void trace(final CharSequence message, final Throwable throwable) {}
+
+    @Override
+    public void trace(final Object message) {}
+
+    @Override
+    public void trace(final Object message, final Throwable throwable) {}
+
+    @Override
+    public void trace(final String message, final Supplier<?>... paramSuppliers) {}
+
+    @Override
+    public void trace(final Supplier<?> messageSupplier) {}
+
+    @Override
+    public void trace(final Supplier<?> messageSupplier, final Throwable throwable) {}
+
+    @Override
+    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2) {}
+
+    @Override
+    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3) {}
+
+    @Override
+    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4) {}
+
+    @Override
+    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5) {}
+
+    @Override
+    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6) {}
+
+    @Override
+    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {}
+
+    @Override
+    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
+
+    @Override
+    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8,
+            final Object p9) {}
+
+    @Override
+    public void trace(final String message, final Object p0, final Object p1, final Object p2) {}
+
+    @Override
+    public void trace(final String message, final Object p0, final Object p1, final Object p2, final Object p3) {}
+
+    @Override
+    public void trace(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4) {}
+
+    @Override
+    public void trace(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5) {}
+
+    @Override
+    public void trace(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6) {}
+
+    @Override
+    public void trace(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7) {}
+
+    @Override
+    public void trace(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
+
+    @Override
+    public void trace(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {}
+
+    @Override
     public boolean isDebugEnabled() {
         return false;
     }
@@ -274,6 +402,134 @@ public final class DisabledLog implements ILog {
     public void info(final Marker marker, final String msg, final Throwable t) {}
 
     @Override
+    public void info(final Marker marker, final Message message) {}
+
+    @Override
+    public void info(final Marker marker, final Message message, final Throwable throwable) {}
+
+    @Override
+    public void info(final Marker marker, final MessageSupplier messageSupplier) {}
+
+    @Override
+    public void info(final Marker marker, final MessageSupplier messageSupplier, final Throwable throwable) {}
+
+    @Override
+    public void info(final Marker marker, final CharSequence message) {}
+
+    @Override
+    public void info(final Marker marker, final CharSequence message, final Throwable throwable) {}
+
+    @Override
+    public void info(final Marker marker, final Object message) {}
+
+    @Override
+    public void info(final Marker marker, final Object message, final Throwable throwable) {}
+
+    @Override
+    public void info(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {}
+
+    @Override
+    public void info(final Marker marker, final Supplier<?> messageSupplier) {}
+
+    @Override
+    public void info(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {}
+
+    @Override
+    public void info(final Message message) {}
+
+    @Override
+    public void info(final Message message, final Throwable throwable) {}
+
+    @Override
+    public void info(final MessageSupplier messageSupplier) {}
+
+    @Override
+    public void info(final MessageSupplier messageSupplier, final Throwable throwable) {}
+
+    @Override
+    public void info(final CharSequence message) {}
+
+    @Override
+    public void info(final CharSequence message, final Throwable throwable) {}
+
+    @Override
+    public void info(final Object message) {}
+
+    @Override
+    public void info(final Object message, final Throwable throwable) {}
+
+    @Override
+    public void info(final String message, final Supplier<?>... paramSuppliers) {}
+
+    @Override
+    public void info(final Supplier<?> messageSupplier) {}
+
+    @Override
+    public void info(final Supplier<?> messageSupplier, final Throwable throwable) {}
+
+    @Override
+    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2) {}
+
+    @Override
+    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3) {}
+
+    @Override
+    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4) {}
+
+    @Override
+    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5) {}
+
+    @Override
+    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6) {}
+
+    @Override
+    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {}
+
+    @Override
+    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
+
+    @Override
+    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8,
+            final Object p9) {}
+
+    @Override
+    public void info(final String message, final Object p0, final Object p1, final Object p2) {}
+
+    @Override
+    public void info(final String message, final Object p0, final Object p1, final Object p2, final Object p3) {}
+
+    @Override
+    public void info(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4) {}
+
+    @Override
+    public void info(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5) {}
+
+    @Override
+    public void info(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6) {}
+
+    @Override
+    public void info(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7) {}
+
+    @Override
+    public void info(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
+
+    @Override
+    public void info(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {}
+
+    @Override
     public boolean isWarnEnabled() {
         return false;
     }
@@ -312,6 +568,134 @@ public final class DisabledLog implements ILog {
 
     @Override
     public void warn(final Marker marker, final String msg, final Throwable t) {}
+
+    @Override
+    public void warn(final Marker marker, final Message message) {}
+
+    @Override
+    public void warn(final Marker marker, final Message message, final Throwable throwable) {}
+
+    @Override
+    public void warn(final Marker marker, final MessageSupplier messageSupplier) {}
+
+    @Override
+    public void warn(final Marker marker, final MessageSupplier messageSupplier, final Throwable throwable) {}
+
+    @Override
+    public void warn(final Marker marker, final CharSequence message) {}
+
+    @Override
+    public void warn(final Marker marker, final CharSequence message, final Throwable throwable) {}
+
+    @Override
+    public void warn(final Marker marker, final Object message) {}
+
+    @Override
+    public void warn(final Marker marker, final Object message, final Throwable throwable) {}
+
+    @Override
+    public void warn(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {}
+
+    @Override
+    public void warn(final Marker marker, final Supplier<?> messageSupplier) {}
+
+    @Override
+    public void warn(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {}
+
+    @Override
+    public void warn(final Message message) {}
+
+    @Override
+    public void warn(final Message message, final Throwable throwable) {}
+
+    @Override
+    public void warn(final MessageSupplier messageSupplier) {}
+
+    @Override
+    public void warn(final MessageSupplier messageSupplier, final Throwable throwable) {}
+
+    @Override
+    public void warn(final CharSequence message) {}
+
+    @Override
+    public void warn(final CharSequence message, final Throwable throwable) {}
+
+    @Override
+    public void warn(final Object message) {}
+
+    @Override
+    public void warn(final Object message, final Throwable throwable) {}
+
+    @Override
+    public void warn(final String message, final Supplier<?>... paramSuppliers) {}
+
+    @Override
+    public void warn(final Supplier<?> messageSupplier) {}
+
+    @Override
+    public void warn(final Supplier<?> messageSupplier, final Throwable throwable) {}
+
+    @Override
+    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2) {}
+
+    @Override
+    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3) {}
+
+    @Override
+    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4) {}
+
+    @Override
+    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5) {}
+
+    @Override
+    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6) {}
+
+    @Override
+    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {}
+
+    @Override
+    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
+
+    @Override
+    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8,
+            final Object p9) {}
+
+    @Override
+    public void warn(final String message, final Object p0, final Object p1, final Object p2) {}
+
+    @Override
+    public void warn(final String message, final Object p0, final Object p1, final Object p2, final Object p3) {}
+
+    @Override
+    public void warn(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4) {}
+
+    @Override
+    public void warn(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5) {}
+
+    @Override
+    public void warn(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6) {}
+
+    @Override
+    public void warn(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7) {}
+
+    @Override
+    public void warn(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
+
+    @Override
+    public void warn(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {}
 
     @Override
     public boolean isErrorEnabled() {
@@ -649,7 +1033,7 @@ public final class DisabledLog implements ILog {
     public void fatal(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
             final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {}
 
-    ////////////////////////////////
+    /////////////////////////////
 
     @Override
     public void catching(final Level level, final Throwable throwable) {}
@@ -685,134 +1069,6 @@ public final class DisabledLog implements ILog {
     public FlowMessageFactory getFlowMessageFactory() {
         return null;
     }
-
-    @Override
-    public void info(final Marker marker, final Message message) {}
-
-    @Override
-    public void info(final Marker marker, final Message message, final Throwable throwable) {}
-
-    @Override
-    public void info(final Marker marker, final MessageSupplier messageSupplier) {}
-
-    @Override
-    public void info(final Marker marker, final MessageSupplier messageSupplier, final Throwable throwable) {}
-
-    @Override
-    public void info(final Marker marker, final CharSequence message) {}
-
-    @Override
-    public void info(final Marker marker, final CharSequence message, final Throwable throwable) {}
-
-    @Override
-    public void info(final Marker marker, final Object message) {}
-
-    @Override
-    public void info(final Marker marker, final Object message, final Throwable throwable) {}
-
-    @Override
-    public void info(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {}
-
-    @Override
-    public void info(final Marker marker, final Supplier<?> messageSupplier) {}
-
-    @Override
-    public void info(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {}
-
-    @Override
-    public void info(final Message message) {}
-
-    @Override
-    public void info(final Message message, final Throwable throwable) {}
-
-    @Override
-    public void info(final MessageSupplier messageSupplier) {}
-
-    @Override
-    public void info(final MessageSupplier messageSupplier, final Throwable throwable) {}
-
-    @Override
-    public void info(final CharSequence message) {}
-
-    @Override
-    public void info(final CharSequence message, final Throwable throwable) {}
-
-    @Override
-    public void info(final Object message) {}
-
-    @Override
-    public void info(final Object message, final Throwable throwable) {}
-
-    @Override
-    public void info(final String message, final Supplier<?>... paramSuppliers) {}
-
-    @Override
-    public void info(final Supplier<?> messageSupplier) {}
-
-    @Override
-    public void info(final Supplier<?> messageSupplier, final Throwable throwable) {}
-
-    @Override
-    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2) {}
-
-    @Override
-    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3) {}
-
-    @Override
-    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4) {}
-
-    @Override
-    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4, final Object p5) {}
-
-    @Override
-    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4, final Object p5, final Object p6) {}
-
-    @Override
-    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {}
-
-    @Override
-    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
-
-    @Override
-    public void info(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8,
-            final Object p9) {}
-
-    @Override
-    public void info(final String message, final Object p0, final Object p1, final Object p2) {}
-
-    @Override
-    public void info(final String message, final Object p0, final Object p1, final Object p2, final Object p3) {}
-
-    @Override
-    public void info(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4) {}
-
-    @Override
-    public void info(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4, final Object p5) {}
-
-    @Override
-    public void info(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4, final Object p5, final Object p6) {}
-
-    @Override
-    public void info(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4, final Object p5, final Object p6, final Object p7) {}
-
-    @Override
-    public void info(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
-
-    @Override
-    public void info(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {}
 
     @Override
     public boolean isEnabled(final Level level) {
@@ -1006,134 +1262,6 @@ public final class DisabledLog implements ILog {
     }
 
     @Override
-    public void trace(final Marker marker, final Message message) {}
-
-    @Override
-    public void trace(final Marker marker, final Message message, final Throwable throwable) {}
-
-    @Override
-    public void trace(final Marker marker, final MessageSupplier messageSupplier) {}
-
-    @Override
-    public void trace(final Marker marker, final MessageSupplier messageSupplier, final Throwable throwable) {}
-
-    @Override
-    public void trace(final Marker marker, final CharSequence message) {}
-
-    @Override
-    public void trace(final Marker marker, final CharSequence message, final Throwable throwable) {}
-
-    @Override
-    public void trace(final Marker marker, final Object message) {}
-
-    @Override
-    public void trace(final Marker marker, final Object message, final Throwable throwable) {}
-
-    @Override
-    public void trace(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {}
-
-    @Override
-    public void trace(final Marker marker, final Supplier<?> messageSupplier) {}
-
-    @Override
-    public void trace(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {}
-
-    @Override
-    public void trace(final Message message) {}
-
-    @Override
-    public void trace(final Message message, final Throwable throwable) {}
-
-    @Override
-    public void trace(final MessageSupplier messageSupplier) {}
-
-    @Override
-    public void trace(final MessageSupplier messageSupplier, final Throwable throwable) {}
-
-    @Override
-    public void trace(final CharSequence message) {}
-
-    @Override
-    public void trace(final CharSequence message, final Throwable throwable) {}
-
-    @Override
-    public void trace(final Object message) {}
-
-    @Override
-    public void trace(final Object message, final Throwable throwable) {}
-
-    @Override
-    public void trace(final String message, final Supplier<?>... paramSuppliers) {}
-
-    @Override
-    public void trace(final Supplier<?> messageSupplier) {}
-
-    @Override
-    public void trace(final Supplier<?> messageSupplier, final Throwable throwable) {}
-
-    @Override
-    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2) {}
-
-    @Override
-    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3) {}
-
-    @Override
-    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4) {}
-
-    @Override
-    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4, final Object p5) {}
-
-    @Override
-    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4, final Object p5, final Object p6) {}
-
-    @Override
-    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {}
-
-    @Override
-    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
-
-    @Override
-    public void trace(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8,
-            final Object p9) {}
-
-    @Override
-    public void trace(final String message, final Object p0, final Object p1, final Object p2) {}
-
-    @Override
-    public void trace(final String message, final Object p0, final Object p1, final Object p2, final Object p3) {}
-
-    @Override
-    public void trace(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4) {}
-
-    @Override
-    public void trace(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4, final Object p5) {}
-
-    @Override
-    public void trace(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4, final Object p5, final Object p6) {}
-
-    @Override
-    public void trace(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4, final Object p5, final Object p6, final Object p7) {}
-
-    @Override
-    public void trace(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
-
-    @Override
-    public void trace(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {}
-
-    @Override
     public EntryMessage traceEntry() {
         return null;
     }
@@ -1183,133 +1311,5 @@ public final class DisabledLog implements ILog {
     public <R> R traceExit(final Message message, final R result) {
         return null;
     }
-
-    @Override
-    public void warn(final Marker marker, final Message message) {}
-
-    @Override
-    public void warn(final Marker marker, final Message message, final Throwable throwable) {}
-
-    @Override
-    public void warn(final Marker marker, final MessageSupplier messageSupplier) {}
-
-    @Override
-    public void warn(final Marker marker, final MessageSupplier messageSupplier, final Throwable throwable) {}
-
-    @Override
-    public void warn(final Marker marker, final CharSequence message) {}
-
-    @Override
-    public void warn(final Marker marker, final CharSequence message, final Throwable throwable) {}
-
-    @Override
-    public void warn(final Marker marker, final Object message) {}
-
-    @Override
-    public void warn(final Marker marker, final Object message, final Throwable throwable) {}
-
-    @Override
-    public void warn(final Marker marker, final String message, final Supplier<?>... paramSuppliers) {}
-
-    @Override
-    public void warn(final Marker marker, final Supplier<?> messageSupplier) {}
-
-    @Override
-    public void warn(final Marker marker, final Supplier<?> messageSupplier, final Throwable throwable) {}
-
-    @Override
-    public void warn(final Message message) {}
-
-    @Override
-    public void warn(final Message message, final Throwable throwable) {}
-
-    @Override
-    public void warn(final MessageSupplier messageSupplier) {}
-
-    @Override
-    public void warn(final MessageSupplier messageSupplier, final Throwable throwable) {}
-
-    @Override
-    public void warn(final CharSequence message) {}
-
-    @Override
-    public void warn(final CharSequence message, final Throwable throwable) {}
-
-    @Override
-    public void warn(final Object message) {}
-
-    @Override
-    public void warn(final Object message, final Throwable throwable) {}
-
-    @Override
-    public void warn(final String message, final Supplier<?>... paramSuppliers) {}
-
-    @Override
-    public void warn(final Supplier<?> messageSupplier) {}
-
-    @Override
-    public void warn(final Supplier<?> messageSupplier, final Throwable throwable) {}
-
-    @Override
-    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2) {}
-
-    @Override
-    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3) {}
-
-    @Override
-    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4) {}
-
-    @Override
-    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4, final Object p5) {}
-
-    @Override
-    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4, final Object p5, final Object p6) {}
-
-    @Override
-    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {}
-
-    @Override
-    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
-
-    @Override
-    public void warn(final Marker marker, final String message, final Object p0, final Object p1, final Object p2,
-            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8,
-            final Object p9) {}
-
-    @Override
-    public void warn(final String message, final Object p0, final Object p1, final Object p2) {}
-
-    @Override
-    public void warn(final String message, final Object p0, final Object p1, final Object p2, final Object p3) {}
-
-    @Override
-    public void warn(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4) {}
-
-    @Override
-    public void warn(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4, final Object p5) {}
-
-    @Override
-    public void warn(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4, final Object p5, final Object p6) {}
-
-    @Override
-    public void warn(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4, final Object p5, final Object p6, final Object p7) {}
-
-    @Override
-    public void warn(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
-
-    @Override
-    public void warn(final String message, final Object p0, final Object p1, final Object p2, final Object p3,
-            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {}
 
 }
