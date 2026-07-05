@@ -8,23 +8,28 @@ import de.invesdwin.util.log.ILog;
 public class Slf4jDelegateLog implements ILog {
 
     private final org.slf4j.Logger delegate;
-    private final org.slf4j.ext.XLogger xdelegate;
+    private final org.slf4j.ext.XLogger xDelegate;
 
     public Slf4jDelegateLog(final String name) {
-        this(org.slf4j.LoggerFactory.getLogger(name));
+        this(org.slf4j.ext.XLoggerFactory.getXLogger(name));
     }
 
     public Slf4jDelegateLog(final Class<?> clazz) {
-        this(org.slf4j.LoggerFactory.getLogger(clazz));
+        this(org.slf4j.ext.XLoggerFactory.getXLogger(clazz));
     }
 
     public Slf4jDelegateLog(final org.slf4j.Logger delegate) {
         this.delegate = delegate;
         if (delegate instanceof org.slf4j.ext.XLogger) {
-            this.xdelegate = (org.slf4j.ext.XLogger) delegate;
+            this.xDelegate = (org.slf4j.ext.XLogger) delegate;
         } else {
-            this.xdelegate = new org.slf4j.ext.XLogger(delegate);
+            this.xDelegate = new org.slf4j.ext.XLogger(delegate);
         }
+    }
+
+    public Slf4jDelegateLog(final org.slf4j.ext.XLogger delegate) {
+        this.delegate = delegate;
+        this.xDelegate = delegate;
     }
 
     @Override
@@ -34,7 +39,7 @@ public class Slf4jDelegateLog implements ILog {
 
     @Override
     public void catching(final Throwable throwable) {
-        xdelegate.catching(throwable);
+        xDelegate.catching(throwable);
     }
 
     @Override
