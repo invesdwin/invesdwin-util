@@ -1,31 +1,34 @@
 package de.invesdwin.util.log;
 
-import org.apache.logging.log4j.Marker;
-
 public interface ILogLevel {
 
-    boolean isEnabled(org.apache.logging.log4j.Logger logger);
+    boolean isEnabled(ILog logger);
 
-    boolean isEnabled(org.apache.logging.log4j.Logger logger, Marker marker);
+    void log(ILog logger, String msg);
 
-    void log(org.apache.logging.log4j.Logger logger, String msg);
+    void log(ILog logger, String format, Object p0);
 
-    void log(org.apache.logging.log4j.Logger logger, String format, Object arg);
+    void log(ILog logger, String format, Object p0, Object p1);
 
-    void log(org.apache.logging.log4j.Logger logger, String format, Object arg1, Object arg2);
+    void log(ILog logger, String format, Object p0, Object p1, Object p2);
 
-    void log(org.apache.logging.log4j.Logger logger, String format, Object... args);
+    void log(ILog logger, String format, Object p0, Object p1, Object p2, Object p3);
 
-    void log(org.apache.logging.log4j.Logger logger, String msg, Throwable t);
+    void log(ILog logger, String format, Object p0, Object p1, Object p2, Object p3, Object p4);
 
-    void log(org.apache.logging.log4j.Logger logger, Marker marker, String msg);
+    void log(ILog logger, String format, Object p0, Object p1, Object p2, Object p3, Object p4, Object p5);
 
-    void log(org.apache.logging.log4j.Logger logger, Marker marker, String format, Object arg);
+    void log(ILog logger, String format, Object p0, Object p1, Object p2, Object p3, Object p4, Object p5, Object p6);
 
-    void log(org.apache.logging.log4j.Logger logger, Marker marker, String format, Object arg1, Object arg2);
+    void log(ILog logger, String format, Object p0, Object p1, Object p2, Object p3, Object p4, Object p5, Object p6,
+            Object p7);
 
-    void log(org.apache.logging.log4j.Logger logger, Marker marker, String format, Object... args);
+    void log(ILog logger, String format, Object p0, Object p1, Object p2, Object p3, Object p4, Object p5, Object p6,
+            Object p7, Object p8);
 
-    void log(org.apache.logging.log4j.Logger logger, Marker marker, String msg, Throwable t);
+    void log(ILog logger, String format, Object p0, Object p1, Object p2, Object p3, Object p4, Object p5, Object p6,
+            Object p7, Object p8, Object p9);
+
+    void log(ILog logger, String format, Object... params);
 
 }

@@ -2,408 +2,459 @@ package de.invesdwin.util.log;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.logging.log4j.Marker;
-
 @Immutable
 public enum LogLevel implements ILogLevel {
     TRACE {
         @Override
-        public boolean isEnabled(final org.apache.logging.log4j.Logger logger) {
+        public boolean isEnabled(final ILog logger) {
             return logger.isTraceEnabled();
         }
 
         @Override
-        public boolean isEnabled(final org.apache.logging.log4j.Logger logger, final Marker marker) {
-            return logger.isTraceEnabled(marker);
-        }
-
-        @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String msg) {
+        public void log(final ILog logger, final String msg) {
             logger.trace(msg);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object arg) {
-            logger.trace(format, arg);
+        public void log(final ILog logger, final String format, final Object p0) {
+            logger.trace(format, p0);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object arg1,
-                final Object arg2) {
-            logger.trace(format, arg1, arg2);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1) {
+            logger.trace(format, p0, p1);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object... args) {
-            logger.trace(format, args);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2) {
+            logger.trace(format, p0, p1, p2);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String msg, final Throwable t) {
-            logger.trace(msg, t);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3) {
+            logger.trace(format, p0, p1, p2, p3);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String msg) {
-            logger.trace(marker, msg);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4) {
+            logger.trace(format, p0, p1, p2, p3, p4);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object arg) {
-            logger.trace(marker, format, arg);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5) {
+            logger.trace(format, p0, p1, p2, p3, p4, p5);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object arg1, final Object arg2) {
-            logger.trace(format, arg1, arg2);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6) {
+            logger.trace(format, p0, p1, p2, p3, p4, p5, p6);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object... args) {
-            logger.trace(marker, format, args);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {
+            logger.trace(format, p0, p1, p2, p3, p4, p5, p6, p7);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String msg,
-                final Throwable t) {
-            logger.trace(marker, msg, t);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {
+            logger.trace(format, p0, p1, p2, p3, p4, p5, p6, p7, p8);
+        }
+
+        @Override
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8,
+                final Object p9) {
+            logger.trace(format, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+        }
+
+        @Override
+        public void log(final ILog logger, final String format, final Object... params) {
+            logger.trace(format, params);
         }
 
     },
     DEBUG {
         @Override
-        public boolean isEnabled(final org.apache.logging.log4j.Logger logger) {
+        public boolean isEnabled(final ILog logger) {
             return logger.isDebugEnabled();
         }
 
         @Override
-        public boolean isEnabled(final org.apache.logging.log4j.Logger logger, final Marker marker) {
-            return logger.isDebugEnabled(marker);
-        }
-
-        @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String msg) {
+        public void log(final ILog logger, final String msg) {
             logger.debug(msg);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object arg) {
-            logger.debug(format, arg);
+        public void log(final ILog logger, final String format, final Object p0) {
+            logger.debug(format, p0);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object arg1,
-                final Object arg2) {
-            logger.debug(format, arg1, arg2);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1) {
+            logger.debug(format, p0, p1);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object... args) {
-            logger.debug(format, args);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2) {
+            logger.debug(format, p0, p1, p2);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String msg, final Throwable t) {
-            logger.debug(msg, t);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3) {
+            logger.debug(format, p0, p1, p2, p3);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String msg) {
-            logger.debug(marker, msg);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4) {
+            logger.debug(format, p0, p1, p2, p3, p4);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object arg) {
-            logger.debug(marker, format, arg);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5) {
+            logger.debug(format, p0, p1, p2, p3, p4, p5);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object arg1, final Object arg2) {
-            logger.debug(format, arg1, arg2);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6) {
+            logger.debug(format, p0, p1, p2, p3, p4, p5, p6);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object... args) {
-            logger.debug(marker, format, args);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {
+            logger.debug(format, p0, p1, p2, p3, p4, p5, p6, p7);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String msg,
-                final Throwable t) {
-            logger.debug(marker, msg, t);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {
+            logger.debug(format, p0, p1, p2, p3, p4, p5, p6, p7, p8);
         }
+
+        @Override
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8,
+                final Object p9) {
+            logger.debug(format, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+        }
+
+        @Override
+        public void log(final ILog logger, final String format, final Object... params) {
+            logger.debug(format, params);
+        }
+
     },
     INFO {
 
         @Override
-        public boolean isEnabled(final org.apache.logging.log4j.Logger logger) {
+        public boolean isEnabled(final ILog logger) {
             return logger.isInfoEnabled();
         }
 
         @Override
-        public boolean isEnabled(final org.apache.logging.log4j.Logger logger, final Marker marker) {
-            return logger.isInfoEnabled(marker);
-        }
-
-        @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String msg) {
+        public void log(final ILog logger, final String msg) {
             logger.info(msg);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object arg) {
-            logger.info(format, arg);
+        public void log(final ILog logger, final String format, final Object p0) {
+            logger.info(format, p0);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object arg1,
-                final Object arg2) {
-            logger.info(format, arg1, arg2);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1) {
+            logger.info(format, p0, p1);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object... args) {
-            logger.info(format, args);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2) {
+            logger.info(format, p0, p1, p2);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String msg, final Throwable t) {
-            logger.info(msg, t);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3) {
+            logger.info(format, p0, p1, p2, p3);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String msg) {
-            logger.info(marker, msg);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4) {
+            logger.info(format, p0, p1, p2, p3, p4);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object arg) {
-            logger.info(marker, format, arg);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5) {
+            logger.info(format, p0, p1, p2, p3, p4, p5);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object arg1, final Object arg2) {
-            logger.info(format, arg1, arg2);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6) {
+            logger.info(format, p0, p1, p2, p3, p4, p5, p6);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object... args) {
-            logger.info(marker, format, args);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {
+            logger.info(format, p0, p1, p2, p3, p4, p5, p6, p7);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String msg,
-                final Throwable t) {
-            logger.info(marker, msg, t);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {
+            logger.info(format, p0, p1, p2, p3, p4, p5, p6, p7, p8);
         }
+
+        @Override
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8,
+                final Object p9) {
+            logger.info(format, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+        }
+
+        @Override
+        public void log(final ILog logger, final String format, final Object... params) {
+            logger.info(format, params);
+        }
+
     },
     WARN {
 
         @Override
-        public boolean isEnabled(final org.apache.logging.log4j.Logger logger) {
+        public boolean isEnabled(final ILog logger) {
             return logger.isWarnEnabled();
         }
 
         @Override
-        public boolean isEnabled(final org.apache.logging.log4j.Logger logger, final Marker marker) {
-            return logger.isWarnEnabled(marker);
-        }
-
-        @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String msg) {
+        public void log(final ILog logger, final String msg) {
             logger.warn(msg);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object arg) {
-            logger.warn(format, arg);
+        public void log(final ILog logger, final String format, final Object p0) {
+            logger.warn(format, p0);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object arg1,
-                final Object arg2) {
-            logger.warn(format, arg1, arg2);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1) {
+            logger.warn(format, p0, p1);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object... args) {
-            logger.warn(format, args);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2) {
+            logger.warn(format, p0, p1, p2);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String msg, final Throwable t) {
-            logger.warn(msg, t);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3) {
+            logger.warn(format, p0, p1, p2, p3);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String msg) {
-            logger.warn(marker, msg);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4) {
+            logger.warn(format, p0, p1, p2, p3, p4);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object arg) {
-            logger.warn(marker, format, arg);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5) {
+            logger.warn(format, p0, p1, p2, p3, p4, p5);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object arg1, final Object arg2) {
-            logger.warn(format, arg1, arg2);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6) {
+            logger.warn(format, p0, p1, p2, p3, p4, p5, p6);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object... args) {
-            logger.warn(marker, format, args);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {
+            logger.warn(format, p0, p1, p2, p3, p4, p5, p6, p7);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String msg,
-                final Throwable t) {
-            logger.warn(marker, msg, t);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {
+            logger.warn(format, p0, p1, p2, p3, p4, p5, p6, p7, p8);
         }
+
+        @Override
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8,
+                final Object p9) {
+            logger.warn(format, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+        }
+
+        @Override
+        public void log(final ILog logger, final String format, final Object... params) {
+            logger.warn(format, params);
+        }
+
     },
     ERROR {
         @Override
-        public boolean isEnabled(final org.apache.logging.log4j.Logger logger) {
+        public boolean isEnabled(final ILog logger) {
             return logger.isErrorEnabled();
         }
 
         @Override
-        public boolean isEnabled(final org.apache.logging.log4j.Logger logger, final Marker marker) {
-            return logger.isErrorEnabled(marker);
-        }
-
-        @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String msg) {
+        public void log(final ILog logger, final String msg) {
             logger.error(msg);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object arg) {
-            logger.error(format, arg);
+        public void log(final ILog logger, final String format, final Object p0) {
+            logger.error(format, p0);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object arg1,
-                final Object arg2) {
-            logger.error(format, arg1, arg2);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1) {
+            logger.error(format, p0, p1);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object... args) {
-            logger.error(format, args);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2) {
+            logger.error(format, p0, p1, p2);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String msg, final Throwable t) {
-            logger.error(msg, t);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3) {
+            logger.error(format, p0, p1, p2, p3);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String msg) {
-            logger.error(marker, msg);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4) {
+            logger.error(format, p0, p1, p2, p3, p4);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object arg) {
-            logger.error(marker, format, arg);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5) {
+            logger.error(format, p0, p1, p2, p3, p4, p5);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object arg1, final Object arg2) {
-            logger.error(format, arg1, arg2);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6) {
+            logger.error(format, p0, p1, p2, p3, p4, p5, p6);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object... args) {
-            logger.error(marker, format, args);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {
+            logger.error(format, p0, p1, p2, p3, p4, p5, p6, p7);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String msg,
-                final Throwable t) {
-            logger.error(marker, msg, t);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {
+            logger.error(format, p0, p1, p2, p3, p4, p5, p6, p7, p8);
         }
+
+        @Override
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8,
+                final Object p9) {
+            logger.error(format, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+        }
+
+        @Override
+        public void log(final ILog logger, final String format, final Object... params) {
+            logger.error(format, params);
+        }
+
     },
     FATAL {
         @Override
-        public boolean isEnabled(final org.apache.logging.log4j.Logger logger) {
+        public boolean isEnabled(final ILog logger) {
             return logger.isFatalEnabled();
         }
 
         @Override
-        public boolean isEnabled(final org.apache.logging.log4j.Logger logger, final Marker marker) {
-            return logger.isFatalEnabled(marker);
-        }
-
-        @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String msg) {
+        public void log(final ILog logger, final String msg) {
             logger.fatal(msg);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object arg) {
-            logger.fatal(format, arg);
+        public void log(final ILog logger, final String format, final Object p0) {
+            logger.fatal(format, p0);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object arg1,
-                final Object arg2) {
-            logger.fatal(format, arg1, arg2);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1) {
+            logger.fatal(format, p0, p1);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object... args) {
-            logger.fatal(format, args);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2) {
+            logger.fatal(format, p0, p1, p2);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final String msg, final Throwable t) {
-            logger.fatal(msg, t);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3) {
+            logger.fatal(format, p0, p1, p2, p3);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String msg) {
-            logger.fatal(marker, msg);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4) {
+            logger.fatal(format, p0, p1, p2, p3, p4);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object arg) {
-            logger.fatal(marker, format, arg);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5) {
+            logger.fatal(format, p0, p1, p2, p3, p4, p5);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object arg1, final Object arg2) {
-            logger.fatal(format, arg1, arg2);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6) {
+            logger.fatal(format, p0, p1, p2, p3, p4, p5, p6);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
-                final Object... args) {
-            logger.fatal(marker, format, args);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {
+            logger.fatal(format, p0, p1, p2, p3, p4, p5, p6, p7);
         }
 
         @Override
-        public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String msg,
-                final Throwable t) {
-            logger.fatal(marker, msg, t);
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {
+            logger.fatal(format, p0, p1, p2, p3, p4, p5, p6, p7, p8);
         }
+
+        @Override
+        public void log(final ILog logger, final String format, final Object p0, final Object p1, final Object p2,
+                final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8,
+                final Object p9) {
+            logger.fatal(format, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+        }
+
+        @Override
+        public void log(final ILog logger, final String format, final Object... params) {
+            logger.fatal(format, params);
+        }
+
     };
 
 }

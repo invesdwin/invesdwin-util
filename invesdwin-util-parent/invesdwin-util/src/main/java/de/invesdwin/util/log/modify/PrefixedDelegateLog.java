@@ -21,23 +21,18 @@ public class PrefixedDelegateLog extends AModifiedDelegateLog {
     }
 
     @Override
-    protected String modify(final LogLevel level, final String format, final Object arg) {
+    protected String modify(final LogLevel level, final String format, final Object p0) {
         return prefix(format);
     }
 
     @Override
-    protected String modify(final LogLevel level, final String format, final Object arg1, final Object arg2) {
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1) {
         return prefix(format);
     }
 
     @Override
-    protected String modify(final LogLevel level, final String format, final Object... arguments) {
+    protected String modify(final LogLevel level, final String format, final Object... params) {
         return prefix(format);
-    }
-
-    @Override
-    protected String modify(final LogLevel level, final String msg, final Throwable t) {
-        return prefix(msg);
     }
 
     private String prefix(final String msg) {

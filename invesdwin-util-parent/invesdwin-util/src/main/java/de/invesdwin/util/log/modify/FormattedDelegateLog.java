@@ -18,38 +18,33 @@ public class FormattedDelegateLog extends AModifiedDelegateLog {
     }
 
     @Override
-    protected String modify(final LogLevel level, final String msg, final Throwable t) {
-        return msg;
+    protected String modify(final LogLevel level, final String format, final Object p0) {
+        return format(format, p0);
     }
 
     @Override
-    protected String modify(final LogLevel level, final String format, final Object arg) {
-        return format(format, arg);
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1) {
+        return format(format, p0, p1);
     }
 
     @Override
-    protected String modify(final LogLevel level, final String format, final Object arg1, final Object arg2) {
-        return format(format, arg1, arg2);
+    protected String modify(final LogLevel level, final String format, final Object... params) {
+        return format(format, params);
     }
 
-    @Override
-    protected String modify(final LogLevel level, final String format, final Object... arguments) {
-        return format(format, arguments);
-    }
-
-    public static String format(final String messagePattern, final Object arg) {
+    public static String format(final String messagePattern, final Object p0) {
         return de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter.format(messagePattern,
-                new Object[] { arg });
+                new Object[] { p0 });
     }
 
-    public static String format(final String messagePattern, final Object arg1, final Object arg2) {
+    public static String format(final String messagePattern, final Object p0, final Object p1) {
         return de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter.format(messagePattern,
-                new Object[] { arg1, arg2 });
+                new Object[] { p0, p1 });
     }
 
-    public static String format(final String messagePattern, final Object[] argArray) {
+    public static String format(final String messagePattern, final Object[] params) {
         return de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter.format(messagePattern,
-                argArray);
+                params);
     }
 
 }

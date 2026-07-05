@@ -2,8 +2,6 @@ package de.invesdwin.util.log.modify;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.logging.log4j.Marker;
-
 import de.invesdwin.util.log.ILog;
 import de.invesdwin.util.log.LogLevel;
 
@@ -28,44 +26,123 @@ public abstract class AModifiedDelegateLog implements ILog {
         return modify(level, msg);
     }
 
-    protected final String modifyIfEnabled(final LogLevel level, final String msg, final Throwable t) {
-        if (!level.isEnabled(delegate)) {
-            return msg;
-        }
-        return modify(level, msg, t);
-    }
-
-    protected final String modifyIfEnabled(final LogLevel level, final String format, final Object arg) {
+    protected final String modifyIfEnabled(final LogLevel level, final String format, final Object p0) {
         if (!level.isEnabled(delegate)) {
             return format;
         }
-        return modify(level, format, arg);
+        return modify(level, format, p0);
     }
 
-    protected final String modifyIfEnabled(final LogLevel level, final String format, final Object arg1,
-            final Object arg2) {
+    protected final String modifyIfEnabled(final LogLevel level, final String format, final Object p0,
+            final Object p1) {
         if (!level.isEnabled(delegate)) {
             return format;
         }
-        return modify(level, format, arg1, arg2);
+        return modify(level, format, p0, p1);
     }
 
-    protected final String modifyIfEnabled(final LogLevel level, final String format, final Object... arguments) {
+    protected final String modifyIfEnabled(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2) {
         if (!level.isEnabled(delegate)) {
             return format;
         }
-        return modify(level, format, arguments);
+        return modify(level, format, p0, p1, p2);
+    }
+
+    protected final String modifyIfEnabled(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3) {
+        if (!level.isEnabled(delegate)) {
+            return format;
+        }
+        return modify(level, format, p0, p1, p2, p3);
+    }
+
+    protected final String modifyIfEnabled(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4) {
+        if (!level.isEnabled(delegate)) {
+            return format;
+        }
+        return modify(level, format, p0, p1, p2, p3, p4);
+    }
+
+    protected final String modifyIfEnabled(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5) {
+        if (!level.isEnabled(delegate)) {
+            return format;
+        }
+        return modify(level, format, p0, p1, p2, p3, p4, p5);
+    }
+
+    protected final String modifyIfEnabled(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5, final Object p6) {
+        if (!level.isEnabled(delegate)) {
+            return format;
+        }
+        return modify(level, format, p0, p1, p2, p3, p4, p5, p6);
+    }
+
+    protected final String modifyIfEnabled(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {
+        if (!level.isEnabled(delegate)) {
+            return format;
+        }
+        return modify(level, format, p0, p1, p2, p3, p4, p5, p6, p7);
+    }
+
+    protected final String modifyIfEnabled(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5, final Object p6, final Object p7,
+            final Object p8) {
+        if (!level.isEnabled(delegate)) {
+            return format;
+        }
+        return modify(level, format, p0, p1, p2, p3, p4, p5, p6, p7, p8);
+    }
+
+    protected final String modifyIfEnabled(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5, final Object p6, final Object p7,
+            final Object p8, final Object p9) {
+        if (!level.isEnabled(delegate)) {
+            return format;
+        }
+        return modify(level, format, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+    }
+
+    protected final String modifyIfEnabled(final LogLevel level, final String format, final Object... params) {
+        if (!level.isEnabled(delegate)) {
+            return format;
+        }
+        return modify(level, format, params);
     }
 
     protected abstract String modify(LogLevel level, String msg);
 
-    protected abstract String modify(LogLevel level, String msg, Throwable t);
+    protected abstract String modify(LogLevel level, String format, Object p0);
 
-    protected abstract String modify(LogLevel level, String format, Object arg);
+    protected abstract String modify(LogLevel level, String format, Object p0, Object p1);
 
-    protected abstract String modify(LogLevel level, String format, Object arg1, Object arg2);
+    protected abstract String modify(LogLevel level, String format, Object p0, Object p1, Object p2);
 
-    protected abstract String modify(LogLevel level, String format, Object... arguments);
+    protected abstract String modify(LogLevel level, String format, Object p0, Object p1, Object p2, Object p3);
+
+    protected abstract String modify(LogLevel level, String format, Object p0, Object p1, Object p2, Object p3,
+            Object p4);
+
+    protected abstract String modify(LogLevel level, String format, Object p0, Object p1, Object p2, Object p3,
+            Object p4, Object p5);
+
+    protected abstract String modify(LogLevel level, String format, Object p0, Object p1, Object p2, Object p3,
+            Object p4, Object p5, Object p6);
+
+    protected abstract String modify(LogLevel level, String format, Object p0, Object p1, Object p2, Object p3,
+            Object p4, Object p5, Object p6, Object p7);
+
+    protected abstract String modify(LogLevel level, String format, Object p0, Object p1, Object p2, Object p3,
+            Object p4, Object p5, Object p6, Object p7, Object p8);
+
+    protected abstract String modify(LogLevel level, String format, Object p0, Object p1, Object p2, Object p3,
+            Object p4, Object p5, Object p6, Object p7, Object p8, Object p9);
+
+    protected abstract String modify(LogLevel level, String format, Object... params);
 
     @Override
     public boolean isTraceEnabled() {
@@ -78,53 +155,67 @@ public abstract class AModifiedDelegateLog implements ILog {
     }
 
     @Override
-    public void trace(final String format, final Object arg) {
-        delegate.trace(modifyIfEnabled(LogLevel.TRACE, format, arg), arg);
+    public void trace(final String format, final Object p0) {
+        delegate.trace(modifyIfEnabled(LogLevel.TRACE, format, p0), p0);
     }
 
     @Override
-    public void trace(final String format, final Object arg1, final Object arg2) {
-        delegate.trace(modifyIfEnabled(LogLevel.TRACE, format, arg1, arg2), arg1, arg2);
+    public void trace(final String format, final Object p0, final Object p1) {
+        delegate.trace(modifyIfEnabled(LogLevel.TRACE, format, p0, p1), p0, p1);
     }
 
     @Override
-    public void trace(final String format, final Object... arguments) {
-        delegate.trace(modifyIfEnabled(LogLevel.TRACE, format, arguments), arguments);
+    public void trace(final String format, final Object p0, final Object p1, final Object p2) {
+        delegate.trace(modifyIfEnabled(LogLevel.TRACE, format, p0, p1, p2), p0, p1, p2);
     }
 
     @Override
-    public void trace(final String msg, final Throwable t) {
-        delegate.trace(modifyIfEnabled(LogLevel.TRACE, msg, t), t);
+    public void trace(final String format, final Object p0, final Object p1, final Object p2, final Object p3) {
+        delegate.trace(modifyIfEnabled(LogLevel.TRACE, format, p0, p1, p2, p3), p0, p1, p2, p3);
     }
 
     @Override
-    public boolean isTraceEnabled(final Marker marker) {
-        return delegate.isTraceEnabled(marker);
+    public void trace(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4) {
+        delegate.trace(modifyIfEnabled(LogLevel.TRACE, format, p0, p1, p2, p3, p4), p0, p1, p2, p3, p4);
     }
 
     @Override
-    public void trace(final Marker marker, final String msg) {
-        delegate.trace(marker, modifyIfEnabled(LogLevel.TRACE, msg));
+    public void trace(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5) {
+        delegate.trace(modifyIfEnabled(LogLevel.TRACE, format, p0, p1, p2, p3, p4, p5), p0, p1, p2, p3, p4, p5);
     }
 
     @Override
-    public void trace(final Marker marker, final String format, final Object arg) {
-        delegate.trace(marker, modifyIfEnabled(LogLevel.TRACE, format, arg), arg);
+    public void trace(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6) {
+        delegate.trace(modifyIfEnabled(LogLevel.TRACE, format, p0, p1, p2, p3, p4, p5, p6), p0, p1, p2, p3, p4, p5, p6);
     }
 
     @Override
-    public void trace(final Marker marker, final String format, final Object arg1, final Object arg2) {
-        delegate.trace(marker, modifyIfEnabled(LogLevel.TRACE, format, arg1, arg2), arg1, arg2);
+    public void trace(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7) {
+        delegate.trace(modifyIfEnabled(LogLevel.TRACE, format, p0, p1, p2, p3, p4, p5, p6, p7), p0, p1, p2, p3, p4, p5,
+                p6, p7);
     }
 
     @Override
-    public void trace(final Marker marker, final String format, final Object... arguments) {
-        delegate.trace(marker, modifyIfEnabled(LogLevel.TRACE, format, arguments), arguments);
+    public void trace(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {
+        delegate.trace(modifyIfEnabled(LogLevel.TRACE, format, p0, p1, p2, p3, p4, p5, p6, p7, p8), p0, p1, p2, p3, p4,
+                p5, p6, p7, p8);
     }
 
     @Override
-    public void trace(final Marker marker, final String msg, final Throwable t) {
-        delegate.trace(marker, modifyIfEnabled(LogLevel.TRACE, msg, t), t);
+    public void trace(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {
+        delegate.trace(modifyIfEnabled(LogLevel.TRACE, format, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9), p0, p1, p2, p3,
+                p4, p5, p6, p7, p8, p9);
+    }
+
+    @Override
+    public void trace(final String format, final Object... params) {
+        delegate.trace(modifyIfEnabled(LogLevel.TRACE, format, params), params);
     }
 
     @Override
@@ -138,53 +229,67 @@ public abstract class AModifiedDelegateLog implements ILog {
     }
 
     @Override
-    public void debug(final String format, final Object arg) {
-        delegate.debug(modifyIfEnabled(LogLevel.DEBUG, format, arg), arg);
+    public void debug(final String format, final Object p0) {
+        delegate.debug(modifyIfEnabled(LogLevel.DEBUG, format, p0), p0);
     }
 
     @Override
-    public void debug(final String format, final Object arg1, final Object arg2) {
-        delegate.debug(modifyIfEnabled(LogLevel.DEBUG, format, arg1, arg2), arg1, arg2);
+    public void debug(final String format, final Object p0, final Object p1) {
+        delegate.debug(modifyIfEnabled(LogLevel.DEBUG, format, p0, p1), p0, p1);
     }
 
     @Override
-    public void debug(final String format, final Object... arguments) {
-        delegate.debug(modifyIfEnabled(LogLevel.DEBUG, format, arguments), arguments);
+    public void debug(final String format, final Object p0, final Object p1, final Object p2) {
+        delegate.debug(modifyIfEnabled(LogLevel.DEBUG, format, p0, p1, p2), p0, p1, p2);
     }
 
     @Override
-    public void debug(final String msg, final Throwable t) {
-        delegate.debug(modifyIfEnabled(LogLevel.DEBUG, msg, t), t);
+    public void debug(final String format, final Object p0, final Object p1, final Object p2, final Object p3) {
+        delegate.debug(modifyIfEnabled(LogLevel.DEBUG, format, p0, p1, p2, p3), p0, p1, p2, p3);
     }
 
     @Override
-    public boolean isDebugEnabled(final Marker marker) {
-        return delegate.isDebugEnabled(marker);
+    public void debug(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4) {
+        delegate.debug(modifyIfEnabled(LogLevel.DEBUG, format, p0, p1, p2, p3, p4), p0, p1, p2, p3, p4);
     }
 
     @Override
-    public void debug(final Marker marker, final String msg) {
-        delegate.debug(marker, modifyIfEnabled(LogLevel.DEBUG, msg));
+    public void debug(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5) {
+        delegate.debug(modifyIfEnabled(LogLevel.DEBUG, format, p0, p1, p2, p3, p4, p5), p0, p1, p2, p3, p4, p5);
     }
 
     @Override
-    public void debug(final Marker marker, final String format, final Object arg) {
-        delegate.debug(marker, modifyIfEnabled(LogLevel.DEBUG, format, arg), arg);
+    public void debug(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6) {
+        delegate.debug(modifyIfEnabled(LogLevel.DEBUG, format, p0, p1, p2, p3, p4, p5, p6), p0, p1, p2, p3, p4, p5, p6);
     }
 
     @Override
-    public void debug(final Marker marker, final String format, final Object arg1, final Object arg2) {
-        delegate.debug(marker, modifyIfEnabled(LogLevel.DEBUG, format, arg1, arg2), arg1, arg2);
+    public void debug(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7) {
+        delegate.debug(modifyIfEnabled(LogLevel.DEBUG, format, p0, p1, p2, p3, p4, p5, p6, p7), p0, p1, p2, p3, p4, p5,
+                p6, p7);
     }
 
     @Override
-    public void debug(final Marker marker, final String format, final Object... arguments) {
-        delegate.debug(marker, modifyIfEnabled(LogLevel.DEBUG, format, arguments), arguments);
+    public void debug(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {
+        delegate.debug(modifyIfEnabled(LogLevel.DEBUG, format, p0, p1, p2, p3, p4, p5, p6, p7, p8), p0, p1, p2, p3, p4,
+                p5, p6, p7, p8);
     }
 
     @Override
-    public void debug(final Marker marker, final String msg, final Throwable t) {
-        delegate.debug(marker, modifyIfEnabled(LogLevel.DEBUG, msg, t), t);
+    public void debug(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {
+        delegate.debug(modifyIfEnabled(LogLevel.DEBUG, format, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9), p0, p1, p2, p3,
+                p4, p5, p6, p7, p8, p9);
+    }
+
+    @Override
+    public void debug(final String format, final Object... params) {
+        delegate.debug(modifyIfEnabled(LogLevel.DEBUG, format, params), params);
     }
 
     @Override
@@ -198,53 +303,67 @@ public abstract class AModifiedDelegateLog implements ILog {
     }
 
     @Override
-    public void info(final String format, final Object arg) {
-        delegate.info(modifyIfEnabled(LogLevel.INFO, format, arg), arg);
+    public void info(final String format, final Object p0) {
+        delegate.info(modifyIfEnabled(LogLevel.INFO, format, p0), p0);
     }
 
     @Override
-    public void info(final String format, final Object arg1, final Object arg2) {
-        delegate.info(modifyIfEnabled(LogLevel.INFO, format, arg1, arg2), arg1, arg2);
+    public void info(final String format, final Object p0, final Object p1) {
+        delegate.info(modifyIfEnabled(LogLevel.INFO, format, p0, p1), p0, p1);
     }
 
     @Override
-    public void info(final String format, final Object... arguments) {
-        delegate.info(modifyIfEnabled(LogLevel.INFO, format, arguments), arguments);
+    public void info(final String format, final Object p0, final Object p1, final Object p2) {
+        delegate.info(modifyIfEnabled(LogLevel.INFO, format, p0, p1, p2), p0, p1, p2);
     }
 
     @Override
-    public void info(final String msg, final Throwable t) {
-        delegate.info(modifyIfEnabled(LogLevel.INFO, msg, t), t);
+    public void info(final String format, final Object p0, final Object p1, final Object p2, final Object p3) {
+        delegate.info(modifyIfEnabled(LogLevel.INFO, format, p0, p1, p2, p3), p0, p1, p2, p3);
     }
 
     @Override
-    public boolean isInfoEnabled(final Marker marker) {
-        return delegate.isInfoEnabled(marker);
+    public void info(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4) {
+        delegate.info(modifyIfEnabled(LogLevel.INFO, format, p0, p1, p2, p3, p4), p0, p1, p2, p3, p4);
     }
 
     @Override
-    public void info(final Marker marker, final String msg) {
-        delegate.info(marker, modifyIfEnabled(LogLevel.INFO, msg));
+    public void info(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5) {
+        delegate.info(modifyIfEnabled(LogLevel.INFO, format, p0, p1, p2, p3, p4, p5), p0, p1, p2, p3, p4, p5);
     }
 
     @Override
-    public void info(final Marker marker, final String format, final Object arg) {
-        delegate.info(marker, modifyIfEnabled(LogLevel.INFO, format, arg), arg);
+    public void info(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6) {
+        delegate.info(modifyIfEnabled(LogLevel.INFO, format, p0, p1, p2, p3, p4, p5, p6), p0, p1, p2, p3, p4, p5, p6);
     }
 
     @Override
-    public void info(final Marker marker, final String format, final Object arg1, final Object arg2) {
-        delegate.info(marker, modifyIfEnabled(LogLevel.INFO, format, arg1, arg2), arg1, arg2);
+    public void info(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7) {
+        delegate.info(modifyIfEnabled(LogLevel.INFO, format, p0, p1, p2, p3, p4, p5, p6, p7), p0, p1, p2, p3, p4, p5,
+                p6, p7);
     }
 
     @Override
-    public void info(final Marker marker, final String format, final Object... arguments) {
-        delegate.info(marker, modifyIfEnabled(LogLevel.INFO, format, arguments), arguments);
+    public void info(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {
+        delegate.info(modifyIfEnabled(LogLevel.INFO, format, p0, p1, p2, p3, p4, p5, p6, p7, p8), p0, p1, p2, p3, p4,
+                p5, p6, p7, p8);
     }
 
     @Override
-    public void info(final Marker marker, final String msg, final Throwable t) {
-        delegate.info(marker, modifyIfEnabled(LogLevel.INFO, msg, t), t);
+    public void info(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {
+        delegate.info(modifyIfEnabled(LogLevel.INFO, format, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9), p0, p1, p2, p3,
+                p4, p5, p6, p7, p8, p9);
+    }
+
+    @Override
+    public void info(final String format, final Object... params) {
+        delegate.info(modifyIfEnabled(LogLevel.INFO, format, params), params);
     }
 
     @Override
@@ -258,53 +377,67 @@ public abstract class AModifiedDelegateLog implements ILog {
     }
 
     @Override
-    public void warn(final String format, final Object arg) {
-        delegate.warn(modifyIfEnabled(LogLevel.WARN, format, arg), arg);
+    public void warn(final String format, final Object p0) {
+        delegate.warn(modifyIfEnabled(LogLevel.WARN, format, p0), p0);
     }
 
     @Override
-    public void warn(final String format, final Object arg1, final Object arg2) {
-        delegate.warn(modifyIfEnabled(LogLevel.WARN, format, arg1, arg2), arg1, arg2);
+    public void warn(final String format, final Object p0, final Object p1) {
+        delegate.warn(modifyIfEnabled(LogLevel.WARN, format, p0, p1), p0, p1);
     }
 
     @Override
-    public void warn(final String format, final Object... arguments) {
-        delegate.warn(modifyIfEnabled(LogLevel.WARN, format, arguments), arguments);
+    public void warn(final String format, final Object p0, final Object p1, final Object p2) {
+        delegate.warn(modifyIfEnabled(LogLevel.WARN, format, p0, p1, p2), p0, p1, p2);
     }
 
     @Override
-    public void warn(final String msg, final Throwable t) {
-        delegate.warn(modifyIfEnabled(LogLevel.WARN, msg, t), t);
+    public void warn(final String format, final Object p0, final Object p1, final Object p2, final Object p3) {
+        delegate.warn(modifyIfEnabled(LogLevel.WARN, format, p0, p1, p2, p3), p0, p1, p2, p3);
     }
 
     @Override
-    public boolean isWarnEnabled(final Marker marker) {
-        return delegate.isWarnEnabled(marker);
+    public void warn(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4) {
+        delegate.warn(modifyIfEnabled(LogLevel.WARN, format, p0, p1, p2, p3, p4), p0, p1, p2, p3, p4);
     }
 
     @Override
-    public void warn(final Marker marker, final String msg) {
-        delegate.warn(marker, modifyIfEnabled(LogLevel.WARN, msg));
+    public void warn(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5) {
+        delegate.warn(modifyIfEnabled(LogLevel.WARN, format, p0, p1, p2, p3, p4, p5), p0, p1, p2, p3, p4, p5);
     }
 
     @Override
-    public void warn(final Marker marker, final String format, final Object arg) {
-        delegate.warn(marker, modifyIfEnabled(LogLevel.WARN, format, arg), arg);
+    public void warn(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6) {
+        delegate.warn(modifyIfEnabled(LogLevel.WARN, format, p0, p1, p2, p3, p4, p5, p6), p0, p1, p2, p3, p4, p5, p6);
     }
 
     @Override
-    public void warn(final Marker marker, final String format, final Object arg1, final Object arg2) {
-        delegate.warn(marker, modifyIfEnabled(LogLevel.WARN, format, arg1, arg2), arg1, arg2);
+    public void warn(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7) {
+        delegate.warn(modifyIfEnabled(LogLevel.WARN, format, p0, p1, p2, p3, p4, p5, p6, p7), p0, p1, p2, p3, p4, p5,
+                p6, p7);
     }
 
     @Override
-    public void warn(final Marker marker, final String format, final Object... arguments) {
-        delegate.warn(marker, modifyIfEnabled(LogLevel.WARN, format, arguments), arguments);
+    public void warn(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {
+        delegate.warn(modifyIfEnabled(LogLevel.WARN, format, p0, p1, p2, p3, p4, p5, p6, p7, p8), p0, p1, p2, p3, p4,
+                p5, p6, p7, p8);
     }
 
     @Override
-    public void warn(final Marker marker, final String msg, final Throwable t) {
-        delegate.warn(marker, modifyIfEnabled(LogLevel.WARN, msg, t), t);
+    public void warn(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {
+        delegate.warn(modifyIfEnabled(LogLevel.WARN, format, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9), p0, p1, p2, p3,
+                p4, p5, p6, p7, p8, p9);
+    }
+
+    @Override
+    public void warn(final String format, final Object... params) {
+        delegate.warn(modifyIfEnabled(LogLevel.WARN, format, params), params);
     }
 
     @Override
@@ -318,53 +451,67 @@ public abstract class AModifiedDelegateLog implements ILog {
     }
 
     @Override
-    public void error(final String format, final Object arg) {
-        delegate.error(modifyIfEnabled(LogLevel.ERROR, format, arg), arg);
+    public void error(final String format, final Object p0) {
+        delegate.error(modifyIfEnabled(LogLevel.ERROR, format, p0), p0);
     }
 
     @Override
-    public void error(final String format, final Object arg1, final Object arg2) {
-        delegate.error(modifyIfEnabled(LogLevel.ERROR, format, arg1, arg2), arg1, arg2);
+    public void error(final String format, final Object p0, final Object p1) {
+        delegate.error(modifyIfEnabled(LogLevel.ERROR, format, p0, p1), p0, p1);
     }
 
     @Override
-    public void error(final String format, final Object... arguments) {
-        delegate.error(modifyIfEnabled(LogLevel.ERROR, format, arguments), arguments);
+    public void error(final String format, final Object p0, final Object p1, final Object p2) {
+        delegate.error(modifyIfEnabled(LogLevel.ERROR, format, p0, p1, p2), p0, p1, p2);
     }
 
     @Override
-    public void error(final String msg, final Throwable t) {
-        delegate.error(modifyIfEnabled(LogLevel.ERROR, msg, t), t);
+    public void error(final String format, final Object p0, final Object p1, final Object p2, final Object p3) {
+        delegate.error(modifyIfEnabled(LogLevel.ERROR, format, p0, p1, p2, p3), p0, p1, p2, p3);
     }
 
     @Override
-    public boolean isErrorEnabled(final Marker marker) {
-        return delegate.isErrorEnabled(marker);
+    public void error(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4) {
+        delegate.error(modifyIfEnabled(LogLevel.ERROR, format, p0, p1, p2, p3, p4), p0, p1, p2, p3, p4);
     }
 
     @Override
-    public void error(final Marker marker, final String msg) {
-        delegate.error(marker, modifyIfEnabled(LogLevel.ERROR, msg));
+    public void error(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5) {
+        delegate.error(modifyIfEnabled(LogLevel.ERROR, format, p0, p1, p2, p3, p4, p5), p0, p1, p2, p3, p4, p5);
     }
 
     @Override
-    public void error(final Marker marker, final String format, final Object arg) {
-        delegate.error(marker, modifyIfEnabled(LogLevel.ERROR, format, arg), arg);
+    public void error(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6) {
+        delegate.error(modifyIfEnabled(LogLevel.ERROR, format, p0, p1, p2, p3, p4, p5, p6), p0, p1, p2, p3, p4, p5, p6);
     }
 
     @Override
-    public void error(final Marker marker, final String format, final Object arg1, final Object arg2) {
-        delegate.error(marker, modifyIfEnabled(LogLevel.ERROR, format, arg1, arg2), arg1, arg2);
+    public void error(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7) {
+        delegate.error(modifyIfEnabled(LogLevel.ERROR, format, p0, p1, p2, p3, p4, p5, p6, p7), p0, p1, p2, p3, p4, p5,
+                p6, p7);
     }
 
     @Override
-    public void error(final Marker marker, final String format, final Object... arguments) {
-        delegate.error(marker, modifyIfEnabled(LogLevel.ERROR, format, arguments), arguments);
+    public void error(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {
+        delegate.error(modifyIfEnabled(LogLevel.ERROR, format, p0, p1, p2, p3, p4, p5, p6, p7, p8), p0, p1, p2, p3, p4,
+                p5, p6, p7, p8);
     }
 
     @Override
-    public void error(final Marker marker, final String msg, final Throwable t) {
-        delegate.error(marker, modifyIfEnabled(LogLevel.ERROR, msg, t), t);
+    public void error(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {
+        delegate.error(modifyIfEnabled(LogLevel.ERROR, format, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9), p0, p1, p2, p3,
+                p4, p5, p6, p7, p8, p9);
+    }
+
+    @Override
+    public void error(final String format, final Object... params) {
+        delegate.error(modifyIfEnabled(LogLevel.ERROR, format, params), params);
     }
 
     @Override
@@ -378,53 +525,67 @@ public abstract class AModifiedDelegateLog implements ILog {
     }
 
     @Override
-    public void fatal(final String format, final Object arg) {
-        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, arg), arg);
+    public void fatal(final String format, final Object p0) {
+        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, p0), p0);
     }
 
     @Override
-    public void fatal(final String format, final Object arg1, final Object arg2) {
-        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, arg1, arg2), arg1, arg2);
+    public void fatal(final String format, final Object p0, final Object p1) {
+        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, p0, p1), p0, p1);
     }
 
     @Override
-    public void fatal(final String format, final Object... arguments) {
-        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, arguments), arguments);
+    public void fatal(final String format, final Object p0, final Object p1, final Object p2) {
+        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, p0, p1, p2), p0, p1, p2);
     }
 
     @Override
-    public void fatal(final String msg, final Throwable t) {
-        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, msg, t), t);
+    public void fatal(final String format, final Object p0, final Object p1, final Object p2, final Object p3) {
+        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, p0, p1, p2, p3), p0, p1, p2, p3);
     }
 
     @Override
-    public boolean isFatalEnabled(final Marker marker) {
-        return delegate.isFatalEnabled(marker);
+    public void fatal(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4) {
+        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, p0, p1, p2, p3, p4), p0, p1, p2, p3, p4);
     }
 
     @Override
-    public void fatal(final Marker marker, final String msg) {
-        delegate.fatal(marker, modifyIfEnabled(LogLevel.FATAL, msg));
+    public void fatal(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5) {
+        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, p0, p1, p2, p3, p4, p5), p0, p1, p2, p3, p4, p5);
     }
 
     @Override
-    public void fatal(final Marker marker, final String format, final Object arg) {
-        delegate.fatal(marker, modifyIfEnabled(LogLevel.FATAL, format, arg), arg);
+    public void fatal(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6) {
+        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, p0, p1, p2, p3, p4, p5, p6), p0, p1, p2, p3, p4, p5, p6);
     }
 
     @Override
-    public void fatal(final Marker marker, final String format, final Object arg1, final Object arg2) {
-        delegate.fatal(marker, modifyIfEnabled(LogLevel.FATAL, format, arg1, arg2), arg1, arg2);
+    public void fatal(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7) {
+        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, p0, p1, p2, p3, p4, p5, p6, p7), p0, p1, p2, p3, p4, p5,
+                p6, p7);
     }
 
     @Override
-    public void fatal(final Marker marker, final String format, final Object... arguments) {
-        delegate.fatal(marker, modifyIfEnabled(LogLevel.FATAL, format, arguments), arguments);
+    public void fatal(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {
+        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, p0, p1, p2, p3, p4, p5, p6, p7, p8), p0, p1, p2, p3, p4,
+                p5, p6, p7, p8);
     }
 
     @Override
-    public void fatal(final Marker marker, final String msg, final Throwable t) {
-        delegate.fatal(marker, modifyIfEnabled(LogLevel.FATAL, msg, t), t);
+    public void fatal(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {
+        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9), p0, p1, p2, p3,
+                p4, p5, p6, p7, p8, p9);
+    }
+
+    @Override
+    public void fatal(final String format, final Object... params) {
+        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, params), params);
     }
 
 }
