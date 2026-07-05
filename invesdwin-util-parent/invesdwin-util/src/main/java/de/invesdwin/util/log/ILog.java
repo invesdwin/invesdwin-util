@@ -1,8 +1,8 @@
 package de.invesdwin.util.log;
 
-import org.slf4j.Marker;
+import org.apache.logging.log4j.Marker;
 
-public interface ILog extends org.slf4j.Logger {
+public interface ILog extends org.apache.logging.log4j.Logger {
 
     default void log(final LogLevel level, final String msg) {
         level.log(this, msg);

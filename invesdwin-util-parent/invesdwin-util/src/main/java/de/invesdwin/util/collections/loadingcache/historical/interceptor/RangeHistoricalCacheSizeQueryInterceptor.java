@@ -8,13 +8,13 @@ import de.invesdwin.util.collections.loadingcache.historical.IHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.IHistoricalEntry;
 import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.log.ILog;
-import de.invesdwin.util.log.slf4j.XLoggerDelegateLog;
+import de.invesdwin.util.log.slf4j.LoggerDelegateLog;
 import de.invesdwin.util.time.date.FDate;
 
 @Immutable
 public class RangeHistoricalCacheSizeQueryInterceptor implements IHistoricalCacheSizeQueryInterceptor {
 
-    private static final ILog LOG = new XLoggerDelegateLog(RangeHistoricalCacheSizeQueryInterceptor.class);
+    private static final ILog LOG = new LoggerDelegateLog(RangeHistoricalCacheSizeQueryInterceptor.class);
 
     private final IHistoricalCache<?> parent;
     private final IHistoricalCacheRangeQueryInterceptor<?> rangeQueryInterceptor;

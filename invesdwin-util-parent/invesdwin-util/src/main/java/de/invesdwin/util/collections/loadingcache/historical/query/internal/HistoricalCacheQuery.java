@@ -17,7 +17,7 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.log.ILog;
-import de.invesdwin.util.log.slf4j.XLoggerDelegateLog;
+import de.invesdwin.util.log.slf4j.LoggerDelegateLog;
 import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
@@ -25,7 +25,7 @@ import de.invesdwin.util.time.date.FDates;
 @NotThreadSafe
 public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
 
-    private static final ILog LOG = new XLoggerDelegateLog(HistoricalCacheQuery.class);
+    private static final ILog LOG = new LoggerDelegateLog(HistoricalCacheQuery.class);
 
     private static final HistoricalCacheAssertValue DEFAULT_ASSERT_VALUE = HistoricalCacheAssertValue.ASSERT_VALUE_WITHOUT_FUTURE;
 

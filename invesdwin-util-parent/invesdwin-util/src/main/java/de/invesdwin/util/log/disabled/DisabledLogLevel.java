@@ -2,7 +2,7 @@ package de.invesdwin.util.log.disabled;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.slf4j.Marker;
+import org.apache.logging.log4j.Marker;
 
 import de.invesdwin.util.log.ILogLevel;
 
@@ -14,44 +14,48 @@ public final class DisabledLogLevel implements ILogLevel {
     private DisabledLogLevel() {}
 
     @Override
-    public boolean isEnabled(final org.slf4j.Logger logger) {
+    public boolean isEnabled(final org.apache.logging.log4j.Logger logger) {
         return false;
     }
 
     @Override
-    public boolean isEnabled(final org.slf4j.Logger logger, final Marker marker) {
+    public boolean isEnabled(final org.apache.logging.log4j.Logger logger, final Marker marker) {
         return false;
     }
 
     @Override
-    public void log(final org.slf4j.Logger logger, final String msg) {}
+    public void log(final org.apache.logging.log4j.Logger logger, final String msg) {}
 
     @Override
-    public void log(final org.slf4j.Logger logger, final String format, final Object arg) {}
+    public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object arg) {}
 
     @Override
-    public void log(final org.slf4j.Logger logger, final String format, final Object arg1, final Object arg2) {}
-
-    @Override
-    public void log(final org.slf4j.Logger logger, final String format, final Object... args) {}
-
-    @Override
-    public void log(final org.slf4j.Logger logger, final String msg, final Throwable t) {}
-
-    @Override
-    public void log(final org.slf4j.Logger logger, final Marker marker, final String msg) {}
-
-    @Override
-    public void log(final org.slf4j.Logger logger, final Marker marker, final String format, final Object arg) {}
-
-    @Override
-    public void log(final org.slf4j.Logger logger, final Marker marker, final String format, final Object arg1,
+    public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object arg1,
             final Object arg2) {}
 
     @Override
-    public void log(final org.slf4j.Logger logger, final Marker marker, final String format, final Object... args) {}
+    public void log(final org.apache.logging.log4j.Logger logger, final String format, final Object... args) {}
 
     @Override
-    public void log(final org.slf4j.Logger logger, final Marker marker, final String msg, final Throwable t) {}
+    public void log(final org.apache.logging.log4j.Logger logger, final String msg, final Throwable t) {}
+
+    @Override
+    public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String msg) {}
+
+    @Override
+    public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
+            final Object arg) {}
+
+    @Override
+    public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
+            final Object arg1, final Object arg2) {}
+
+    @Override
+    public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String format,
+            final Object... args) {}
+
+    @Override
+    public void log(final org.apache.logging.log4j.Logger logger, final Marker marker, final String msg,
+            final Throwable t) {}
 
 }

@@ -2,7 +2,7 @@ package de.invesdwin.util.log.modify;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.slf4j.Marker;
+import org.apache.logging.log4j.Marker;
 
 import de.invesdwin.util.log.ILog;
 import de.invesdwin.util.log.LogLevel;
@@ -309,7 +309,7 @@ public abstract class AModifiedDelegateLog implements ILog {
 
     @Override
     public boolean isErrorEnabled() {
-        return delegate.isErrorEnabled();
+        return delegate.isFatalEnabled();
     }
 
     @Override
@@ -365,6 +365,66 @@ public abstract class AModifiedDelegateLog implements ILog {
     @Override
     public void error(final Marker marker, final String msg, final Throwable t) {
         delegate.error(marker, modifyIfEnabled(LogLevel.ERROR, msg, t), t);
+    }
+
+    @Override
+    public boolean isFatalEnabled() {
+        return delegate.isErrorEnabled();
+    }
+
+    @Override
+    public void fatal(final String msg) {
+        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, msg));
+    }
+
+    @Override
+    public void fatal(final String format, final Object arg) {
+        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, arg), arg);
+    }
+
+    @Override
+    public void fatal(final String format, final Object arg1, final Object arg2) {
+        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, arg1, arg2), arg1, arg2);
+    }
+
+    @Override
+    public void fatal(final String format, final Object... arguments) {
+        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, format, arguments), arguments);
+    }
+
+    @Override
+    public void fatal(final String msg, final Throwable t) {
+        delegate.fatal(modifyIfEnabled(LogLevel.FATAL, msg, t), t);
+    }
+
+    @Override
+    public boolean isFatalEnabled(final Marker marker) {
+        return delegate.isFatalEnabled(marker);
+    }
+
+    @Override
+    public void fatal(final Marker marker, final String msg) {
+        delegate.fatal(marker, modifyIfEnabled(LogLevel.FATAL, msg));
+    }
+
+    @Override
+    public void fatal(final Marker marker, final String format, final Object arg) {
+        delegate.fatal(marker, modifyIfEnabled(LogLevel.FATAL, format, arg), arg);
+    }
+
+    @Override
+    public void fatal(final Marker marker, final String format, final Object arg1, final Object arg2) {
+        delegate.fatal(marker, modifyIfEnabled(LogLevel.FATAL, format, arg1, arg2), arg1, arg2);
+    }
+
+    @Override
+    public void fatal(final Marker marker, final String format, final Object... arguments) {
+        delegate.fatal(marker, modifyIfEnabled(LogLevel.FATAL, format, arguments), arguments);
+    }
+
+    @Override
+    public void fatal(final Marker marker, final String msg, final Throwable t) {
+        delegate.fatal(marker, modifyIfEnabled(LogLevel.FATAL, msg, t), t);
     }
 
 }
