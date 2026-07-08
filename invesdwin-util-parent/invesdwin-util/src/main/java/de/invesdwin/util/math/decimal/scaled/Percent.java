@@ -242,6 +242,10 @@ public class Percent extends AScaledDecimal<Percent, PercentScale> {
         return new Percent(newValue - oldValue, Doubles.abs(oldValue));
     }
 
+    public static double relativeDifferenceRate(final double oldValue, final double newValue) {
+        return newRate(newValue - oldValue, Doubles.abs(oldValue));
+    }
+
     public static void putPercent(final IByteBuffer buffer, final int index, final Percent value) {
         if (value == null) {
             buffer.putDouble(index, Double.NaN);
