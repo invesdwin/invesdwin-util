@@ -3,6 +3,7 @@ package de.invesdwin.util.log.disabled;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.log.ILog;
+import de.invesdwin.util.log.LogLevel;
 
 @Immutable
 public final class DisabledLog implements ILog {
@@ -15,9 +16,6 @@ public final class DisabledLog implements ILog {
     public String getName() {
         return DisabledLog.class.getSimpleName();
     }
-
-    @Override
-    public void catching(final Throwable throwable) {}
 
     @Override
     public boolean isTraceEnabled() {
@@ -300,5 +298,11 @@ public final class DisabledLog implements ILog {
 
     @Override
     public void fatal(final String format, final Object... params) {}
+
+    @Override
+    public void catching(final Throwable throwable) {}
+
+    @Override
+    public void catching(final LogLevel level, final Throwable throwable) {}
 
 }

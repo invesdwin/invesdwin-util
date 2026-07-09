@@ -78,6 +78,16 @@ public enum LogLevel implements ILogLevel {
             logger.trace(format, params);
         }
 
+        @Override
+        public org.apache.logging.log4j.Level asLog4j2Level() {
+            return org.apache.logging.log4j.Level.TRACE;
+        }
+
+        @Override
+        public org.slf4j.ext.XLogger.Level asSlf4jLevel() {
+            return org.slf4j.ext.XLogger.Level.TRACE;
+        }
+
     },
     DEBUG {
         @Override
@@ -151,6 +161,16 @@ public enum LogLevel implements ILogLevel {
         @Override
         public void log(final ILog logger, final String format, final Object... params) {
             logger.debug(format, params);
+        }
+
+        @Override
+        public org.apache.logging.log4j.Level asLog4j2Level() {
+            return org.apache.logging.log4j.Level.DEBUG;
+        }
+
+        @Override
+        public org.slf4j.ext.XLogger.Level asSlf4jLevel() {
+            return org.slf4j.ext.XLogger.Level.DEBUG;
         }
 
     },
@@ -229,6 +249,16 @@ public enum LogLevel implements ILogLevel {
             logger.info(format, params);
         }
 
+        @Override
+        public org.apache.logging.log4j.Level asLog4j2Level() {
+            return org.apache.logging.log4j.Level.INFO;
+        }
+
+        @Override
+        public org.slf4j.ext.XLogger.Level asSlf4jLevel() {
+            return org.slf4j.ext.XLogger.Level.INFO;
+        }
+
     },
     WARN {
 
@@ -303,6 +333,16 @@ public enum LogLevel implements ILogLevel {
         @Override
         public void log(final ILog logger, final String format, final Object... params) {
             logger.warn(format, params);
+        }
+
+        @Override
+        public org.apache.logging.log4j.Level asLog4j2Level() {
+            return org.apache.logging.log4j.Level.WARN;
+        }
+
+        @Override
+        public org.slf4j.ext.XLogger.Level asSlf4jLevel() {
+            return org.slf4j.ext.XLogger.Level.WARN;
         }
 
     },
@@ -380,6 +420,16 @@ public enum LogLevel implements ILogLevel {
             logger.error(format, params);
         }
 
+        @Override
+        public org.apache.logging.log4j.Level asLog4j2Level() {
+            return org.apache.logging.log4j.Level.ERROR;
+        }
+
+        @Override
+        public org.slf4j.ext.XLogger.Level asSlf4jLevel() {
+            return org.slf4j.ext.XLogger.Level.ERROR;
+        }
+
     },
     FATAL {
         @Override
@@ -455,6 +505,20 @@ public enum LogLevel implements ILogLevel {
             logger.fatal(format, params);
         }
 
+        @Override
+        public org.apache.logging.log4j.Level asLog4j2Level() {
+            return org.apache.logging.log4j.Level.FATAL;
+        }
+
+        @Override
+        public org.slf4j.ext.XLogger.Level asSlf4jLevel() {
+            return org.slf4j.ext.XLogger.Level.ERROR;
+        }
+
     };
+
+    public abstract org.apache.logging.log4j.Level asLog4j2Level();
+
+    public abstract org.slf4j.ext.XLogger.Level asSlf4jLevel();
 
 }

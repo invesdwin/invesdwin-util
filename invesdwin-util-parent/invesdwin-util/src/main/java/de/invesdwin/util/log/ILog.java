@@ -4,8 +4,6 @@ public interface ILog {
 
     String getName();
 
-    void catching(Throwable throwable);
-
     default boolean isEnabled(final LogLevel level) {
         return level.isEnabled(this);
     }
@@ -245,5 +243,9 @@ public interface ILog {
             Object p8, Object p9);
 
     void fatal(String format, Object... params);
+
+    void catching(Throwable throwable);
+
+    void catching(LogLevel level, Throwable throwable);
 
 }

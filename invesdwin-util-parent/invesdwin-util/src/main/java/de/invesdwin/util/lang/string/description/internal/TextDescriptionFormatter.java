@@ -25,78 +25,127 @@ public final class TextDescriptionFormatter {
 
     private TextDescriptionFormatter() {}
 
-    public static String format(final String messagePattern, final Object arg) {
-        return format(messagePattern, new Object[] { arg });
+    public static String format(final String messagePattern, final Object p0) {
+        return format(messagePattern, new Object[] { p0 });
     }
 
-    public static String format(final String messagePattern, final Object arg1, final Object arg2) {
-        return format(messagePattern, new Object[] { arg1, arg2 });
+    public static String format(final String messagePattern, final Object p0, final Object p1) {
+        return format(messagePattern, new Object[] { p0, p1 });
     }
 
-    public static String format(final String messagePattern, final Object... argArray) {
+    public static String format(final String messagePattern, final Object p0, final Object p1, final Object p2) {
+        return format(messagePattern, new Object[] { p0, p1, p2 });
+    }
+
+    public static String format(final String messagePattern, final Object p0, final Object p1, final Object p2,
+            final Object p3) {
+        return format(messagePattern, new Object[] { p0, p1, p2, p3 });
+    }
+
+    public static String format(final String messagePattern, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4) {
+        return format(messagePattern, new Object[] { p0, p1, p2, p3, p4 });
+    }
+
+    public static String format(final String messagePattern, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5) {
+        return format(messagePattern, new Object[] { p0, p1, p2, p3, p4, p5 });
+    }
+
+    public static String format(final String messagePattern, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6) {
+        return format(messagePattern, new Object[] { p0, p1, p2, p3, p4, p5, p6 });
+    }
+
+    public static String format(final String messagePattern, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {
+        return format(messagePattern, new Object[] { p0, p1, p2, p3, p4, p5, p6, p7 });
+    }
+
+    public static String format(final String messagePattern, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {
+        return format(messagePattern, new Object[] { p0, p1, p2, p3, p4, p5, p6, p7, p8 });
+    }
+
+    public static String format(final String messagePattern, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8,
+            final Object p9) {
+        return format(messagePattern, new Object[] { p0, p1, p2, p3, p4, p5, p6, p7, p8, p9 });
+    }
+
+    public static String format(final String messagePattern, final Object... params) {
 
         if (Strings.isBlank(messagePattern)) {
-            return Arrays.toString(argArray);
+            return Arrays.toString(params);
         }
 
-        if (argArray == null || argArray.length == 0) {
+        if (params == null || params.length == 0) {
             return messagePattern;
         }
 
+        // use string builder for better multicore performance
+        final StringBuilder buf = new StringBuilder(messagePattern.length() + 50);
+        formatToUnchecked(buf, messagePattern, params);
+        return buf.toString();
+    }
+
+    public static void formatTo(final StringBuilder buf, final String messagePattern, final Object... params) {
+        if (Strings.isBlank(messagePattern)) {
+            buf.append(Arrays.toString(params));
+            return;
+        }
+
+        if (params == null || params.length == 0) {
+            buf.append(messagePattern);
+            return;
+        }
+
+        formatToUnchecked(buf, messagePattern, params);
+    }
+
+    private static void formatToUnchecked(final StringBuilder buf, final String messagePattern,
+            final Object... params) {
         int messagePatternIdx = 0;
         int delimiterStartIdx;
-        // use string builder for better multicore performance
-        final StringBuilder sbuf = new StringBuilder(messagePattern.length() + 50);
-
         int argIdx;
-        for (argIdx = 0; argIdx < argArray.length; argIdx++) {
 
+        for (argIdx = 0; argIdx < params.length; argIdx++) {
             delimiterStartIdx = messagePattern.indexOf(DELIM_STR, messagePatternIdx);
 
             if (delimiterStartIdx == -1) {
-                // no more variables
-                if (messagePatternIdx == 0) { // this is a simple string
-                    sbuf.append(messagePattern);
-                    sbuf.append(" ");
-                    appendArgs(sbuf, argArray, 0);
-                    return sbuf.toString();
-                } else { // add the tail string which contains no variables and return
-                    // the result.
-                    sbuf.append(messagePattern, messagePatternIdx, messagePattern.length());
-                    sbuf.append(" ");
-                    appendArgs(sbuf, argArray, argIdx);
-                    return sbuf.toString();
+                if (messagePatternIdx == 0) {
+                    buf.append(messagePattern).append(" ");
+                    appendArgs(buf, params, 0);
+                    return;
+                } else {
+                    buf.append(messagePattern, messagePatternIdx, messagePattern.length()).append(" ");
+                    appendArgs(buf, params, argIdx);
+                    return;
                 }
             } else {
                 if (isEscapedDelimeter(messagePattern, delimiterStartIdx)) {
                     if (!isDoubleEscaped(messagePattern, delimiterStartIdx)) {
-                        argIdx--; // DELIM_START was escaped, thus should not be incremented
-                        sbuf.append(messagePattern, messagePatternIdx, delimiterStartIdx - 1);
-                        sbuf.append(DELIM_START);
+                        argIdx--;
+                        buf.append(messagePattern, messagePatternIdx, delimiterStartIdx - 1);
+                        buf.append(DELIM_START);
                         messagePatternIdx = delimiterStartIdx + 1;
                     } else {
-                        // The escape character preceding the delimiter start is
-                        // itself escaped: "abc x:\\%s"
-                        // we have to consume one backward slash
-                        sbuf.append(messagePattern, messagePatternIdx, delimiterStartIdx - 1);
+                        buf.append(messagePattern, messagePatternIdx, delimiterStartIdx - 1);
                         try (ICloseableMap<Object[], Object> seenMap = PooledMap.getInstance()) {
-                            deeplyAppendParameter(sbuf, argArray[argIdx], seenMap);
+                            deeplyAppendParameter(buf, params[argIdx], seenMap);
                         }
                         messagePatternIdx = delimiterStartIdx + 2;
                     }
                 } else {
-                    // normal case
-                    sbuf.append(messagePattern, messagePatternIdx, delimiterStartIdx);
+                    buf.append(messagePattern, messagePatternIdx, delimiterStartIdx);
                     try (ICloseableMap<Object[], Object> seenMap = PooledMap.getInstance()) {
-                        deeplyAppendParameter(sbuf, argArray[argIdx], seenMap);
+                        deeplyAppendParameter(buf, params[argIdx], seenMap);
                     }
                     messagePatternIdx = delimiterStartIdx + 2;
                 }
             }
         }
-        // append the characters following the last {} pair.
-        sbuf.append(messagePattern, messagePatternIdx, messagePattern.length());
-        return sbuf.toString();
+        buf.append(messagePattern, messagePatternIdx, messagePattern.length());
     }
 
     private static String appendArgs(final StringBuilder sbuf, final Object[] a, final int startIndex) {
