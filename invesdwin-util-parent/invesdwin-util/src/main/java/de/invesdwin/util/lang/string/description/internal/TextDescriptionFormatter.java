@@ -4,7 +4,7 @@ import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.slf4j.helpers.Util;
+import org.slf4j.helpers.Reporter;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.factory.pool.map.ICloseableMap;
@@ -215,7 +215,8 @@ public final class TextDescriptionFormatter {
             final String oAsString = o.toString();
             sbuf.append(oAsString);
         } catch (final Throwable t) {
-            Util.report("SLF4J: Failed toString() invocation on an object of type [" + o.getClass().getName() + "]", t);
+            Reporter.error("SLF4J: Failed toString() invocation on an object of type [" + o.getClass().getName() + "]",
+                    t);
             sbuf.append("[FAILED toString()]");
         }
 

@@ -81,7 +81,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     }
 
     public static final int DEFAULT_QUEUE_SIZE = 10000;
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
+    private static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager
             .getLogger(AGenericProducerQueueIterator.class);
 
     private final BlockingQueue<E> queue;

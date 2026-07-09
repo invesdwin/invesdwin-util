@@ -15,7 +15,8 @@ import de.invesdwin.util.streams.closeable.Closeables;
 @NotThreadSafe
 public class CloseableDelegateList<E> extends ADelegateList<E> implements Closeable {
 
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(CloseableDelegateList.class);
+    private static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager
+            .getLogger(CloseableDelegateList.class);
 
     private final CloseableDelegateListFinalizer<E> finalizer;
 

@@ -18,7 +18,8 @@ import de.invesdwin.util.streams.closeable.Closeables;
 @NotThreadSafe
 public abstract class ADelegateInputStream extends InputStream {
 
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ACloseableIterator.class);
+    private static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager
+            .getLogger(ACloseableIterator.class);
     private final DelegateInputStreamFinalizer finalizer;
 
     public ADelegateInputStream(final TextDescription name) {
