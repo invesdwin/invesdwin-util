@@ -75,7 +75,8 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     public static final boolean DEFAULT_ALIGN_KEYS = false;
 
     private static final WeakReference[] WEAKREFERENCE_EMPTY_ARRAY = new WeakReference[0];
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AHistoricalCache.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(AHistoricalCache.class);
     private static boolean debugAutomaticReoptimization = false;
 
     protected final IHistoricalCacheInternalMethods<V> internalMethods = new HistoricalCacheInternalMethods();

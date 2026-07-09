@@ -66,8 +66,8 @@ public abstract class AContinuousRecursiveHistoricalCacheQuery<V> implements IRe
 
     private static final FastThreadLocal<FDate> OUTER_FIRST_RECURSION_KEY = new FastThreadLocal<>();
 
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
-            .getXLogger(AContinuousRecursiveHistoricalCacheQuery.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(AContinuousRecursiveHistoricalCacheQuery.class);
 
     private final AHistoricalCache<V> parent;
     private final int recursionCount;

@@ -35,8 +35,8 @@ public final class HistoricalCacheRefreshManager {
 
     public static final HistoricalCacheRefreshManager INSTANCE = new HistoricalCacheRefreshManager();
 
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
-            .getXLogger(HistoricalCacheRefreshManager.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(HistoricalCacheRefreshManager.class);
 
     private static volatile FDate lastRefresh = FDate.now();
     private static volatile long lastRefreshMillis = lastRefresh.millisValue();

@@ -11,8 +11,8 @@ public final class FlyweightSerdeProviders {
 
     private static final Set<String> FLYWEIGHT_SERDE_WARNINGS = ILockCollectionFactory.getInstance(true)
             .newConcurrentSet();
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
-            .getXLogger(FlyweightSerdeProviders.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(FlyweightSerdeProviders.class);
 
     private FlyweightSerdeProviders() {}
 

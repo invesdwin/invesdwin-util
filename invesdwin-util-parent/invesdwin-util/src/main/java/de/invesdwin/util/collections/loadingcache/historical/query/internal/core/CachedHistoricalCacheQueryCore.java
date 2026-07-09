@@ -38,8 +38,8 @@ import de.invesdwin.util.time.date.FDate;
 public class CachedHistoricalCacheQueryCore<V> extends ACachedResultHistoricalCacheQueryCore<V> {
 
     private static final int INITIAL_MAX_CACHED_INDEX = 10000;
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
-            .getXLogger(CachedHistoricalCacheQueryCore.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(CachedHistoricalCacheQueryCore.class);
     private static final int REQUIRED_SIZE_MULTIPLICATOR = 2;
     private static final int COUNT_RESETS_BEFORE_WARNING = 100;
 

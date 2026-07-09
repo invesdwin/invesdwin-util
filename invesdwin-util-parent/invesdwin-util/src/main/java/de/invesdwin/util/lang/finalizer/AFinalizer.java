@@ -42,7 +42,8 @@ import io.netty.util.concurrent.FastThreadLocal;
 @NotThreadSafe
 public abstract class AFinalizer implements Closeable, Runnable {
 
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AFinalizer.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(AFinalizer.class);
     private static final FastThreadLocal<Boolean> THREAD_FINALIZER_ACTIVE = new FastThreadLocal<>();
     @GuardedBy("explcitly not volatile since cached information per thread is fine")
     private static boolean threadFinalizerActiveUsed;
