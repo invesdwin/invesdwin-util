@@ -257,6 +257,18 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     }
 
     @Override
+    public <T> IFastIterableSet<T> newFastIterableTreeSet() {
+        return new RefreshingSynchronizedFastIterableDelegateSet<T>(
+                DisabledLockCollectionFactory.INSTANCE.newTreeSet());
+    }
+
+    @Override
+    public <T> IFastIterableSet<T> newFastIterableTreeSet(final IComparator<? super T> comparator) {
+        return new RefreshingSynchronizedFastIterableDelegateSet<T>(
+                DisabledLockCollectionFactory.INSTANCE.newTreeSet(comparator));
+    }
+
+    @Override
     public <T> Set<T> newLinkedSet(final int initialSize, final float loadFactor) {
         return Collections
                 .synchronizedSet(DisabledLockCollectionFactory.INSTANCE.newLinkedSet(initialSize, loadFactor));
@@ -280,29 +292,6 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     @Override
     public boolean isThreadSafe() {
         return true;
-    }
-
-    private static final class RefreshingSynchronizedFastIterableDelegateMap<K, V>
-            extends SynchronizedFastIterableDelegateMap<K, V> {
-        private RefreshingSynchronizedFastIterableDelegateMap(final Map<K, V> delegate) {
-            super(delegate);
-        }
-
-        @Override
-        protected void addToFastIterable(final K key, final V value) {
-            refreshFastIterable();
-        }
-    }
-
-    private static final class SynchronizedNestedExecutor extends ANestedExecutor {
-        private SynchronizedNestedExecutor(final String name) {
-            super(name);
-        }
-
-        @Override
-        protected WrappedExecutorService newNestedExecutor(final String nestedName) {
-            return Executors.newFixedThreadPool(nestedName, Executors.getCpuThreadPoolCount());
-        }
     }
 
     @Override
@@ -451,6 +440,41 @@ public final class SynchronizedLockCollectionFactory implements ILockCollectionF
     @Override
     public <K, V> Map<K, V> newImmutableLinkedMap(final Map<? extends K, ? extends V> copyOf) {
         return DisabledLockCollectionFactory.INSTANCE.newImmutableLinkedMap(copyOf);
+    }
+
+    private static final class RefreshingSynchronizedFastIterableDelegateMap<K, V>
+            extends SynchronizedFastIterableDelegateMap<K, V> {
+        private RefreshingSynchronizedFastIterableDelegateMap(final Map<K, V> delegate) {
+            super(delegate);
+        }
+
+        @Override
+        protected void addToFastIterable(final K key, final V value) {
+            refreshFastIterable();
+        }
+    }
+
+    private static final class RefreshingSynchronizedFastIterableDelegateSet<T>
+            extends SynchronizedFastIterableDelegateSet<T> {
+        private RefreshingSynchronizedFastIterableDelegateSet(final Set<T> delegate) {
+            super(delegate);
+        }
+
+        @Override
+        protected void addToFastIterable(final T value) {
+            refreshFastIterable();
+        }
+    }
+
+    private static final class SynchronizedNestedExecutor extends ANestedExecutor {
+        private SynchronizedNestedExecutor(final String name) {
+            super(name);
+        }
+
+        @Override
+        protected WrappedExecutorService newNestedExecutor(final String nestedName) {
+            return Executors.newFixedThreadPool(nestedName, Executors.getCpuThreadPoolCount());
+        }
     }
 
 }

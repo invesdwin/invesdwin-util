@@ -220,6 +220,16 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
+    public <T> IFastIterableSet<T> newFastIterableTreeSet() {
+        return new RefreshingFastIterableDelegateSet<T>(newTreeSet());
+    }
+
+    @Override
+    public <T> IFastIterableSet<T> newFastIterableTreeSet(final IComparator<? super T> comparator) {
+        return new RefreshingFastIterableDelegateSet<T>(newTreeSet(comparator));
+    }
+
+    @Override
     public <K, V> NavigableMap<K, V> newTreeMap() {
         //CHECKSTYLE:OFF
         return new TreeMap<K, V>();
@@ -235,22 +245,12 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     @Override
     public <K, V> IFastIterableMap<K, V> newFastIterableTreeMap() {
-        return new FastIterableDelegateMap<K, V>(newTreeMap()) {
-            @Override
-            protected void addToFastIterable(final K key, final V value) {
-                refreshFastIterable();
-            }
-        };
+        return new RefreshingFastIterableDelegateMap<K, V>(newTreeMap());
     }
 
     @Override
     public <K, V> IFastIterableMap<K, V> newFastIterableTreeMap(final IComparator<? super K> comparator) {
-        return new FastIterableDelegateMap<K, V>(newTreeMap(comparator)) {
-            @Override
-            protected void addToFastIterable(final K key, final V value) {
-                refreshFastIterable();
-            }
-        };
+        return new RefreshingFastIterableDelegateMap<K, V>(newTreeMap(comparator));
     }
 
     @Override
@@ -434,6 +434,28 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     @Override
     public <K, V> Map<K, V> newImmutableLinkedMap(final Map<? extends K, ? extends V> copyOf) {
         return Collections.unmodifiableMap(newLinkedMap(copyOf));
+    }
+
+    private static final class RefreshingFastIterableDelegateMap<K, V> extends FastIterableDelegateMap<K, V> {
+        private RefreshingFastIterableDelegateMap(final Map<K, V> delegate) {
+            super(delegate);
+        }
+
+        @Override
+        protected void addToFastIterable(final K key, final V value) {
+            refreshFastIterable();
+        }
+    }
+
+    private static final class RefreshingFastIterableDelegateSet<T> extends FastIterableDelegateSet<T> {
+        private RefreshingFastIterableDelegateSet(final Set<T> delegate) {
+            super(delegate);
+        }
+
+        @Override
+        protected void addToFastIterable(final T e) {
+            refreshFastIterable();
+        }
     }
 
 }
