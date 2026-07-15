@@ -18,7 +18,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.apache.arrow.memory.ArrowBuf;
-import org.apache.arrow.memory.NettyAllocationManager;
+import org.apache.arrow.memory.netty.NettyAllocationManager;
 
 import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
