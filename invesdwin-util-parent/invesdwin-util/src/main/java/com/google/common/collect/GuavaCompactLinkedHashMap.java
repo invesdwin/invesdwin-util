@@ -2,19 +2,21 @@ package com.google.common.collect;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.collections.delegate.DelegateMap;
+
 @NotThreadSafe
-public class GuavaCompactLinkedHashMap<K, V> extends CompactLinkedHashMap<K, V> {
+public class GuavaCompactLinkedHashMap<K, V> extends DelegateMap<K, V> {
 
     public GuavaCompactLinkedHashMap() {
-        super();
+        super(new CompactLinkedHashMap<K, V>());
     }
 
     public GuavaCompactLinkedHashMap(final int expectedSize) {
-        super(expectedSize);
+        super(new CompactLinkedHashMap<K, V>(expectedSize));
     }
 
     public GuavaCompactLinkedHashMap(final int expectedSize, final boolean accessOrder) {
-        super(expectedSize, accessOrder);
+        super(new CompactLinkedHashMap<K, V>(expectedSize, accessOrder));
     }
 
 }
