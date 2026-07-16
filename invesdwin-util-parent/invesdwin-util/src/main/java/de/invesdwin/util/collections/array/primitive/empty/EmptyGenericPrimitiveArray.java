@@ -3,7 +3,6 @@ package de.invesdwin.util.collections.array.primitive.empty;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.array.primitive.IGenericPrimitiveArray;
-import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 
@@ -25,7 +24,7 @@ public final class EmptyGenericPrimitiveArray<E> implements IGenericPrimitiveArr
 
     @Override
     public E get(final int index) {
-        throw FastIndexOutOfBoundsException.getInstance("Index: %s, Size: 0", index);
+        return null;
     }
 
     @Override
@@ -68,8 +67,7 @@ public final class EmptyGenericPrimitiveArray<E> implements IGenericPrimitiveArr
     }
 
     @Override
-    public void getGenerics(final int srcPos, final IGenericPrimitiveArray<E> dest, final int destPos,
-            final int length) {
+    public void getGenerics(final int srcPos, final IGenericPrimitiveArray<E> dest, final int destPos, final int length) {
         //noop
     }
 

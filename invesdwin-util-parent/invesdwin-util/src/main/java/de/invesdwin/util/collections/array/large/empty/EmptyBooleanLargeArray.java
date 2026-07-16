@@ -3,7 +3,6 @@ package de.invesdwin.util.collections.array.large.empty;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.array.large.IBooleanLargeArray;
-import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
@@ -24,7 +23,7 @@ public final class EmptyBooleanLargeArray implements IBooleanLargeArray {
 
     @Override
     public boolean get(final long index) {
-        throw FastIndexOutOfBoundsException.getInstance("Index: %s, Size: 0", index);
+        return Booleans.DEFAULT_MISSING_VALUE;
     }
 
     @Override
