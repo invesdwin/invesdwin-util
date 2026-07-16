@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.array.large.empty;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.array.large.IGenericLargeArray;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
@@ -24,7 +25,7 @@ public final class EmptyGenericLargeArray<E> implements IGenericLargeArray<E> {
 
     @Override
     public E get(final long index) {
-        return null;
+        throw FastIndexOutOfBoundsException.getInstance("Index: %s, Size: 0", index);
     }
 
     @Override

@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.array.large.empty;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.array.large.IDoubleLargeArray;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
@@ -23,7 +24,7 @@ public final class EmptyDoubleLargeArray implements IDoubleLargeArray {
 
     @Override
     public double get(final long index) {
-        return Double.NaN;
+        throw FastIndexOutOfBoundsException.getInstance("Index: %s, Size: 0", index);
     }
 
     @Override

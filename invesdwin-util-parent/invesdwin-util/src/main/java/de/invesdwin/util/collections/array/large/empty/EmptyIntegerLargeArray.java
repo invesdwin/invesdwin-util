@@ -3,6 +3,7 @@ package de.invesdwin.util.collections.array.large.empty;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.array.large.IIntegerLargeArray;
+import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 
@@ -23,7 +24,7 @@ public final class EmptyIntegerLargeArray implements IIntegerLargeArray {
 
     @Override
     public int get(final long index) {
-        return Integers.DEFAULT_MISSING_VALUE;
+        throw FastIndexOutOfBoundsException.getInstance("Index: %s, Size: 0", index);
     }
 
     @Override
