@@ -13,7 +13,7 @@ import de.invesdwin.util.math.stream.doubl.IDoubleStreamAlgorithm;
 public class DoubleStreamZigZag implements IDoubleStreamAlgorithm {
 
     public static final Percent DEFAULT_REVERSAL_THRESHOLD = new Percent(5D, PercentScale.PERCENT);
-    private final Percent reversalThreshold;
+    private final double reversalThresholdRate;
     private long troughIndex = 0;
     private double trough = Double.NaN;
     private long peakIndex = 0;
@@ -21,6 +21,7 @@ public class DoubleStreamZigZag implements IDoubleStreamAlgorithm {
     private long curIndex = 0;
     private double current = Double.NaN;
     private double previous = Double.NaN;
+    private PriceDirection direction;
 
     public DoubleStreamZigZag() {
         this(DEFAULT_REVERSAL_THRESHOLD);
@@ -28,7 +29,7 @@ public class DoubleStreamZigZag implements IDoubleStreamAlgorithm {
 
     public DoubleStreamZigZag(final Percent reversalThreshold) {
         Assertions.assertThat(reversalThreshold).isGreaterThan(Percent.ZERO_PERCENT);
-        this.reversalThreshold = reversalThreshold;
+        this.reversalThresholdRate = reversalThreshold.getRate();
     }
 
     @Override
@@ -39,6 +40,7 @@ public class DoubleStreamZigZag implements IDoubleStreamAlgorithm {
             peakIndex = curIndex;
             trough = value;
             troughIndex = curIndex;
+            direction = null;
         }
         final double reversalReference;
         final PriceDirection currentDirection = getDirection();
@@ -48,6 +50,7 @@ public class DoubleStreamZigZag implements IDoubleStreamAlgorithm {
                 peak = value;
                 peakIndex = curIndex;
                 reversalReference = Double.NaN;
+                direction = null;
             } else {
                 reversalReference = peak;
             }
@@ -57,6 +60,7 @@ public class DoubleStreamZigZag implements IDoubleStreamAlgorithm {
                 trough = value;
                 troughIndex = curIndex;
                 reversalReference = Double.NaN;
+                direction = null;
             } else {
                 reversalReference = trough;
             }
@@ -69,15 +73,16 @@ public class DoubleStreamZigZag implements IDoubleStreamAlgorithm {
             throw UnknownArgumentException.newInstance(PriceDirection.class, currentDirection);
         }
         if (!Doubles.isNaN(reversalReference)) {
-            final Percent change = Percent.relativeDifference(reversalReference, value);
-            if (Doubles.abs(change.getDefaultValue()) >= reversalThreshold.getDefaultValue()) {
-                if (change.isPositive()) {
+            final double change = Percent.relativeDifferenceRate(reversalReference, value);
+            if (Doubles.abs(change) >= reversalThresholdRate) {
+                if (Doubles.isPositive(change)) {
                     if (currentDirection != PriceDirection.RISING) {
                         //reference point was a trough, so we were falling before
                         peak = value;
                         peakIndex = curIndex;
                         previous = current;
                         current = trough;
+                        direction = null;
                     }
                 } else {
                     if (currentDirection != PriceDirection.FALLING) {
@@ -86,6 +91,7 @@ public class DoubleStreamZigZag implements IDoubleStreamAlgorithm {
                         troughIndex = curIndex;
                         previous = current;
                         current = peak;
+                        direction = null;
                     }
                 }
             }
@@ -138,6 +144,13 @@ public class DoubleStreamZigZag implements IDoubleStreamAlgorithm {
     }
 
     public PriceDirection getDirection() {
+        if (direction == null) {
+            direction = newDirection();
+        }
+        return direction;
+    }
+
+    private PriceDirection newDirection() {
         if (Doubles.isNaN(trough) || Doubles.isNaN(peak)) {
             return PriceDirection.UNCHANGED;
         } else if (troughIndex < peakIndex) {
