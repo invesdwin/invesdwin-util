@@ -12,25 +12,30 @@ import de.invesdwin.util.math.stream.doubl.IDoubleStreamAlgorithm;
 @Immutable
 public class DoubleStreamBoxAndWhiskerStatistics implements IDoubleStreamAlgorithm, IBoxAndWhiskerStatistics {
 
-    private final DoubleStreamMin min = new DoubleStreamMin();
+    private final DoubleStreamMax max = new DoubleStreamMax();
     private final DoubleStreamAvg avg = new DoubleStreamAvg();
     private final DoubleStreamMedian median = new DoubleStreamMedian();
-    private final DoubleStreamMax max = new DoubleStreamMax();
+    private final DoubleStreamMin min = new DoubleStreamMin();
 
     @Override
     public double process(final double value) {
         if (!Doubles.isNaN(value)) {
-            min.process(value);
+            max.process(value);
             avg.process(value);
             median.process(value);
-            max.process(value);
+            min.process(value);
         }
         return Double.NaN;
     }
 
     @Override
-    public double getMin() {
-        return min.getMin();
+    public double getMax() {
+        return max.getMax();
+    }
+
+    @Override
+    public double getUpperQuartile() {
+        return median.getQuantile(0.75);
     }
 
     @Override
@@ -39,23 +44,18 @@ public class DoubleStreamBoxAndWhiskerStatistics implements IDoubleStreamAlgorit
     }
 
     @Override
-    public double getFirstQuartile() {
-        return median.getQuantile(0.25);
-    }
-
-    @Override
     public double getMedian() {
         return median.getMedian();
     }
 
     @Override
-    public double getThirdQuartile() {
-        return median.getQuantile(0.75);
+    public double getLowerQuartile() {
+        return median.getQuantile(0.25);
     }
 
     @Override
-    public double getMax() {
-        return max.getMax();
+    public double getMin() {
+        return min.getMin();
     }
 
 }

@@ -2,16 +2,16 @@ package de.invesdwin.util.math.stream.doubl.stats;
 
 public interface IBoxAndWhiskerStatistics {
 
-    double getMin();
-
     double getMax();
+
+    double getUpperQuartile();
 
     double getAvg();
 
-    double getFirstQuartile();
-
     double getMedian();
 
-    double getThirdQuartile();
+    double getLowerQuartile();
+
+    double getMin();
 
 }

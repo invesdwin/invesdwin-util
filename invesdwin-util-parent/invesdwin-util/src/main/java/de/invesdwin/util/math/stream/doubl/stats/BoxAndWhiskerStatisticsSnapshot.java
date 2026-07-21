@@ -8,35 +8,30 @@ public class BoxAndWhiskerStatisticsSnapshot implements IBoxAndWhiskerStatistics
     public static final BoxAndWhiskerStatisticsSnapshot DUMMY = new BoxAndWhiskerStatisticsSnapshot(Double.NaN,
             Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
 
-    private final double min;
-    private final double avg;
-    private final double firstQuartile;
-    private final double median;
-    private final double thirdQuartile;
     private final double max;
+    private final double upperQuartile;
+    private final double avg;
+    private final double median;
+    private final double lowerQuartile;
+    private final double min;
 
     private BoxAndWhiskerStatisticsSnapshot(final IBoxAndWhiskerStatistics statistics) {
-        this.min = statistics.getMin();
         this.max = statistics.getMax();
+        this.upperQuartile = statistics.getUpperQuartile();
         this.avg = statistics.getAvg();
-        this.firstQuartile = statistics.getFirstQuartile();
         this.median = statistics.getMedian();
-        this.thirdQuartile = statistics.getThirdQuartile();
+        this.lowerQuartile = statistics.getLowerQuartile();
+        this.min = statistics.getMin();
     }
 
     public BoxAndWhiskerStatisticsSnapshot(final double min, final double max, final double avg,
             final double firstQuartile, final double median, final double thirdQuartile) {
-        this.min = min;
         this.max = max;
+        this.upperQuartile = thirdQuartile;
         this.avg = avg;
-        this.firstQuartile = firstQuartile;
         this.median = median;
-        this.thirdQuartile = thirdQuartile;
-    }
-
-    @Override
-    public double getMin() {
-        return min;
+        this.lowerQuartile = firstQuartile;
+        this.min = min;
     }
 
     @Override
@@ -45,13 +40,13 @@ public class BoxAndWhiskerStatisticsSnapshot implements IBoxAndWhiskerStatistics
     }
 
     @Override
-    public double getAvg() {
-        return avg;
+    public double getUpperQuartile() {
+        return upperQuartile;
     }
 
     @Override
-    public double getFirstQuartile() {
-        return firstQuartile;
+    public double getAvg() {
+        return avg;
     }
 
     @Override
@@ -60,8 +55,13 @@ public class BoxAndWhiskerStatisticsSnapshot implements IBoxAndWhiskerStatistics
     }
 
     @Override
-    public double getThirdQuartile() {
-        return thirdQuartile;
+    public double getLowerQuartile() {
+        return lowerQuartile;
+    }
+
+    @Override
+    public double getMin() {
+        return min;
     }
 
     public static BoxAndWhiskerStatisticsSnapshot snapshot(final IBoxAndWhiskerStatistics statistics) {
