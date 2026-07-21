@@ -5,6 +5,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 import com.tdunning.math.stats.AVLTreeDigest;
 import com.tdunning.math.stats.TDigest;
 
+import de.invesdwin.util.math.Doubles;
+
 @NotThreadSafe
 public class DoubleStreamMedian implements IDoubleStreamAlgorithm {
 
@@ -29,7 +31,9 @@ public class DoubleStreamMedian implements IDoubleStreamAlgorithm {
 
     @Override
     public double process(final double value) {
-        digest.add(value);
+        if (!Doubles.isNaN(value)) {
+            digest.add(value);
+        }
         return Double.NaN;
     }
 

@@ -2,6 +2,7 @@ package de.invesdwin.util.math.stream.doubl.stats;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.stream.doubl.DoubleStreamAvg;
 import de.invesdwin.util.math.stream.doubl.DoubleStreamMax;
 import de.invesdwin.util.math.stream.doubl.DoubleStreamMedian;
@@ -18,10 +19,12 @@ public class DoubleStreamBoxAndWhiskerStatistics implements IDoubleStreamAlgorit
 
     @Override
     public double process(final double value) {
-        min.process(value);
-        avg.process(value);
-        median.process(value);
-        max.process(value);
+        if (!Doubles.isNaN(value)) {
+            min.process(value);
+            avg.process(value);
+            median.process(value);
+            max.process(value);
+        }
         return Double.NaN;
     }
 
