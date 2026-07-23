@@ -61,6 +61,7 @@ public class WrappedThreadFactory implements ThreadFactory {
          * keeps the default behaviour expected from normal threads.
          */
         t.setUncaughtExceptionHandler(Thread.getDefaultUncaughtExceptionHandler());
+        t.setDaemon(true);
         return t;
     }
 
