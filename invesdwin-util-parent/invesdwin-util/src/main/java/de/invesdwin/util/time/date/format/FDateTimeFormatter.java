@@ -26,8 +26,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeParserBucket;
 import org.joda.time.format.FormatUtilsAccessor;
-import org.joda.time.format.InternalParserAccessor;
-import org.joda.time.format.InternalPrinterAccessor;
+import org.joda.time.format.IInternalParserAccessor;
+import org.joda.time.format.IInternalPrinterAccessor;
 
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.error.UnknownArgumentException;
@@ -54,8 +54,8 @@ public final class FDateTimeFormatter extends java.text.Format {
 
     private final String pattern;
     private final DateTimeFormatter jodaFormatter;
-    private final InternalPrinterAccessor printer;
-    private final InternalParserAccessor parser;
+    private final IInternalPrinterAccessor printer;
+    private final IInternalParserAccessor parser;
     private final ParseToken[] parseTokens;
     private final ParseToken[] parseTokensByIndex;
     private final boolean hasCustomFractions;
@@ -85,8 +85,8 @@ public final class FDateTimeFormatter extends java.text.Format {
         }
 
         this.jodaFormatter = DateTimeFormat.forPattern(jodaPattern.toString());
-        this.printer = new InternalPrinterAccessor(jodaFormatter);
-        this.parser = new InternalParserAccessor(jodaFormatter);
+        this.printer = IInternalPrinterAccessor.of(jodaFormatter);
+        this.parser = IInternalParserAccessor.of(jodaFormatter);
         this.timeZone = null;
         this.locale = null;
     }

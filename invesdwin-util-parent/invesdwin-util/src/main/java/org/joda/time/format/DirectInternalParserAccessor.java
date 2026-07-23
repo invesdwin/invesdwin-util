@@ -3,15 +3,15 @@ package org.joda.time.format;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public class InternalParserAccessor {
+final class DirectInternalParserAccessor implements IInternalParserAccessor {
 
     private final InternalParser parser;
 
-    public InternalParserAccessor(final DateTimeFormatter formatter) {
-        this.parser = formatter.getParser0();
+    DirectInternalParserAccessor(final DateTimeFormatter formatter) {
+        this(formatter.getParser0());
     }
 
-    public InternalParserAccessor(final InternalParser parser) {
+    DirectInternalParserAccessor(final InternalParser parser) {
         this.parser = parser;
     }
 
@@ -19,10 +19,12 @@ public class InternalParserAccessor {
         return parser;
     }
 
+    @Override
     public int estimateParsedLength() {
         return parser.estimateParsedLength();
     }
 
+    @Override
     public int parseInto(final DateTimeParserBucket bucket, final CharSequence text, final int position) {
         return parser.parseInto(bucket, text, position);
     }
