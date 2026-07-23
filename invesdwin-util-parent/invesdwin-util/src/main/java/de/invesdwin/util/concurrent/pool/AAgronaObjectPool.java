@@ -1,5 +1,8 @@
 package de.invesdwin.util.concurrent.pool;
 
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.agrona.concurrent.ManyToManyConcurrentArrayQueue;
@@ -18,7 +21,16 @@ public abstract class AAgronaObjectPool<E> extends AQueueObjectPool<E> {
     }
 
     public AAgronaObjectPool(final int maxPoolSize) {
-        super(new ManyToManyConcurrentArrayQueue<>(maxPoolSize));
+        super(newQueue(maxPoolSize));
+    }
+
+    private static <T> Queue<T> newQueue(final int maxPoolSize) {
+        try {
+            return new ManyToManyConcurrentArrayQueue<>(maxPoolSize);
+        } catch (final Throwable e) {
+            //fallback for restricted environments (e.g. Spark) where Unsafe is not available
+            return new ArrayBlockingQueue<>(maxPoolSize);
+        }
     }
 
 }

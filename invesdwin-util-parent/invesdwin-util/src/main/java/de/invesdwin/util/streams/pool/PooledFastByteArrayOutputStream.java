@@ -23,7 +23,7 @@ public final class PooledFastByteArrayOutputStream extends FastByteArrayOutputSt
 
     private NonClosingDelegateOutputStream nonClosing;
     private boolean closed = true;
-    private PooledFastByteArrayInputStream inputStream;
+    private FastByteArrayOutputAsInputStream inputStream;
 
     private PooledFastByteArrayOutputStream() {}
 
@@ -69,7 +69,7 @@ public final class PooledFastByteArrayOutputStream extends FastByteArrayOutputSt
 
     public InputStream asInputStream() {
         if (inputStream == null) {
-            inputStream = new PooledFastByteArrayInputStream(this);
+            inputStream = new FastByteArrayOutputAsInputStream(this);
         } else {
             inputStream.init();
         }

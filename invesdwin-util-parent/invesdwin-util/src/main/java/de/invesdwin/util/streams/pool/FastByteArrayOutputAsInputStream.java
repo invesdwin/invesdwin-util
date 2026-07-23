@@ -4,6 +4,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
+import it.unimi.dsi.fastutil.io.FastByteArrayOutputStream;
 import it.unimi.dsi.fastutil.io.MeasurableInputStream;
 import it.unimi.dsi.fastutil.io.RepositionableStream;
 
@@ -12,9 +13,9 @@ import it.unimi.dsi.fastutil.io.RepositionableStream;
  *
  */
 @NotThreadSafe
-public class PooledFastByteArrayInputStream extends MeasurableInputStream implements RepositionableStream {
+public class FastByteArrayOutputAsInputStream extends MeasurableInputStream implements RepositionableStream {
 
-    private final PooledFastByteArrayOutputStream delegate;
+    private final FastByteArrayOutputStream delegate;
 
     /** The current position as a distance from {@link #offset}. */
     private int position;
@@ -22,7 +23,7 @@ public class PooledFastByteArrayInputStream extends MeasurableInputStream implem
     /** The current mark as a position, or -1 if no mark exists. */
     private int mark;
 
-    public PooledFastByteArrayInputStream(final PooledFastByteArrayOutputStream delegate) {
+    public FastByteArrayOutputAsInputStream(final FastByteArrayOutputStream delegate) {
         this.delegate = delegate;
     }
 
