@@ -17,7 +17,7 @@ public final class SunJava2dUIScaleConfigurer {
 
     private SunJava2dUIScaleConfigurer() {}
 
-    public static void autoConfigureScaling() {
+    public static void configure() {
         // 1. Don't overwrite if manually set via CLI (-Dsun.java2d.uiScale=...)
         //CHECKSTYLE:OFF
         if (System.getProperty("sun.java2d.uiScale") != null) {
@@ -25,7 +25,7 @@ public final class SunJava2dUIScaleConfigurer {
             return;
         }
 
-        final double scale = detectLinuxScale();
+        final double scale = detectScale();
         if (scale > 1.0) {
             //CHECKSTYLE:OFF
             System.setProperty("sun.java2d.uiScale", String.valueOf((int) Math.round(scale)));
@@ -33,7 +33,7 @@ public final class SunJava2dUIScaleConfigurer {
         }
     }
 
-    private static double detectLinuxScale() {
+    private static double detectScale() {
         // Probe 1: Check GDK_SCALE environment variable
         final String gdkScale = System.getenv("GDK_SCALE");
         if (gdkScale != null && !gdkScale.trim().isEmpty()) {
