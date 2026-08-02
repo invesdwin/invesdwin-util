@@ -40,13 +40,7 @@ import it.unimi.dsi.fastutil.io.FastBufferedInputStream;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AFilesStaticFacade", targets = {
-        org.apache.commons.io.FileUtils.class, java.nio.file.Files.class }, filterSeeMethodSignatures = {
-                //these methods are not available in java 8
-                "java.nio.file.Files#readString(java.nio.file.Path)",
-                "java.nio.file.Files#readString(java.nio.file.Path, java.nio.charset.Charset)",
-                "java.nio.file.Files#writeString(java.nio.file.Path, java.lang.CharSequence, java.nio.file.OpenOption...)",
-                "java.nio.file.Files#writeString(java.nio.file.Path, java.lang.CharSequence, java.nio.charset.Charset, java.nio.file.OpenOption...)",
-                "java.nio.file.Files#mismatch(java.nio.file.Path, java.nio.file.Path)" })
+        org.apache.commons.io.FileUtils.class, java.nio.file.Files.class }, filterSeeMethodSignatures = {})
 public final class Files extends AFilesStaticFacade {
 
     public static final File[] EMPTY_ARRAY = new File[0];
