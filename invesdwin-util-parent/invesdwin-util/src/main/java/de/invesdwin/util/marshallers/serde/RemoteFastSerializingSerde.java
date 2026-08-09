@@ -1,6 +1,8 @@
 package de.invesdwin.util.marshallers.serde;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,18 +14,20 @@ import org.nustaq.serialization.simpleapi.FSTBufferTooSmallException;
 import org.nustaq.serialization.simpleapi.OffHeapCoder;
 import org.nustaq.serialization.simpleapi.OnHeapCoder;
 
+import de.invesdwin.norva.beanpath.IDeepCloneProvider;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.concurrent.pool.AgronaObjectPool;
 import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.buffer.bytes.ICloseableByteBuffer;
 
 /**
  * This serializing serde is suitable for IPC
  */
 @Immutable
-public class RemoteFastSerializingSerde<E> implements ISerde<E> {
+public class RemoteFastSerializingSerde<E> implements ISerde<E>, IDeepCloneProvider {
 
     @SuppressWarnings("rawtypes")
     private static final RemoteFastSerializingSerde INSTANCE = new RemoteFastSerializingSerde<>(true);
@@ -114,6 +118,7 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public byte[] toBytes(final E obj) {
         if (obj == null) {
@@ -211,6 +216,53 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E> {
             return coder.toMemory(obj, addressOffset, length);
         } finally {
             getOffHeapCoderPool().returnObject(coder);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T deepClone(final T obj) {
+        if (obj == null) {
+            return null;
+        }
+        try (ICloseableByteBuffer buffer = ByteBuffers.EXPANDABLE_POOL.borrowObject()) {
+            final int length = toBuffer(buffer, (E) obj);
+            return (T) fromBuffer(buffer.sliceTo(length));
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T deserialize(final byte[] objectData) {
+        return (T) fromBytes(objectData);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T deserialize(final InputStream in) {
+        try (ICloseableByteBuffer buffer = ByteBuffers.EXPANDABLE_POOL.borrowObject()) {
+            final int length = ByteBuffers.readExpandable(in, buffer, 0);
+            return (T) fromBuffer(buffer.sliceTo(length));
+        } catch (final Throwable t) {
+            throw new SerializationException(t);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public byte[] serialize(final Serializable obj) {
+        return toBytes((E) obj);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public int serialize(final OutputStream out, final Serializable obj) {
+        try (ICloseableByteBuffer buffer = ByteBuffers.EXPANDABLE_POOL.borrowObject()) {
+            final int length = toBuffer(buffer, (E) obj);
+            buffer.getBytesTo(0, out, length);
+            return length;
+        } catch (final Throwable t) {
+            throw new SerializationException(t);
         }
     }
 
