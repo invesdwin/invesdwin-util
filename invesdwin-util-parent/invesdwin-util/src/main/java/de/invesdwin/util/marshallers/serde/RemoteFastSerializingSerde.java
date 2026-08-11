@@ -173,13 +173,13 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E>, IDeepCloneProvi
 
     @Override
     public int toBuffer(final IByteBuffer buffer, final E obj) {
-        if (obj == null) {
-            return 0;
-        }
         return toBufferExpandable(buffer, obj);
     }
 
-    private int toBufferExpandable(final IByteBuffer buffer, final E obj) {
+    private int toBufferExpandable(final IByteBuffer buffer, final Object obj) {
+        if (obj == null) {
+            return 0;
+        }
         try {
             final byte[] byteArray = buffer.byteArray();
             if (byteArray != null) {
@@ -219,16 +219,9 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E>, IDeepCloneProvi
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T> T deepClone(final T obj) {
-        if (obj == null) {
-            return null;
-        }
-        try (ICloseableByteBuffer buffer = ByteBuffers.EXPANDABLE_POOL.borrowObject()) {
-            final int length = toBuffer(buffer, (E) obj);
-            return (T) fromBuffer(buffer.sliceTo(length));
-        }
+        return LocalFastSerializingSerde.get().deepClone(obj);
     }
 
     @Override
@@ -264,6 +257,15 @@ public class RemoteFastSerializingSerde<E> implements ISerde<E>, IDeepCloneProvi
         } catch (final Throwable t) {
             throw new SerializationException(t);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T deserialize(final IByteBuffer buffer) {
+        return (T) fromBuffer(buffer);
+    }
+
+    public <T> int serialize(final IByteBuffer buffer, final T obj) {
+        return toBufferExpandable(buffer, obj);
     }
 
 }
