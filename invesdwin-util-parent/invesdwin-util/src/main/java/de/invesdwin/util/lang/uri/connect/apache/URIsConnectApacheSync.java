@@ -239,12 +239,10 @@ public final class URIsConnectApacheSync implements IURIsConnect {
 
     @Override
     public boolean isServerResponding() {
-        try {
-            final Socket socket = new Socket();
+        try (Socket socket = new Socket()) {
             final int timeoutMillis = networkTimeout.intValue(FTimeUnit.MILLISECONDS);
             socket.setSoTimeout(timeoutMillis);
             socket.connect(Addresses.asAddress(uri.getHost(), uri.getPort()), timeoutMillis);
-            socket.close();
             return true;
         } catch (final Throwable e) {
             return false;

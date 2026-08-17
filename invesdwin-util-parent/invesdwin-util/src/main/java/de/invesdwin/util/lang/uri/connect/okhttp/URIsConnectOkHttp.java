@@ -226,12 +226,10 @@ public final class URIsConnectOkHttp implements IURIsConnect {
 
     @Override
     public boolean isServerResponding() {
-        try {
-            final Socket socket = new Socket();
+        try (Socket socket = new Socket()) {
             final int timeoutMillis = networkTimeout.intValue(FTimeUnit.MILLISECONDS);
             socket.setSoTimeout(timeoutMillis);
             socket.connect(Addresses.asAddress(url.getHost(), url.getPort()), timeoutMillis);
-            socket.close();
             return true;
         } catch (final Throwable e) {
             return false;
