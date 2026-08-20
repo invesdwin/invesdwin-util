@@ -39,12 +39,12 @@ public interface IInternalParserAccessor {
     int parseInto(DateTimeParserBucket bucket, CharSequence text, int position);
 
     static IInternalParserAccessor of(final DateTimeFormatter formatter) {
-        try {
-            return new DirectInternalParserAccessor(formatter);
-        } catch (final Throwable t) {
-            //must be a restricted environment, fallback to a slighly less efficient variant that has to use CharSequence.toString() to parseInto
-            return DateTimeParserInternalParserFallback.of(formatter.getParser());
-        }
+        //        try {
+        return new DirectInternalParserAccessor(formatter);
+        //        } catch (final Throwable t) {
+        //            //must be a restricted environment, fallback to a slighly less efficient variant that has to use CharSequence.toString() to parseInto
+        //            return DateTimeParserInternalParserFallback.of(formatter.getParser());
+        //        }
     }
 
 }

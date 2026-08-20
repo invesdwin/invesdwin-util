@@ -671,7 +671,13 @@ public final class FDateTimeFormatter extends java.text.Format {
 
         @Override
         public String toString() {
-            return delegate;
+            //fallback when DirectInternalParserAccessor is not available, e.g. when java module system is enabled
+            final int len = length();
+            final char[] result = new char[len];
+            for (int i = 0; i < len; i++) {
+                result[i] = charAt(i);
+            }
+            return new String(result);
         }
     }
 
