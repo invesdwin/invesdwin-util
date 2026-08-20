@@ -40,10 +40,10 @@ public interface IInternalParserAccessor {
 
     static IInternalParserAccessor of(final DateTimeFormatter formatter) {
         //        try {
-        return new DirectInternalParserAccessor(formatter);
+        //            return new DirectInternalParserAccessor(formatter);
         //        } catch (final Throwable t) {
-        //            //must be a restricted environment, fallback to a slighly less efficient variant that has to use CharSequence.toString() to parseInto
-        //            return DateTimeParserInternalParserFallback.of(formatter.getParser());
+        //must be a restricted environment, fallback to a slighly less efficient variant that has to use CharSequence.toString() to parseInto
+        return DateTimeParserInternalParserFallback.of(formatter.getParser());
         //        }
     }
 
