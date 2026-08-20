@@ -85,8 +85,8 @@ public final class FDateTimeFormatter extends java.text.Format {
         }
 
         this.jodaFormatter = DateTimeFormat.forPattern(jodaPattern.toString());
-        this.printer = IInternalPrinterAccessor.of(jodaFormatter);
-        this.parser = IInternalParserAccessor.of(jodaFormatter);
+        this.printer = FormatUtilsAccessor.newPrinter(jodaFormatter);
+        this.parser = FormatUtilsAccessor.newParser(jodaFormatter);
         this.timeZone = null;
         this.locale = null;
     }

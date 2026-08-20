@@ -60,13 +60,4 @@ public interface IInternalPrinterAccessor {
      */
     void printTo(Appendable appendable, ReadablePartial partial, Locale locale) throws IOException;
 
-    static IInternalPrinterAccessor of(final DateTimeFormatter formatter) {
-        try {
-            return new DirectInternalPrinterAccessor(formatter);
-        } catch (final Throwable t) {
-            //must be a restricted environment, fallback to a wrapper
-            return DateTimePrinterInternalPrinterFallback.of(formatter.getPrinter());
-        }
-    }
-
 }
