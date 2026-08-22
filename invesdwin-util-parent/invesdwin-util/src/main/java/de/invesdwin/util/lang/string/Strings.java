@@ -765,6 +765,14 @@ public final class Strings extends AStringsStaticFacade {
         }
     }
 
+    public static String blankToEmpty(final String str) {
+        if (isBlank(str)) {
+            return EMPTY;
+        } else {
+            return str;
+        }
+    }
+
     public static boolean startsWith(final CharSequence str, final CharSequence prefix, final int startIndex) {
         return Strings.indexOf(str, prefix, startIndex) >= 0;
     }
