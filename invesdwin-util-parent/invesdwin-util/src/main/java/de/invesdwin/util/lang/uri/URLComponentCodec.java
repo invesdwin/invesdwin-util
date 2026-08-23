@@ -1,13 +1,13 @@
 package de.invesdwin.util.lang.uri;
 
-import java.nio.charset.StandardCharsets;
-
 import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.EncoderException;
 import org.apache.commons.codec.StringDecoder;
 import org.apache.commons.codec.StringEncoder;
+
+import de.invesdwin.util.lang.string.Charsets;
 
 /**
  * https://stackoverflow.com/questions/607176/java-equivalent-to-javascripts-encodeuricomponent-that-produces-identical-outpu
@@ -87,7 +87,7 @@ public final class URLComponentCodec implements StringEncoder, StringDecoder {
                     }
                     c = str.charAt(i);
                 } while (c == '%');
-                builder.append(new String(bytes, 0, j, StandardCharsets.UTF_8));
+                builder.append(new String(bytes, 0, j, Charsets.DEFAULT));
             }
         }
 
@@ -100,7 +100,7 @@ public final class URLComponentCodec implements StringEncoder, StringDecoder {
             return null;
         }
 
-        final byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
+        final byte[] bytes = str.getBytes(Charsets.DEFAULT);
         final StringBuilder builder = new StringBuilder(bytes.length);
 
         for (final byte c : bytes) {

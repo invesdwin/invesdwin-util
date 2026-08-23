@@ -3,7 +3,6 @@ package de.invesdwin.util.streams.resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +15,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
+import de.invesdwin.util.lang.string.Charsets;
 import de.invesdwin.util.lang.string.Strings;
 
 @Immutable
@@ -64,7 +64,7 @@ public final class Resources {
 
     public static String readResourceToString(final Resource resource) throws IOException {
         try (InputStream is = resource.getInputStream()) {
-            return IOUtils.toString(is, StandardCharsets.UTF_8);
+            return IOUtils.toString(is, Charsets.DEFAULT);
         }
     }
 
