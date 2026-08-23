@@ -64,7 +64,7 @@ public final class Resources {
 
     public static String readResourceToString(final Resource resource) throws IOException {
         try (InputStream is = resource.getInputStream()) {
-            return IOUtils.toString(is, Charsets.DEFAULT);
+            return IOUtils.toString(is, Charsets.defaultCharset());
         }
     }
 

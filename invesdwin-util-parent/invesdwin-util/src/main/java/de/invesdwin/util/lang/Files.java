@@ -603,7 +603,7 @@ public final class Files extends AFilesStaticFacade {
             return false;
         }
         try {
-            final String firstFileStr = Files.readFileToString(redirectFile, Charsets.DEFAULT);
+            final String firstFileStr = Files.readFileToString(redirectFile, Charsets.defaultCharset());
             if (Strings.isBlank(firstFileStr)) {
                 return false;
             }

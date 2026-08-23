@@ -9,7 +9,7 @@ import it.unimi.dsi.fastutil.io.FastByteArrayInputStream;
 public class StringInputStream extends FastByteArrayInputStream {
 
     public StringInputStream(final String value) {
-        super(value.getBytes(Charsets.DEFAULT));
+        super(value.getBytes(Charsets.defaultCharset()));
     }
 
 }

@@ -87,7 +87,7 @@ public final class URLComponentCodec implements StringEncoder, StringDecoder {
                     }
                     c = str.charAt(i);
                 } while (c == '%');
-                builder.append(new String(bytes, 0, j, Charsets.DEFAULT));
+                builder.append(new String(bytes, 0, j, Charsets.defaultCharset()));
             }
         }
 
@@ -100,7 +100,7 @@ public final class URLComponentCodec implements StringEncoder, StringDecoder {
             return null;
         }
 
-        final byte[] bytes = str.getBytes(Charsets.DEFAULT);
+        final byte[] bytes = str.getBytes(Charsets.defaultCharset());
         final StringBuilder builder = new StringBuilder(bytes.length);
 
         for (final byte c : bytes) {
