@@ -42,7 +42,7 @@ public final class Executors {
     }
 
     public static WrappedThreadFactory newFastThreadLocalThreadFactory(final String name) {
-        return new WrappedThreadFactory(name, new DefaultThreadFactory(name));
+        return new WrappedThreadFactory(name, new DefaultThreadFactory(name, true));
     }
 
     /**

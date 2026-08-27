@@ -3,17 +3,15 @@ package de.invesdwin.util.streams.buffer.file;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.io.UncheckedIOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.agrona.IoUtil;
-
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.OperatingSystem;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 import de.invesdwin.util.streams.buffer.bytes.extend.UnsafeByteBuffer;
@@ -30,7 +28,7 @@ import net.openhft.chronicle.core.OSAccessor;
  *
  */
 @NotThreadSafe
-public class MemoryMappedFile implements IMemoryMappedFile {
+public final class MemoryMappedFile implements IMemoryMappedFile {
 
     private final boolean closeAllowed;
     private final MemoryMappedFileFinalizer finalizer;
@@ -47,7 +45,7 @@ public class MemoryMappedFile implements IMemoryMappedFile {
      * @throws Exception
      *             in case there was an error creating the memory mapped file
      */
-    public MemoryMappedFile(final boolean closeAllowed, final File file, final long offset, final long length,
+    private MemoryMappedFile(final boolean closeAllowed, final File file, final long offset, final long length,
             final boolean readOnly, final boolean deleteOnClose) throws IOException {
         if (length < 0) {
             throw new IllegalArgumentException("length must be non-negative: " + length);
@@ -70,11 +68,6 @@ public class MemoryMappedFile implements IMemoryMappedFile {
     @Override
     public File getFile() {
         return finalizer.file;
-    }
-
-    @Override
-    public java.nio.MappedByteBuffer getMappedByteBuffer() {
-        return finalizer.getMappedByteBuffer();
     }
 
     @Override
@@ -185,7 +178,6 @@ public class MemoryMappedFile implements IMemoryMappedFile {
     }
 
     private static final class MemoryMappedFileFinalizer extends AFinalizer {
-        private final boolean readOnly;
         private final File file;
         private final long offset;
         private final long length;
@@ -194,14 +186,11 @@ public class MemoryMappedFile implements IMemoryMappedFile {
         private final long address;
         private boolean deleteOnClose;
         private volatile boolean cleaned;
-        private java.nio.MappedByteBuffer mappedByteBuffer;
 
         private MemoryMappedFileFinalizer(final File file, final long offset, final long length, final boolean readOnly,
                 final boolean deleteOnClose) throws IOException {
-            this.readOnly = readOnly;
             this.file = file;
             this.offset = offset;
-            //use IMemoryMappedFile.roundTo4096 to round the length to a multiple of 4096 if not readOnly, otherwise use the length as is
             this.length = length;
             if (readOnly) {
                 this.raf = new RandomAccessFile(this.file, "r");
@@ -209,8 +198,9 @@ public class MemoryMappedFile implements IMemoryMappedFile {
                 this.address = OSAccessor.mapUnaligned(channel, MapMode.READ_ONLY, this.offset, this.length);
             } else {
                 this.raf = new RandomAccessFile(this.file, "rw");
-                if (raf.length() < this.length) {
-                    raf.setLength(this.length);
+                final long limit = this.offset + this.length;
+                if (raf.length() < limit) {
+                    raf.setLength(limit);
                 }
                 this.channel = raf.getChannel();
                 this.address = OSAccessor.mapUnaligned(channel, MapMode.READ_WRITE, this.offset, this.length);
@@ -218,37 +208,9 @@ public class MemoryMappedFile implements IMemoryMappedFile {
             this.deleteOnClose = deleteOnClose;
         }
 
-        public java.nio.MappedByteBuffer getMappedByteBuffer() {
-            if (mappedByteBuffer == null) {
-                synchronized (this) {
-                    if (mappedByteBuffer == null) {
-                        mappedByteBuffer = newMappedByteBuffer();
-                    }
-                }
-            }
-            return mappedByteBuffer;
-        }
-
-        private java.nio.MappedByteBuffer newMappedByteBuffer() {
-            try {
-                if (readOnly) {
-                    return channel.map(MapMode.READ_ONLY, this.offset, this.length);
-                } else {
-                    return channel.map(MapMode.READ_WRITE, this.offset, this.length);
-                }
-            } catch (final IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-
         @Override
         protected void clean() {
             cleaned = true;
-            final java.nio.MappedByteBuffer mappedByteBufferCopy = mappedByteBuffer;
-            if (mappedByteBufferCopy != null) {
-                IoUtil.unmap(mappedByteBufferCopy);
-                mappedByteBuffer = null;
-            }
             try {
                 OSAccessor.unmapUnaligned(address, this.length);
                 channel.close();
@@ -271,6 +233,15 @@ public class MemoryMappedFile implements IMemoryMappedFile {
             return false;
         }
 
+    }
+
+    public static IMemoryMappedFile map(final boolean closeAllowed, final File file, final long offset,
+            final long length, final boolean readOnly, final boolean deleteOnClose) throws IOException {
+        if (OperatingSystem.isWindows()) {
+            return new NioMemoryMappedFile(closeAllowed, file, offset, length, readOnly, deleteOnClose);
+        } else {
+            return new MemoryMappedFile(closeAllowed, file, offset, length, readOnly, deleteOnClose);
+        }
     }
 
 }

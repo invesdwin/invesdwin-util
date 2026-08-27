@@ -58,7 +58,7 @@ import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.file.IMemoryMappedFile;
-import de.invesdwin.util.streams.buffer.file.MemoryMappedFile;
+import de.invesdwin.util.streams.buffer.file.NioMemoryMappedFile;
 import de.invesdwin.util.streams.buffer.memory.MemoryBuffers;
 
 /**
@@ -96,17 +96,17 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
 
         private final File file;
         private final boolean deleteOnClose;
-        private MemoryMappedFile mappedFile;
+        private NioMemoryMappedFile mappedFile;
         private long address;
         private long capacity;
 
-        private MappedExpandableMemoryBufferFinalizer(final File file, final int initialCapacity,
+        private MappedExpandableMemoryBufferFinalizer(final File file, final long initialCapacity,
                 final boolean deleteOnClose) {
             this.file = file;
             this.deleteOnClose = deleteOnClose;
             try {
                 Files.forceMkdirParent(file);
-                mappedFile = new MemoryMappedFile(true, file, 0, IMemoryMappedFile.roundToBlockSize(initialCapacity),
+                mappedFile = new NioMemoryMappedFile(true, file, 0, IMemoryMappedFile.roundToBlockSize(initialCapacity),
                         false, deleteOnClose);
             } catch (final IOException e) {
                 throw new UncheckedIOException(e);
@@ -142,21 +142,21 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
         this(INITIAL_CAPACITY);
     }
 
-    public MappedExpandableMemoryBufferBase(final int initialCapacity) {
+    public MappedExpandableMemoryBufferBase(final long initialCapacity) {
         this(initialCapacity, MappedExpandableMemoryBufferBase.class.getSimpleName());
     }
 
-    public MappedExpandableMemoryBufferBase(final int initialCapacity, final String name) {
+    public MappedExpandableMemoryBufferBase(final long initialCapacity, final String name) {
         this(initialCapacity,
                 new File(new File(Files.getTempDirectory(), MappedExpandableMemoryBufferBase.class.getSimpleName()),
                         Files.normalizeFilename(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
     }
 
-    public MappedExpandableMemoryBufferBase(final int initialCapacity, final File file) {
+    public MappedExpandableMemoryBufferBase(final long initialCapacity, final File file) {
         this(initialCapacity, file, true);
     }
 
-    public MappedExpandableMemoryBufferBase(final int initialCapacity, final File file, final boolean deleteOnClose) {
+    public MappedExpandableMemoryBufferBase(final long initialCapacity, final File file, final boolean deleteOnClose) {
         this.finalizer = new MappedExpandableMemoryBufferFinalizer(file, initialCapacity, deleteOnClose);
         this.finalizer.register(this);
     }
@@ -248,7 +248,7 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    //////
+    ///
 
     public long getLong(final long index, final ByteOrder byteOrder) {
         boundsCheck0(index, SIZE_OF_LONG);
@@ -284,7 +284,7 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
         UnsafeApi.putLong(null, finalizer.address + index, value);
     }
 
-    //////
+    ///
 
     public int getInt(final long index, final ByteOrder byteOrder) {
         boundsCheck0(index, SIZE_OF_INT);
@@ -314,7 +314,7 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
         return UnsafeApi.getInt(null, finalizer.address + index);
     }
 
-    //////
+    ///
 
     public double getDouble(final long index, final ByteOrder byteOrder) {
         boundsCheck0(index, SIZE_OF_DOUBLE);
@@ -350,7 +350,7 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
         UnsafeApi.putDouble(null, finalizer.address + index, value);
     }
 
-    //////
+    ///
 
     public float getFloat(final long index, final ByteOrder byteOrder) {
         boundsCheck0(index, SIZE_OF_FLOAT);
@@ -386,7 +386,7 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
         UnsafeApi.putFloat(null, finalizer.address + index, value);
     }
 
-    //////
+    ///
 
     public short getShort(final long index, final ByteOrder byteOrder) {
         boundsCheck0(index, SIZE_OF_SHORT);
@@ -422,7 +422,7 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
         UnsafeApi.putShort(null, finalizer.address + index, value);
     }
 
-    //////
+    ///
 
     public byte getByte(final long index) {
         boundsCheck0(index, SIZE_OF_BYTE);
@@ -531,7 +531,7 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
                 finalizer.address + index, length);
     }
 
-    //////
+    ///
 
     public char getChar(final long index, final ByteOrder byteOrder) {
         boundsCheck0(index, SIZE_OF_SHORT);
@@ -567,7 +567,7 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
         UnsafeApi.putChar(null, finalizer.address + index, value);
     }
 
-    //////
+    ///
 
     public String getStringAscii(final long index) {
         boundsCheck0(index, DirectBuffer.STR_HEADER_LEN);
@@ -817,7 +817,7 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
         return len;
     }
 
-    //////
+    ///
 
     public String getStringUtf8(final long index) {
         boundsCheck0(index, DirectBuffer.STR_HEADER_LEN);
@@ -912,7 +912,7 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
         return bytes.length;
     }
 
-    //////
+    ///
 
     public int parseNaturalIntAscii(final long index, final int length) {
         boundsCheck0(index, length);
@@ -1147,7 +1147,7 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
         return 0;
     }
 
-    //////
+    ///
 
     @Override
     public boolean equals(final Object obj) {
@@ -1222,7 +1222,7 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
             finalizer.mappedFile.setDeleteOnClose(false);
             finalizer.mappedFile.close();
             try {
-                finalizer.mappedFile = new MemoryMappedFile(true, finalizer.file, 0,
+                finalizer.mappedFile = new NioMemoryMappedFile(true, finalizer.file, 0,
                         IMemoryMappedFile.roundToBlockSize(newCapacity), false, finalizer.deleteOnClose);
             } catch (final IOException e) {
                 throw new RuntimeException(e);

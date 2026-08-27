@@ -12,7 +12,8 @@ import de.invesdwin.util.lang.string.description.TextDescription;
 @NotThreadSafe
 public abstract class ADebugCloseableIteratorImpl<E> implements ICloseableIteratorImpl<E> {
 
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ADebugCloseableIteratorImpl.class);
+    private static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager
+            .getLogger(ADebugCloseableIteratorImpl.class);
 
     private final DebugCloseableIteratorFinalizer finalizer;
 

@@ -1,5 +1,11 @@
 package de.invesdwin.util.lang;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,9 +29,10 @@ import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.lang.internal.AObjectsStaticFacade;
 import de.invesdwin.util.lang.string.Strings;
-import de.invesdwin.util.marshallers.serde.LocalFastSerializingSerde;
+import de.invesdwin.util.marshallers.serde.RemoteFastSerializingSerde;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
+import de.invesdwin.util.streams.pool.buffered.PooledFastBufferedOutputStream;
 
 @Immutable
 @StaticFacadeDefinition(name = "de.invesdwin.util.lang.internal.AObjectsStaticFacade", targets = {
@@ -547,11 +554,27 @@ public final class Objects extends AObjectsStaticFacade {
     }
 
     public static <T extends Serializable> T deserialize(final IByteBuffer buffer) {
-        return LocalFastSerializingSerde.<T> get().fromBuffer(buffer);
+        return RemoteFastSerializingSerde.<T> get().fromBuffer(buffer);
     }
 
     public static <T extends Serializable> int serialize(final IByteBuffer buffer, final T obj) {
-        return LocalFastSerializingSerde.<T> get().toBuffer(buffer, obj);
+        return RemoteFastSerializingSerde.<T> get().toBuffer(buffer, obj);
+    }
+
+    public static <T extends Serializable> T deserialize(final File file) {
+        try (InputStream in = new FileInputStream(file)) {
+            return Objects.deserialize(in);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T extends Serializable> int serialize(final File file, final T obj) {
+        try (OutputStream out = PooledFastBufferedOutputStream.newInstance(new FileOutputStream(file))) {
+            return Objects.serialize(out, obj);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static String defaultToString(final Object o) {

@@ -62,7 +62,8 @@ public final class MemoryLimit {
             .newReentrantLock(MemoryLimit.class.getSimpleName() + "clearCacheSweepLock");
     private static volatile boolean prevMemoryLimitReached = false;
     private static volatile double prevFreeMemoryRate = getFreeMemoryRate();
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(MemoryLimit.class);
+    private static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager
+            .getLogger(MemoryLimit.class);
     private static final ConcurrentMap<Integer, AMemoryLimitClearable<?>> IDENTITY_CLEARABLE;
     private static long lastClearCacheSweepNanos = FDateNanos.elapsedNanos();
 

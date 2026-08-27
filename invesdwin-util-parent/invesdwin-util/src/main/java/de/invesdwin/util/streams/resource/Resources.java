@@ -1,25 +1,31 @@
 package de.invesdwin.util.streams.resource;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
+import de.invesdwin.util.lang.string.Charsets;
 import de.invesdwin.util.lang.string.Strings;
 
 @Immutable
 public final class Resources {
 
+    public static final ResourceLoader LOADER = new DefaultResourceLoader();
+
     public static final Resource[] EMPTY_ARRAY = new Resource[0];
 
-    private Resources() {
-    }
+    private Resources() {}
 
     public static List<String> extractMetaInfResourceLocations(final Iterable<? extends Resource> resources) {
         final List<String> locationStrings = new ArrayList<String>();
@@ -54,6 +60,12 @@ public final class Resources {
             }
         }
 
+    }
+
+    public static String readResourceToString(final Resource resource) throws IOException {
+        try (InputStream is = resource.getInputStream()) {
+            return IOUtils.toString(is, Charsets.defaultCharset());
+        }
     }
 
 }

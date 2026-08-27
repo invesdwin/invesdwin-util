@@ -1,17 +1,14 @@
 package de.invesdwin.util.lang.comparator;
 
-import java.util.Comparator;
 import java.util.List;
 
-import de.invesdwin.norva.marker.ISerializableValueObject;
-
-public interface IComparator<E> extends Comparator<Object>, ISerializableValueObject {
+public interface IComparator<E> extends ISerializableComparator<Object> {
 
     boolean isAscending();
 
     boolean isNullSafe();
 
-    default Comparator<E> asTyped() {
+    default ISerializableComparator<E> asTyped() {
         return this::compareTyped;
     }
 

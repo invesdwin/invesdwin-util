@@ -49,7 +49,8 @@ public final class Dialogs extends javax.swing.JOptionPane {
 
     private static AComponentVisitor dialogVisitor;
 
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(Dialogs.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(Dialogs.class);
 
     private Dialogs() {}
 

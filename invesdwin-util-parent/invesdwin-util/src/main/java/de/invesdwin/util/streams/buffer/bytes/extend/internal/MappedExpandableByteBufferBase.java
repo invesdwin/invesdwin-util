@@ -58,7 +58,7 @@ import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.Longs;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.file.IMemoryMappedFile;
-import de.invesdwin.util.streams.buffer.file.MemoryMappedFile;
+import de.invesdwin.util.streams.buffer.file.NioMemoryMappedFile;
 
 /**
  * Extracted from org.agrona.ExpandableDirectByteBuffer
@@ -87,7 +87,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
 
         private final File file;
         private final boolean deleteOnClose;
-        private MemoryMappedFile mappedFile;
+        private NioMemoryMappedFile mappedFile;
         private long address;
         private int capacity;
 
@@ -97,7 +97,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
             this.deleteOnClose = deleteOnClose;
             try {
                 Files.forceMkdirParent(file);
-                mappedFile = new MemoryMappedFile(true, file, 0, IMemoryMappedFile.roundToBlockSize(initialCapacity),
+                mappedFile = new NioMemoryMappedFile(true, file, 0, IMemoryMappedFile.roundToBlockSize(initialCapacity),
                         false, deleteOnClose);
             } catch (final IOException e) {
                 throw new UncheckedIOException(e);
@@ -295,7 +295,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    ////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -347,7 +347,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         UnsafeApi.putLong(null, finalizer.address + index, value);
     }
 
-    ////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -389,7 +389,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return UnsafeApi.getInt(null, finalizer.address + index);
     }
 
-    ////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -441,7 +441,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         UnsafeApi.putDouble(null, finalizer.address + index, value);
     }
 
-    ////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -493,7 +493,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         UnsafeApi.putFloat(null, finalizer.address + index, value);
     }
 
-    ////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -545,7 +545,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         UnsafeApi.putShort(null, finalizer.address + index, value);
     }
 
-    ////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -691,7 +691,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
                 finalizer.address + index, length);
     }
 
-    ////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -743,7 +743,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         UnsafeApi.putChar(null, finalizer.address + index, value);
     }
 
-    ////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1055,7 +1055,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return len;
     }
 
-    ////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1184,7 +1184,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return bytes.length;
     }
 
-    ////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1471,7 +1471,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
         return 0;
     }
 
-    ////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1559,7 +1559,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
             finalizer.mappedFile.setDeleteOnClose(false);
             finalizer.mappedFile.close();
             try {
-                finalizer.mappedFile = new MemoryMappedFile(true, finalizer.file, 0,
+                finalizer.mappedFile = new NioMemoryMappedFile(true, finalizer.file, 0,
                         IMemoryMappedFile.roundToBlockSize(newCapacity), false, finalizer.deleteOnClose);
             } catch (final IOException e) {
                 throw new RuntimeException(e);

@@ -15,7 +15,8 @@ import de.invesdwin.util.lang.string.description.TextDescription;
 @NotThreadSafe
 public abstract class ADelegateOutputStream extends OutputStream {
 
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ACloseableIterator.class);
+    private static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager
+            .getLogger(ACloseableIterator.class);
 
     private final DelegateOutputStreamFinalizer finalizer;
 

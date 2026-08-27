@@ -31,12 +31,12 @@ public class HeapDoubleLargeArray implements IDoubleLargeArray {
 
     @Override
     public void set(final long index, final double value) {
-        values[ByteBuffers.checkedCast(index)] = value;
+        values[ByteBuffers.checkedCastNoOverflow(index)] = value;
     }
 
     @Override
     public double get(final long index) {
-        return values[ByteBuffers.checkedCast(index)];
+        return values[ByteBuffers.checkedCastNoOverflow(index)];
     }
 
     @Override
@@ -54,6 +54,7 @@ public class HeapDoubleLargeArray implements IDoubleLargeArray {
         return new SliceDelegateDoubleLargeArray(this, fromIndex, length);
     }
 
+    @Override
     public double[] asArray() {
         return values;
     }
@@ -68,6 +69,7 @@ public class HeapDoubleLargeArray implements IDoubleLargeArray {
         }
     }
 
+    @Override
     public double[] asArrayCopy() {
         return values.clone();
     }

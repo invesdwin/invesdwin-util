@@ -12,8 +12,8 @@ import de.invesdwin.util.math.decimal.scaled.PercentScale;
 public class AZScoreComparatorTest {
     //CHECKSTYLE:ON
 
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
-            .getXLogger(AZScoreComparatorTest.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(AZScoreComparatorTest.class);
 
     @Test
     public void testNewZScore() {

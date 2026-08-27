@@ -401,7 +401,7 @@ public final class Bytes extends ABytesStaticFacade {
         if (charSequence == null) {
             return new byte[0];
         }
-        final CharsetEncoder encoder = Charsets.DEFAULT.newEncoder();
+        final CharsetEncoder encoder = Charsets.defaultCharset().newEncoder();
         final int length = charSequence.length();
         final int arraySize = scale(length, encoder.maxBytesPerChar());
         final byte[] result = new byte[arraySize];

@@ -8,10 +8,10 @@ import de.invesdwin.util.concurrent.loop.ILoopInterruptedCheck;
 @NotThreadSafe
 public class CountingLoopInterruptedCheck implements ILoopInterruptedCheck {
 
-    private final int flushInterval;
-    private int count = 0;
+    private final long flushInterval;
+    private long count = 0;
 
-    public CountingLoopInterruptedCheck(final int flushInterval) {
+    public CountingLoopInterruptedCheck(final long flushInterval) {
         this.flushInterval = flushInterval;
     }
 

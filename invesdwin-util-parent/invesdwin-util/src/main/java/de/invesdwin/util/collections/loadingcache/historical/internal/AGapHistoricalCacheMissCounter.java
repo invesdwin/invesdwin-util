@@ -18,8 +18,8 @@ public abstract class AGapHistoricalCacheMissCounter<V> {
     private static final int MAX_SAMPLES_FOR_AVG_ELEMENTS_DISTANCE = 100_000;
     private static final int OPTIMAL_MULTIPLICATOR = 2;
     private static final int MAX_SUCCESSIVE_CACHE_EVICTIONS = 2;
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
-            .getXLogger(AGapHistoricalCacheMissCounter.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(AGapHistoricalCacheMissCounter.class);
 
     private int successiveCacheEvictions = 0;
     private FDate successiveCacheEvictionsToMinKey = FDates.MAX_DATE;

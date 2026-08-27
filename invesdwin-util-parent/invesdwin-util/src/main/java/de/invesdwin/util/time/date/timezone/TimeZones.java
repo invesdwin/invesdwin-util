@@ -32,7 +32,8 @@ public final class TimeZones {
         UTC = TimeZone.getTimeZone("UTC");
         //CHECKSTYLE:ON
         EET = getTimeZone("EET");
-        EST = getTimeZone("EST");
+        //"EST" is deprecated in newer java versions, but "Etc/GMT+5"/"UTC-5" is equivalent
+        EST = getTimeZone("Etc/GMT+5");
         CET = getTimeZone("CET");
         EUROPE_BERLIN = getTimeZone("Europe/Berlin");
         AMERICA_NEWYORK = getTimeZone("America/New_York");

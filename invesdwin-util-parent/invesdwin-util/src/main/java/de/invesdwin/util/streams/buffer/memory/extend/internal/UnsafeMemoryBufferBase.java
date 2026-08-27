@@ -386,7 +386,7 @@ public class UnsafeMemoryBufferBase {
         }
     }
 
-    ////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////
 
     public long getLong(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -491,7 +491,7 @@ public class UnsafeMemoryBufferBase {
         return UnsafeApi.getAndAddLong(byteArray, addressOffset + index, delta);
     }
 
-    ////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////
 
     public int getInt(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -596,7 +596,7 @@ public class UnsafeMemoryBufferBase {
         return UnsafeApi.getAndAddInt(byteArray, addressOffset + index, delta);
     }
 
-    ////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////
 
     public double getDouble(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -640,7 +640,7 @@ public class UnsafeMemoryBufferBase {
         UnsafeApi.putDouble(byteArray, addressOffset + index, value);
     }
 
-    ////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////
 
     public float getFloat(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -684,7 +684,7 @@ public class UnsafeMemoryBufferBase {
         UnsafeApi.putFloat(byteArray, addressOffset + index, value);
     }
 
-    ////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////
 
     public short getShort(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -744,7 +744,7 @@ public class UnsafeMemoryBufferBase {
         UnsafeApi.putShortVolatile(byteArray, addressOffset + index, value);
     }
 
-    ////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////
 
     public byte getByte(final long index) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -887,7 +887,7 @@ public class UnsafeMemoryBufferBase {
                 addressOffset + index, length);
     }
 
-    ////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////
 
     public char getChar(final long index, final ByteOrder byteOrder) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -947,7 +947,7 @@ public class UnsafeMemoryBufferBase {
         UnsafeApi.putCharVolatile(byteArray, addressOffset + index, value);
     }
 
-    ////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////
 
     public String getStringAscii(final long index) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -1225,7 +1225,7 @@ public class UnsafeMemoryBufferBase {
         return len;
     }
 
-    ////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////
 
     public String getStringUtf8(final long index) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -1334,7 +1334,7 @@ public class UnsafeMemoryBufferBase {
         return bytes.length;
     }
 
-    ////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////
 
     public int parseNaturalIntAscii(final long index, final int length) {
         if (SHOULD_BOUNDS_CHECK) {
@@ -1578,12 +1578,16 @@ public class UnsafeMemoryBufferBase {
     }
 
     public long wrapAdjustment() {
-        final long offset = byteArray != null ? ARRAY_BASE_OFFSET : BufferUtil.address(byteBuffer);
-
-        return addressOffset - offset;
+        if (byteArray != null) {
+            return addressOffset - ARRAY_BASE_OFFSET;
+        } else if (byteBuffer != null) {
+            return addressOffset - BufferUtil.address(byteBuffer);
+        } else {
+            return addressOffset;
+        }
     }
 
-    ////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}

@@ -18,38 +18,131 @@ public class FormattedDelegateLog extends AModifiedDelegateLog {
     }
 
     @Override
-    protected String modify(final LogLevel level, final String msg, final Throwable t) {
-        return msg;
+    protected String modify(final LogLevel level, final String format, final Object p0) {
+        return format(format, p0);
     }
 
     @Override
-    protected String modify(final LogLevel level, final String format, final Object arg) {
-        return format(format, arg);
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1) {
+        return format(format, p0, p1);
     }
 
     @Override
-    protected String modify(final LogLevel level, final String format, final Object arg1, final Object arg2) {
-        return format(format, arg1, arg2);
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2) {
+        return format(format, p0, p1, p2);
     }
 
     @Override
-    protected String modify(final LogLevel level, final String format, final Object... arguments) {
-        return format(format, arguments);
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3) {
+        return format(format, p0, p1, p2, p3);
     }
 
-    public static String format(final String messagePattern, final Object arg) {
-        return de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter.format(messagePattern,
-                new Object[] { arg });
+    @Override
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4) {
+        return format(format, p0, p1, p2, p3, p4);
     }
 
-    public static String format(final String messagePattern, final Object arg1, final Object arg2) {
-        return de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter.format(messagePattern,
-                new Object[] { arg1, arg2 });
+    @Override
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5) {
+        return format(format, p0, p1, p2, p3, p4, p5);
     }
 
-    public static String format(final String messagePattern, final Object[] argArray) {
+    @Override
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5, final Object p6) {
+        return format(format, p0, p1, p2, p3, p4, p5, p6);
+    }
+
+    @Override
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {
+        return format(format, p0, p1, p2, p3, p4, p5, p6, p7);
+    }
+
+    @Override
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5, final Object p6, final Object p7,
+            final Object p8) {
+        return format(format, p0, p1, p2, p3, p4, p5, p6, p7, p8);
+    }
+
+    @Override
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5, final Object p6, final Object p7,
+            final Object p8, final Object p9) {
+        return format(format, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+    }
+
+    @Override
+    protected String modify(final LogLevel level, final String format, final Object... params) {
+        return format(format, params);
+    }
+
+    public static String format(final String messagePattern, final Object p0) {
         return de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter.format(messagePattern,
-                argArray);
+                new Object[] { p0 });
+    }
+
+    public static String format(final String messagePattern, final Object p0, final Object p1) {
+        return de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter.format(messagePattern,
+                new Object[] { p0, p1 });
+    }
+
+    public static String format(final String messagePattern, final Object p0, final Object p1, final Object p2) {
+        return de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter.format(messagePattern,
+                new Object[] { p0, p1, p2 });
+    }
+
+    public static String format(final String messagePattern, final Object p0, final Object p1, final Object p2,
+            final Object p3) {
+        return de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter.format(messagePattern,
+                new Object[] { p0, p1, p2, p3 });
+    }
+
+    public static String format(final String messagePattern, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4) {
+        return de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter.format(messagePattern,
+                new Object[] { p0, p1, p2, p3, p4 });
+    }
+
+    public static String format(final String messagePattern, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5) {
+        return de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter.format(messagePattern,
+                new Object[] { p0, p1, p2, p3, p4, p5 });
+    }
+
+    public static String format(final String messagePattern, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6) {
+        return de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter.format(messagePattern,
+                new Object[] { p0, p1, p2, p3, p4, p5, p6 });
+    }
+
+    public static String format(final String messagePattern, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {
+        return de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter.format(messagePattern,
+                new Object[] { p0, p1, p2, p3, p4, p5, p6, p7 });
+    }
+
+    public static String format(final String messagePattern, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {
+        return de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter.format(messagePattern,
+                new Object[] { p0, p1, p2, p3, p4, p5, p6, p7, p8 });
+    }
+
+    public static String format(final String messagePattern, final Object p0, final Object p1, final Object p2,
+            final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8,
+            final Object p9) {
+        return de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter.format(messagePattern,
+                new Object[] { p0, p1, p2, p3, p4, p5, p6, p7, p8, p9 });
+    }
+
+    public static String format(final String messagePattern, final Object[] params) {
+        return de.invesdwin.util.lang.string.description.internal.TextDescriptionFormatter.format(messagePattern,
+                params);
     }
 
 }

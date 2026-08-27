@@ -36,7 +36,8 @@ import de.invesdwin.util.time.duration.Duration;
 @Immutable
 public final class Locks extends ALocksStaticFacade {
 
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(Locks.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(Locks.class);
 
     private static final UniqueNameGenerator UNIQUE_NAME_GENERATOR = new UniqueNameGenerator() {
         @Override

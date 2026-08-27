@@ -94,6 +94,10 @@ public interface ILockCollectionFactory {
 
     <T> NavigableSet<T> newTreeSet(IComparator<? super T> comparator);
 
+    <T> IFastIterableSet<T> newFastIterableTreeSet();
+
+    <T> IFastIterableSet<T> newFastIterableTreeSet(IComparator<? super T> comparator);
+
     default <T> IFastIterableSet<T> newFastIterableSet() {
         return newFastIterableSet(DEFAULT_INITIAL_SIZE);
     }

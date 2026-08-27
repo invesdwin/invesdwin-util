@@ -21,23 +21,68 @@ public class PrefixedDelegateLog extends AModifiedDelegateLog {
     }
 
     @Override
-    protected String modify(final LogLevel level, final String format, final Object arg) {
+    protected String modify(final LogLevel level, final String format, final Object p0) {
         return prefix(format);
     }
 
     @Override
-    protected String modify(final LogLevel level, final String format, final Object arg1, final Object arg2) {
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1) {
         return prefix(format);
     }
 
     @Override
-    protected String modify(final LogLevel level, final String format, final Object... arguments) {
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2) {
         return prefix(format);
     }
 
     @Override
-    protected String modify(final LogLevel level, final String msg, final Throwable t) {
-        return prefix(msg);
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3) {
+        return prefix(format);
+    }
+
+    @Override
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4) {
+        return prefix(format);
+    }
+
+    @Override
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5) {
+        return prefix(format);
+    }
+
+    @Override
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5, final Object p6) {
+        return prefix(format);
+    }
+
+    @Override
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {
+        return prefix(format);
+    }
+
+    @Override
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5, final Object p6, final Object p7,
+            final Object p8) {
+        return prefix(format);
+    }
+
+    @Override
+    protected String modify(final LogLevel level, final String format, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5, final Object p6, final Object p7,
+            final Object p8, final Object p9) {
+        return prefix(format);
+    }
+
+    @Override
+    protected String modify(final LogLevel level, final String format, final Object... params) {
+        return prefix(format);
     }
 
     private String prefix(final String msg) {

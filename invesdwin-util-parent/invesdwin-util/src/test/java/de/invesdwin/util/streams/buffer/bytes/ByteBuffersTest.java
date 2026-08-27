@@ -139,6 +139,7 @@ public class ByteBuffersTest {
         testBufferOrdered(ByteBuffers.allocateDirectExpandable(BUFFER_SIZE));
         testBufferOrdered(ByteBuffers.allocateExpandable());
         testBufferOrdered(ByteBuffers.allocateDirectExpandable());
+        testBufferOrdered(ByteBuffers.allocateMappedExpandable());
     }
 
     @Test

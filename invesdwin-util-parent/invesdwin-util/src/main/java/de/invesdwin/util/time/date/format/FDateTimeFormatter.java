@@ -26,8 +26,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeParserBucket;
 import org.joda.time.format.FormatUtilsAccessor;
-import org.joda.time.format.InternalParserAccessor;
-import org.joda.time.format.InternalPrinterAccessor;
+import org.joda.time.format.IInternalParserAccessor;
+import org.joda.time.format.IInternalPrinterAccessor;
 
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.error.UnknownArgumentException;
@@ -54,8 +54,8 @@ public final class FDateTimeFormatter extends java.text.Format {
 
     private final String pattern;
     private final DateTimeFormatter jodaFormatter;
-    private final InternalPrinterAccessor printer;
-    private final InternalParserAccessor parser;
+    private final IInternalPrinterAccessor printer;
+    private final IInternalParserAccessor parser;
     private final ParseToken[] parseTokens;
     private final ParseToken[] parseTokensByIndex;
     private final boolean hasCustomFractions;
@@ -85,8 +85,8 @@ public final class FDateTimeFormatter extends java.text.Format {
         }
 
         this.jodaFormatter = DateTimeFormat.forPattern(jodaPattern.toString());
-        this.printer = new InternalPrinterAccessor(jodaFormatter);
-        this.parser = new InternalParserAccessor(jodaFormatter);
+        this.printer = FormatUtilsAccessor.newPrinter(jodaFormatter);
+        this.parser = FormatUtilsAccessor.newParser(jodaFormatter);
         this.timeZone = null;
         this.locale = null;
     }
@@ -671,7 +671,13 @@ public final class FDateTimeFormatter extends java.text.Format {
 
         @Override
         public String toString() {
-            return delegate;
+            //fallback when DirectInternalParserAccessor is not available, e.g. when java module system is enabled
+            final int len = length();
+            final char[] result = new char[len];
+            for (int i = 0; i < len; i++) {
+                result[i] = charAt(i);
+            }
+            return new String(result);
         }
     }
 
@@ -884,6 +890,18 @@ public final class FDateTimeFormatter extends java.text.Format {
             return (T) date.javaDateValue();
         }
         throw UnknownArgumentException.newInstance(Class.class, type);
+    }
+
+    //CHECKSTYLE:OFF
+    public FDateTimeFormatter withTimeZoneId(final String timeZoneId) {
+        //CHECKSTYLE:OF
+        if (timeZoneId == null) {
+            return withTimeZone(null);
+        } else if (timeZone != null && Objects.equals(this.timeZone.getId(), timeZoneId)) {
+            return this;
+        } else {
+            return withTimeZone(FTimeZone.valueOf(timeZoneId));
+        }
     }
 
     //CHECKSTYLE:OFF

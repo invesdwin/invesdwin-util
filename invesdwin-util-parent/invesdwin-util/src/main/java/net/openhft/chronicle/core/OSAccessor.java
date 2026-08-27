@@ -15,7 +15,8 @@ import de.invesdwin.util.math.Longs;
 public final class OSAccessor {
 
     private static final long MAX_MAP_SIZE = 4L << 30;
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(OSAccessor.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(OSAccessor.class);
     private static final AtomicLong MEMORY_MAPPED;
     private static final MethodHandle UNMAPP0_MH;
 

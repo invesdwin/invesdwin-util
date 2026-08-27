@@ -21,7 +21,9 @@ import de.invesdwin.util.log.ILog;
                 "com.google.common.collect.Iterables#unmodifiableIterable(java.lang.Iterable)",
                 "com.google.common.collect.Iterables#contains(java.lang.Iterable, java.lang.Object)",
                 "com.google.common.collect.Iterables#toString(java.lang.Iterable)",
-                "com.google.common.collect.Iterables#get(java.lang.Iterable, int)" })
+                "com.google.common.collect.Iterables#get(java.lang.Iterable, int)",
+                "com.google.common.collect.Iterables#contains(java.lang.Iterable, java.lang.@org.jspecify.annotations.NullableObject)",
+                "com.google.common.collect.Iterables#frequency(java.lang.Iterable, java.lang.@org.jspecify.annotations.NullableObject)" })
 public final class Iterables extends AIterablesStaticFacade {
 
     private Iterables() {}

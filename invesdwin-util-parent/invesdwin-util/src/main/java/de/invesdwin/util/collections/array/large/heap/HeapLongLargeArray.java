@@ -31,12 +31,12 @@ public class HeapLongLargeArray implements ILongLargeArray {
 
     @Override
     public void set(final long index, final long value) {
-        values[ByteBuffers.checkedCast(index)] = value;
+        values[ByteBuffers.checkedCastNoOverflow(index)] = value;
     }
 
     @Override
     public long get(final long index) {
-        return values[ByteBuffers.checkedCast(index)];
+        return values[ByteBuffers.checkedCastNoOverflow(index)];
     }
 
     @Override

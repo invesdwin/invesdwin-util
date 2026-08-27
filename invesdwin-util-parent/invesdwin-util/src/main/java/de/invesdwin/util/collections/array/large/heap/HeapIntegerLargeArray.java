@@ -31,12 +31,12 @@ public class HeapIntegerLargeArray implements IIntegerLargeArray {
 
     @Override
     public void set(final long index, final int value) {
-        values[ByteBuffers.checkedCast(index)] = value;
+        values[ByteBuffers.checkedCastNoOverflow(index)] = value;
     }
 
     @Override
     public int get(final long index) {
-        return values[ByteBuffers.checkedCast(index)];
+        return values[ByteBuffers.checkedCastNoOverflow(index)];
     }
 
     @Override
@@ -54,6 +54,7 @@ public class HeapIntegerLargeArray implements IIntegerLargeArray {
         return new SliceDelegateIntegerLargeArray(this, fromIndex, length);
     }
 
+    @Override
     public int[] asArray() {
         return values;
     }
@@ -68,6 +69,7 @@ public class HeapIntegerLargeArray implements IIntegerLargeArray {
         }
     }
 
+    @Override
     public int[] asArrayCopy() {
         return values.clone();
     }

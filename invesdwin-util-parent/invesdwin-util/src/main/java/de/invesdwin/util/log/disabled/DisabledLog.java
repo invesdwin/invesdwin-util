@@ -2,9 +2,8 @@ package de.invesdwin.util.log.disabled;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.slf4j.Marker;
-
 import de.invesdwin.util.log.ILog;
+import de.invesdwin.util.log.LogLevel;
 
 @Immutable
 public final class DisabledLog implements ILog {
@@ -27,36 +26,43 @@ public final class DisabledLog implements ILog {
     public void trace(final String msg) {}
 
     @Override
-    public void trace(final String format, final Object arg) {}
+    public void trace(final String format, final Object p0) {}
 
     @Override
-    public void trace(final String format, final Object arg1, final Object arg2) {}
+    public void trace(final String format, final Object p0, final Object p1) {}
 
     @Override
-    public void trace(final String format, final Object... arguments) {}
+    public void trace(final String format, final Object p0, final Object p1, final Object p2) {}
 
     @Override
-    public void trace(final String msg, final Throwable t) {}
+    public void trace(final String format, final Object p0, final Object p1, final Object p2, final Object p3) {}
 
     @Override
-    public boolean isTraceEnabled(final Marker marker) {
-        return false;
-    }
+    public void trace(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4) {}
 
     @Override
-    public void trace(final Marker marker, final String msg) {}
+    public void trace(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5) {}
 
     @Override
-    public void trace(final Marker marker, final String format, final Object arg) {}
+    public void trace(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6) {}
 
     @Override
-    public void trace(final Marker marker, final String format, final Object arg1, final Object arg2) {}
+    public void trace(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7) {}
 
     @Override
-    public void trace(final Marker marker, final String format, final Object... argArray) {}
+    public void trace(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
 
     @Override
-    public void trace(final Marker marker, final String msg, final Throwable t) {}
+    public void trace(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {}
+
+    @Override
+    public void trace(final String format, final Object... params) {}
 
     @Override
     public boolean isDebugEnabled() {
@@ -67,36 +73,43 @@ public final class DisabledLog implements ILog {
     public void debug(final String msg) {}
 
     @Override
-    public void debug(final String format, final Object arg) {}
+    public void debug(final String format, final Object p0) {}
 
     @Override
-    public void debug(final String format, final Object arg1, final Object arg2) {}
+    public void debug(final String format, final Object p0, final Object p1) {}
 
     @Override
-    public void debug(final String format, final Object... arguments) {}
+    public void debug(final String format, final Object p0, final Object p1, final Object p2) {}
 
     @Override
-    public void debug(final String msg, final Throwable t) {}
+    public void debug(final String format, final Object p0, final Object p1, final Object p2, final Object p3) {}
 
     @Override
-    public boolean isDebugEnabled(final Marker marker) {
-        return false;
-    }
+    public void debug(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4) {}
 
     @Override
-    public void debug(final Marker marker, final String msg) {}
+    public void debug(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5) {}
 
     @Override
-    public void debug(final Marker marker, final String format, final Object arg) {}
+    public void debug(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6) {}
 
     @Override
-    public void debug(final Marker marker, final String format, final Object arg1, final Object arg2) {}
+    public void debug(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7) {}
 
     @Override
-    public void debug(final Marker marker, final String format, final Object... arguments) {}
+    public void debug(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
 
     @Override
-    public void debug(final Marker marker, final String msg, final Throwable t) {}
+    public void debug(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {}
+
+    @Override
+    public void debug(final String format, final Object... params) {}
 
     @Override
     public boolean isInfoEnabled() {
@@ -107,36 +120,43 @@ public final class DisabledLog implements ILog {
     public void info(final String msg) {}
 
     @Override
-    public void info(final String format, final Object arg) {}
+    public void info(final String format, final Object p0) {}
 
     @Override
-    public void info(final String format, final Object arg1, final Object arg2) {}
+    public void info(final String format, final Object p0, final Object p1) {}
 
     @Override
-    public void info(final String format, final Object... arguments) {}
+    public void info(final String format, final Object p0, final Object p1, final Object p2) {}
 
     @Override
-    public void info(final String msg, final Throwable t) {}
+    public void info(final String format, final Object p0, final Object p1, final Object p2, final Object p3) {}
 
     @Override
-    public boolean isInfoEnabled(final Marker marker) {
-        return false;
-    }
+    public void info(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4) {}
 
     @Override
-    public void info(final Marker marker, final String msg) {}
+    public void info(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5) {}
 
     @Override
-    public void info(final Marker marker, final String format, final Object arg) {}
+    public void info(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6) {}
 
     @Override
-    public void info(final Marker marker, final String format, final Object arg1, final Object arg2) {}
+    public void info(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7) {}
 
     @Override
-    public void info(final Marker marker, final String format, final Object... arguments) {}
+    public void info(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
 
     @Override
-    public void info(final Marker marker, final String msg, final Throwable t) {}
+    public void info(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {}
+
+    @Override
+    public void info(final String format, final Object... params) {}
 
     @Override
     public boolean isWarnEnabled() {
@@ -147,36 +167,43 @@ public final class DisabledLog implements ILog {
     public void warn(final String msg) {}
 
     @Override
-    public void warn(final String format, final Object arg) {}
+    public void warn(final String format, final Object p0) {}
 
     @Override
-    public void warn(final String format, final Object... arguments) {}
+    public void warn(final String format, final Object p0, final Object p1) {}
 
     @Override
-    public void warn(final String format, final Object arg1, final Object arg2) {}
+    public void warn(final String format, final Object p0, final Object p1, final Object p2) {}
 
     @Override
-    public void warn(final String msg, final Throwable t) {}
+    public void warn(final String format, final Object p0, final Object p1, final Object p2, final Object p3) {}
 
     @Override
-    public boolean isWarnEnabled(final Marker marker) {
-        return false;
-    }
+    public void warn(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4) {}
 
     @Override
-    public void warn(final Marker marker, final String msg) {}
+    public void warn(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5) {}
 
     @Override
-    public void warn(final Marker marker, final String format, final Object arg) {}
+    public void warn(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6) {}
 
     @Override
-    public void warn(final Marker marker, final String format, final Object arg1, final Object arg2) {}
+    public void warn(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7) {}
 
     @Override
-    public void warn(final Marker marker, final String format, final Object... arguments) {}
+    public void warn(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
 
     @Override
-    public void warn(final Marker marker, final String msg, final Throwable t) {}
+    public void warn(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {}
+
+    @Override
+    public void warn(final String format, final Object... params) {}
 
     @Override
     public boolean isErrorEnabled() {
@@ -187,35 +214,95 @@ public final class DisabledLog implements ILog {
     public void error(final String msg) {}
 
     @Override
-    public void error(final String format, final Object arg) {}
+    public void error(final String format, final Object p0) {}
 
     @Override
-    public void error(final String format, final Object arg1, final Object arg2) {}
+    public void error(final String format, final Object p0, final Object p1) {}
 
     @Override
-    public void error(final String format, final Object... arguments) {}
+    public void error(final String format, final Object p0, final Object p1, final Object p2) {}
 
     @Override
-    public void error(final String msg, final Throwable t) {}
+    public void error(final String format, final Object p0, final Object p1, final Object p2, final Object p3) {}
 
     @Override
-    public boolean isErrorEnabled(final Marker marker) {
+    public void error(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4) {}
+
+    @Override
+    public void error(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5) {}
+
+    @Override
+    public void error(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6) {}
+
+    @Override
+    public void error(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7) {}
+
+    @Override
+    public void error(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
+
+    @Override
+    public void error(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {}
+
+    @Override
+    public void error(final String format, final Object... params) {}
+
+    @Override
+    public boolean isFatalEnabled() {
         return false;
     }
 
     @Override
-    public void error(final Marker marker, final String msg) {}
+    public void fatal(final String msg) {}
 
     @Override
-    public void error(final Marker marker, final String format, final Object arg) {}
+    public void fatal(final String format, final Object p0) {}
 
     @Override
-    public void error(final Marker marker, final String format, final Object arg1, final Object arg2) {}
+    public void fatal(final String format, final Object p0, final Object p1) {}
 
     @Override
-    public void error(final Marker marker, final String format, final Object... arguments) {}
+    public void fatal(final String format, final Object p0, final Object p1, final Object p2) {}
 
     @Override
-    public void error(final Marker marker, final String msg, final Throwable t) {}
+    public void fatal(final String format, final Object p0, final Object p1, final Object p2, final Object p3) {}
+
+    @Override
+    public void fatal(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4) {}
+
+    @Override
+    public void fatal(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5) {}
+
+    @Override
+    public void fatal(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6) {}
+
+    @Override
+    public void fatal(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7) {}
+
+    @Override
+    public void fatal(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {}
+
+    @Override
+    public void fatal(final String format, final Object p0, final Object p1, final Object p2, final Object p3,
+            final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {}
+
+    @Override
+    public void fatal(final String format, final Object... params) {}
+
+    @Override
+    public void catching(final Throwable throwable) {}
+
+    @Override
+    public void catching(final LogLevel level, final Throwable throwable) {}
 
 }

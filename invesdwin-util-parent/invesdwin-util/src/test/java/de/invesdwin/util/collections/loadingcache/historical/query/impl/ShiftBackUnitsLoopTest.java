@@ -23,8 +23,8 @@ public class ShiftBackUnitsLoopTest {
         Reflections.disableJavaModuleSystemRestrictions();
     }
 
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
-            .getXLogger(ShiftBackUnitsLoopTest.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(ShiftBackUnitsLoopTest.class);
 
     private static final List<FDate> DATES;
 

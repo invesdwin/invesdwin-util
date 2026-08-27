@@ -13,7 +13,8 @@ import de.invesdwin.util.lang.finalizer.AFinalizer;
 @NotThreadSafe
 public class LazyCopyFilesRunnable implements Runnable {
 
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AFinalizer.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(AFinalizer.class);
 
     private final List<File> fromFiles;
     private final File toFolder;

@@ -11,7 +11,8 @@ import de.invesdwin.util.lang.string.description.TextDescription;
 @NotThreadSafe
 public abstract class AFastCloseableIteratorImpl<E> implements ICloseableIteratorImpl<E> {
 
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(AFastCloseableIteratorImpl.class);
+    private static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager
+            .getLogger(AFastCloseableIteratorImpl.class);
 
     private final FastCloseableIteratorFinalizer finalizer;
 

@@ -24,8 +24,8 @@ public class ShiftForwardUnitsLoopIteratorTest {
         Reflections.disableJavaModuleSystemRestrictions();
     }
 
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
-            .getXLogger(ShiftForwardUnitsLoopIteratorTest.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(ShiftForwardUnitsLoopIteratorTest.class);
 
     private static final List<FDate> DATES;
 

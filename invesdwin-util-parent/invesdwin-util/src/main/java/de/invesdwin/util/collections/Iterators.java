@@ -16,10 +16,10 @@ import de.invesdwin.util.collections.internal.AIteratorsStaticFacade;
                 "com.google.common.collect.Iterators#toArray(java.util.Iterator, java.lang.Class)",
                 "com.google.common.collect.Iterators#get(java.util.Iterator, int)",
                 "com.google.common.collect.Iterators#asEnumeration(java.util.Iterator)",
-                "org.apache.commons.collections4.IteratorUtils#peekingIterator(java.util.Iterator)" })
+                "org.apache.commons.collections4.IteratorUtils#peekingIterator(java.util.Iterator)",
+                "com.google.common.collect.Iterators#contains(java.util.Iterator, java.lang.@org.jspecify.annotations.NullableObject)" })
 public final class Iterators extends AIteratorsStaticFacade {
 
-    private Iterators() {
-    }
+    private Iterators() {}
 
 }

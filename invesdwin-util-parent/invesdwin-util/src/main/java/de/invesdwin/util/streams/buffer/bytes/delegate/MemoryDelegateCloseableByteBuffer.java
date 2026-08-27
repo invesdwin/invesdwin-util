@@ -16,7 +16,8 @@ public final class MemoryDelegateCloseableByteBuffer extends MemoryDelegateByteB
         super(delegate);
     }
 
-    private ICloseableMemoryBuffer getDelegate() {
+    @Override
+    public ICloseableMemoryBuffer getDelegate() {
         return (ICloseableMemoryBuffer) delegate;
     }
 

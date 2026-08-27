@@ -52,19 +52,19 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
         super(INITIAL_CAPACITY);
     }
 
-    public MappedExpandableMemoryBuffer(final int initialCapacity) {
+    public MappedExpandableMemoryBuffer(final long initialCapacity) {
         super(initialCapacity);
     }
 
-    public MappedExpandableMemoryBuffer(final int initialCapacity, final String name) {
+    public MappedExpandableMemoryBuffer(final long initialCapacity, final String name) {
         super(initialCapacity, name);
     }
 
-    public MappedExpandableMemoryBuffer(final int initialCapacity, final File file) {
+    public MappedExpandableMemoryBuffer(final long initialCapacity, final File file) {
         super(initialCapacity, file);
     }
 
-    public MappedExpandableMemoryBuffer(final int initialCapacity, final File file, final boolean deleteOnClose) {
+    public MappedExpandableMemoryBuffer(final long initialCapacity, final File file, final boolean deleteOnClose) {
         super(initialCapacity, file, deleteOnClose);
     }
 

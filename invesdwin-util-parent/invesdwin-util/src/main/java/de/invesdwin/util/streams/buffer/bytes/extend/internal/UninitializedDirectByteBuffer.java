@@ -18,16 +18,16 @@ public class UninitializedDirectByteBuffer extends UnsafeByteBuffer implements C
 
     private static final class UninitializedDirectByteBufferFinalizer extends AFinalizer {
 
-        private java.nio.ByteBuffer buffer;
+        private io.netty.util.internal.CleanableDirectBuffer buffer;
 
-        private UninitializedDirectByteBufferFinalizer(final java.nio.ByteBuffer buffer) {
+        private UninitializedDirectByteBufferFinalizer(final io.netty.util.internal.CleanableDirectBuffer buffer) {
             Assertions.checkNotNull(buffer);
             this.buffer = buffer;
         }
 
         @Override
         protected void clean() {
-            UninitializedDirectByteBuffers.freeDirectByteBufferNoCleaner(buffer);
+            buffer.clean();
             buffer = null;
         }
 
@@ -46,17 +46,21 @@ public class UninitializedDirectByteBuffer extends UnsafeByteBuffer implements C
     private final UninitializedDirectByteBufferFinalizer finalizer;
 
     public UninitializedDirectByteBuffer(final int length) {
-        super(UninitializedDirectByteBuffers.allocateDirectByteBufferNoCleaner(length), 0, length);
-        this.finalizer = new UninitializedDirectByteBufferFinalizer(nioByteBuffer());
+        final io.netty.util.internal.CleanableDirectBuffer buffer = UninitializedDirectByteBuffers
+                .allocateDirectByteBufferNoCleaner(length);
+        wrap(buffer.buffer(), 0, length);
+        this.finalizer = new UninitializedDirectByteBufferFinalizer(buffer);
     }
 
     public UninitializedDirectByteBuffer(final int length, final int alignment) {
-        super(UninitializedDirectByteBuffers.allocateDirectByteBufferNoCleanerAligned(length, alignment));
-        this.finalizer = new UninitializedDirectByteBufferFinalizer(nioByteBuffer());
+        final io.netty.util.internal.CleanableDirectBuffer buffer = UninitializedDirectByteBuffers
+                .allocateDirectByteBufferNoCleanerAligned(length, alignment);
+        wrap(buffer.buffer(), 0, length);
+        this.finalizer = new UninitializedDirectByteBufferFinalizer(buffer);
     }
 
-    public UninitializedDirectByteBuffer(final java.nio.ByteBuffer buffer) {
-        super(buffer);
+    public UninitializedDirectByteBuffer(final io.netty.util.internal.CleanableDirectBuffer buffer) {
+        super(buffer.buffer());
         this.finalizer = new UninitializedDirectByteBufferFinalizer(buffer);
     }
 

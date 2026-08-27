@@ -26,7 +26,8 @@ public abstract class AWarningFinalizer extends AFinalizer {
         if (stackTrace != null) {
             warning += " from stacktrace:\n" + Throwables.getFullStackTrace(stackTrace);
         }
-        org.slf4j.ext.XLoggerFactory.getXLogger(getClass()).warn(warning);
+
+        org.apache.logging.log4j.LogManager.getLogger(getClass()).warn(warning);
     }
 
     @Override

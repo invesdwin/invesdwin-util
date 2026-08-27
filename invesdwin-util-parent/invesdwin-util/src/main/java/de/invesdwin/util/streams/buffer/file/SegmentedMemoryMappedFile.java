@@ -85,7 +85,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
             } else {
                 long bufferPosition = offset - position;
                 if (segmentSize >= bufferPosition + length) {
-                    list.add(new MemoryMappedFile(closeAllowed, newFile(file, position, separateFiles), bufferPosition,
+                    list.add(MemoryMappedFile.map(closeAllowed, newFile(file, position, separateFiles), bufferPosition,
                             length, readOnly, deleteOnClose));
                     return list;
                 } else {
@@ -101,7 +101,7 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
                             mappedPosition = position;
                         }
                         final long toCopy = Longs.min(remaining, segmentSize - bufferPosition);
-                        list.add(new MemoryMappedFile(closeAllowed, newFile(file, position, separateFiles),
+                        list.add(MemoryMappedFile.map(closeAllowed, newFile(file, position, separateFiles),
                                 mappedPosition, toCopy, readOnly, false));
                         remaining -= toCopy;
                         i += toCopy;
@@ -184,11 +184,6 @@ public class SegmentedMemoryMappedFile implements IMemoryMappedFile {
     @Deprecated
     @Override
     public long addressOffset() {
-        throw new UnsupportedOperationException("invalid on segmented mapped memory files");
-    }
-
-    @Override
-    public java.nio.ByteBuffer getMappedByteBuffer() {
         throw new UnsupportedOperationException("invalid on segmented mapped memory files");
     }
 

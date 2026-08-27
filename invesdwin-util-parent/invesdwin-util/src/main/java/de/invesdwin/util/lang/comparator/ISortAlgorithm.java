@@ -3,7 +3,9 @@ package de.invesdwin.util.lang.comparator;
 import java.util.Comparator;
 import java.util.List;
 
-public interface ISortAlgorithm {
+import de.invesdwin.norva.marker.ISerializableValueObject;
+
+public interface ISortAlgorithm extends ISerializableValueObject {
 
     <T> void sort(List<? extends T> list, Comparator<? super T> comparator);
 

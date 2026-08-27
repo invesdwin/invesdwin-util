@@ -71,17 +71,17 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         private long address;
         private int capacity;
-        private java.nio.ByteBuffer byteBuffer;
+        private io.netty.util.internal.CleanableDirectBuffer byteBuffer;
 
         private UninitializedDirectExpandableBufferFinalizer(final int initialCapacity) {
             byteBuffer = UninitializedDirectByteBuffers.allocateDirectByteBufferNoCleaner(initialCapacity);
             capacity = initialCapacity;
-            address = address(byteBuffer);
+            address = address(byteBuffer.buffer());
         }
 
         @Override
         protected void clean() {
-            UninitializedDirectByteBuffers.freeDirectByteBufferNoCleaner(byteBuffer);
+            byteBuffer.clean();
             byteBuffer = null;
         }
 
@@ -199,7 +199,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
      */
     @Override
     public java.nio.ByteBuffer byteBuffer() {
-        return finalizer.byteBuffer;
+        return finalizer.byteBuffer.buffer();
     }
 
     /**
@@ -260,7 +260,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    ////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -312,7 +312,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         UnsafeApi.putLong(null, finalizer.address + index, value);
     }
 
-    ////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -354,7 +354,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         return UnsafeApi.getInt(null, finalizer.address + index);
     }
 
-    ////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -406,7 +406,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         UnsafeApi.putDouble(null, finalizer.address + index, value);
     }
 
-    ////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -458,7 +458,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         UnsafeApi.putFloat(null, finalizer.address + index, value);
     }
 
-    ////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -510,7 +510,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         UnsafeApi.putShort(null, finalizer.address + index, value);
     }
 
-    ////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -661,7 +661,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
                 finalizer.address + index, length);
     }
 
-    ////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -713,7 +713,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         UnsafeApi.putChar(null, finalizer.address + index, value);
     }
 
-    ////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1025,7 +1025,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         return len;
     }
 
-    ////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1154,7 +1154,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         return bytes.length;
     }
 
-    ////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1441,7 +1441,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         return 0;
     }
 
-    ////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -1526,13 +1526,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             }
 
             final int newCapacity = calculateExpansion(currentCapacity, (int) resultingPosition);
-            final java.nio.ByteBuffer newBuffer = UninitializedDirectByteBuffers
+            final io.netty.util.internal.CleanableDirectBuffer newBuffer = UninitializedDirectByteBuffers
                     .reallocateDirectByteBufferNoCleaner(finalizer.byteBuffer, newCapacity);
 
             //copy not needed
             //            getBytes(0, newBuffer, 0, finalizer.capacity);
 
-            finalizer.address = address(newBuffer);
+            finalizer.address = address(newBuffer.buffer());
             finalizer.capacity = newCapacity;
             finalizer.byteBuffer = newBuffer;
         }
