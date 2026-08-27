@@ -36,6 +36,7 @@ public final class FDates {
             .valueOf(FDateBuilder.newDate(MIN_YEAR, 1, 1, 0, 0, 0, 0, FTimeZone.UTC));
     public static final ImmutableFDate MAX_DATE = ImmutableFDate
             .valueOf(FDateBuilder.newDate(MAX_YEAR, 1, 1, 0, 0, 0, 0, FTimeZone.UTC));
+    public static final ImmutableFDate ZERO = ImmutableFDate.valueOf(0L);
 
     public static final int MISSING_INDEX = -1;
     public static final long MILLISECONDS_IN_DAY = FTimeUnit.MILLISECONDS_IN_DAY;
