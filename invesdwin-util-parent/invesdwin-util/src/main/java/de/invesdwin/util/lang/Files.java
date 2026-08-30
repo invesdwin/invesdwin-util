@@ -18,7 +18,11 @@ import java.util.concurrent.TimeoutException;
 import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.io.FileExistsException;
+import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.AgeFileFilter;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.io.filefilter.NotFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.zeroturnaround.exec.InvalidExitValueException;
 import org.zeroturnaround.exec.ProcessExecutor;
@@ -92,12 +96,23 @@ public final class Files extends AFilesStaticFacade {
     }
 
     public static void purgeOldFiles(final File directory, final Duration threshold) {
+        purgeOldFiles(directory, threshold, (String[]) null);
+    }
+
+    public static void purgeOldFiles(final File directory, final Duration threshold,
+            final String... protectedFolderNames) {
         if (!directory.exists()) {
             return;
         }
         final FDate thresholdDate = FDate.now().subtract(threshold);
+        final IOFileFilter dirFilter;
+        if (protectedFolderNames != null && protectedFolderNames.length > 0) {
+            dirFilter = new NotFileFilter(new NameFileFilter(protectedFolderNames, IOCase.INSENSITIVE));
+        } else {
+            dirFilter = TrueFileFilter.INSTANCE;
+        }
         final Iterator<File> filesToDelete = iterateFiles(directory, new AgeFileFilter(thresholdDate.dateValue(), true),
-                TrueFileFilter.INSTANCE);
+                dirFilter);
         while (filesToDelete.hasNext()) {
             final File fileToDelete = filesToDelete.next();
             fileToDelete.delete();
