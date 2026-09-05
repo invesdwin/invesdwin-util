@@ -30,8 +30,8 @@ public final class FileChannelLockHeartbeatRegistry {
     public static final String HEARTBEAT_OWNER = ManagementFactory.getRuntimeMXBean().getName() + "_"
             + UUIDs.newPseudoRandomUUID();
     public static final String HEARTBEAT_EXTENSION = ".heartbeat";
-    public static final long HEARTBEAT_TIMEOUT_MILLIS = 90 * FTimeUnit.MILLISECONDS_IN_SECOND; // 90 seconds
-    private static final int HEARTBEAT_INTERVAL_SECONDS = 30;
+    public static final long HEARTBEAT_TIMEOUT_MILLIS = 2 * FTimeUnit.MILLISECONDS_IN_MINUTE;
+    private static final int HEARTBEAT_INTERVAL_MILLIS = 30 * FTimeUnit.MILLISECONDS_IN_SECOND;
 
     private static final Map<File, WeakReference<FileChannelLock>> REGISTRY = ILockCollectionFactory.getInstance(true)
             .newConcurrentMap();
@@ -57,7 +57,7 @@ public final class FileChannelLockHeartbeatRegistry {
                 heartbeatExecutor = Executors
                         .newScheduledThreadPool(FileChannelLockHeartbeatRegistry.class.getSimpleName(), 1);
                 heartbeatExecutor.scheduleAtFixedRate(FileChannelLockHeartbeatRegistry::updateHeartbeats,
-                        HEARTBEAT_INTERVAL_SECONDS, HEARTBEAT_INTERVAL_SECONDS, TimeUnit.SECONDS);
+                        HEARTBEAT_INTERVAL_MILLIS, HEARTBEAT_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
             }
         }
     }
@@ -85,8 +85,11 @@ public final class FileChannelLockHeartbeatRegistry {
             final FileChannelLock lock = ref != null ? ref.get() : null;
 
             if (lock != null) {
-                lock.touchHeartbeat();
-                activeFiles.add(lock.getFile());
+                if (lock.touchHeartbeat()) {
+                    activeFiles.add(lock.getFile());
+                } else {
+                    iterator.remove();
+                }
             } else {
                 iterator.remove();
             }
