@@ -7,6 +7,9 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 
@@ -19,18 +22,25 @@ import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyLock;
 import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
+import de.invesdwin.util.lang.string.Charsets;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.millis.FDateMillis;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
 public class FileChannelLock implements Closeable, ILock {
 
+    public static final String TMP_EXTENSION = ".tmp";
+    public static final String TMP_SUFFIX = "_" + Files.normalizePath(FileChannelLockHeartbeatRegistry.HEARTBEAT_OWNER)
+            + TMP_EXTENSION;
+
     @GuardedBy("this")
     private final FileChannelLockFinalizer finalizer;
 
     public FileChannelLock(final File file) {
-        this.finalizer = new FileChannelLockFinalizer(file, isDeleteFileAfterUnlock(), isThreadLockEnabled());
+        this.finalizer = new FileChannelLockFinalizer(file, isDeleteFileAfterUnlock(), isThreadLockEnabled(),
+                isHeartbeatEnabled());
     }
 
     public File getFile() {
@@ -85,32 +95,129 @@ public class FileChannelLock implements Closeable, ILock {
                     return false;
                 }
             }
-            if (!finalizer.file.exists()) {
-                Files.forceMkdirParent(finalizer.file);
-                Files.touchQuietly(finalizer.file);
+
+            Files.forceMkdirParent(finalizer.file);
+            final Path targetPath = finalizer.file.toPath();
+
+            if (finalizer.heartbeatEnabled) {
+                finalizer.heartbeatPath = targetPath.resolveSibling(
+                        targetPath.getFileName().toString() + FileChannelLockHeartbeatRegistry.HEARTBEAT_EXTENSION);
             }
-            // Get a file channel for the file
+
+            final boolean moveSucceeded = atomicMove(targetPath);
+
             finalizer.raf = new RandomAccessFile(finalizer.file, "rw");
             finalizer.channel = finalizer.raf.getChannel();
 
-            // Try acquiring the lock without blocking. This method returns
-            // null or throws an exception if the file is already locked.
             try {
                 finalizer.fileLock = finalizer.channel.tryLock();
+                if (finalizer.fileLock == null) {
+                    // Another local process holds the OS lock
+                    unlock();
+                    return false;
+                }
             } catch (final OverlappingFileLockException e) {
-                // File is already locked in this thread or virtual machine
+                // Another local thread holds the OS lock
+                unlock();
+                return false;
+            } catch (final IOException e) {
+                // OS locking is not supported or network errored.
+                // We fallback gracefully to purely logical locking (moveSucceeded)
+                finalizer.fileLock = null;
+            }
+
+            // The logical lock is the absolute source of truth across a shared filesystem.
+            // If we didn't successfully create or steal the logical file, we MUST fail.
+            if (!moveSucceeded) {
                 unlock();
                 return false;
             }
-            if (finalizer.fileLock == null) {
-                unlock();
-                return false;
-            }
+
             finalizer.locked = true;
             finalizer.register(this);
+
+            if (finalizer.heartbeatEnabled) {
+                touchHeartbeat();
+                FileChannelLockHeartbeatRegistry.register(this);
+            }
+
             return true;
         } catch (final IOException e) {
             throw new IllegalStateException("Unable to lock file: " + finalizer.file, e);
+        }
+    }
+
+    private boolean atomicMove(final Path targetPath) {
+        final Path tempPath = targetPath.resolveSibling(targetPath.getFileName().toString() + TMP_SUFFIX);
+        final String lockContent = FDateMillis.nowMillis() + ";" + FileChannelLockHeartbeatRegistry.HEARTBEAT_OWNER;
+        boolean moveSucceeded = false;
+        try {
+            Files.writeString(tempPath, lockContent);
+            Files.move(tempPath, targetPath);
+            moveSucceeded = true;
+        } catch (final FileAlreadyExistsException e) {
+            moveSucceeded = tryStealOrVerifyLock(targetPath, tempPath, lockContent);
+        } catch (final IOException e) {
+            moveSucceeded = tryStealOrVerifyLock(targetPath, tempPath, lockContent);
+        } finally {
+            try {
+                Files.deleteIfExists(tempPath);
+            } catch (final IOException ignored) {
+            }
+        }
+        return moveSucceeded;
+    }
+
+    private boolean tryStealOrVerifyLock(final Path targetPath, final Path tempPath, final String lockContent) {
+        try {
+            final String content = Files.readString(targetPath);
+            final String[] parts = content.split(";", 2);
+
+            if (parts.length != 2) {
+                return false;
+            }
+            final String owner = parts[1].trim();
+            if (finalizer.heartbeatEnabled) {
+                long timestamp = Long.parseLong(parts[0].trim());
+                if (finalizer.heartbeatPath != null && Files.exists(finalizer.heartbeatPath)) {
+                    try {
+                        final byte[] hbBytes = Files.readAllBytes(finalizer.heartbeatPath);
+                        final String hbContent = new String(hbBytes, Charsets.defaultCharset());
+                        final String[] hbParts = hbContent.split(";", 2);
+                        if (hbParts.length == 2 && hbParts[1].trim().equals(owner)) {
+                            timestamp = Long.parseLong(hbParts[0].trim());
+                        }
+                    } catch (final Exception ignored) {
+                    }
+                }
+
+                if (FDateMillis.nowMillis() - timestamp > FileChannelLockHeartbeatRegistry.HEARTBEAT_TIMEOUT_MILLIS) {
+                    Files.writeString(tempPath, lockContent);
+                    Files.move(tempPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                    return true;
+                }
+            }
+
+            if (FileChannelLockHeartbeatRegistry.HEARTBEAT_OWNER.equals(owner)) {
+                return true;
+            }
+        } catch (final Exception ignored) {
+        }
+        return false;
+    }
+
+    void touchHeartbeat() {
+        if (!finalizer.locked || !finalizer.heartbeatEnabled) {
+            return;
+        }
+        try {
+            final Path heartbeatPath = finalizer.heartbeatPath;
+            if (heartbeatPath == null) {
+                return;
+            }
+            final String lockContent = FDateMillis.nowMillis() + ";" + FileChannelLockHeartbeatRegistry.HEARTBEAT_OWNER;
+            Files.writeString(heartbeatPath, lockContent, Charsets.defaultCharset());
+        } catch (final IOException ignored) {
         }
     }
 
@@ -121,11 +228,15 @@ public class FileChannelLock implements Closeable, ILock {
 
     @Override
     public synchronized boolean isHeldByCurrentThread() {
-        return finalizer.locked && (finalizer.threadLock == null || finalizer.threadLock.isHeldByCurrentThread());
+        return finalizer.locked && (!finalizer.threadLockEnabled
+                || (finalizer.threadLock != null && finalizer.threadLock.isHeldByCurrentThread()));
     }
 
     @Override
     public synchronized void unlock() {
+        if (finalizer.heartbeatEnabled) {
+            FileChannelLockHeartbeatRegistry.remove(this);
+        }
         finalizer.close();
     }
 
@@ -134,6 +245,10 @@ public class FileChannelLock implements Closeable, ILock {
     }
 
     protected boolean isThreadLockEnabled() {
+        return false;
+    }
+
+    protected boolean isHeartbeatEnabled() {
         return false;
     }
 
@@ -157,54 +272,55 @@ public class FileChannelLock implements Closeable, ILock {
     }
 
     private static final class FileChannelLockFinalizer extends AFinalizer {
-
         private final File file;
         private final boolean deleteFileAfterUnlock;
         private final boolean threadLockEnabled;
+        private final boolean heartbeatEnabled;
+        private Path heartbeatPath;
+
         private RandomAccessFile raf;
         private FileChannel channel;
         private FileLock fileLock;
         private ILock threadLock;
-        private boolean locked;
+        private volatile boolean locked;
 
         private FileChannelLockFinalizer(final File file, final boolean deleteFileAfterUnlock,
-                final boolean threadLockEnabled) {
+                final boolean threadLockEnabled, final boolean heartbeatEnabled) {
             this.file = file;
             this.deleteFileAfterUnlock = deleteFileAfterUnlock;
             this.threadLockEnabled = threadLockEnabled;
+            this.heartbeatEnabled = heartbeatEnabled;
         }
 
         @Override
         protected void clean() {
-            // Release the lock - if it is not null!
-            if (fileLock != null) {
+            final FileLock fileLockCopy = fileLock;
+            if (fileLockCopy != null) {
                 try {
-                    fileLock.release();
-                } catch (final IOException e) {
-                    //ignore
+                    fileLockCopy.release();
+                } catch (final IOException ignored) {
                 }
                 fileLock = null;
             }
-
-            // Close the file
-            if (channel != null) {
+            final FileChannel channelCopy = channel;
+            if (channelCopy != null) {
                 try {
-                    channel.close();
-                } catch (final IOException e) {
-                    //ignore
+                    channelCopy.close();
+                } catch (final IOException ignored) {
                 }
                 channel = null;
             }
-            if (raf != null) {
+            final RandomAccessFile rafCopy = raf;
+            if (rafCopy != null) {
                 try {
-                    raf.close();
-                } catch (final IOException e) {
-                    //ignore
+                    rafCopy.close();
+                } catch (final IOException ignored) {
                 }
                 raf = null;
             }
-            if (threadLock != null) {
-                threadLock.unlock();
+            final ILock threadLockCopy = threadLock;
+            if (threadLockCopy != null) {
+                threadLockCopy.unlock();
                 threadLock = null;
             }
             if (locked) {
@@ -212,6 +328,14 @@ public class FileChannelLock implements Closeable, ILock {
                 if (deleteFileAfterUnlock) {
                     file.delete();
                 }
+            }
+            final Path heartbeatPathCopy = heartbeatPath;
+            if (heartbeatPathCopy != null) {
+                try {
+                    Files.deleteIfExists(heartbeatPathCopy);
+                } catch (final IOException ignored) {
+                }
+                heartbeatPath = null;
             }
         }
 
@@ -224,7 +348,6 @@ public class FileChannelLock implements Closeable, ILock {
         public boolean isThreadLocal() {
             return false;
         }
-
     }
 
     @Deprecated
@@ -255,5 +378,4 @@ public class FileChannelLock implements Closeable, ILock {
     public boolean isDisabled() {
         return false;
     }
-
 }
