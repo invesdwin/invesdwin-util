@@ -19,16 +19,19 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.lang.Files;
+import de.invesdwin.util.lang.UUIDs;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.date.millis.FDateMillis;
 
 @ThreadSafe
 public final class FileChannelLockHeartbeatRegistry {
 
-    public static final String HEARTBEAT_OWNER = ManagementFactory.getRuntimeMXBean().getName();
+    // Append UUID to ensure uniqueness even if PID@Hostname (e.g. 1@localhost) matches exactly across containers
+    public static final String HEARTBEAT_OWNER = ManagementFactory.getRuntimeMXBean().getName() + "_"
+            + UUIDs.newPseudoRandomUUID();
     public static final String HEARTBEAT_EXTENSION = ".heartbeat";
-    public static final long HEARTBEAT_TIMEOUT_MILLIS = 30 * FTimeUnit.MILLISECONDS_IN_SECOND; // 30 seconds
-    private static final int HEARTBEAT_INTERVAL_SECONDS = 10;
+    public static final long HEARTBEAT_TIMEOUT_MILLIS = 90 * FTimeUnit.MILLISECONDS_IN_SECOND; // 90 seconds
+    private static final int HEARTBEAT_INTERVAL_SECONDS = 30;
 
     private static final Map<File, WeakReference<FileChannelLock>> REGISTRY = ILockCollectionFactory.getInstance(true)
             .newConcurrentMap();

@@ -194,7 +194,17 @@ public class FileChannelLock implements Closeable, ILock {
                 if (FDateMillis.nowMillis() - timestamp > FileChannelLockHeartbeatRegistry.HEARTBEAT_TIMEOUT_MILLIS) {
                     Files.writeString(tempPath, lockContent);
                     Files.move(tempPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                    return true;
+
+                    // VERIFICATION STEP: Read the file back to guarantee we won the race.
+                    // If another node overwrote our move at the exact same millisecond,
+                    // the owner will not match our HEARTBEAT_OWNER.
+                    final String verifyContent = Files.readString(targetPath);
+                    final String[] verifyParts = verifyContent.split(";", 2);
+                    if (verifyParts.length == 2
+                            && FileChannelLockHeartbeatRegistry.HEARTBEAT_OWNER.equals(verifyParts[1].trim())) {
+                        return true;
+                    }
+                    return false;
                 }
             }
 
