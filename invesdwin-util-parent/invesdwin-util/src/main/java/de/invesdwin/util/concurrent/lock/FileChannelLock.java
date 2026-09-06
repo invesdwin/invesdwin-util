@@ -155,7 +155,6 @@ public class FileChannelLock implements Closeable, ILock {
                 finalizer.fileLock = null;
             }
 
-            boolean registerHeartbeat = false;
             if (finalizer.heartbeatEnabled) {
                 // The logical lock is the absolute source of truth across a shared filesystem.
                 // If we didn't successfully create or steal the logical file, we MUST fail.
@@ -164,9 +163,7 @@ public class FileChannelLock implements Closeable, ILock {
                     return false;
                 }
 
-                if (touchHeartbeatUnchecked()) {
-                    registerHeartbeat = true;
-                } else {
+                if (!touchHeartbeatUnchecked()) {
                     unlock();
                     return false;
                 }
@@ -181,7 +178,7 @@ public class FileChannelLock implements Closeable, ILock {
 
             finalizer.locked = true;
             finalizer.register(this);
-            if (registerHeartbeat) {
+            if (finalizer.heartbeatEnabled) {
                 FileChannelLockHeartbeatRegistry.register(this);
             }
 
