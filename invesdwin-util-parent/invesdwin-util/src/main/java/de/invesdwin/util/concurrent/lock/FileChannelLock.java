@@ -9,6 +9,7 @@ import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileTime;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 
@@ -21,12 +22,30 @@ import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyLock;
 import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
-import de.invesdwin.util.lang.string.Charsets;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.date.millis.FDateMillis;
 import de.invesdwin.util.time.duration.Duration;
 
+/**
+ * Provides cross-process synchronization using file-based locking.
+ * <p>
+ * This lock supports two distinct locking strategies to accommodate both local and distributed environments, making it
+ * suitable for network-mountable, multiprocess storage architectures:
+ * <ul>
+ * <li><b>Standard OS Native Locking ({@code isHeartbeatEnabled() == false}):</b><br>
+ * Relies entirely on standard Java NIO {@link java.nio.channels.FileChannel#tryLock()}. The OS native lock is the
+ * absolute source of truth. This strategy is ideal for local, single-node multiprocess coordination, leaving the target
+ * file's byte contents completely untouched. It will safely reject lock acquisitions (e.g., via {@code IOException}) on
+ * network drives where native POSIX locking is unsupported.</li>
+ * 
+ * <li><b>Distributed Logical Locking ({@code isHeartbeatEnabled() == true}):</b><br>
+ * Acts as the absolute source of truth across a shared filesystem by atomically moving a temporary file containing a
+ * unique owner ID to claim the lock. It maintains an active {@code .heartbeat} file to signal liveliness. If a remote
+ * node crashes or a network partition occurs, the lock will time out via lightweight filesystem metadata checks,
+ * allowing active nodes to safely steal the logical lock.</li>
+ * </ul>
+ */
 @ThreadSafe
 public class FileChannelLock implements Closeable, ILock {
 
@@ -108,12 +127,14 @@ public class FileChannelLock implements Closeable, ILock {
             Files.forceMkdirParent(finalizer.file);
             final Path targetPath = finalizer.path;
 
+            boolean moveSucceeded = false;
+
+            // ONLY perform the logical file rewrite if heartbeats are enabled
             if (finalizer.heartbeatEnabled) {
                 finalizer.heartbeatPath = targetPath.resolveSibling(
                         targetPath.getFileName().toString() + FileChannelLockHeartbeatRegistry.HEARTBEAT_EXTENSION);
+                moveSucceeded = atomicMove(targetPath);
             }
-
-            final boolean moveSucceeded = atomicMove(targetPath);
 
             finalizer.raf = new RandomAccessFile(finalizer.file, "rw");
             finalizer.channel = finalizer.raf.getChannel();
@@ -131,21 +152,27 @@ public class FileChannelLock implements Closeable, ILock {
                 return false;
             } catch (final IOException e) {
                 // OS locking is not supported or network errored.
-                // We fallback gracefully to purely logical locking (moveSucceeded)
                 finalizer.fileLock = null;
             }
 
-            // The logical lock is the absolute source of truth across a shared filesystem.
-            // If we didn't successfully create or steal the logical file, we MUST fail.
-            if (!moveSucceeded) {
-                unlock();
-                return false;
-            }
-
             if (finalizer.heartbeatEnabled) {
+                // The logical lock is the absolute source of truth across a shared filesystem.
+                // If we didn't successfully create or steal the logical file, we MUST fail.
+                if (!moveSucceeded) {
+                    unlock();
+                    return false;
+                }
+
                 if (touchHeartbeatUnchecked()) {
                     FileChannelLockHeartbeatRegistry.register(this);
                 } else {
+                    unlock();
+                    return false;
+                }
+            } else {
+                // Heartbeat is disabled: The OS lock is the absolute source of truth.
+                // If we couldn't get the OS lock (e.g., IOException on a network drive), we MUST fail.
+                if (finalizer.fileLock == null) {
                     unlock();
                     return false;
                 }
@@ -228,23 +255,21 @@ public class FileChannelLock implements Closeable, ILock {
         try {
             final Path targetPath = finalizer.path;
 
-            // SELF-INVALIDATION CHECK: Verify our lock wasn't stolen while we were paused/partitioned
             if (Files.exists(targetPath)) {
                 final String currentOwner = Files.readString(targetPath).trim();
                 if (!FileChannelLockHeartbeatRegistry.HEARTBEAT_OWNER.equals(currentOwner)) {
-                    // Lock was stolen out from under us! Force close locally.
                     finalizer.close();
                     return false;
                 }
             }
 
             final Path heartbeatPath = finalizer.heartbeatPath;
-            if (heartbeatPath == null) {
+            if (heartbeatPath == null || !Files.exists(heartbeatPath)) {
                 return false;
             }
-            // Just touching/rewriting the heartbeat file updates its lastModified time cleanly
-            Files.writeString(heartbeatPath, FileChannelLockHeartbeatRegistry.HEARTBEAT_OWNER,
-                    Charsets.defaultCharset());
+
+            // Use an efficient metadata-only update instead of rewriting the file content
+            Files.setLastModifiedTime(heartbeatPath, FileTime.fromMillis(FDateMillis.nowMillis()));
             return true;
         } catch (final IOException ignored) {
             return false;
