@@ -10,17 +10,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
-import de.invesdwin.util.collections.factory.pool.map.ICloseableMap;
-import de.invesdwin.util.collections.factory.pool.map.PooledMap;
-import de.invesdwin.util.collections.factory.pool.set.ICloseableSet;
-import de.invesdwin.util.collections.factory.pool.set.PooledSet;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.UUIDs;
@@ -37,8 +32,13 @@ public final class FileChannelLockHeartbeatRegistry {
     public static final long HEARTBEAT_TIMEOUT_MILLIS = 2 * FTimeUnit.MILLISECONDS_IN_MINUTE;
     private static final int HEARTBEAT_INTERVAL_MILLIS = 30 * FTimeUnit.MILLISECONDS_IN_SECOND;
 
+    private static final int MAX_PREFIXES_POOL_SIZE = 100;
+
     private static final Map<File, WeakReference<FileChannelLock>> REGISTRY = ILockCollectionFactory.getInstance(true)
             .newConcurrentMap();
+
+    private static final Map<File, List<String>> DIR_TO_PREFIXES = ILockCollectionFactory.getInstance(true).newMap();
+    private static final List<List<String>> PREFIXES_POOL = new ArrayList<>(MAX_PREFIXES_POOL_SIZE);
 
     private static final Object EXECUTOR_LOCK = new Object();
     private static ScheduledExecutorService heartbeatExecutor;
@@ -79,18 +79,20 @@ public final class FileChannelLockHeartbeatRegistry {
     private static void updateHeartbeats() {
         final long now = FDateMillis.nowMillis();
         final long staleThreshold = now - HEARTBEAT_TIMEOUT_MILLIS;
-
-        try (ICloseableSet<File> activeFiles = PooledSet.getInstance()) {
+        try {
             final Iterator<Entry<File, WeakReference<FileChannelLock>>> iterator = REGISTRY.entrySet().iterator();
-
             while (iterator.hasNext()) {
                 final Entry<File, WeakReference<FileChannelLock>> entry = iterator.next();
                 final WeakReference<FileChannelLock> ref = entry.getValue();
                 final FileChannelLock lock = ref != null ? ref.get() : null;
-
                 if (lock != null) {
                     if (lock.touchHeartbeat()) {
-                        activeFiles.add(lock.getFile());
+                        // Populate DIR_TO_PREFIXES directly in the first pass
+                        final File file = lock.getFile();
+                        final File parent = file.getParentFile();
+                        if (parent != null) {
+                            addDirToPrefix(file, parent);
+                        }
                     } else {
                         iterator.remove();
                     }
@@ -98,55 +100,76 @@ public final class FileChannelLockHeartbeatRegistry {
                     iterator.remove();
                 }
             }
-
-            cleanupStaleFiles(activeFiles, staleThreshold);
-            stopHeartbeatExecutorIfNeeded();
+            cleanupStaleFiles(staleThreshold);
+        } finally {
+            resetDirToPrefixes();
         }
+        stopHeartbeatExecutorIfNeeded();
     }
 
-    private static void cleanupStaleFiles(final Set<File> activeFiles, final long staleThreshold) {
-        try (ICloseableMap<File, List<String>> dirToPrefixes = PooledMap.getInstance()) {
-            // Group prefixes by directory to ensure we only scan each affected directory once
-            for (final File file : activeFiles) {
-                final File parent = file.getParentFile();
-                if (parent != null) {
-                    dirToPrefixes.computeIfAbsent(parent, k -> new ArrayList<>()).add(file.getName());
-                }
+    private static void addDirToPrefix(final File file, final File parent) {
+        List<String> prefixes = DIR_TO_PREFIXES.get(parent);
+        if (prefixes == null) {
+            if (PREFIXES_POOL.isEmpty()) {
+                prefixes = new ArrayList<>();
+            } else {
+                prefixes = PREFIXES_POOL.remove(PREFIXES_POOL.size() - 1);
+            }
+            DIR_TO_PREFIXES.put(parent, prefixes);
+        }
+        prefixes.add(file.getName());
+    }
+
+    private static void cleanupStaleFiles(final long staleThreshold) {
+        for (final Map.Entry<File, List<String>> entry : DIR_TO_PREFIXES.entrySet()) {
+            final File dir = entry.getKey();
+            if (!dir.exists() || !dir.isDirectory()) {
+                continue;
             }
 
-            for (final Map.Entry<File, List<String>> entry : dirToPrefixes.entrySet()) {
-                final File dir = entry.getKey();
-                if (!dir.exists() || !dir.isDirectory()) {
-                    continue;
-                }
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir.toPath())) {
+                for (final Path path : stream) {
+                    final String fileName = path.getFileName().toString();
 
-                try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir.toPath())) {
-                    for (final Path path : stream) {
-                        final String fileName = path.getFileName().toString();
-
-                        boolean matchesPrefix = false;
-                        for (final String prefix : entry.getValue()) {
-                            if (fileName.startsWith(prefix) && (fileName.endsWith(FileChannelLock.TMP_EXTENSION)
-                                    || fileName.endsWith(HEARTBEAT_EXTENSION))) {
-                                matchesPrefix = true;
-                                break;
-                            }
-                        }
-
-                        if (matchesPrefix) {
-                            try {
-                                if (Files.getLastModifiedTime(path).toMillis() < staleThreshold) {
-                                    Files.deleteIfExists(path);
-                                }
-                            } catch (final Exception ignored) {
-                                // Ignore concurrent access or deletion issues
-                            }
+                    boolean matchesPrefix = false;
+                    for (final String prefix : entry.getValue()) {
+                        if (fileName.startsWith(prefix) && (fileName.endsWith(FileChannelLock.TMP_EXTENSION)
+                                || fileName.endsWith(HEARTBEAT_EXTENSION))) {
+                            matchesPrefix = true;
+                            break;
                         }
                     }
-                } catch (final Exception ignored) {
-                    // Ignore directory scanning issues
+
+                    if (matchesPrefix) {
+                        try {
+                            if (Files.getLastModifiedTime(path).toMillis() < staleThreshold) {
+                                Files.deleteIfExists(path);
+                            }
+                        } catch (final Exception ignored) {
+                            // Ignore concurrent access or deletion issues
+                        }
+                    }
                 }
+            } catch (final Exception ignored) {
+                // Ignore directory scanning issues
             }
+        }
+
+    }
+
+    private static void resetDirToPrefixes() {
+        if (!DIR_TO_PREFIXES.isEmpty()) {
+            // Return lists to the pool for reuse
+            for (final List<String> prefixes : DIR_TO_PREFIXES.values()) {
+                if (PREFIXES_POOL.size() >= MAX_PREFIXES_POOL_SIZE) {
+                    break;
+                }
+                if (!prefixes.isEmpty()) {
+                    prefixes.clear();
+                }
+                PREFIXES_POOL.add(prefixes);
+            }
+            DIR_TO_PREFIXES.clear();
         }
     }
 }
