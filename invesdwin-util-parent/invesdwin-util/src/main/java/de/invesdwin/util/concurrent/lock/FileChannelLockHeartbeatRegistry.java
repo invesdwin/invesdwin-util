@@ -17,6 +17,10 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.collections.factory.pool.map.ICloseableMap;
+import de.invesdwin.util.collections.factory.pool.map.PooledMap;
+import de.invesdwin.util.collections.factory.pool.set.ICloseableSet;
+import de.invesdwin.util.collections.factory.pool.set.PooledSet;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.UUIDs;
@@ -76,71 +80,72 @@ public final class FileChannelLockHeartbeatRegistry {
         final long now = FDateMillis.nowMillis();
         final long staleThreshold = now - HEARTBEAT_TIMEOUT_MILLIS;
 
-        final Set<File> activeFiles = ILockCollectionFactory.getInstance(false).newSet();
-        final Iterator<Entry<File, WeakReference<FileChannelLock>>> iterator = REGISTRY.entrySet().iterator();
+        try (ICloseableSet<File> activeFiles = PooledSet.getInstance()) {
+            final Iterator<Entry<File, WeakReference<FileChannelLock>>> iterator = REGISTRY.entrySet().iterator();
 
-        while (iterator.hasNext()) {
-            final Entry<File, WeakReference<FileChannelLock>> entry = iterator.next();
-            final WeakReference<FileChannelLock> ref = entry.getValue();
-            final FileChannelLock lock = ref != null ? ref.get() : null;
+            while (iterator.hasNext()) {
+                final Entry<File, WeakReference<FileChannelLock>> entry = iterator.next();
+                final WeakReference<FileChannelLock> ref = entry.getValue();
+                final FileChannelLock lock = ref != null ? ref.get() : null;
 
-            if (lock != null) {
-                if (lock.touchHeartbeat()) {
-                    activeFiles.add(lock.getFile());
+                if (lock != null) {
+                    if (lock.touchHeartbeat()) {
+                        activeFiles.add(lock.getFile());
+                    } else {
+                        iterator.remove();
+                    }
                 } else {
                     iterator.remove();
                 }
-            } else {
-                iterator.remove();
             }
-        }
 
-        cleanupStaleFiles(activeFiles, staleThreshold);
-        stopHeartbeatExecutorIfNeeded();
+            cleanupStaleFiles(activeFiles, staleThreshold);
+            stopHeartbeatExecutorIfNeeded();
+        }
     }
 
     private static void cleanupStaleFiles(final Set<File> activeFiles, final long staleThreshold) {
-        final Map<File, List<String>> dirToPrefixes = ILockCollectionFactory.getInstance(false).newMap();
-
-        // Group prefixes by directory to ensure we only scan each affected directory once
-        for (final File file : activeFiles) {
-            final File parent = file.getParentFile();
-            if (parent != null) {
-                dirToPrefixes.computeIfAbsent(parent, k -> new ArrayList<>()).add(file.getName());
-            }
-        }
-
-        for (final Map.Entry<File, List<String>> entry : dirToPrefixes.entrySet()) {
-            final File dir = entry.getKey();
-            if (!dir.exists() || !dir.isDirectory()) {
-                continue;
-            }
-
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir.toPath())) {
-                for (final Path path : stream) {
-                    final String fileName = path.getFileName().toString();
-
-                    boolean matchesPrefix = false;
-                    for (final String prefix : entry.getValue()) {
-                        if (fileName.startsWith(prefix) && (fileName.endsWith(FileChannelLock.TMP_EXTENSION)
-                                || fileName.endsWith(HEARTBEAT_EXTENSION))) {
-                            matchesPrefix = true;
-                            break;
-                        }
-                    }
-
-                    if (matchesPrefix) {
-                        try {
-                            if (Files.getLastModifiedTime(path).toMillis() < staleThreshold) {
-                                Files.deleteIfExists(path);
-                            }
-                        } catch (final Exception ignored) {
-                            // Ignore concurrent access or deletion issues
-                        }
-                    }
+        try (ICloseableMap<File, List<String>> dirToPrefixes = PooledMap.getInstance()) {
+            // Group prefixes by directory to ensure we only scan each affected directory once
+            for (final File file : activeFiles) {
+                final File parent = file.getParentFile();
+                if (parent != null) {
+                    dirToPrefixes.computeIfAbsent(parent, k -> new ArrayList<>()).add(file.getName());
                 }
-            } catch (final Exception ignored) {
-                // Ignore directory scanning issues
+            }
+
+            for (final Map.Entry<File, List<String>> entry : dirToPrefixes.entrySet()) {
+                final File dir = entry.getKey();
+                if (!dir.exists() || !dir.isDirectory()) {
+                    continue;
+                }
+
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir.toPath())) {
+                    for (final Path path : stream) {
+                        final String fileName = path.getFileName().toString();
+
+                        boolean matchesPrefix = false;
+                        for (final String prefix : entry.getValue()) {
+                            if (fileName.startsWith(prefix) && (fileName.endsWith(FileChannelLock.TMP_EXTENSION)
+                                    || fileName.endsWith(HEARTBEAT_EXTENSION))) {
+                                matchesPrefix = true;
+                                break;
+                            }
+                        }
+
+                        if (matchesPrefix) {
+                            try {
+                                if (Files.getLastModifiedTime(path).toMillis() < staleThreshold) {
+                                    Files.deleteIfExists(path);
+                                }
+                            } catch (final Exception ignored) {
+                                // Ignore concurrent access or deletion issues
+                            }
+                        }
+                    }
+                } catch (final Exception ignored) {
+                    // Ignore directory scanning issues
+                }
             }
         }
     }
