@@ -168,6 +168,9 @@ public final class Objects extends AObjectsStaticFacade {
     //CHECKSTYLE:OFF
     public static boolean equals(@Nullable final Object a, @Nullable final Object b) {
         //CHECKSTYLE:ON
+        if (a == b) {
+            return true;
+        }
         if (a != null && a.getClass().isArray() && b != null && b.getClass().isArray()) {
             final int aLength = Arrays.getLength(a);
             final int bLength = Arrays.getLength(b);
