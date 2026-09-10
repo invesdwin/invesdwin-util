@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent.lock;
+package de.invesdwin.util.concurrent.lock.file;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;

@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent.lock;
+package de.invesdwin.util.concurrent.lock.file;
 
 import java.io.Closeable;
 import java.io.File;
@@ -16,6 +16,8 @@ import java.util.concurrent.locks.Condition;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyLock;
@@ -151,8 +153,12 @@ public class FileChannelLock implements Closeable, ILock {
                 unlock();
                 return false;
             } catch (final IOException e) {
-                // OS locking is not supported or network errored.
-                finalizer.fileLock = null;
+                if (finalizer.heartbeatEnabled) {
+                    // OS locking is not supported or network errored.
+                    finalizer.fileLock = null;
+                } else {
+                    throw e;
+                }
             }
 
             if (finalizer.heartbeatEnabled) {
@@ -176,16 +182,20 @@ public class FileChannelLock implements Closeable, ILock {
                 }
             }
 
-            finalizer.locked = true;
-            finalizer.register(this);
-            if (finalizer.heartbeatEnabled) {
-                FileChannelLockHeartbeatRegistry.register(this);
-            }
-
-            return true;
+            return tryLockSuccess();
         } catch (final IOException e) {
+            unlock();
             throw new IllegalStateException("Unable to lock file: " + finalizer.file, e);
         }
+    }
+
+    private boolean tryLockSuccess() {
+        finalizer.locked = true;
+        finalizer.register(this);
+        if (finalizer.heartbeatEnabled) {
+            FileChannelLockHeartbeatRegistry.register(this);
+        }
+        return true;
     }
 
     private boolean atomicMove(final Path targetPath) {
