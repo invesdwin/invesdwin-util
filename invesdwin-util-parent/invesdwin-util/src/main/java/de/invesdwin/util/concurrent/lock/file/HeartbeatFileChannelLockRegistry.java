@@ -118,9 +118,6 @@ public final class HeartbeatFileChannelLockRegistry {
     private static void cleanupStaleTempFiles() {
         for (final Map.Entry<File, List<String>> entry : DIR_TO_PREFIXES.entrySet()) {
             final File dir = entry.getKey();
-            if (!dir.exists() || !dir.isDirectory()) {
-                continue;
-            }
             Files.cleanupStaleTempFiles(dir.toPath(), HEARTBEAT_TIMEOUT, FileChannelLock.TMP_EXTENSION,
                     HEARTBEAT_EXTENSION);
         }
