@@ -274,12 +274,16 @@ public class FileChannelLock implements Closeable, ILock {
             }
 
             final Path heartbeatPath = finalizer.heartbeatPath;
-            if (heartbeatPath == null || !Files.exists(heartbeatPath)) {
+            if (heartbeatPath == null) {
                 return false;
             }
 
-            // Use an efficient metadata-only update instead of rewriting the file content
-            Files.setLastModifiedTime(heartbeatPath, FileTime.fromMillis(FDateMillis.nowMillis()));
+            if (!Files.exists(heartbeatPath)) {
+                Files.writeString(heartbeatPath, HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER);
+            } else {
+                // Use an efficient metadata-only update instead of rewriting the file content
+                Files.setLastModifiedTime(heartbeatPath, FileTime.fromMillis(FDateMillis.nowMillis()));
+            }
             return true;
         } catch (final IOException ignored) {
             return false;
