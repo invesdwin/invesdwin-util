@@ -229,7 +229,6 @@ public class FileChannelLock implements Closeable, ILock {
 
             if (finalizer.heartbeatEnabled) {
                 final long now = FDateMillis.nowMillis();
-                final long timeout = HeartbeatFileChannelLockRegistry.HEARTBEAT_TIMEOUT_MILLIS;
 
                 Path checkPath = targetPath;
                 if (finalizer.heartbeatPath != null && Files.exists(finalizer.heartbeatPath)) {
@@ -239,7 +238,7 @@ public class FileChannelLock implements Closeable, ILock {
                 // Pure filesystem metadata check: immune to client-side clock skews
                 final long lastModified = Files.exists(checkPath) ? Files.getLastModifiedTime(checkPath).toMillis() : 0;
 
-                if ((now - lastModified) > timeout) {
+                if (HeartbeatFileChannelLockRegistry.HEARTBEAT_TIMEOUT.isLessThanMillis(now - lastModified)) {
                     Files.writeString(tempPath, lockContent);
                     Files.move(tempPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
 

@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -39,6 +40,7 @@ import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.streams.FlatteningInputStream;
 import de.invesdwin.util.streams.StringInputStream;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.millis.FDateMillis;
 import de.invesdwin.util.time.duration.Duration;
 import it.unimi.dsi.fastutil.io.FastBufferedInputStream;
 
@@ -690,4 +692,49 @@ public final class Files extends AFilesStaticFacade {
         }
     }
 
+    public static void cleanupStaleTempFiles(final Path dir, final Duration staleThreshold,
+            final String... extensions) {
+        final long now = FDateMillis.nowMillis();
+        cleanupStaleTempFilesDirectory(dir, now, staleThreshold, extensions);
+    }
+
+    private static boolean cleanupStaleTempFilesDirectory(final Path dir, final long now, final Duration staleThreshold,
+            final String... extensions) {
+        boolean isEmpty = true;
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+            for (final Path p : stream) {
+                if (Files.isDirectory(p)) {
+                    if (cleanupStaleTempFilesDirectory(p, now, staleThreshold, extensions)) {
+                        try {
+                            Files.deleteIfExists(p);
+                        } catch (final IOException e) {
+                            isEmpty = false; // Directory could not be removed (e.g. concurrent write)
+                        }
+                    } else {
+                        isEmpty = false;
+                    }
+                } else {
+                    final String fileName = p.getFileName().toString();
+                    if (Strings.endsWithAny(fileName, extensions)) {
+                        try {
+                            if (staleThreshold.isLessThanMillis(now - Files.lastModifiedNoThrow(p))) {
+                                Files.deleteIfExists(p);
+                            } else {
+                                isEmpty = false;
+                            }
+                        } catch (final NoSuchFileException e) {
+                            // Concurrently deleted by another process
+                        } catch (final IOException e) {
+                            isEmpty = false;
+                        }
+                    } else {
+                        isEmpty = false;
+                    }
+                }
+            }
+        } catch (final IOException e) {
+            isEmpty = false;
+        }
+        return isEmpty;
+    }
 }
