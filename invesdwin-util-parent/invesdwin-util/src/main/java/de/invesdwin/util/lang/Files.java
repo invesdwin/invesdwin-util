@@ -674,9 +674,17 @@ public final class Files extends AFilesStaticFacade {
         }
     }
 
-    public static long lastModified(final Path path) {
+    public static long lastModifiedNoThrow(final Path path) {
         try {
             return getLastModifiedTime(path).toMillis();
+        } catch (final IOException e) {
+            return 0L;
+        }
+    }
+
+    public static long lastModifiedNoThrow(final File file) {
+        try {
+            return lastModified(file);
         } catch (final IOException e) {
             return 0L;
         }

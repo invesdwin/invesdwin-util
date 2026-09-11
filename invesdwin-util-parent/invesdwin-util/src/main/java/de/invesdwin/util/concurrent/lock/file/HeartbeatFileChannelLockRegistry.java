@@ -142,7 +142,7 @@ public final class HeartbeatFileChannelLockRegistry {
 
                     if (matchesPrefix) {
                         try {
-                            if (Files.getLastModifiedTime(path).toMillis() < staleThreshold) {
+                            if (Files.lastModifiedNoThrow(path) < staleThreshold) {
                                 Files.deleteIfExists(path);
                             }
                         } catch (final Exception ignored) {
