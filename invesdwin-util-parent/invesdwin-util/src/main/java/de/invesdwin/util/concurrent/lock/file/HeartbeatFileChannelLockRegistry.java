@@ -23,7 +23,7 @@ import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.date.millis.FDateMillis;
 
 @ThreadSafe
-public final class FileChannelLockHeartbeatRegistry {
+public final class HeartbeatFileChannelLockRegistry {
 
     // Append UUID to ensure uniqueness even if PID@Hostname (e.g. 1@localhost) matches exactly across containers
     public static final String HEARTBEAT_OWNER = ManagementFactory.getRuntimeMXBean().getName() + "_"
@@ -43,7 +43,7 @@ public final class FileChannelLockHeartbeatRegistry {
     private static final Object EXECUTOR_LOCK = new Object();
     private static ScheduledExecutorService heartbeatExecutor;
 
-    private FileChannelLockHeartbeatRegistry() {}
+    private HeartbeatFileChannelLockRegistry() {}
 
     public static void register(final FileChannelLock lock) {
         REGISTRY.put(lock.getFile(), new WeakReference<>(lock));
@@ -59,8 +59,8 @@ public final class FileChannelLockHeartbeatRegistry {
         synchronized (EXECUTOR_LOCK) {
             if (heartbeatExecutor == null || heartbeatExecutor.isShutdown()) {
                 heartbeatExecutor = Executors
-                        .newScheduledThreadPool(FileChannelLockHeartbeatRegistry.class.getSimpleName(), 1);
-                heartbeatExecutor.scheduleAtFixedRate(FileChannelLockHeartbeatRegistry::updateHeartbeats,
+                        .newScheduledThreadPool(HeartbeatFileChannelLockRegistry.class.getSimpleName(), 1);
+                heartbeatExecutor.scheduleAtFixedRate(HeartbeatFileChannelLockRegistry::updateHeartbeats,
                         HEARTBEAT_INTERVAL_MILLIS, HEARTBEAT_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
             }
         }

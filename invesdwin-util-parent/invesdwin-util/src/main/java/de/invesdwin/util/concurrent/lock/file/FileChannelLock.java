@@ -52,7 +52,7 @@ import de.invesdwin.util.time.duration.Duration;
 public class FileChannelLock implements Closeable, ILock {
 
     public static final String TMP_EXTENSION = ".tmp";
-    public static final String TMP_SUFFIX = "_" + Files.normalizePath(FileChannelLockHeartbeatRegistry.HEARTBEAT_OWNER)
+    public static final String TMP_SUFFIX = "_" + Files.normalizePath(HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER)
             + TMP_EXTENSION;
 
     @GuardedBy("this")
@@ -134,7 +134,7 @@ public class FileChannelLock implements Closeable, ILock {
             // ONLY perform the logical file rewrite if heartbeats are enabled
             if (finalizer.heartbeatEnabled) {
                 finalizer.heartbeatPath = targetPath.resolveSibling(
-                        targetPath.getFileName().toString() + FileChannelLockHeartbeatRegistry.HEARTBEAT_EXTENSION);
+                        targetPath.getFileName().toString() + HeartbeatFileChannelLockRegistry.HEARTBEAT_EXTENSION);
                 moveSucceeded = atomicMove(targetPath);
             }
 
@@ -193,7 +193,7 @@ public class FileChannelLock implements Closeable, ILock {
         finalizer.locked = true;
         finalizer.register(this);
         if (finalizer.heartbeatEnabled) {
-            FileChannelLockHeartbeatRegistry.register(this);
+            HeartbeatFileChannelLockRegistry.register(this);
         }
         return true;
     }
@@ -201,7 +201,7 @@ public class FileChannelLock implements Closeable, ILock {
     private boolean atomicMove(final Path targetPath) {
         final Path tempPath = targetPath.resolveSibling(targetPath.getFileName().toString() + TMP_SUFFIX);
         // Store only the unique owner string; time is tracked purely via filesystem metadata
-        final String lockContent = FileChannelLockHeartbeatRegistry.HEARTBEAT_OWNER;
+        final String lockContent = HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER;
         boolean moveSucceeded = false;
         try {
             Files.writeString(tempPath, lockContent);
@@ -221,15 +221,15 @@ public class FileChannelLock implements Closeable, ILock {
     private boolean tryStealOrVerifyLock(final Path targetPath, final Path tempPath, final String lockContent) {
         try {
             final String content = Files.readString(targetPath);
-            final String owner = content.trim();
+            final String currentOwner = content.trim();
 
-            if (FileChannelLockHeartbeatRegistry.HEARTBEAT_OWNER.equals(owner)) {
+            if (HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(currentOwner)) {
                 return true;
             }
 
             if (finalizer.heartbeatEnabled) {
                 final long now = FDateMillis.nowMillis();
-                final long timeout = FileChannelLockHeartbeatRegistry.HEARTBEAT_TIMEOUT_MILLIS;
+                final long timeout = HeartbeatFileChannelLockRegistry.HEARTBEAT_TIMEOUT_MILLIS;
 
                 Path checkPath = targetPath;
                 if (finalizer.heartbeatPath != null && Files.exists(finalizer.heartbeatPath)) {
@@ -245,7 +245,7 @@ public class FileChannelLock implements Closeable, ILock {
 
                     // VERIFICATION STEP: Read back to guarantee we won the race against other nodes
                     final String verifyContent = Files.readString(targetPath);
-                    if (FileChannelLockHeartbeatRegistry.HEARTBEAT_OWNER.equals(verifyContent.trim())) {
+                    if (HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(verifyContent.trim())) {
                         return true;
                     }
                 }
@@ -268,7 +268,7 @@ public class FileChannelLock implements Closeable, ILock {
 
             if (Files.exists(targetPath)) {
                 final String currentOwner = Files.readString(targetPath).trim();
-                if (!FileChannelLockHeartbeatRegistry.HEARTBEAT_OWNER.equals(currentOwner)) {
+                if (!HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(currentOwner)) {
                     finalizer.close();
                     return false;
                 }
@@ -301,7 +301,7 @@ public class FileChannelLock implements Closeable, ILock {
     @Override
     public synchronized void unlock() {
         if (finalizer.heartbeatEnabled) {
-            FileChannelLockHeartbeatRegistry.remove(this);
+            HeartbeatFileChannelLockRegistry.remove(this);
         }
         finalizer.close();
     }
@@ -418,7 +418,7 @@ public class FileChannelLock implements Closeable, ILock {
             try {
                 if (Files.exists(targetPath)) {
                     final String content = Files.readString(targetPath).trim();
-                    return FileChannelLockHeartbeatRegistry.HEARTBEAT_OWNER.equals(content);
+                    return HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(content);
                 }
             } catch (final Exception ignored) {
             }
