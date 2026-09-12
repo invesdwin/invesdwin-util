@@ -130,29 +130,39 @@ public final class Files extends AFilesStaticFacade {
         deleteEmptyDirectories(directory);
     }
 
+    public static void deleteEmptyDirectories(final File directory) {
+        final File[] listFiles = directory.listFiles();
+        if (listFiles != null && listFiles.length > 0) {
+            for (final File f : listFiles) {
+                deleteEmptyDirectoriesRecursive(f);
+            }
+        }
+    }
+
     /**
      * https://stackoverflow.com/questions/26017545/delete-all-empty-folders-in-java
      */
-    public static long deleteEmptyDirectories(final File rootDirectory) {
-        final String[] listFiles = rootDirectory.list();
+    private static long deleteEmptyDirectoriesRecursive(final File directory) {
+        final String[] listFiles = directory.list();
         if (listFiles == null || listFiles.length == 0) {
+            directory.delete();
             return 0L;
         }
         long totalSize = 0L;
         for (final String file : listFiles) {
-            final File folder = new File(rootDirectory, file);
-            if (folder.isDirectory()) {
-                totalSize += deleteEmptyDirectories(folder);
+            final File subDirectory = new File(directory, file);
+            if (subDirectory.isDirectory()) {
+                totalSize += deleteEmptyDirectoriesRecursive(subDirectory);
             } else {
-                totalSize += folder.length();
+                totalSize += subDirectory.length();
             }
         }
-
         if (totalSize == 0) {
-            rootDirectory.delete();
+            directory.delete();
+            return 0L;
+        } else {
+            return totalSize;
         }
-
-        return totalSize;
     }
 
     public static boolean isEmptyDirectory(final File f) {
