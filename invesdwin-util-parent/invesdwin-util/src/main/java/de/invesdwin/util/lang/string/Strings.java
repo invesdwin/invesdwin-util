@@ -777,4 +777,30 @@ public final class Strings extends AStringsStaticFacade {
         return Strings.indexOf(str, prefix, startIndex) >= 0;
     }
 
+    /**
+     * The index defines the ascii character to be replaced. The replacement is defined by the asciiMap value. If the
+     * character is not mapped, it is kept as it is.
+     */
+    public static String replaceMappedAscii(final String text, final char[] asciiMap) {
+        if (text == null) {
+            return null;
+        }
+        StringBuilder sb = null;
+        for (int i = 0; i < text.length(); i++) {
+            final char c = text.charAt(i);
+            final char replacement = (c < asciiMap.length) ? asciiMap[c] : 0;
+
+            if (replacement != 0) {
+                if (sb == null) {
+                    sb = new StringBuilder(text.length());
+                    sb.append(text, 0, i);
+                }
+                sb.append(replacement);
+            } else if (sb != null) {
+                sb.append(c);
+            }
+        }
+        return (sb == null) ? text : sb.toString();
+    }
+
 }

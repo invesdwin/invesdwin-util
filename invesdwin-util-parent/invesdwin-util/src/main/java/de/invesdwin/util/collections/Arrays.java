@@ -9,6 +9,7 @@ import de.invesdwin.util.collections.internal.AArraysStaticFacade;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.comparator.IComparator;
+import de.invesdwin.util.math.Characters;
 import de.invesdwin.util.time.date.BisectDuplicateKeyHandling;
 import de.invesdwin.util.time.date.FDates;
 
@@ -80,6 +81,32 @@ public class Arrays extends AArraysStaticFacade {
 
         for (int i = 1; i < arrays.length; i++) {
             final T[] array = arrays[i];
+            System.arraycopy(array, 0, dest, destPos, array.length);
+            destPos += array.length;
+        }
+        return dest;
+    }
+
+    public static char[] concat(final char[]... arrays) {
+        if (arrays.length == 0) {
+            return Characters.EMPTY_ARRAY;
+        }
+
+        int finalLength = 0;
+        for (int i = 0; i < arrays.length; i++) {
+            finalLength += arrays[i].length;
+        }
+
+        if (finalLength == 0) {
+            //should be an empty array
+            return arrays[0];
+        }
+
+        final char[] dest = Arrays.copyOf(arrays[0], finalLength);
+        int destPos = arrays[0].length;
+
+        for (int i = 1; i < arrays.length; i++) {
+            final char[] array = arrays[i];
             System.arraycopy(array, 0, dest, destPos, array.length);
             destPos += array.length;
         }

@@ -16,6 +16,7 @@ import javax.annotation.concurrent.Immutable;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.EncoderException;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
@@ -37,23 +38,37 @@ public final class URIs {
      * 
      * reserved = ";" | "/" | "?" | ":" | "@" | "&" | "=" | "+" | "$" | ","
      */
-    public static final String[] NORMALIZE_FILENAME_SEARCH = Arrays.concat(Files.NORMALIZE_FILENAME_SEARCH,
-            new String[] { "{", "}", "[", "]", "^", "'", ";", "&", "+", "$", "," });
+    public static final char[] NORMALIZE_FILENAME_SEARCH = Arrays.concat(Files.NORMALIZE_FILENAME_SEARCH,
+            new char[] { '{', '}', '[', ']', '^', '\'', ';', '&', '+', '$', ',' });
     /**
      * need to use distinct characters here so that expressions don't become mixed if they only differ in an operator
      * that gets escaped here
      */
-    public static final String[] NORMALIZE_FILENAME_REPLACE = Arrays.concat(Files.NORMALIZE_FILENAME_REPLACE,
-            new String[] { "Q", "E", "M", "N", "F", "A", "S", "N", "P", "D", "C" });
-    public static final String[] NORMALIZE_PATH_SEARCH = Arrays.concat(Files.NORMALIZE_PATH_SEARCH,
-            new String[] { "{", "}", "[", "]", "^", "'", ";", "&", "+", "$", ",", "\\" });
-    public static final String[] NORMALIZE_PATH_REPLACE = Arrays.concat(Files.NORMALIZE_PATH_REPLACE,
-            new String[] { "Q", "E", "M", "N", "F", "A", "S", "N", "P", "D", "C", "/" });
+    public static final char[] NORMALIZE_FILENAME_REPLACE = Arrays.concat(Files.NORMALIZE_FILENAME_REPLACE,
+            new char[] { 'Q', 'E', 'M', 'N', 'F', 'A', 'S', 'N', 'P', 'D', 'C' });
+    public static final char[] NORMALIZE_PATH_SEARCH = Arrays.concat(Files.NORMALIZE_PATH_SEARCH,
+            new char[] { '{', '}', '[', ']', '^', '\'', ';', '&', '+', '$', ',', '\\' });
+    public static final char[] NORMALIZE_PATH_REPLACE = Arrays.concat(Files.NORMALIZE_PATH_REPLACE,
+            new char[] { 'Q', 'E', 'M', 'N', 'F', 'A', 'S', 'N', 'P', 'D', 'C', '/' });
 
     private static Duration defaultNetworkTimeout = new Duration(30, FTimeUnit.SECONDS);
 
     private static final URLComponentCodec URL_CODEC = new URLComponentCodec();
     private static IURIsConnectFactory defaultUrisConnectFactory = IURIsConnectFactory.OK_HTTP;
+
+    private static final char[] NORMALIZE_FILENAME_REPLACE_MAP = new char[128];
+    private static final char[] NORMALIZE_PATH_REPLACE_MAP = new char[128];
+
+    static {
+        Assertions.assertThat(NORMALIZE_FILENAME_SEARCH.length).isEqualByComparingTo(NORMALIZE_FILENAME_REPLACE.length);
+        Assertions.assertThat(NORMALIZE_PATH_SEARCH.length).isEqualByComparingTo(NORMALIZE_PATH_REPLACE.length);
+        for (int i = 0; i < NORMALIZE_FILENAME_SEARCH.length; i++) {
+            NORMALIZE_FILENAME_REPLACE_MAP[NORMALIZE_FILENAME_SEARCH[i]] = NORMALIZE_FILENAME_REPLACE[i];
+        }
+        for (int i = 0; i < NORMALIZE_PATH_SEARCH.length; i++) {
+            NORMALIZE_PATH_REPLACE_MAP[NORMALIZE_PATH_SEARCH[i]] = NORMALIZE_PATH_REPLACE[i];
+        }
+    }
 
     private URIs() {}
 
@@ -112,14 +127,126 @@ public final class URIs {
     }
 
     public static URI asUri(final String uri) {
-        if (uri == null) {
-            return null;
-        }
         try {
-            return new URI(uri); //SUPPRESS CHECKSTYLE singleline
+            return new URI(encodeUri(uri)); //SUPPRESS CHECKSTYLE singleline
         } catch (final URISyntaxException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException("Cannot parse URI: " + uri, e);
         }
+    }
+
+    /**
+     * Encode characters that break java.net.URI. This is a workaround for the fact that java.net.URI does not encode
+     * this.
+     */
+    public static String encodeUri(final String uri) {
+        StringBuilder sb = null;
+        // Single-pass check for characters that break java.net.URI
+        for (int i = 0; i < uri.length(); i++) {
+            final char c = uri.charAt(i);
+            String replacement = null;
+
+            switch (c) {
+            case ' ':
+                replacement = "%20";
+                break;
+            case '{':
+                replacement = "%7B";
+                break;
+            case '}':
+                replacement = "%7D";
+                break;
+            case '|':
+                replacement = "%7C";
+                break;
+            case '\\':
+                replacement = "%5C";
+                break;
+            case '^':
+                replacement = "%5E";
+                break;
+            case '[':
+                replacement = "%5B";
+                break;
+            case ']':
+                replacement = "%5D";
+                break;
+            case '"':
+                replacement = "%22";
+                break;
+            case '<':
+                replacement = "%3C";
+                break;
+            case '>':
+                replacement = "%3E";
+                break;
+            case '`':
+                replacement = "%60";
+                break;
+            default:
+                break;
+            }
+
+            if (replacement != null) {
+                // Initialize the builder lazily only when the first illegal char is found
+                if (sb == null) {
+                    sb = new StringBuilder(uri.length() + 16);
+                    sb.append(uri, 0, i);
+                }
+                sb.append(replacement);
+            } else if (sb != null) {
+                sb.append(c);
+            }
+        }
+        final String safeUriString = (sb == null) ? uri : sb.toString();
+        return safeUriString;
+    }
+
+    /**
+     * Decodes percent-encoded characters in a URI. Safely reverses encodeUri() without the "+" to " " bug found in
+     * java.net.URLDecoder.
+     */
+    public static String decodeUri(final String uri) {
+        // Fast path: if there is no percent sign, nothing to decode
+        if (uri == null || uri.indexOf('%') < 0) {
+            return uri;
+        }
+
+        final StringBuilder sb = new StringBuilder(uri.length());
+        for (int i = 0; i < uri.length(); i++) {
+            final char c = uri.charAt(i);
+
+            // Check if we found a '%' followed by at least two characters
+            if (c == '%' && i + 2 < uri.length()) {
+                final int high = decodeHex(uri.charAt(i + 1));
+                final int low = decodeHex(uri.charAt(i + 2));
+
+                // If both characters are valid hex digits, combine them into a character
+                if (high != -1 && low != -1) {
+                    sb.append((char) ((high << 4) | low));
+                    i += 2; // Skip the two hex characters
+                    continue;
+                }
+            }
+            // If not a valid hex sequence, or not a '%', append the character as-is
+            sb.append(c);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Helper to quickly parse hex characters without throwing NumberFormatExceptions.
+     */
+    private static int decodeHex(final char c) {
+        if (c >= '0' && c <= '9') {
+            return c - '0';
+        }
+        if (c >= 'a' && c <= 'f') {
+            return c - 'a' + 10;
+        }
+        if (c >= 'A' && c <= 'F') {
+            return c - 'A' + 10;
+        }
+        return -1;
     }
 
     public static URI asUriOrNull(final String uri) {
@@ -127,7 +254,7 @@ public final class URIs {
             return null;
         }
         try {
-            return new URI(uri); //SUPPRESS CHECKSTYLE singleline
+            return new URI(encodeUri(uri)); //SUPPRESS CHECKSTYLE singleline
         } catch (final URISyntaxException e) {
             return null;
         }
@@ -232,12 +359,11 @@ public final class URIs {
     }
 
     public static String normalizeFilename(final String name) {
-        return Files.normalizePathMaxLength(
-                Strings.replaceEach(name, NORMALIZE_FILENAME_SEARCH, NORMALIZE_FILENAME_REPLACE));
+        return Files.normalizePathMaxLength(Strings.replaceMappedAscii(name, NORMALIZE_FILENAME_REPLACE_MAP));
     }
 
     public static String normalizePath(final String path) {
-        return Files.normalizePathMaxLength(Strings.replaceEach(path, NORMALIZE_PATH_SEARCH, NORMALIZE_PATH_REPLACE));
+        return Files.normalizePathMaxLength(Strings.replaceMappedAscii(path, NORMALIZE_PATH_REPLACE_MAP));
     }
 
     public static Map<String, String> splitQuery(final URI uri) {
