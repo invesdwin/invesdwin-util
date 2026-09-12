@@ -133,7 +133,8 @@ public final class Files extends AFilesStaticFacade {
     public static void deleteEmptyDirectories(final File directory) {
         final File[] listFiles = directory.listFiles();
         if (listFiles != null && listFiles.length > 0) {
-            for (final File f : listFiles) {
+            for (int i = 0; i < listFiles.length; i++) {
+                final File f = listFiles[i];
                 deleteEmptyDirectoriesRecursive(f);
             }
         }
@@ -149,7 +150,8 @@ public final class Files extends AFilesStaticFacade {
             return 0L;
         }
         long totalSize = 0L;
-        for (final String file : listFiles) {
+        for (int i = 0; i < listFiles.length; i++) {
+            final String file = listFiles[i];
             final File subDirectory = new File(directory, file);
             if (subDirectory.isDirectory()) {
                 totalSize += deleteEmptyDirectoriesRecursive(subDirectory);
