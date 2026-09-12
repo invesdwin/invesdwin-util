@@ -141,6 +141,7 @@ public final class Files extends AFilesStaticFacade {
     public static long deleteEmptyDirectories(final File f) {
         final String[] listFiles = f.list();
         if (listFiles == null || listFiles.length == 0) {
+            f.delete();
             return 0L;
         }
         long totalSize = 0L;
