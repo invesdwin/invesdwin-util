@@ -149,6 +149,9 @@ public final class URIs {
             case ' ':
                 replacement = "%20";
                 break;
+            case '#':
+                replacement = "%23";
+                break;
             case '{':
                 replacement = "%7B";
                 break;
@@ -181,9 +184,6 @@ public final class URIs {
                 break;
             case '`':
                 replacement = "%60";
-                break;
-            case '#':
-                replacement = "%23";
                 break;
             default:
                 break;
