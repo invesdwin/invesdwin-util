@@ -715,6 +715,34 @@ public class Duration extends Number implements Comparable<Object> {
         }
     }
 
+    public Duration newRandomDuration() {
+        final IRandomGenerator random = PseudoRandomGenerators.getThreadLocalPseudoRandom();
+        final long millis = millisValue();
+        final int picos = picosValue();
+        if (millis == 0) {
+            if (picos == 0) {
+                return Duration.ZERO;
+            }
+            final int nanos = picos / FTimeUnit.PICOSECONDS_IN_NANOSECOND;
+            if (nanos == 0) {
+                return Duration.ZERO;
+            }
+            final int randomNanos = random.nextInt(nanos);
+            return new Duration(randomNanos, FTimeUnit.NANOSECONDS);
+        } else {
+            final long randomMillis = random.nextLong(millis);
+            if (picos == 0) {
+                return new Duration(randomMillis, FTimeUnit.MILLISECONDS);
+            }
+            final int nanos = picos / FTimeUnit.PICOSECONDS_IN_NANOSECOND;
+            if (nanos == 0) {
+                return new Duration(randomMillis, FTimeUnit.MILLISECONDS);
+            }
+            final int randomNanos = random.nextInt(nanos);
+            return new Duration(randomMillis, FTimeUnit.MILLISECONDS).add(randomNanos, FTimeUnit.NANOSECONDS);
+        }
+    }
+
     @Override
     public int intValue() {
         return intValue(timeUnit);

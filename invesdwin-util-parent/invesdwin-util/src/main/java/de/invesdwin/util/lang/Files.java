@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -39,6 +40,7 @@ import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.streams.FlatteningInputStream;
 import de.invesdwin.util.streams.StringInputStream;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.millis.FDateMillis;
 import de.invesdwin.util.time.duration.Duration;
 import it.unimi.dsi.fastutil.io.FastBufferedInputStream;
 
@@ -51,15 +53,14 @@ public final class Files extends AFilesStaticFacade {
     public static final int DEFAULT_MAX_REFERENCE_LENGTH = (int) ByteSizeScale.BYTES.convert(10,
             ByteSizeScale.MEGABYTES);
 
-    public static final String[] NORMALIZE_FILENAME_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|", "/",
-            "\\" };
+    public static final char[] NORMALIZE_FILENAME_SEARCH = { ':', '@', '*', '?', '<', '>', '=', '\'', '|', '/', '\\', };
     /**
      * need to use distinct characters here so that expressions don't become mixed if they only differ in an operator
      * that gets escaped here
      */
-    public static final String[] NORMALIZE_FILENAME_REPLACE = { "c", "a", "m", "q", "l", "g", "e", "u", "p", "s", "b" };
-    public static final String[] NORMALIZE_PATH_SEARCH = { ":", "@", "*", "?", "<", ">", "=", "\"", "|" };
-    public static final String[] NORMALIZE_PATH_REPLACE = { "c", "a", "m", "q", "l", "g", "e", "u", "p" };
+    public static final char[] NORMALIZE_FILENAME_REPLACE = { 'c', 'a', 'm', 'q', 'l', 'g', 'e', 'u', 'p', 's', 'b', };
+    public static final char[] NORMALIZE_PATH_SEARCH = { ':', '@', '*', '?', '<', '>', '=', '\'', '|' };
+    public static final char[] NORMALIZE_PATH_REPLACE = { 'c', 'a', 'm', 'q', 'l', 'g', 'e', 'u', 'p' };
     /*
      * 256 should be maximum, but we need a few less so that windows explorer can actually delete too long paths maybe
      * for some "" that it adds internally
@@ -70,9 +71,18 @@ public final class Files extends AFilesStaticFacade {
     private static Boolean deleteNativeWindowsAvailable = null;
     private static File tempDirectory;
 
+    private static final char[] NORMALIZE_FILENAME_REPLACE_MAP = new char[128];
+    private static final char[] NORMALIZE_PATH_REPLACE_MAP = new char[128];
+
     static {
         Assertions.assertThat(NORMALIZE_FILENAME_SEARCH.length).isEqualByComparingTo(NORMALIZE_FILENAME_REPLACE.length);
         Assertions.assertThat(NORMALIZE_PATH_SEARCH.length).isEqualByComparingTo(NORMALIZE_PATH_REPLACE.length);
+        for (int i = 0; i < NORMALIZE_FILENAME_SEARCH.length; i++) {
+            NORMALIZE_FILENAME_REPLACE_MAP[NORMALIZE_FILENAME_SEARCH[i]] = NORMALIZE_FILENAME_REPLACE[i];
+        }
+        for (int i = 0; i < NORMALIZE_PATH_SEARCH.length; i++) {
+            NORMALIZE_PATH_REPLACE_MAP[NORMALIZE_PATH_SEARCH[i]] = NORMALIZE_PATH_REPLACE[i];
+        }
         if (!OperatingSystem.isWindows()) {
             deleteNativeWindowsAvailable = false;
         }
@@ -117,10 +127,17 @@ public final class Files extends AFilesStaticFacade {
             final File fileToDelete = filesToDelete.next();
             fileToDelete.delete();
         }
+        deleteEmptyDirectories(directory);
+    }
+
+    public static void deleteEmptyDirectories(final File directory) {
         final File[] listFiles = directory.listFiles();
         if (listFiles != null && listFiles.length > 0) {
-            for (final File f : listFiles) {
-                deleteEmptyDirectories(f);
+            for (int i = 0; i < listFiles.length; i++) {
+                final File f = listFiles[i];
+                if (f.isDirectory()) {
+                    deleteEmptyDirectoriesRecursive(f);
+                }
             }
         }
     }
@@ -128,26 +145,31 @@ public final class Files extends AFilesStaticFacade {
     /**
      * https://stackoverflow.com/questions/26017545/delete-all-empty-folders-in-java
      */
-    public static long deleteEmptyDirectories(final File f) {
-        final String[] listFiles = f.list();
+    private static boolean deleteEmptyDirectoriesRecursive(final File directory) {
+        final String[] listFiles = directory.list();
         if (listFiles == null || listFiles.length == 0) {
-            return 0L;
+            //does not contain any files or directories, thus delete this directory
+            directory.delete();
+            return true;
         }
-        long totalSize = 0L;
-        for (final String file : listFiles) {
-            final File folder = new File(f, file);
-            if (folder.isDirectory()) {
-                totalSize += deleteEmptyDirectories(folder);
+        boolean empty = false;
+        for (int i = 0; i < listFiles.length; i++) {
+            final String file = listFiles[i];
+            final File sub = new File(directory, file);
+            if (sub.isDirectory()) {
+                empty |= deleteEmptyDirectoriesRecursive(sub);
             } else {
-                totalSize += folder.length();
+                //contains a file, thus not empty
+                return false;
             }
         }
-
-        if (totalSize == 0) {
-            f.delete();
+        if (empty) {
+            //contains only empty directorys, thus delete this directory too
+            directory.delete();
+            return true;
+        } else {
+            return false;
         }
-
-        return totalSize;
     }
 
     public static boolean isEmptyDirectory(final File f) {
@@ -156,7 +178,7 @@ public final class Files extends AFilesStaticFacade {
     }
 
     public static String normalizeFilename(final String name) {
-        return normalizePathMaxLength(Strings.replaceEach(name, NORMALIZE_FILENAME_SEARCH, NORMALIZE_FILENAME_REPLACE));
+        return normalizePathMaxLength(Strings.replaceMappedAscii(name, NORMALIZE_FILENAME_REPLACE_MAP));
     }
 
     public static File normalizePath(final File path) {
@@ -180,7 +202,7 @@ public final class Files extends AFilesStaticFacade {
     }
 
     public static String normalizePath(final String path) {
-        return normalizePathMaxLength(Strings.replaceEach(path, NORMALIZE_PATH_SEARCH, NORMALIZE_PATH_REPLACE));
+        return normalizePathMaxLength(Strings.replaceMappedAscii(path, NORMALIZE_PATH_REPLACE_MAP));
     }
 
     public static String normalizePathMaxLength(final String path) {
@@ -674,4 +696,65 @@ public final class Files extends AFilesStaticFacade {
         }
     }
 
+    public static long lastModifiedNoThrow(final Path path) {
+        try {
+            return getLastModifiedTime(path).toMillis();
+        } catch (final IOException e) {
+            return 0L;
+        }
+    }
+
+    public static long lastModifiedNoThrow(final File file) {
+        try {
+            return lastModified(file);
+        } catch (final IOException e) {
+            return 0L;
+        }
+    }
+
+    public static void cleanupStaleTempFiles(final Path dir, final Duration staleThreshold,
+            final String... extensions) {
+        final long now = FDateMillis.nowMillis();
+        cleanupStaleTempFilesDirectory(dir, now, staleThreshold, extensions);
+    }
+
+    private static boolean cleanupStaleTempFilesDirectory(final Path dir, final long now, final Duration staleThreshold,
+            final String... extensions) {
+        boolean isEmpty = true;
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+            for (final Path p : stream) {
+                if (Files.isDirectory(p)) {
+                    if (cleanupStaleTempFilesDirectory(p, now, staleThreshold, extensions)) {
+                        try {
+                            Files.deleteIfExists(p);
+                        } catch (final IOException e) {
+                            isEmpty = false; // Directory could not be removed (e.g. concurrent write)
+                        }
+                    } else {
+                        isEmpty = false;
+                    }
+                } else {
+                    final String fileName = p.getFileName().toString();
+                    if (Strings.endsWithAny(fileName, extensions)) {
+                        try {
+                            if (staleThreshold.isLessThanMillis(now - Files.lastModifiedNoThrow(p))) {
+                                Files.deleteIfExists(p);
+                            } else {
+                                isEmpty = false;
+                            }
+                        } catch (final NoSuchFileException e) {
+                            // Concurrently deleted by another process
+                        } catch (final IOException e) {
+                            isEmpty = false;
+                        }
+                    } else {
+                        isEmpty = false;
+                    }
+                }
+            }
+        } catch (final IOException e) {
+            isEmpty = false;
+        }
+        return isEmpty;
+    }
 }

@@ -1,10 +1,8 @@
-package de.invesdwin.util.concurrent.lock;
+package de.invesdwin.util.concurrent.lock.file;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.ref.WeakReference;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -19,18 +17,18 @@ import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.UUIDs;
-import de.invesdwin.util.time.date.FTimeUnit;
-import de.invesdwin.util.time.date.millis.FDateMillis;
+import de.invesdwin.util.lang.string.Strings;
+import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
-public final class FileChannelLockHeartbeatRegistry {
+public final class HeartbeatFileChannelLockRegistry {
 
     // Append UUID to ensure uniqueness even if PID@Hostname (e.g. 1@localhost) matches exactly across containers
-    public static final String HEARTBEAT_OWNER = ManagementFactory.getRuntimeMXBean().getName() + "_"
-            + UUIDs.newPseudoRandomUUID();
+    public static final String HEARTBEAT_OWNER = Strings.truncate(ManagementFactory.getRuntimeMXBean().getName(), 50)
+            + "_" + UUIDs.newPseudoRandomUUID();
     public static final String HEARTBEAT_EXTENSION = ".heartbeat";
-    public static final long HEARTBEAT_TIMEOUT_MILLIS = 2 * FTimeUnit.MILLISECONDS_IN_MINUTE;
-    private static final int HEARTBEAT_INTERVAL_MILLIS = 30 * FTimeUnit.MILLISECONDS_IN_SECOND;
+    public static final Duration HEARTBEAT_TIMEOUT = Duration.TWO_MINUTES;
+    public static final Duration HEARTBEAT_INTERVAL = Duration.THIRTY_SECONDS;
 
     private static final int MAX_PREFIXES_POOL_SIZE = 100;
 
@@ -43,7 +41,7 @@ public final class FileChannelLockHeartbeatRegistry {
     private static final Object EXECUTOR_LOCK = new Object();
     private static ScheduledExecutorService heartbeatExecutor;
 
-    private FileChannelLockHeartbeatRegistry() {}
+    private HeartbeatFileChannelLockRegistry() {}
 
     public static void register(final FileChannelLock lock) {
         REGISTRY.put(lock.getFile(), new WeakReference<>(lock));
@@ -59,9 +57,9 @@ public final class FileChannelLockHeartbeatRegistry {
         synchronized (EXECUTOR_LOCK) {
             if (heartbeatExecutor == null || heartbeatExecutor.isShutdown()) {
                 heartbeatExecutor = Executors
-                        .newScheduledThreadPool(FileChannelLockHeartbeatRegistry.class.getSimpleName(), 1);
-                heartbeatExecutor.scheduleAtFixedRate(FileChannelLockHeartbeatRegistry::updateHeartbeats,
-                        HEARTBEAT_INTERVAL_MILLIS, HEARTBEAT_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
+                        .newScheduledThreadPool(HeartbeatFileChannelLockRegistry.class.getSimpleName(), 1);
+                heartbeatExecutor.scheduleAtFixedRate(HeartbeatFileChannelLockRegistry::updateHeartbeats,
+                        HEARTBEAT_INTERVAL.millisValue(), HEARTBEAT_INTERVAL.millisValue(), TimeUnit.MILLISECONDS);
             }
         }
     }
@@ -77,8 +75,6 @@ public final class FileChannelLockHeartbeatRegistry {
     }
 
     private static void updateHeartbeats() {
-        final long now = FDateMillis.nowMillis();
-        final long staleThreshold = now - HEARTBEAT_TIMEOUT_MILLIS;
         try {
             final Iterator<Entry<File, WeakReference<FileChannelLock>>> iterator = REGISTRY.entrySet().iterator();
             while (iterator.hasNext()) {
@@ -100,7 +96,7 @@ public final class FileChannelLockHeartbeatRegistry {
                     iterator.remove();
                 }
             }
-            cleanupStaleFiles(staleThreshold);
+            cleanupStaleTempFiles();
         } finally {
             resetDirToPrefixes();
         }
@@ -120,39 +116,11 @@ public final class FileChannelLockHeartbeatRegistry {
         prefixes.add(file.getName());
     }
 
-    private static void cleanupStaleFiles(final long staleThreshold) {
+    private static void cleanupStaleTempFiles() {
         for (final Map.Entry<File, List<String>> entry : DIR_TO_PREFIXES.entrySet()) {
             final File dir = entry.getKey();
-            if (!dir.exists() || !dir.isDirectory()) {
-                continue;
-            }
-
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir.toPath())) {
-                for (final Path path : stream) {
-                    final String fileName = path.getFileName().toString();
-
-                    boolean matchesPrefix = false;
-                    for (final String prefix : entry.getValue()) {
-                        if (fileName.startsWith(prefix) && (fileName.endsWith(FileChannelLock.TMP_EXTENSION)
-                                || fileName.endsWith(HEARTBEAT_EXTENSION))) {
-                            matchesPrefix = true;
-                            break;
-                        }
-                    }
-
-                    if (matchesPrefix) {
-                        try {
-                            if (Files.getLastModifiedTime(path).toMillis() < staleThreshold) {
-                                Files.deleteIfExists(path);
-                            }
-                        } catch (final Exception ignored) {
-                            // Ignore concurrent access or deletion issues
-                        }
-                    }
-                }
-            } catch (final Exception ignored) {
-                // Ignore directory scanning issues
-            }
+            Files.cleanupStaleTempFiles(dir.toPath(), HEARTBEAT_TIMEOUT, FileChannelLock.TMP_EXTENSION,
+                    HEARTBEAT_EXTENSION);
         }
 
     }
