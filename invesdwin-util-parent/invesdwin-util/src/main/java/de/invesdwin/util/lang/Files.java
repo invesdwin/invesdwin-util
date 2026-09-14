@@ -135,7 +135,9 @@ public final class Files extends AFilesStaticFacade {
         if (listFiles != null && listFiles.length > 0) {
             for (int i = 0; i < listFiles.length; i++) {
                 final File f = listFiles[i];
-                deleteEmptyDirectoriesRecursive(f);
+                if (f.isDirectory()) {
+                    deleteEmptyDirectoriesRecursive(f);
+                }
             }
         }
     }
@@ -143,27 +145,30 @@ public final class Files extends AFilesStaticFacade {
     /**
      * https://stackoverflow.com/questions/26017545/delete-all-empty-folders-in-java
      */
-    private static long deleteEmptyDirectoriesRecursive(final File directory) {
+    private static boolean deleteEmptyDirectoriesRecursive(final File directory) {
         final String[] listFiles = directory.list();
         if (listFiles == null || listFiles.length == 0) {
+            //does not contain any files or directories, thus delete this directory
             directory.delete();
-            return 0L;
+            return true;
         }
-        long totalSize = 0L;
+        boolean empty = false;
         for (int i = 0; i < listFiles.length; i++) {
             final String file = listFiles[i];
-            final File subDirectory = new File(directory, file);
-            if (subDirectory.isDirectory()) {
-                totalSize += deleteEmptyDirectoriesRecursive(subDirectory);
+            final File sub = new File(directory, file);
+            if (sub.isDirectory()) {
+                empty |= deleteEmptyDirectoriesRecursive(sub);
             } else {
-                totalSize += subDirectory.length();
+                //contains a file, thus not empty
+                return false;
             }
         }
-        if (totalSize == 0) {
+        if (empty) {
+            //contains only empty directorys, thus delete this directory too
             directory.delete();
-            return 0L;
+            return true;
         } else {
-            return totalSize;
+            return false;
         }
     }
 
