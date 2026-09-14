@@ -17,14 +17,15 @@ import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.UUIDs;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
 public final class HeartbeatFileChannelLockRegistry {
 
     // Append UUID to ensure uniqueness even if PID@Hostname (e.g. 1@localhost) matches exactly across containers
-    public static final String HEARTBEAT_OWNER = ManagementFactory.getRuntimeMXBean().getName() + "_"
-            + UUIDs.newPseudoRandomUUID();
+    public static final String HEARTBEAT_OWNER = Strings.truncate(ManagementFactory.getRuntimeMXBean().getName(), 50)
+            + "_" + UUIDs.newPseudoRandomUUID();
     public static final String HEARTBEAT_EXTENSION = ".heartbeat";
     public static final Duration HEARTBEAT_TIMEOUT = Duration.TWO_MINUTES;
     public static final Duration HEARTBEAT_INTERVAL = Duration.THIRTY_SECONDS;
