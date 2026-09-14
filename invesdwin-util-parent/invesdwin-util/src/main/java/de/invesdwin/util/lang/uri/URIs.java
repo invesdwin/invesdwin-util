@@ -182,6 +182,9 @@ public final class URIs {
             case '`':
                 replacement = "%60";
                 break;
+            case '#':
+                replacement = "%23";
+                break;
             default:
                 break;
             }
