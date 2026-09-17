@@ -263,19 +263,17 @@ public class FileChannelLock implements Closeable, ILock {
 
     private boolean touchHeartbeatUnchecked() {
         try {
-            final Path targetPath = finalizer.path;
+            final Path heartbeatPath = finalizer.heartbeatPath;
+            if (heartbeatPath == null) {
+                return false;
+            }
 
-            if (Files.exists(targetPath)) {
-                final String currentOwner = Files.readString(targetPath).trim();
+            if (Files.exists(heartbeatPath)) {
+                final String currentOwner = Files.readString(heartbeatPath).trim();
                 if (!HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(currentOwner)) {
                     finalizer.close();
                     return false;
                 }
-            }
-
-            final Path heartbeatPath = finalizer.heartbeatPath;
-            if (heartbeatPath == null) {
-                return false;
             }
 
             if (!Files.exists(heartbeatPath)) {
