@@ -609,10 +609,18 @@ public final class Files extends AFilesStaticFacade {
             return false;
         }
         try {
-            Files.moveFile(srcFile, destFile);
+            moveFile(srcFile, destFile);
             return true;
         } catch (final IOException e) {
             return false;
+        }
+    }
+
+    public static void moveFileNoThrow(final File srcFile, final File destFile) {
+        try {
+            moveFile(srcFile, destFile);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
