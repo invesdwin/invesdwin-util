@@ -220,8 +220,7 @@ public class FileChannelLock implements Closeable, ILock {
 
     private boolean tryStealOrVerifyLock(final Path targetPath, final Path tempPath, final String lockContent) {
         try {
-            final String content = Files.readString(targetPath);
-            final String currentOwner = content.trim();
+            final String currentOwner = finalizer.readOwnerFallback(targetPath);
 
             if (HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(currentOwner)) {
                 return true;
@@ -243,8 +242,8 @@ public class FileChannelLock implements Closeable, ILock {
                     Files.move(tempPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
 
                     // VERIFICATION STEP: Read back to guarantee we won the race against other nodes
-                    final String verifyContent = Files.readString(targetPath);
-                    if (HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(verifyContent.trim())) {
+                    final String verifyContent = finalizer.readOwnerFallback(targetPath);
+                    if (HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(verifyContent)) {
                         return true;
                     }
                 }
@@ -418,12 +417,28 @@ public class FileChannelLock implements Closeable, ILock {
             }
             try {
                 if (Files.exists(targetPath)) {
-                    final String content = Files.readString(targetPath).trim();
-                    return HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(content);
+                    final String currentOwner = readOwnerFallback(targetPath);
+                    return HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(currentOwner);
                 }
             } catch (final Exception ignored) {
             }
             return false;
+        }
+
+        private String readOwnerFallback(final Path targetPath) throws IOException {
+            try {
+                return Files.readString(targetPath).trim();
+            } catch (final IOException e) {
+                /*
+                 * Windows lock fallback: if the main file is unreadable due to a mandatory OS lock, check the heartbeat
+                 * file to verify ownership.
+                 */
+                if (heartbeatEnabled && heartbeatPath != null && targetPath != heartbeatPath
+                        && Files.exists(heartbeatPath)) {
+                    return Files.readString(heartbeatPath).trim();
+                }
+                throw e;
+            }
         }
 
         @Override
