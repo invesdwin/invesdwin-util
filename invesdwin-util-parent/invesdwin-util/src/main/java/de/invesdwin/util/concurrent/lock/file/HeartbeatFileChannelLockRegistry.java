@@ -48,11 +48,6 @@ public final class HeartbeatFileChannelLockRegistry {
         }
 
         @Override
-        protected String newTmpCleanupMarker() {
-            return HEARTBEAT_EXTENSION + AtomicNioFileChannelContext.CLEANUP_EXTENSION;
-        }
-
-        @Override
         protected Duration newTmpCleanupInterval() {
             return HEARTBEAT_INTERVAL;
         }
