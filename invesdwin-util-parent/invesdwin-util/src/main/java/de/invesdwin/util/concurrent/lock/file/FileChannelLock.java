@@ -51,10 +51,6 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public class FileChannelLock implements Closeable, ILock {
 
-    public static final String TMP_EXTENSION = ".tmp";
-    public static final String TMP_SUFFIX = "_" + Files.normalizePath(HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER)
-            + TMP_EXTENSION;
-
     @GuardedBy("this")
     private final FileChannelLockFinalizer finalizer;
 
@@ -199,7 +195,8 @@ public class FileChannelLock implements Closeable, ILock {
     }
 
     private boolean atomicMove(final Path targetPath) {
-        final Path tempPath = targetPath.resolveSibling(targetPath.getFileName().toString() + TMP_SUFFIX);
+        final Path tempPath = targetPath
+                .resolveSibling(targetPath.getFileName().toString() + AtomicNioFileChannelContext.TMP_SUFFIX);
         // Store only the unique owner string; time is tracked purely via filesystem metadata
         final String lockContent = HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER;
         boolean moveSucceeded = false;

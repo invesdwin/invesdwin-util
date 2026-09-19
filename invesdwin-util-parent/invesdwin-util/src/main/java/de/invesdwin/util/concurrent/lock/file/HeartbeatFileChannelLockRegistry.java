@@ -3,6 +3,7 @@ package de.invesdwin.util.concurrent.lock.file;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.ref.WeakReference;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -15,7 +16,6 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.concurrent.Executors;
-import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.UUIDs;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.duration.Duration;
@@ -40,6 +40,29 @@ public final class HeartbeatFileChannelLockRegistry {
 
     private static final Object EXECUTOR_LOCK = new Object();
     private static ScheduledExecutorService heartbeatExecutor;
+    private static final AtomicNioFileChannelContext TMP_CLEANUP_CONTEXT = new AtomicNioFileChannelContext();
+    private static final AtomicNioFileChannelContext HEARTBEAT_CLEANUP_CONTEXT = new AtomicNioFileChannelContext() {
+        @Override
+        protected String newTmpExtension() {
+            return HEARTBEAT_EXTENSION;
+        }
+
+        @Override
+        protected String newTmpMarkerFilename() {
+            return HEARTBEAT_EXTENSION + ".cleanup";
+        }
+
+        @Override
+        protected Duration newTmpCleanupInterval() {
+            return HEARTBEAT_INTERVAL;
+        }
+
+        @Override
+        protected Duration newTmpCleanupTimeout() {
+            return HEARTBEAT_TIMEOUT;
+        }
+
+    };
 
     private HeartbeatFileChannelLockRegistry() {}
 
@@ -119,8 +142,9 @@ public final class HeartbeatFileChannelLockRegistry {
     private static void cleanupStaleTempFiles() {
         for (final Map.Entry<File, List<String>> entry : DIR_TO_PREFIXES.entrySet()) {
             final File dir = entry.getKey();
-            Files.cleanupStaleTempFiles(dir.toPath(), HEARTBEAT_TIMEOUT, FileChannelLock.TMP_EXTENSION,
-                    HEARTBEAT_EXTENSION);
+            final Path path = dir.toPath();
+            HEARTBEAT_CLEANUP_CONTEXT.maybeRunCleanup(path);
+            TMP_CLEANUP_CONTEXT.maybeRunCleanup(path);
         }
 
     }
