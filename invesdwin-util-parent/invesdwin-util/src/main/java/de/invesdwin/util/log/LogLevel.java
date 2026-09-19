@@ -2,12 +2,19 @@ package de.invesdwin.util.log;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.lang.string.description.TextDescription;
+
 @Immutable
 public enum LogLevel implements ILogLevel {
     TRACE {
         @Override
         public boolean isEnabled(final ILog logger) {
             return logger.isTraceEnabled();
+        }
+
+        @Override
+        public void log(final ILog logger, final TextDescription msg) {
+            logger.trace(msg);
         }
 
         @Override
@@ -93,6 +100,11 @@ public enum LogLevel implements ILogLevel {
         @Override
         public boolean isEnabled(final ILog logger) {
             return logger.isDebugEnabled();
+        }
+
+        @Override
+        public void log(final ILog logger, final TextDescription msg) {
+            logger.debug(msg);
         }
 
         @Override
@@ -182,6 +194,11 @@ public enum LogLevel implements ILogLevel {
         }
 
         @Override
+        public void log(final ILog logger, final TextDescription msg) {
+            logger.info(msg);
+        }
+
+        @Override
         public void log(final ILog logger, final String msg) {
             logger.info(msg);
         }
@@ -265,6 +282,11 @@ public enum LogLevel implements ILogLevel {
         @Override
         public boolean isEnabled(final ILog logger) {
             return logger.isWarnEnabled();
+        }
+
+        @Override
+        public void log(final ILog logger, final TextDescription msg) {
+            logger.warn(msg);
         }
 
         @Override
@@ -353,6 +375,11 @@ public enum LogLevel implements ILogLevel {
         }
 
         @Override
+        public void log(final ILog logger, final TextDescription msg) {
+            logger.error(msg);
+        }
+
+        @Override
         public void log(final ILog logger, final String msg) {
             logger.error(msg);
         }
@@ -435,6 +462,11 @@ public enum LogLevel implements ILogLevel {
         @Override
         public boolean isEnabled(final ILog logger) {
             return logger.isFatalEnabled();
+        }
+
+        @Override
+        public void log(final ILog logger, final TextDescription msg) {
+            logger.fatal(msg);
         }
 
         @Override

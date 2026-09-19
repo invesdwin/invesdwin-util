@@ -2,6 +2,7 @@ package de.invesdwin.util.log.modify;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.log.ILog;
 import de.invesdwin.util.log.LogLevel;
 
@@ -18,6 +19,8 @@ public abstract class AModifiedDelegateLog implements ILog {
     public String getName() {
         return delegate.getName();
     }
+
+    protected abstract String modify(LogLevel level, TextDescription msg);
 
     protected abstract String modify(LogLevel level, String msg);
 
@@ -52,6 +55,13 @@ public abstract class AModifiedDelegateLog implements ILog {
     @Override
     public boolean isTraceEnabled() {
         return delegate.isTraceEnabled();
+    }
+
+    @Override
+    public void trace(final TextDescription msg) {
+        if (delegate.isTraceEnabled()) {
+            delegate.trace(modify(LogLevel.TRACE, msg));
+        }
     }
 
     @Override
@@ -153,6 +163,13 @@ public abstract class AModifiedDelegateLog implements ILog {
     }
 
     @Override
+    public void debug(final TextDescription msg) {
+        if (delegate.isDebugEnabled()) {
+            delegate.debug(modify(LogLevel.DEBUG, msg));
+        }
+    }
+
+    @Override
     public void debug(final String msg) {
         if (delegate.isDebugEnabled()) {
             delegate.debug(modify(LogLevel.DEBUG, msg));
@@ -248,6 +265,13 @@ public abstract class AModifiedDelegateLog implements ILog {
     @Override
     public boolean isInfoEnabled() {
         return delegate.isInfoEnabled();
+    }
+
+    @Override
+    public void info(final TextDescription msg) {
+        if (delegate.isInfoEnabled()) {
+            delegate.info(modify(LogLevel.INFO, msg));
+        }
     }
 
     @Override
@@ -349,6 +373,13 @@ public abstract class AModifiedDelegateLog implements ILog {
     }
 
     @Override
+    public void warn(final TextDescription msg) {
+        if (delegate.isWarnEnabled()) {
+            delegate.warn(modify(LogLevel.WARN, msg));
+        }
+    }
+
+    @Override
     public void warn(final String msg) {
         if (delegate.isWarnEnabled()) {
             delegate.warn(modify(LogLevel.WARN, msg));
@@ -447,6 +478,13 @@ public abstract class AModifiedDelegateLog implements ILog {
     }
 
     @Override
+    public void error(final TextDescription msg) {
+        if (delegate.isErrorEnabled()) {
+            delegate.error(modify(LogLevel.ERROR, msg));
+        }
+    }
+
+    @Override
     public void error(final String msg) {
         if (delegate.isErrorEnabled()) {
             delegate.error(modify(LogLevel.ERROR, msg));
@@ -542,6 +580,13 @@ public abstract class AModifiedDelegateLog implements ILog {
     @Override
     public boolean isFatalEnabled() {
         return delegate.isFatalEnabled();
+    }
+
+    @Override
+    public void fatal(final TextDescription msg) {
+        if (delegate.isFatalEnabled()) {
+            delegate.fatal(modify(LogLevel.FATAL, msg));
+        }
     }
 
     @Override

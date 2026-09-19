@@ -4,6 +4,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.logging.log4j.LogManager;
 
+import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.log.ILog;
 import de.invesdwin.util.log.LogLevel;
 
@@ -37,6 +38,11 @@ public class Log4j2DelegateLog implements ILog {
     @Override
     public boolean isTraceEnabled() {
         return delegate.isTraceEnabled();
+    }
+
+    @Override
+    public void trace(final TextDescription msg) {
+        delegate.trace(msg);
     }
 
     @Override
@@ -111,6 +117,11 @@ public class Log4j2DelegateLog implements ILog {
     }
 
     @Override
+    public void debug(final TextDescription msg) {
+        delegate.debug(msg);
+    }
+
+    @Override
     public void debug(final String msg) {
         delegate.debug(msg);
     }
@@ -179,6 +190,11 @@ public class Log4j2DelegateLog implements ILog {
     @Override
     public boolean isInfoEnabled() {
         return delegate.isInfoEnabled();
+    }
+
+    @Override
+    public void info(final TextDescription msg) {
+        delegate.info(msg);
     }
 
     @Override
@@ -253,6 +269,11 @@ public class Log4j2DelegateLog implements ILog {
     }
 
     @Override
+    public void warn(final TextDescription msg) {
+        delegate.warn(msg);
+    }
+
+    @Override
     public void warn(final String msg) {
         delegate.warn(msg);
     }
@@ -324,6 +345,11 @@ public class Log4j2DelegateLog implements ILog {
     }
 
     @Override
+    public void error(final TextDescription msg) {
+        delegate.error(msg);
+    }
+
+    @Override
     public void error(final String msg) {
         delegate.error(msg);
     }
@@ -392,6 +418,11 @@ public class Log4j2DelegateLog implements ILog {
     @Override
     public boolean isFatalEnabled() {
         return delegate.isFatalEnabled();
+    }
+
+    @Override
+    public void fatal(final TextDescription msg) {
+        delegate.fatal(msg);
     }
 
     @Override

@@ -2,6 +2,7 @@ package de.invesdwin.util.log.disabled;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.log.ILog;
 import de.invesdwin.util.log.ILogLevel;
 
@@ -16,6 +17,9 @@ public final class DisabledLogLevel implements ILogLevel {
     public boolean isEnabled(final ILog logger) {
         return false;
     }
+
+    @Override
+    public void log(final ILog logger, final TextDescription msg) {}
 
     @Override
     public void log(final ILog logger, final String msg) {}

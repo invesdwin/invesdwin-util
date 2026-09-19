@@ -1,8 +1,12 @@
 package de.invesdwin.util.log;
 
+import de.invesdwin.util.lang.string.description.TextDescription;
+
 public interface ILogLevel {
 
     boolean isEnabled(ILog logger);
+
+    void log(ILog logger, TextDescription msg);
 
     void log(ILog logger, String msg);
 
