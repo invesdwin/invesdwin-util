@@ -29,8 +29,9 @@ public class AtomicNioFileChannelContext implements Cloneable {
     public static final String TMP_EXTENSION = ".tmp";
     public static final String TMP_SUFFIX = "_" + Files.normalizePath(HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER)
             + TMP_EXTENSION;
+    public static final String CLEANUP_EXTENSION = ".cleanup";
 
-    public static final String TMP_CLEANUP_MARKER_FILENAME = TMP_EXTENSION + ".cleanup";
+    public static final String TMP_CLEANUP_MARKER = TMP_EXTENSION + CLEANUP_EXTENSION;
     public static final Duration TMP_CLEANUP_INTERVAL = Duration.ONE_DAY;
     public static final Duration TMP_CLEANUP_TIMEOUT = new Duration(12, FTimeUnit.HOURS);
 
@@ -38,7 +39,7 @@ public class AtomicNioFileChannelContext implements Cloneable {
 
     private final String tmpExtension = newTmpExtension();
     private final String tmpSuffix = newTmpSuffix();
-    private final String tmpCleanupMarkerFilename = newTmpMarkerFilename();
+    private final String tmpCleanupMarker = newTmpCleanupMarker();
     private final Duration tmpCleanupInterval = newTmpCleanupInterval();
     private final Duration tmpCleanupTimeout = newTmpCleanupTimeout();
 
@@ -55,8 +56,8 @@ public class AtomicNioFileChannelContext implements Cloneable {
         return TMP_EXTENSION;
     }
 
-    protected String newTmpMarkerFilename() {
-        return TMP_CLEANUP_MARKER_FILENAME;
+    protected String newTmpCleanupMarker() {
+        return TMP_CLEANUP_MARKER;
     }
 
     protected Duration newTmpCleanupInterval() {
@@ -95,7 +96,7 @@ public class AtomicNioFileChannelContext implements Cloneable {
             return;
         }
 
-        final Path markerPath = directoryPath.resolve(tmpCleanupMarkerFilename);
+        final Path markerPath = directoryPath.resolve(tmpCleanupMarker);
         if (Files.exists(markerPath)) {
             final long lastModified = Files.lastModifiedNoThrow(markerPath);
             if (tmpCleanupInterval.isGreaterThanMillis(now.millisValue() - lastModified)) {
@@ -126,7 +127,7 @@ public class AtomicNioFileChannelContext implements Cloneable {
     }
 
     private long newInitialCleanupTime(final Path dir) {
-        final Path markerPath = dir.resolve(tmpCleanupMarkerFilename);
+        final Path markerPath = dir.resolve(tmpCleanupMarker);
         if (Files.exists(markerPath)) {
             return Files.lastModifiedNoThrow(markerPath);
         }
