@@ -16,6 +16,7 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.Threads;
+import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
@@ -24,6 +25,8 @@ import de.invesdwin.util.lang.string.description.TextDescription;
 
 @NotThreadSafe
 public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterator<E> {
+
+    public static final boolean DEFAULT_SHUTDOWN_EXECUTOR = true;
 
     private final class ProducerRunnable implements Runnable {
 
@@ -115,10 +118,14 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     }
 
     protected boolean isShutdownExecutor() {
-        return true;
+        return DEFAULT_SHUTDOWN_EXECUTOR;
     };
 
     protected ExecutorService newExecutor(final String name) {
+        return newDefaultExecutor(name);
+    }
+
+    public static WrappedExecutorService newDefaultExecutor(final String name) {
         return Executors.newFixedThreadPool(name, 1).setDynamicThreadName(false);
     }
 
