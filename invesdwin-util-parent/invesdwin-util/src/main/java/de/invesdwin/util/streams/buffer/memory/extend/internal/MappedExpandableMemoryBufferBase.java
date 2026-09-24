@@ -149,7 +149,7 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
     public MappedExpandableMemoryBufferBase(final long initialCapacity, final String name) {
         this(initialCapacity,
                 new File(new File(Files.getTempDirectory(), MappedExpandableMemoryBufferBase.class.getSimpleName()),
-                        Files.normalizeFilename(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
+                        Files.normalizeFileName(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
     }
 
     public MappedExpandableMemoryBufferBase(final long initialCapacity, final File file) {

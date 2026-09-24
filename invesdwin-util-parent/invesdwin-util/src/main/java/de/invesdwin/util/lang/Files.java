@@ -177,7 +177,7 @@ public final class Files extends AFilesStaticFacade {
         return listFiles == null || listFiles.length == 0;
     }
 
-    public static String normalizeFilename(final String name) {
+    public static String normalizeFileName(final String name) {
         return normalizePathMaxLength(Strings.replaceMappedAscii(name, NORMALIZE_FILENAME_REPLACE_MAP));
     }
 

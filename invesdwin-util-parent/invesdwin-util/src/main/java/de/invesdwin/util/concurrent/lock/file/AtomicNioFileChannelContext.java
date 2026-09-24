@@ -107,7 +107,7 @@ public class AtomicNioFileChannelContext implements Cloneable {
         try {
             // Inline atomic write for the marker path
             final Path tempMarkerPath = markerPath
-                    .resolveSibling(Files.normalizeFilename(markerPath.getFileName().toString() + tmpSuffix));
+                    .resolveSibling(Files.normalizeFileName(markerPath.getFileName().toString() + tmpSuffix));
             Files.writeString(tempMarkerPath, now.toString());
             Files.move(tempMarkerPath, markerPath, StandardCopyOption.REPLACE_EXISTING);
 

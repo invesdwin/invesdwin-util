@@ -140,7 +140,7 @@ public class MappedExpandableByteBufferBase implements MutableDirectBuffer, Clos
     public MappedExpandableByteBufferBase(final int initialCapacity, final String name) {
         this(initialCapacity,
                 new File(new File(Files.getTempDirectory(), MappedExpandableByteBufferBase.class.getSimpleName()),
-                        Files.normalizeFilename(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
+                        Files.normalizeFileName(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
     }
 
     public MappedExpandableByteBufferBase(final int initialCapacity, final File file) {

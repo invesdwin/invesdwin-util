@@ -70,7 +70,7 @@ public class MappedMemoryBuffer extends UnsafeMemoryBuffer implements Closeable 
 
     public MappedMemoryBuffer(final long length, final String name) {
         this(length, new File(new File(Files.getTempDirectory(), MappedMemoryBuffer.class.getSimpleName()),
-                Files.normalizeFilename(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
+                Files.normalizeFileName(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
     }
 
     public MappedMemoryBuffer(final long length, final File file) {

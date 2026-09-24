@@ -70,7 +70,7 @@ public class MappedByteBuffer extends UnsafeByteBuffer implements Closeable {
 
     public MappedByteBuffer(final int length, final String name) {
         this(length, new File(new File(Files.getTempDirectory(), MappedByteBuffer.class.getSimpleName()),
-                Files.normalizeFilename(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
+                Files.normalizeFileName(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
     }
 
     public MappedByteBuffer(final int length, final File file) {
