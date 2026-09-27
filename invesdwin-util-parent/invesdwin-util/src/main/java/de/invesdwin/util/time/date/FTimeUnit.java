@@ -17,7 +17,6 @@ import de.invesdwin.util.time.duration.Duration;
 
 @Immutable
 public enum FTimeUnit {
-
     MILLENIA("mil", "MILLENIUM", "MIL", "MILS") {
         @Override
         public FTimeUnitFractional asFractional() {
