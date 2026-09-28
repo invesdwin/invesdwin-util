@@ -414,7 +414,7 @@ public final class Files extends AFilesStaticFacade {
 
     public static String setExtension(final String fileName, final String newExtension) {
         final int i = fileName.lastIndexOf('.');
-        if (i < 0) {
+        if (i <= 0) {
             return fileName + newExtension;
         } else {
             final String name = fileName.substring(0, i);

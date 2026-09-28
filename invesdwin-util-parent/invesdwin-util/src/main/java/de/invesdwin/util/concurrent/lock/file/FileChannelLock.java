@@ -89,7 +89,7 @@ public class FileChannelLock implements Closeable, ILock {
     @Override
     public void lockInterruptibly() throws InterruptedException {
         while (!tryLock()) {
-            FTimeUnit.MILLISECONDS.sleep(1);
+            Duration.ONE_HUNDRED_MILLISECONDS.sleepRandom();
         }
     }
 
@@ -101,7 +101,7 @@ public class FileChannelLock implements Closeable, ILock {
             if (start.isGreaterThan(maxDuration)) {
                 return false;
             }
-            Duration.ONE_SECOND.orLower(start.toDuration()).sleepRandom();
+            Duration.ONE_HUNDRED_MILLISECONDS.orLower(start.toDuration()).sleepRandom();
         }
         return true;
     }
@@ -129,8 +129,9 @@ public class FileChannelLock implements Closeable, ILock {
 
             // ONLY perform the logical file rewrite if heartbeats are enabled
             if (finalizer.heartbeatEnabled) {
-                finalizer.heartbeatPath = targetPath.resolveSibling(
-                        targetPath.getFileName().toString() + HeartbeatFileChannelLockRegistry.HEARTBEAT_EXTENSION);
+                finalizer.heartbeatPath = targetPath
+                        .resolveSibling(Files.normalizeFileName(Files.setExtension(targetPath.getFileName().toString(),
+                                HeartbeatFileChannelLockRegistry.HEARTBEAT_EXTENSION)));
                 moveSucceeded = atomicMove(targetPath);
             }
 
@@ -195,12 +196,13 @@ public class FileChannelLock implements Closeable, ILock {
     }
 
     private boolean atomicMove(final Path targetPath) {
-        final Path tempPath = targetPath
-                .resolveSibling(targetPath.getFileName().toString() + AtomicNioFileChannelContext.TMP_SUFFIX);
+        final Path tempPath = targetPath.resolveSibling(Files.normalizeFileName(
+                Files.setExtension(targetPath.getFileName().toString(), AtomicNioFileChannelContext.TMP_SUFFIX)));
         // Store only the unique owner string; time is tracked purely via filesystem metadata
         final String lockContent = HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER;
         boolean moveSucceeded = false;
         try {
+            Files.createDirectories(tempPath.getParent());
             Files.writeString(tempPath, lockContent);
             Files.move(tempPath, targetPath);
             moveSucceeded = true;
