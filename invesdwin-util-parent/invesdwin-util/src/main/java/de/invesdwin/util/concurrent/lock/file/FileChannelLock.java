@@ -129,9 +129,8 @@ public class FileChannelLock implements Closeable, ILock {
 
             // ONLY perform the logical file rewrite if heartbeats are enabled
             if (finalizer.heartbeatEnabled) {
-                finalizer.heartbeatPath = targetPath
-                        .resolveSibling(Files.normalizeFileName(Files.setExtension(targetPath.getFileName().toString(),
-                                HeartbeatFileChannelLockRegistry.HEARTBEAT_EXTENSION)));
+                finalizer.heartbeatPath = targetPath.resolveSibling(Files.setExtensionNormalizeFileName(
+                        targetPath.getFileName().toString(), HeartbeatFileChannelLockRegistry.HEARTBEAT_EXTENSION));
                 moveSucceeded = atomicMove(targetPath);
             }
 
@@ -196,8 +195,8 @@ public class FileChannelLock implements Closeable, ILock {
     }
 
     private boolean atomicMove(final Path targetPath) {
-        final Path tempPath = targetPath.resolveSibling(Files.normalizeFileName(
-                Files.setExtension(targetPath.getFileName().toString(), AtomicNioFileChannelContext.TMP_SUFFIX)));
+        final Path tempPath = targetPath.resolveSibling(Files.setExtensionNormalizeFileName(
+                targetPath.getFileName().toString(), AtomicNioFileChannelContext.TMP_SUFFIX));
         // Store only the unique owner string; time is tracked purely via filesystem metadata
         final String lockContent = HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER;
         boolean moveSucceeded = false;

@@ -36,6 +36,7 @@ import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.lang.internal.AFilesStaticFacade;
 import de.invesdwin.util.lang.string.Charsets;
 import de.invesdwin.util.lang.string.Strings;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.streams.FlatteningInputStream;
 import de.invesdwin.util.streams.StringInputStream;
@@ -419,6 +420,46 @@ public final class Files extends AFilesStaticFacade {
         } else {
             final String name = fileName.substring(0, i);
             return name + newExtension;
+        }
+    }
+
+    public static File setExtensionNormalizePath(final File f, final String newExtension) {
+        final String fileName = f.getName();
+        return new File(f.getParent(), setExtensionNormalizePath(fileName, newExtension));
+    }
+
+    public static String setExtensionNormalizePath(final String fileName, final String newExtension) {
+        final int i = fileName.lastIndexOf('.');
+        final String baseName = (i <= 0) ? fileName : fileName.substring(0, i);
+        final String normalizedBase = normalizePath(baseName);
+
+        final int lastSeparator = Integers.max(normalizedBase.lastIndexOf('/'), normalizedBase.lastIndexOf('\\'));
+        final int lengthSinceLastSeparator = normalizedBase.length() - (lastSeparator + 1);
+
+        if (lengthSinceLastSeparator + newExtension.length() >= MAX_FILE_NAME_LENGTH) {
+            return normalizedBase + File.separatorChar + newExtension;
+        } else {
+            return normalizedBase + newExtension;
+        }
+    }
+
+    public static File setExtensionNormalizeFileName(final File f, final String newExtension) {
+        final String fileName = f.getName();
+        return new File(f.getParent(), setExtensionNormalizeFileName(fileName, newExtension));
+    }
+
+    public static String setExtensionNormalizeFileName(final String fileName, final String newExtension) {
+        final int i = fileName.lastIndexOf('.');
+        final String baseName = (i <= 0) ? fileName : fileName.substring(0, i);
+        final String normalizedBase = normalizeFileName(baseName);
+
+        final int lastSeparator = Integers.max(normalizedBase.lastIndexOf('/'), normalizedBase.lastIndexOf('\\'));
+        final int lengthSinceLastSeparator = normalizedBase.length() - (lastSeparator + 1);
+
+        if (lengthSinceLastSeparator + newExtension.length() >= MAX_FILE_NAME_LENGTH) {
+            return normalizedBase + File.separatorChar + newExtension;
+        } else {
+            return normalizedBase + newExtension;
         }
     }
 

@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.date.FDate;
@@ -35,6 +36,11 @@ public class AtomicNioFileChannelContext implements Cloneable {
     public static final Duration TMP_CLEANUP_TIMEOUT = new Duration(12, FTimeUnit.HOURS);
 
     public static final long UNINITIALIZED_DIRECTORY_CLEANUP_TIME = -1L;
+
+    static {
+        Assertions.assertThat(TMP_SUFFIX).doesNotContain("/");
+        Assertions.assertThat(TMP_SUFFIX.length()).isLessThanOrEqualTo(Files.MAX_FILE_NAME_LENGTH);
+    }
 
     private final String tmpExtension = newTmpExtension();
     private final String tmpSuffix = newTmpSuffix();
@@ -106,8 +112,8 @@ public class AtomicNioFileChannelContext implements Cloneable {
 
         try {
             // Inline atomic write for the marker path
-            final Path tempMarkerPath = markerPath.resolveSibling(
-                    Files.normalizeFileName(Files.setExtension(markerPath.getFileName().toString(), tmpSuffix)));
+            final Path tempMarkerPath = markerPath
+                    .resolveSibling(Files.setExtensionNormalizePath(markerPath.getFileName().toString(), tmpSuffix));
             Files.createDirectories(tempMarkerPath.getParent());
             Files.writeString(tempMarkerPath, now.toString());
             Files.move(tempMarkerPath, markerPath, StandardCopyOption.REPLACE_EXISTING);
@@ -135,7 +141,7 @@ public class AtomicNioFileChannelContext implements Cloneable {
     }
 
     private void cleanupStaleTempFiles() {
-        Files.cleanupStaleTempFiles(directoryPath, tmpCleanupTimeout, tmpExtension);
+        Files.cleanupStaleTempFiles(directoryPath, tmpCleanupTimeout, tmpExtension, tmpCleanupMarkerFilename);
     }
 
 }
