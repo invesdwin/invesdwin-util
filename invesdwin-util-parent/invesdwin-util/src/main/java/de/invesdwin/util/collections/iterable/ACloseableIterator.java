@@ -11,11 +11,11 @@ import de.invesdwin.util.lang.string.description.TextDescription;
 @NotThreadSafe
 public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
 
-    private final ICloseableIteratorImpl<E> delegate;
+    private final ICloseableIteratorImpl<E> impl;
 
     public ACloseableIterator(final TextDescription name) {
         if (Throwables.isDebugStackTraceEnabled()) {
-            this.delegate = new ADebugCloseableIteratorImpl<E>(name, getClass().getName()) {
+            this.impl = new ADebugCloseableIteratorImpl<E>(name, getClass().getName()) {
 
                 @Override
                 protected boolean innerHasNext() {
@@ -40,7 +40,7 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
 
             };
         } else {
-            this.delegate = new AFastCloseableIteratorImpl<E>(name, getClass().getName()) {
+            this.impl = new AFastCloseableIteratorImpl<E>(name, getClass().getName()) {
 
                 @Override
                 protected boolean innerHasNext() {
@@ -69,21 +69,21 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
 
     @Override
     public final boolean hasNext() {
-        return delegate.hasNext();
+        return impl.hasNext();
     }
 
     protected abstract boolean innerHasNext();
 
     @Override
     public final E next() {
-        return delegate.next();
+        return impl.next();
     }
 
     protected abstract E innerNext();
 
     @Override
     public final void remove() {
-        delegate.remove();
+        impl.remove();
     }
 
     protected void innerRemove() {
@@ -92,13 +92,13 @@ public abstract class ACloseableIterator<E> implements ICloseableIterator<E> {
 
     @Override
     public final void close() {
-        delegate.close();
+        impl.close();
     }
 
     protected abstract void innerClose();
 
     public boolean isClosed() {
-        return delegate.isClosed();
+        return impl.isClosed();
     }
 
 }

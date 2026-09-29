@@ -6,19 +6,23 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.lang.string.description.TextDescription;
 
 @ThreadSafe
 public class RefCountCloseableIterable<E> implements ICloseableIterable<E> {
 
+    protected final TextDescription name;
     protected volatile boolean used = false;
     private final ICloseableIterable<E> delegate;
     private final AtomicInteger refCount;
 
-    public RefCountCloseableIterable(final ICloseableIterable<E> delegate) {
-        this(delegate, new AtomicInteger());
+    public RefCountCloseableIterable(final TextDescription name, final ICloseableIterable<E> delegate) {
+        this(name, delegate, new AtomicInteger());
     }
 
-    public RefCountCloseableIterable(final ICloseableIterable<E> delegate, final AtomicInteger refCount) {
+    public RefCountCloseableIterable(final TextDescription name, final ICloseableIterable<E> delegate,
+            final AtomicInteger refCount) {
+        this.name = name;
         this.delegate = delegate;
         this.refCount = refCount;
     }
@@ -38,7 +42,7 @@ public class RefCountCloseableIterable<E> implements ICloseableIterable<E> {
     @Override
     public ICloseableIterator<E> iterator() {
         used = true;
-        return new RefCountCloseableIterator<E>(delegate.iterator(), refCount);
+        return new RefCountCloseableIterator<E>(name, delegate.iterator(), refCount);
     }
 
 }
