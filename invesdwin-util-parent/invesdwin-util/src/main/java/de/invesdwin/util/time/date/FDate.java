@@ -603,6 +603,10 @@ public class FDate extends Number implements IDate, Serializable, Cloneable, Com
         return new FDate(FDateMillis.set(millis, field, value), picos);
     }
 
+    public FDate add(final FDateField field, final long value, final FTimeZone timeZone) {
+        return add(field.timeUnitValue(), value, timeZone);
+    }
+
     public FDate add(final FTimeUnit field, final long value, final FTimeZone timeZone) {
         if (value == 0) {
             return this;
@@ -611,6 +615,10 @@ public class FDate extends Number implements IDate, Serializable, Cloneable, Com
         final int picosWithoutOverflow = FDatePicos.toPicosWithoutOverflow(picosMaybeOverflow);
         final long millisecondsOverflow = FDatePicos.toMillisecondsOverflow(picosMaybeOverflow);
         return new FDate(FDateMillis.add(millis + millisecondsOverflow, field, value, timeZone), picosWithoutOverflow);
+    }
+
+    public FDate add(final FDateField field, final long value) {
+        return add(field.timeUnitValue(), value);
     }
 
     public FDate add(final FTimeUnit field, final long value) {
