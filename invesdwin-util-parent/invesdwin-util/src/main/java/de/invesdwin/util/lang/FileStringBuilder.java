@@ -40,7 +40,7 @@ public class FileStringBuilder implements Appendable, Closeable {
     @Deprecated
     public FileStringBuilder(final String name) {
         this(new File(new File(Files.getTempDirectory(), FileStringBuilder.class.getSimpleName()),
-                Files.normalizeFilename(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".txt")))));
+                Files.normalizeFileName(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".txt")))));
     }
 
     public FileStringBuilder(final File file) {

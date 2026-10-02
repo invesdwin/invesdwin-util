@@ -10,8 +10,9 @@ import de.invesdwin.util.math.random.PseudoRandomGenerators;
 @Immutable
 public final class UUIDs {
 
-    private UUIDs() {
-    }
+    public static final int UUID_LENGTH = 36;
+
+    private UUIDs() {}
 
     public static String newRandomUUID() {
         return UUID.randomUUID().toString();

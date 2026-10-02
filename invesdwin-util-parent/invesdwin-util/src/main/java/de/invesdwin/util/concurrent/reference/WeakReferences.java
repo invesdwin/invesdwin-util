@@ -7,6 +7,8 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class WeakReferences<E> {
 
+    public static final WeakReference[] EMPTY_ARRAY = new WeakReference[0];
+
     @SuppressWarnings("rawtypes")
     private static final WeakReference EMPTY = new WeakReference<>(null);
 

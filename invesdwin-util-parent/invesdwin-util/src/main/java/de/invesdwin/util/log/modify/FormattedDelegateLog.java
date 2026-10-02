@@ -2,6 +2,7 @@ package de.invesdwin.util.log.modify;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.log.ILog;
 import de.invesdwin.util.log.LogLevel;
 
@@ -10,6 +11,11 @@ public class FormattedDelegateLog extends AModifiedDelegateLog {
 
     public FormattedDelegateLog(final ILog delegate) {
         super(delegate);
+    }
+
+    @Override
+    protected String modify(final LogLevel level, final TextDescription msg) {
+        return msg.toString();
     }
 
     @Override

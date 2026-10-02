@@ -2,7 +2,7 @@ package de.invesdwin.util.time.date.millis;
 
 import java.util.NoSuchElementException;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.error.UnknownArgumentException;
@@ -16,7 +16,7 @@ import de.invesdwin.util.time.duration.Duration;
 import it.unimi.dsi.fastutil.longs.LongIterable;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 
-@ThreadSafe
+@Immutable
 public final class FDatesMillis {
 
     private FDatesMillis() {}
@@ -139,6 +139,36 @@ public final class FDatesMillis {
         }
     }
 
+    public static boolean isSameMillennium(final long date1, final long date2) {
+        return isSameTruncated(date1, date2, FTimeUnit.MILLENIA);
+    }
+
+    public static boolean isSameMillennium(final long date1, final long date2, final FTimeZone timeZone) {
+        final long offset = FDateMillis.getTimeZoneOffsetMilliseconds(date1, timeZone);
+        return isSameMillennium(FDateMillis.applyTimeZoneOffset(date1, offset),
+                FDateMillis.applyTimeZoneOffset(date2, offset));
+    }
+
+    public static boolean isSameCentury(final long date1, final long date2) {
+        return isSameTruncated(date1, date2, FTimeUnit.CENTURIES);
+    }
+
+    public static boolean isSameCentury(final long date1, final long date2, final FTimeZone timeZone) {
+        final long offset = FDateMillis.getTimeZoneOffsetMilliseconds(date1, timeZone);
+        return isSameCentury(FDateMillis.applyTimeZoneOffset(date1, offset),
+                FDateMillis.applyTimeZoneOffset(date2, offset));
+    }
+
+    public static boolean isSameDecade(final long date1, final long date2) {
+        return isSameTruncated(date1, date2, FTimeUnit.DECADES);
+    }
+
+    public static boolean isSameDecade(final long date1, final long date2, final FTimeZone timeZone) {
+        final long offset = FDateMillis.getTimeZoneOffsetMilliseconds(date1, timeZone);
+        return isSameDecade(FDateMillis.applyTimeZoneOffset(date1, offset),
+                FDateMillis.applyTimeZoneOffset(date2, offset));
+    }
+
     public static boolean isSameYear(final long date1, final long date2) {
         return isSameTruncated(date1, date2, FDateField.Year);
     }
@@ -245,6 +275,10 @@ public final class FDatesMillis {
         return date1 == date2 || FDateMillis.truncate(date1, field) == FDateMillis.truncate(date2, field);
     }
 
+    public static boolean isSameTruncated(final long date1, final long date2, final FTimeUnit field) {
+        return date1 == date2 || FDateMillis.truncate(date1, field) == FDateMillis.truncate(date2, field);
+    }
+
     public static boolean isSamePeriod(final long date1, final long date2, final FTimeUnit period,
             final FTimeZone timeZone) {
         final long offset = FDateMillis.getTimeZoneOffsetMilliseconds(date1, timeZone);
@@ -254,22 +288,31 @@ public final class FDatesMillis {
 
     public static boolean isSamePeriod(final long date1, final long date2, final FTimeUnit period) {
         switch (period) {
-        case MILLISECONDS:
-            return isSameMillisecond(date1, date2);
-        case SECONDS:
-            return isSameSecond(date1, date2);
-        case MINUTES:
-            return isSameMinute(date1, date2);
-        case HOURS:
-            return isSameHour(date1, date2);
-        case DAYS:
-            return isSameDay(date1, date2);
-        case WEEKS:
-            return isSameWeek(date1, date2);
-        case MONTHS:
-            return isSameMonth(date1, date2);
+        case MILLENIA:
+            return isSameMillennium(date1, date2);
+        case CENTURIES:
+            return isSameCentury(date1, date2);
+        case DECADES:
+            return isSameDecade(date1, date2);
         case YEARS:
             return isSameYear(date1, date2);
+        case MONTHS:
+            return isSameMonth(date1, date2);
+        case WEEKS:
+            return isSameWeek(date1, date2);
+        case DAYS:
+            return isSameDay(date1, date2);
+        case HOURS:
+            return isSameHour(date1, date2);
+        case MINUTES:
+            return isSameMinute(date1, date2);
+        case SECONDS:
+            return isSameSecond(date1, date2);
+        case MILLISECONDS:
+        case MICROSECONDS:
+        case NANOSECONDS:
+        case PICOSECONDS:
+            return isSameMillisecond(date1, date2);
         default:
             throw UnknownArgumentException.newInstance(FTimeUnit.class, period);
         }
@@ -284,22 +327,31 @@ public final class FDatesMillis {
 
     public static boolean isSameJulianPeriod(final long date1, final long date2, final FTimeUnit period) {
         switch (period) {
-        case MILLISECONDS:
-            return isSameMillisecond(date1, date2);
-        case SECONDS:
-            return isSameJulianSecond(date1, date2);
-        case MINUTES:
-            return isSameJulianMinute(date1, date2);
-        case HOURS:
-            return isSameJulianHour(date1, date2);
-        case DAYS:
-            return isSameJulianDay(date1, date2);
-        case WEEKS:
-            return isSameWeek(date1, date2);
-        case MONTHS:
-            return isSameMonth(date1, date2);
+        case MILLENIA:
+            return isSameMillennium(date1, date2);
+        case CENTURIES:
+            return isSameCentury(date1, date2);
+        case DECADES:
+            return isSameDecade(date1, date2);
         case YEARS:
             return isSameYear(date1, date2);
+        case MONTHS:
+            return isSameMonth(date1, date2);
+        case WEEKS:
+            return isSameWeek(date1, date2);
+        case DAYS:
+            return isSameJulianDay(date1, date2);
+        case HOURS:
+            return isSameJulianHour(date1, date2);
+        case MINUTES:
+            return isSameJulianMinute(date1, date2);
+        case SECONDS:
+            return isSameJulianSecond(date1, date2);
+        case MILLISECONDS:
+        case MICROSECONDS:
+        case NANOSECONDS:
+        case PICOSECONDS:
+            return isSameMillisecond(date1, date2);
         default:
             throw UnknownArgumentException.newInstance(FTimeUnit.class, period);
         }

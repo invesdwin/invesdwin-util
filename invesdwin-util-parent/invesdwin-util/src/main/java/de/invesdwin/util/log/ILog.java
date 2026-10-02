@@ -1,11 +1,17 @@
 package de.invesdwin.util.log;
 
+import de.invesdwin.util.lang.string.description.TextDescription;
+
 public interface ILog {
 
     String getName();
 
     default boolean isEnabled(final LogLevel level) {
         return level.isEnabled(this);
+    }
+
+    default void log(final LogLevel level, final TextDescription msg) {
+        level.log(this, msg);
     }
 
     default void log(final LogLevel level, final String msg) {
@@ -68,6 +74,8 @@ public interface ILog {
 
     boolean isTraceEnabled();
 
+    void trace(TextDescription msg);
+
     void trace(String msg);
 
     void trace(String format, Object p0);
@@ -97,6 +105,8 @@ public interface ILog {
     ///////////////// DEBUG
 
     boolean isDebugEnabled();
+
+    void debug(TextDescription msg);
 
     void debug(String msg);
 
@@ -128,6 +138,8 @@ public interface ILog {
 
     boolean isInfoEnabled();
 
+    void info(TextDescription msg);
+
     void info(String msg);
 
     void info(String format, Object p0);
@@ -157,6 +169,8 @@ public interface ILog {
     ///////////////// WARN
 
     boolean isWarnEnabled();
+
+    void warn(TextDescription msg);
 
     void warn(String msg);
 
@@ -188,6 +202,8 @@ public interface ILog {
 
     boolean isErrorEnabled();
 
+    void error(TextDescription msg);
+
     void error(String msg);
 
     void error(String format, Object p0);
@@ -217,6 +233,8 @@ public interface ILog {
     ///////////////// FATAL
 
     boolean isFatalEnabled();
+
+    void fatal(TextDescription msg);
 
     void fatal(String msg);
 

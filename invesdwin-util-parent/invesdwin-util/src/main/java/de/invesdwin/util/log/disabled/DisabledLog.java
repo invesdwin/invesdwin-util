@@ -2,6 +2,7 @@ package de.invesdwin.util.log.disabled;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.log.ILog;
 import de.invesdwin.util.log.LogLevel;
 
@@ -21,6 +22,9 @@ public final class DisabledLog implements ILog {
     public boolean isTraceEnabled() {
         return false;
     }
+
+    @Override
+    public void trace(final TextDescription msg) {}
 
     @Override
     public void trace(final String msg) {}
@@ -70,6 +74,9 @@ public final class DisabledLog implements ILog {
     }
 
     @Override
+    public void debug(final TextDescription msg) {}
+
+    @Override
     public void debug(final String msg) {}
 
     @Override
@@ -115,6 +122,9 @@ public final class DisabledLog implements ILog {
     public boolean isInfoEnabled() {
         return false;
     }
+
+    @Override
+    public void info(final TextDescription msg) {}
 
     @Override
     public void info(final String msg) {}
@@ -164,6 +174,9 @@ public final class DisabledLog implements ILog {
     }
 
     @Override
+    public void warn(final TextDescription msg) {}
+
+    @Override
     public void warn(final String msg) {}
 
     @Override
@@ -211,6 +224,9 @@ public final class DisabledLog implements ILog {
     }
 
     @Override
+    public void error(final TextDescription msg) {}
+
+    @Override
     public void error(final String msg) {}
 
     @Override
@@ -256,6 +272,9 @@ public final class DisabledLog implements ILog {
     public boolean isFatalEnabled() {
         return false;
     }
+
+    @Override
+    public void fatal(final TextDescription msg) {}
 
     @Override
     public void fatal(final String msg) {}

@@ -507,19 +507,29 @@ public final class FDates {
         return FDatesMillis.isSameTruncated(date1.millisValue(), date2.millisValue(), field);
     }
 
+    public static boolean isSameTruncated(final FDate date1, final FDate date2, final FTimeUnit field) {
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return FDatesMillis.isSameTruncated(date1.millisValue(), date2.millisValue(), field)
+                && FDatePicos.isSameTruncated(date1.picosValue(), date2.picosValue(), field);
+    }
+
     public static boolean isSamePeriod(final FDate date1, final FDate date2, final FTimeUnit period,
             final FTimeZone timeZone) {
         if (date1 == null || date2 == null) {
             return false;
         }
-        return FDatesMillis.isSamePeriod(date1.millisValue(), date2.millisValue(), period, timeZone);
+        return FDatesMillis.isSamePeriod(date1.millisValue(), date2.millisValue(), period, timeZone)
+                && FDatePicos.isSameTruncated(date1.picosValue(), date2.picosValue(), period);
     }
 
     public static boolean isSamePeriod(final FDate date1, final FDate date2, final FTimeUnit period) {
         if (date1 == null || date2 == null) {
             return false;
         }
-        return FDatesMillis.isSamePeriod(date1.millisValue(), date2.millisValue(), period);
+        return FDatesMillis.isSamePeriod(date1.millisValue(), date2.millisValue(), period)
+                && FDatePicos.isSameTruncated(date1.picosValue(), date2.picosValue(), period);
     }
 
     public static boolean isSameJulianPeriod(final FDate date1, final FDate date2, final FTimeUnit period,
@@ -527,14 +537,16 @@ public final class FDates {
         if (date1 == null || date2 == null) {
             return false;
         }
-        return FDatesMillis.isSameJulianPeriod(date1.millisValue(), date2.millisValue(), period, timeZone);
+        return FDatesMillis.isSameJulianPeriod(date1.millisValue(), date2.millisValue(), period, timeZone)
+                && FDatePicos.isSameTruncated(date1.picosValue(), date2.picosValue(), period);
     }
 
     public static boolean isSameJulianPeriod(final FDate date1, final FDate date2, final FTimeUnit period) {
         if (date1 == null || date2 == null) {
             return false;
         }
-        return FDatesMillis.isSameJulianPeriod(date1.millisValue(), date2.millisValue(), period);
+        return FDatesMillis.isSameJulianPeriod(date1.millisValue(), date2.millisValue(), period)
+                && FDatePicos.isSameTruncated(date1.picosValue(), date2.picosValue(), period);
     }
 
     public static boolean isSameJulianDay(final FDate date1, final FDate date2, final FTimeZone timeZone) {

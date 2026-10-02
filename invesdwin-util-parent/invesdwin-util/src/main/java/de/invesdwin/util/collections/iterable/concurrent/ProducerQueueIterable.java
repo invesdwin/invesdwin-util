@@ -1,5 +1,7 @@
 package de.invesdwin.util.collections.iterable.concurrent;
 
+import java.util.concurrent.ExecutorService;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
@@ -31,11 +33,29 @@ public class ProducerQueueIterable<E> implements ICloseableIterable<E> {
             protected ICloseableIterator<E> newProducer() {
                 return producer.iterator();
             }
+
+            @Override
+            protected boolean isShutdownExecutor() {
+                return ProducerQueueIterable.this.isShutdownExecutor();
+            }
+
+            @Override
+            protected ExecutorService newExecutor(final String name) {
+                return ProducerQueueIterable.this.newExecutor(name);
+            }
         };
         if (utilizationDebugEnabled) {
             iterator.setUtilizationDebugEnabled();
         }
         return iterator;
+    }
+
+    protected ExecutorService newExecutor(final String name) {
+        return AProducerQueueIterator.newDefaultExecutor(name);
+    }
+
+    protected boolean isShutdownExecutor() {
+        return AProducerQueueIterator.DEFAULT_SHUTDOWN_EXECUTOR;
     }
 
     public ProducerQueueIterable<E> setUtilizationDebugEnabled() {

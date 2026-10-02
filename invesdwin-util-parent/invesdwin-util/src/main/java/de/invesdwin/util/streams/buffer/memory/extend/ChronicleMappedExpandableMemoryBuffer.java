@@ -101,7 +101,7 @@ public class ChronicleMappedExpandableMemoryBuffer extends ChronicleDelegateMemo
         this(chunkSize,
                 new File(
                         new File(Files.getTempDirectory(), ChronicleMappedExpandableMemoryBuffer.class.getSimpleName()),
-                        Files.normalizeFilename(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
+                        Files.normalizeFileName(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
     }
 
     public ChronicleMappedExpandableMemoryBuffer(final long chunkSize, final File file) {

@@ -2,6 +2,7 @@ package de.invesdwin.util.log.adaptor;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.lang.string.description.TextDescription;
 import de.invesdwin.util.log.ILog;
 import de.invesdwin.util.log.LogLevel;
 
@@ -41,6 +42,13 @@ public class Slf4jDelegateLog implements ILog {
     @Override
     public boolean isTraceEnabled() {
         return delegate.isTraceEnabled();
+    }
+
+    @Override
+    public void trace(final TextDescription msg) {
+        if (delegate.isTraceEnabled()) {
+            delegate.trace(msg.toString());
+        }
     }
 
     @Override
@@ -115,6 +123,13 @@ public class Slf4jDelegateLog implements ILog {
     }
 
     @Override
+    public void debug(final TextDescription msg) {
+        if (delegate.isDebugEnabled()) {
+            delegate.debug(msg.toString());
+        }
+    }
+
+    @Override
     public void debug(final String msg) {
         delegate.debug(msg);
     }
@@ -183,6 +198,13 @@ public class Slf4jDelegateLog implements ILog {
     @Override
     public boolean isInfoEnabled() {
         return delegate.isInfoEnabled();
+    }
+
+    @Override
+    public void info(final TextDescription msg) {
+        if (delegate.isInfoEnabled()) {
+            delegate.info(msg.toString());
+        }
     }
 
     @Override
@@ -257,6 +279,13 @@ public class Slf4jDelegateLog implements ILog {
     }
 
     @Override
+    public void warn(final TextDescription msg) {
+        if (delegate.isWarnEnabled()) {
+            delegate.warn(msg.toString());
+        }
+    }
+
+    @Override
     public void warn(final String msg) {
         delegate.warn(msg);
     }
@@ -328,6 +357,13 @@ public class Slf4jDelegateLog implements ILog {
     }
 
     @Override
+    public void error(final TextDescription msg) {
+        if (delegate.isErrorEnabled()) {
+            delegate.error(msg.toString());
+        }
+    }
+
+    @Override
     public void error(final String msg) {
         delegate.error(msg);
     }
@@ -396,6 +432,13 @@ public class Slf4jDelegateLog implements ILog {
     @Override
     public boolean isFatalEnabled() {
         return delegate.isErrorEnabled();
+    }
+
+    @Override
+    public void fatal(final TextDescription msg) {
+        if (delegate.isErrorEnabled()) {
+            delegate.error(msg.toString());
+        }
     }
 
     @Override

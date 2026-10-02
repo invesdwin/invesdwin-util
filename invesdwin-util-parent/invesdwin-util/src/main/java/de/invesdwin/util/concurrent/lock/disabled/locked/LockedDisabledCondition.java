@@ -1,4 +1,4 @@
-package de.invesdwin.util.concurrent.lock.disabled;
+package de.invesdwin.util.concurrent.lock.disabled.locked;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -7,11 +7,11 @@ import java.util.concurrent.locks.Condition;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public final class DisabledCondition implements Condition {
+public final class LockedDisabledCondition implements Condition {
 
-    public static final DisabledCondition INSTANCE = new DisabledCondition();
+    public static final LockedDisabledCondition INSTANCE = new LockedDisabledCondition();
 
-    private DisabledCondition() {}
+    private LockedDisabledCondition() {}
 
     @Override
     public void await() throws InterruptedException {}
@@ -26,12 +26,12 @@ public final class DisabledCondition implements Condition {
 
     @Override
     public boolean await(final long time, final TimeUnit unit) throws InterruptedException {
-        return true;
+        return false;
     }
 
     @Override
     public boolean awaitUntil(final Date deadline) throws InterruptedException {
-        return true;
+        return false;
     }
 
     @Override

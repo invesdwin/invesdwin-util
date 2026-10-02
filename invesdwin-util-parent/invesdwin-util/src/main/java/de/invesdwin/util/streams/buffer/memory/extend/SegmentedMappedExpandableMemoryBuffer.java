@@ -104,7 +104,7 @@ public class SegmentedMappedExpandableMemoryBuffer extends ADelegateCloseableMem
         this(initialCapacity,
                 new File(
                         new File(Files.getTempDirectory(), SegmentedMappedExpandableMemoryBuffer.class.getSimpleName()),
-                        Files.normalizeFilename(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
+                        Files.normalizeFileName(UNIQUE_NAME_GENERATOR.get(Strings.putSuffix(name, ".bin")))));
     }
 
     public SegmentedMappedExpandableMemoryBuffer(final long initialCapacity, final File file) {

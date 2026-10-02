@@ -1,9 +1,12 @@
-package de.invesdwin.util.concurrent.lock;
+package de.invesdwin.util.concurrent.lock.file;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
+
+import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.Locks;
 
 /**
  * Caffeine is not compatible to Java 8 which otherwise fails HadoopYarn test MpjExpress test. Thus extract this into an
