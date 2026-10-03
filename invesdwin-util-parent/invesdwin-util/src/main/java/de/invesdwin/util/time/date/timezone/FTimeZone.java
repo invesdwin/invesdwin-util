@@ -12,6 +12,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.DurationField;
 import org.joda.time.chrono.ISOChronology;
 
+import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.date.FDate;
@@ -21,7 +22,9 @@ import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FTimeUnit;
 
 @Immutable
-public class FTimeZone implements IFTimeZoneProvider {
+public class FTimeZone implements ISerializableValueObject {
+
+    private static final long serialVersionUID = 1L;
 
     public static final FTimeZone UTC = new FTimeZone(TimeZones.UTC);
     public static final FTimeZone EUROPE_BERLIN = new FTimeZone(TimeZones.EUROPE_BERLIN);
@@ -42,34 +45,35 @@ public class FTimeZone implements IFTimeZoneProvider {
         }
     };
 
-    private final Calendar templateCalendar;
-    private final TimeZone timeZone;
-    private final boolean isUTC;
-    private final DateTimeZone dateTimeZone;
     private final ZoneId zoneId;
-    private final Chronology chronology;
 
-    private final DateTimeField dateTimeFieldYear;
-    private final DateTimeField dateTimeFieldMonth;
-    private final DateTimeField dateTimeFieldDay;
-    private final DateTimeField dateTimeFieldWeekday;
-    private final DateTimeField dateTimeFieldHour;
-    private final DateTimeField dateTimeFieldMinute;
-    private final DateTimeField dateTimeFieldSecond;
-    private final DateTimeField dateTimeFieldMillisecond;
-    private final DateTimeField dateTimeFieldWeekNumberOfYear;
+    private final transient Calendar templateCalendar;
+    private final transient TimeZone timeZone;
+    private final transient boolean isUTC;
+    private final transient DateTimeZone dateTimeZone;
+    private final transient Chronology chronology;
 
-    private final DurationField durationFieldYears;
-    private final DurationField durationFieldMonths;
-    private final DurationField durationFieldWeeks;
-    private final DurationField durationFieldDays;
-    private final DurationField durationFieldHours;
-    private final DurationField durationFieldMinutes;
-    private final DurationField durationFieldSeconds;
-    private final DurationField durationFieldMilliseconds;
+    private final transient DateTimeField dateTimeFieldYear;
+    private final transient DateTimeField dateTimeFieldMonth;
+    private final transient DateTimeField dateTimeFieldDay;
+    private final transient DateTimeField dateTimeFieldWeekday;
+    private final transient DateTimeField dateTimeFieldHour;
+    private final transient DateTimeField dateTimeFieldMinute;
+    private final transient DateTimeField dateTimeFieldSecond;
+    private final transient DateTimeField dateTimeFieldMillisecond;
+    private final transient DateTimeField dateTimeFieldWeekNumberOfYear;
 
-    private final FDate minDate;
-    private final FDate maxDate;
+    private final transient DurationField durationFieldYears;
+    private final transient DurationField durationFieldMonths;
+    private final transient DurationField durationFieldWeeks;
+    private final transient DurationField durationFieldDays;
+    private final transient DurationField durationFieldHours;
+    private final transient DurationField durationFieldMinutes;
+    private final transient DurationField durationFieldSeconds;
+    private final transient DurationField durationFieldMilliseconds;
+
+    private final transient FDate minDate;
+    private final transient FDate maxDate;
 
     public FTimeZone(final ZoneId zoneId) {
         this.zoneId = zoneId;
@@ -107,38 +111,14 @@ public class FTimeZone implements IFTimeZoneProvider {
     }
 
     public FTimeZone(final TimeZone timeZone) {
-        this.timeZone = timeZone;
-        this.isUTC = TimeZones.UTC.equals(timeZone);
-        this.dateTimeZone = DateTimeZone.forTimeZone(timeZone);
-        this.zoneId = timeZone.toZoneId();
-        //CHECKSTYLE:OFF
-        final Calendar cal = Calendar.getInstance();
-        //CHECKSTYLE:ON
-        cal.clear();
-        cal.setTimeZone(timeZone);
-        this.templateCalendar = cal;
-        this.chronology = ISOChronology.getInstance(dateTimeZone);
-        this.dateTimeFieldYear = FDateField.Year.jodaTimeValue().getField(chronology);
-        this.dateTimeFieldMonth = FDateField.Month.jodaTimeValue().getField(chronology);
-        this.dateTimeFieldDay = FDateField.Day.jodaTimeValue().getField(chronology);
-        this.dateTimeFieldWeekday = FDateField.Weekday.jodaTimeValue().getField(chronology);
-        this.dateTimeFieldHour = FDateField.Hour.jodaTimeValue().getField(chronology);
-        this.dateTimeFieldMinute = FDateField.Minute.jodaTimeValue().getField(chronology);
-        this.dateTimeFieldSecond = FDateField.Second.jodaTimeValue().getField(chronology);
-        this.dateTimeFieldMillisecond = FDateField.Millisecond.jodaTimeValue().getField(chronology);
-        this.dateTimeFieldWeekNumberOfYear = chronology.weekOfWeekyear();
+        this(timeZone.toZoneId());
+    }
 
-        this.durationFieldYears = FTimeUnit.YEARS.jodaTimeValue().getField(chronology);
-        this.durationFieldMonths = FTimeUnit.MONTHS.jodaTimeValue().getField(chronology);
-        this.durationFieldWeeks = FTimeUnit.WEEKS.jodaTimeValue().getField(chronology);
-        this.durationFieldDays = FTimeUnit.DAYS.jodaTimeValue().getField(chronology);
-        this.durationFieldHours = FTimeUnit.HOURS.jodaTimeValue().getField(chronology);
-        this.durationFieldMinutes = FTimeUnit.MINUTES.jodaTimeValue().getField(chronology);
-        this.durationFieldSeconds = FTimeUnit.SECONDS.jodaTimeValue().getField(chronology);
-        this.durationFieldMilliseconds = FTimeUnit.MILLISECONDS.jodaTimeValue().getField(chronology);
-
-        this.minDate = FDateBuilder.newDate(FDates.MIN_YEAR, 1, 1, 0, 0, 0, 0, this);
-        this.maxDate = FDateBuilder.newDate(FDates.MAX_YEAR, 1, 1, 0, 0, 0, 0, this);
+    private Object readResolve() {
+        if (zoneId != null) {
+            return valueOf(zoneId.getId());
+        }
+        return UTC;
     }
 
     public Calendar newCalendar() {
@@ -274,11 +254,6 @@ public class FTimeZone implements IFTimeZoneProvider {
     @Override
     public String toString() {
         return getId();
-    }
-
-    @Override
-    public FTimeZone asFTimeZone() {
-        return this;
     }
 
     public static FTimeZone valueOf(final String id) {
