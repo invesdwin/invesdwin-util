@@ -26,7 +26,7 @@ public class TimeRange extends AValueObject {
         }
     };
 
-    public static final TimeRange UNLIMITED = new TimeRange(null, null);
+    public static final TimeRange UNLIMITED = new TimeRange(FDates.MIN_DATE, FDates.MAX_DATE);
 
     private final FDate from;
     private final FDate to;
