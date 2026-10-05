@@ -48,7 +48,7 @@ public final class FDates {
     private static IFDateClock defaultClock = FDateClockNanosInternal.INSTANCE;
 
     static {
-        final FTimeZone def = new FTimeZone(TimeZone.getDefault());
+        final FTimeZone def = FTimeZone.valueOf(TimeZone.getDefault());
         setDefaultTimeZone(def);
         setSystemTimeZone(def);
     }
