@@ -175,15 +175,18 @@ public abstract class ALatestValueByGapCache<V, P> {
             final double valuesDistance = nextNextKey.doubleValue() - prevPrevKey.doubleValue();
             final double highestValueDistance = newHighestAllowedKey.doubleValue()
                     - prevHighestAllowedKey.doubleValue();
-            if (highestValueDistance <= valuesDistance) {
+            final double nextToHighestDistance = newHighestAllowedKey.doubleValue() - nextNextKey.doubleValue();
+            if (highestValueDistance <= valuesDistance && nextToHighestDistance < highestValueDistance * 2) {
                 FDate lastKey = nextNextKey;
-                while (true) {
+                int moveForwardTries = 10;
+                while (moveForwardTries > 0) {
                     moveForward(parent);
                     final FDate updatedKey = getKey(NEXT_NEXT_INDEX);
                     if (updatedKey.isBeforeOrEqualToNotNullSafe(lastKey)) {
                         break;
                     } else {
                         lastKey = updatedKey;
+                        moveForwardTries--;
                     }
                 }
             }
