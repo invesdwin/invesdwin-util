@@ -22,28 +22,17 @@ import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FTimeUnit;
 
 @Immutable
-public class FTimeZone implements ISerializableValueObject {
+public final class FTimeZone implements ISerializableValueObject {
 
-    private static final long serialVersionUID = 1L;
+    public static final FTimeZone UTC;
+    public static final FTimeZone EUROPE_BERLIN;
+    public static final FTimeZone EET;
+    public static final FTimeZone EST;
+    public static final FTimeZone CET;
+    public static final FTimeZone AMERICA_NEWYORK;
+    public static final FTimeZone US_EASTERN;
 
-    public static final FTimeZone UTC = new FTimeZone(TimeZones.UTC);
-    public static final FTimeZone EUROPE_BERLIN = new FTimeZone(TimeZones.EUROPE_BERLIN);
-    public static final FTimeZone EET = new FTimeZone(TimeZones.EET);
-    public static final FTimeZone EST = new FTimeZone(TimeZones.EST);
-    public static final FTimeZone CET = new FTimeZone(TimeZones.CET);
-    public static final FTimeZone AMERICA_NEWYORK = new FTimeZone(TimeZones.AMERICA_NEWYORK);
-    public static final FTimeZone US_EASTERN = new FTimeZone(TimeZones.US_EASTERN);
-
-    private static final ALoadingCache<String, FTimeZone> ID_TZ = new ALoadingCache<String, FTimeZone>() {
-        @Override
-        protected FTimeZone loadValue(final String key) {
-            final ZoneId tz = TimeZones.getZoneId(key);
-            if (tz == null) {
-                return null;
-            }
-            return new FTimeZone(tz);
-        }
-    };
+    private static final ALoadingCache<String, FTimeZone> ID_TZ;
 
     private final ZoneId zoneId;
 
@@ -75,7 +64,27 @@ public class FTimeZone implements ISerializableValueObject {
     private final transient FDate minDate;
     private final transient FDate maxDate;
 
-    public FTimeZone(final ZoneId zoneId) {
+    static {
+        ID_TZ = new ALoadingCache<String, FTimeZone>() {
+            @Override
+            protected FTimeZone loadValue(final String key) {
+                final ZoneId tz = TimeZones.getZoneId(key);
+                if (tz == null) {
+                    return null;
+                }
+                return new FTimeZone(tz);
+            }
+        };
+        UTC = valueOf(TimeZones.UTC);
+        EUROPE_BERLIN = valueOf(TimeZones.EUROPE_BERLIN);
+        EET = valueOf(TimeZones.EET);
+        EST = valueOf(TimeZones.EST);
+        CET = valueOf(TimeZones.CET);
+        AMERICA_NEWYORK = valueOf(TimeZones.AMERICA_NEWYORK);
+        US_EASTERN = valueOf(TimeZones.US_EASTERN);
+    }
+
+    private FTimeZone(final ZoneId zoneId) {
         this.zoneId = zoneId;
         this.timeZone = TimeZones.getTimeZone(zoneId);
         this.isUTC = TimeZones.UTC.equals(timeZone);
@@ -108,10 +117,6 @@ public class FTimeZone implements ISerializableValueObject {
 
         this.minDate = FDateBuilder.newDate(FDates.MIN_YEAR, 1, 1, 0, 0, 0, 0, this);
         this.maxDate = FDateBuilder.newDate(FDates.MAX_YEAR, 1, 1, 0, 0, 0, 0, this);
-    }
-
-    public FTimeZone(final TimeZone timeZone) {
-        this(timeZone.toZoneId());
     }
 
     private Object readResolve() {
@@ -254,6 +259,20 @@ public class FTimeZone implements ISerializableValueObject {
     @Override
     public String toString() {
         return getId();
+    }
+
+    public static FTimeZone valueOf(final ZoneId zoneId) {
+        if (zoneId == null) {
+            return null;
+        }
+        return valueOf(zoneId.getId());
+    }
+
+    public static FTimeZone valueOf(final TimeZone timeZone) {
+        if (timeZone == null) {
+            return null;
+        }
+        return valueOf(timeZone.getID());
     }
 
     public static FTimeZone valueOf(final String id) {

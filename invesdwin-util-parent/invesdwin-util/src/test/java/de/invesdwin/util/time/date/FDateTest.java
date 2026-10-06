@@ -34,7 +34,7 @@ public class FDateTest {
         Reflections.disableJavaModuleSystemRestrictions();
         FDates.setDefaultClock(FDateClockNanosInternal.INSTANCE);
         final TimeZone newTimeZone = TimeZones.getTimeZone("UTC");
-        FDates.setDefaultTimeZone(new FTimeZone(newTimeZone));
+        FDates.setDefaultTimeZone(FTimeZone.valueOf(newTimeZone));
         final FDate curDate = FDate.now();
         final String dateStr = curDate.toString();
         TimeZone.setDefault(newTimeZone);
@@ -349,8 +349,8 @@ public class FDateTest {
     @Test
     public void testTimeZoneSwitching() {
         //CHECKSTYLE:OFF
-        final FTimeZone zoneBerlin = new FTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
-        final FTimeZone zoneUtc = new FTimeZone(TimeZone.getTimeZone("UTC"));
+        final FTimeZone zoneBerlin = FTimeZone.valueOf(TimeZone.getTimeZone("Europe/Berlin"));
+        final FTimeZone zoneUtc = FTimeZone.valueOf(TimeZone.getTimeZone("UTC"));
         //CHECKSTYLE:ON
 
         // 1. Snapshot an absolute instant (e.g., current time)
