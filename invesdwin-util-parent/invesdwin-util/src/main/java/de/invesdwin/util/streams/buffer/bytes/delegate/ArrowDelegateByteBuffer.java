@@ -18,7 +18,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 import org.apache.arrow.memory.ArrowBuf;
-import org.apache.arrow.memory.netty.NettyAllocationManager;
+import org.apache.arrow.memory.unsafe.UnsafeAllocationManager;
 
 import de.invesdwin.util.concurrent.loop.spinwait.ASpinWait;
 import de.invesdwin.util.error.FastEOFException;
@@ -45,7 +45,7 @@ import de.invesdwin.util.time.duration.Duration;
 @NotThreadSafe
 public class ArrowDelegateByteBuffer implements IByteBuffer {
 
-    public static final ArrowBuf EMPTY_BYTES = NettyAllocationManager.FACTORY.empty();
+    public static final ArrowBuf EMPTY_BYTES = UnsafeAllocationManager.FACTORY.empty();
     public static final ArrowDelegateMemoryBuffer EMPTY_BUFFER = new ArrowDelegateMemoryBuffer(EMPTY_BYTES);
 
     private ArrowBuf delegate;

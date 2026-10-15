@@ -1,52 +1,65 @@
-package de.invesdwin.util.collections.array.primitive.circular;
+package de.invesdwin.util.collections.array.large.queue.circular;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.collections.array.primitive.accessor.IDoublePrimitiveArrayAccessor;
-import de.invesdwin.util.collections.queue.IDoubleQueue;
+import de.invesdwin.util.collections.array.large.ILongLargeArray;
+import de.invesdwin.util.collections.array.large.accessor.ILongLargeArrayAccessor;
+import de.invesdwin.util.collections.array.large.queue.ILongLargeQueue;
+import de.invesdwin.util.collections.array.primitive.queue.circular.CircularLongPrimitiveArrayQueue;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
+import de.invesdwin.util.math.Integers;
 
 /**
- * Similar to org.apache.commons.collections4.queue.CircularFifoQueue<E> or
- * org.jctools.queues.ConcurrentCircularArrayQueue<E>
- * 
- * Though with classic queue semantics and special functions for using the circular features with specialities for
- * memory management.
+ * Large variant of {@link CircularLongPrimitiveArrayQueue} using long based indexes and sizes, thus not being
+ * limited to an {@link Integer#MAX_VALUE} sized queue. Values are stored in a {@link ILongLargeArray} which
+ * switches to segmented heap arrays for capacities exceeding the maximum array size of the JVM.
  */
 @NotThreadSafe
-public class CircularDoublePrimitiveArrayQueue implements IDoubleQueue, IDoublePrimitiveArrayAccessor {
+public class CircularLongLargeArrayQueue implements ILongLargeQueue, ILongLargeArrayAccessor {
 
-    private final double[] array;
-    private final int capacity;
-    private final int lastPossibleIndex;
-    private int size = 0;
-    private int startArrayIndex = -1;
-    private int endArrayIndex = -1;
+    private final ILongLargeArray array;
+    private final long capacity;
+    private final long lastPossibleIndex;
+    private long size = 0;
+    private long startArrayIndex = -1;
+    private long endArrayIndex = -1;
 
-    public CircularDoublePrimitiveArrayQueue(final int capacity) {
-        this.array = new double[capacity];
-        Arrays.fill(array, Double.NaN);
-        this.capacity = array.length;
-        this.lastPossibleIndex = capacity - 1;
-        if (capacity == 0) {
-            throw new IllegalArgumentException("size should not be 0");
+    public CircularLongLargeArrayQueue(final long capacity) {
+        if (capacity <= 0) {
+            throw new IllegalArgumentException("capacity should not be negative or 0: " + capacity);
         }
+        this.array = ILongLargeArray.newInstance(capacity);
+        this.capacity = capacity;
+        this.lastPossibleIndex = capacity - 1;
+    }
+
+    /**
+     * Uses the given array as the backing store, so the capacity is the size of the array and it can be replaced by
+     * another implementation (e.g. an off heap based one). Values of a previous usage are never read, so an array that
+     * was used before can be reused as it is.
+     */
+    public CircularLongLargeArrayQueue(final ILongLargeArray array) {
+        if (array.size() == 0) {
+            throw new IllegalArgumentException("array should not be empty: " + array.size());
+        }
+        this.array = array;
+        this.capacity = array.size();
+        this.lastPossibleIndex = capacity - 1;
     }
 
     /**
      * The last value has index 0, the value before the last has index 1.
      */
-    public double getReverse(final int index) {
-        return array[arrayIndexReverse(index)];
+    public long getReverse(final long index) {
+        return array.get(arrayIndexReverse(index));
     }
 
     /**
      * The first value has index 0, the value after the first has index 1.
      */
     @Override
-    public double get(final int index) {
-        return array[arrayIndex(index)];
+    public long get(final long index) {
+        return array.get(arrayIndex(index));
     }
 
     @Override
@@ -59,11 +72,11 @@ public class CircularDoublePrimitiveArrayQueue implements IDoubleQueue, IDoubleP
     }
 
     @Override
-    public int size() {
+    public long size() {
         return size;
     }
 
-    public int capacity() {
+    public long capacity() {
         return capacity;
     }
 
@@ -115,7 +128,7 @@ public class CircularDoublePrimitiveArrayQueue implements IDoubleQueue, IDoubleP
         }
     }
 
-    private int arrayIndexReverse(final int index) {
+    private long arrayIndexReverse(final long index) {
         if (index >= size) {
             throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be greater or equal to size[%s]",
                     index, size);
@@ -123,16 +136,16 @@ public class CircularDoublePrimitiveArrayQueue implements IDoubleQueue, IDoubleP
         if (index < 0) {
             throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be negative", index);
         }
-        final int idx = (endArrayIndex - index);
+        final long idx = (endArrayIndex - index);
         if (idx < 0) {
-            final int adjIdx = (capacity + idx);
+            final long adjIdx = (capacity + idx);
             return adjIdx;
         } else {
             return idx;
         }
     }
 
-    private int arrayIndex(final int index) {
+    private long arrayIndex(final long index) {
         if (index >= size) {
             throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be greater or equal to size[%s]",
                     index, size);
@@ -140,7 +153,7 @@ public class CircularDoublePrimitiveArrayQueue implements IDoubleQueue, IDoubleP
         if (index < 0) {
             throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be negative", index);
         }
-        final int idx = (startArrayIndex + index) % capacity;
+        final long idx = (startArrayIndex + index) % capacity;
         return idx;
     }
 
@@ -149,10 +162,10 @@ public class CircularDoublePrimitiveArrayQueue implements IDoubleQueue, IDoubleP
         return toString(0, size);
     }
 
-    public String toString(final int index, final int size) {
+    public String toString(final long index, final long size) {
         final StringBuilder sb = new StringBuilder("[");
-        for (int i = index; i < size; i++) {
-            if (i > 0) {
+        for (long i = index; i < size; i++) {
+            if (i > index) {
                 sb.append(", ");
             }
             sb.append(get(i));
@@ -161,10 +174,10 @@ public class CircularDoublePrimitiveArrayQueue implements IDoubleQueue, IDoubleP
         return sb.toString();
     }
 
-    public String toStringReverse(final int index, final int size) {
+    public String toStringReverse(final long index, final long size) {
         final StringBuilder sb = new StringBuilder("[");
-        for (int i = index; i < size; i++) {
-            if (i > 0) {
+        for (long i = index; i < size; i++) {
+            if (i > index) {
                 sb.append(", ");
             }
             sb.append(getReverse(i));
@@ -173,20 +186,24 @@ public class CircularDoublePrimitiveArrayQueue implements IDoubleQueue, IDoubleP
         return sb.toString();
     }
 
-    public double[] toArray(final double[] a) {
-        if (a.length < size) {
+    /**
+     * WARNING: this operation will fail for queues that exceed the maximum array size of the JVM. Use with caution.
+     */
+    public long[] toArray(final long[] a) {
+        final int intSize = Integers.checkedCast(size);
+        if (a.length < intSize) {
             // Make a new array of a's runtime type, but my contents:
-            final double[] array = new double[size];
-            for (int i = 0; i < array.length; i++) {
-                array[i] = get(i);
+            final long[] newArray = new long[intSize];
+            for (int i = 0; i < newArray.length; i++) {
+                newArray[i] = get(i);
             }
-            return array;
+            return newArray;
         }
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < intSize; i++) {
             a[i] = get(i);
         }
-        if (a.length > size) {
-            a[size] = Double.NaN;
+        if (a.length > intSize) {
+            a[intSize] = MISSING_VALUE;
         }
         return a;
     }
@@ -195,37 +212,40 @@ public class CircularDoublePrimitiveArrayQueue implements IDoubleQueue, IDoubleP
      * Adds an element to the array, if capacity is exceeded, the first element is replaced silently by the rollover (so
      * that it can be garbage collected).
      */
-    public void circularAdd(final double value) {
+    public void circularAdd(final long value) {
         pretendAdd();
-        array[endArrayIndex] = value;
+        array.set(endArrayIndex, value);
     }
 
-    public void circularPrepend(final double value) {
+    public void circularPrepend(final long value) {
         pretendPrepend();
-        array[startArrayIndex] = value;
+        array.set(startArrayIndex, value);
     }
 
     /**
      * Adds an element to the array, if capacity is exceeded, the first element is replaced by the rollover and returned
      * (e.g. to clean up the instance).
      */
-
-    public double evictAdd(final double value) {
+    public long evictAdd(final long value) {
+        //an untouched slot is never read, so only a real rollover reports an evicted element
+        final boolean rolling = isFull();
         pretendAdd();
-        final double evicted = array[endArrayIndex];
-        array[endArrayIndex] = value;
+        final long evicted = rolling ? array.get(endArrayIndex) : MISSING_VALUE;
+        array.set(endArrayIndex, value);
         return evicted;
     }
 
-    public double evictPrepend(final double value) {
+    public long evictPrepend(final long value) {
+        //an untouched slot is never read, so only a real rollover reports an evicted element
+        final boolean rolling = isFull();
         pretendPrepend();
-        final double evicted = array[startArrayIndex];
-        array[startArrayIndex] = value;
+        final long evicted = rolling ? array.get(startArrayIndex) : MISSING_VALUE;
+        array.set(startArrayIndex, value);
         return evicted;
     }
 
     @Override
-    public boolean offer(final double value) {
+    public boolean offer(final long value) {
         if (isFull()) {
             return false;
         } else {
@@ -234,7 +254,7 @@ public class CircularDoublePrimitiveArrayQueue implements IDoubleQueue, IDoubleP
         }
     }
 
-    public boolean offerPrepend(final double value) {
+    public boolean offerPrepend(final long value) {
         if (isFull()) {
             return false;
         } else {
@@ -243,7 +263,7 @@ public class CircularDoublePrimitiveArrayQueue implements IDoubleQueue, IDoubleP
         }
     }
 
-    public boolean prepend(final double e) {
+    public boolean prepend(final long e) {
         if (offerPrepend(e)) {
             return true;
         } else {
@@ -252,21 +272,21 @@ public class CircularDoublePrimitiveArrayQueue implements IDoubleQueue, IDoubleP
     }
 
     @Override
-    public double peek() {
+    public long peek() {
         if (isEmpty()) {
-            return Double.NaN;
+            return MISSING_VALUE;
         }
-        final double first = array[startArrayIndex];
+        final long first = array.get(startArrayIndex);
         return first;
     }
 
     @Override
-    public double poll() {
+    public long poll() {
         if (isEmpty()) {
-            return Double.NaN;
+            return MISSING_VALUE;
         }
-        final double first = array[startArrayIndex];
-        array[startArrayIndex] = Double.NaN;
+        final long first = array.get(startArrayIndex);
+        array.set(startArrayIndex, MISSING_VALUE);
         size--;
         if (isEmpty()) {
             startArrayIndex = -1;
@@ -279,8 +299,8 @@ public class CircularDoublePrimitiveArrayQueue implements IDoubleQueue, IDoubleP
 
     @Override
     public void clear() {
+        //untouched slots are never read, so they are left at their default value
         pretendClear();
-        Arrays.fill(array, Double.NaN);
     }
 
     public void pretendClear() {

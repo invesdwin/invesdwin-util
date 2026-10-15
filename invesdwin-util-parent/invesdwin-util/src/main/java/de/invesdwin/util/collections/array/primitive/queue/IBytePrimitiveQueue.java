@@ -1,12 +1,17 @@
-package de.invesdwin.util.collections.queue;
+package de.invesdwin.util.collections.array.primitive.queue;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;
 
 import de.invesdwin.util.error.FastNoSuchElementException;
-import de.invesdwin.util.math.Doubles;
 
-public interface IDoubleQueue {
+public interface IBytePrimitiveQueue {
+
+    /**
+     * Unlike a double there is no NaN for a byte, so all 256 values are valid elements. Thus {@link #MISSING_VALUE} can
+     * only be used as a best effort signal, an empty queue should be detected with {@link #isEmpty()} instead.
+     */
+    byte MISSING_VALUE = (byte) 0;
 
     int size();
 
@@ -22,14 +27,10 @@ public interface IDoubleQueue {
      * @return {@code true} (as specified by {@link Collection#add})
      * @throws IllegalStateException
      *             if the element cannot be added at this time due to capacity restrictions
-     * @throws ClassCastException
-     *             if the class of the specified element prevents it from being added to this queue
-     * @throws NullPointerException
-     *             if the specified element is null and this queue does not permit null elements
      * @throws IllegalArgumentException
      *             if some property of this element prevents it from being added to this queue
      */
-    default boolean add(final double e) {
+    default boolean add(final byte e) {
         if (offer(e)) {
             return true;
         } else {
@@ -45,14 +46,10 @@ public interface IDoubleQueue {
      * @param e
      *            the element to add
      * @return {@code true} if the element was added to this queue, else {@code false}
-     * @throws ClassCastException
-     *             if the class of the specified element prevents it from being added to this queue
-     * @throws NullPointerException
-     *             if the specified element is null and this queue does not permit null elements
      * @throws IllegalArgumentException
      *             if some property of this element prevents it from being added to this queue
      */
-    boolean offer(double e);
+    boolean offer(byte e);
 
     /**
      * Retrieves and removes the head of this queue. This method differs from {@link #poll() poll()} only in that it
@@ -62,21 +59,20 @@ public interface IDoubleQueue {
      * @throws NoSuchElementException
      *             if this queue is empty
      */
-    default double remove() {
-        final double poll = poll();
-        if (!Doubles.isNaN(poll)) {
-            return poll;
-        } else {
-            throw FastNoSuchElementException.getInstance("poll returned NaN");
+    default byte remove() {
+        if (isEmpty()) {
+            throw FastNoSuchElementException.getInstance("poll returned nothing");
         }
+        return poll();
     }
 
     /**
-     * Retrieves and removes the head of this queue, or returns {@code null} if this queue is empty.
+     * Retrieves and removes the head of this queue, or returns {@link #MISSING_VALUE} if this queue is empty (use
+     * {@link #isEmpty()} to distinguish a missing value from a zero element).
      *
-     * @return the head of this queue, or {@code null} if this queue is empty
+     * @return the head of this queue, or {@link #MISSING_VALUE} if this queue is empty
      */
-    double poll();
+    byte poll();
 
     /**
      * Retrieves, but does not remove, the head of this queue. This method differs from {@link #peek peek} only in that
@@ -86,21 +82,20 @@ public interface IDoubleQueue {
      * @throws NoSuchElementException
      *             if this queue is empty
      */
-    default double element() {
-        final double peek = peek();
-        if (!Doubles.isNaN(peek)) {
-            return peek;
-        } else {
-            throw FastNoSuchElementException.getInstance("peek returned NaN");
+    default byte element() {
+        if (isEmpty()) {
+            throw FastNoSuchElementException.getInstance("peek returned nothing");
         }
+        return peek();
     }
 
     /**
-     * Retrieves, but does not remove, the head of this queue, or returns {@code null} if this queue is empty.
+     * Retrieves, but does not remove, the head of this queue, or returns {@link #MISSING_VALUE} if this queue is empty
+     * (use {@link #isEmpty()} to distinguish a missing value from a zero element).
      *
-     * @return the head of this queue, or {@code null} if this queue is empty
+     * @return the head of this queue, or {@link #MISSING_VALUE} if this queue is empty
      */
-    double peek();
+    byte peek();
 
     void clear();
 

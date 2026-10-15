@@ -1,9 +1,10 @@
-package de.invesdwin.util.collections.array.primitive.circular;
+package de.invesdwin.util.collections.array.primitive.queue.circular;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.io.IOUtils;
 
+import de.invesdwin.util.collections.array.primitive.queue.IBytePrimitiveQueue;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
@@ -12,7 +13,7 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
  * Adapted from: org.apache.commons.io.input.buffer.CircularByteBuffer
  */
 @NotThreadSafe
-public class CircularByteBuffer {
+public class CircularByteBuffer implements IBytePrimitiveQueue {
     private final IByteBuffer buffer;
     private final int capacity;
     private int startOffset = 0;
@@ -32,15 +33,16 @@ public class CircularByteBuffer {
         this.capacity = buffer.capacity();
     }
 
+    /**
+     * @return the head of this queue, or {@link IBytePrimitiveQueue#MISSING_VALUE} if this queue is empty (use
+     *         {@link #isEmpty()} to distinguish a missing value from a zero element).
+     */
+    @Override
     public byte peek() {
-        if (size <= 0) {
-            throw new IllegalStateException("No bytes available.");
+        if (isEmpty()) {
+            return MISSING_VALUE;
         }
-        final byte b = buffer.getByte(startOffset);
-        if (++startOffset == capacity) {
-            startOffset = 0;
-        }
-        return b;
+        return buffer.getByte(startOffset);
     }
 
     public void peek(final byte[] targetBuffer, final int targetOffset, final int length) {
@@ -72,11 +74,11 @@ public class CircularByteBuffer {
     }
 
     public void peek(final IByteBuffer targetBuffer, final int targetOffset, final int length) {
-        if (targetBuffer.isExpandable()) {
-            targetBuffer.ensureCapacity(targetOffset + length);
-        }
         if (size < length) {
             throw new IllegalStateException("Currently, there are only " + size + "in the buffer, not " + length);
+        }
+        if (targetBuffer.isExpandable()) {
+            targetBuffer.ensureCapacity(targetOffset + length);
         }
         int offset = targetOffset;
         int bufferOffset = startOffset;
@@ -98,6 +100,19 @@ public class CircularByteBuffer {
             startOffset = 0;
         }
         return b;
+    }
+
+    /**
+     * Retrieves and removes the head of this queue, or returns {@link IBytePrimitiveQueue#MISSING_VALUE} if this queue
+     * is empty (use {@link #isEmpty()} to distinguish a missing value from a zero element). {@link #read()} throws an
+     * exception in that case.
+     */
+    @Override
+    public byte poll() {
+        if (isEmpty()) {
+            return MISSING_VALUE;
+        }
+        return read();
     }
 
     public void read(final byte[] targetBuffer, final int targetOffset, final int length) {
@@ -129,11 +144,11 @@ public class CircularByteBuffer {
     }
 
     public void read(final IByteBuffer targetBuffer, final int targetOffset, final int length) {
-        if (targetBuffer.isExpandable()) {
-            targetBuffer.ensureCapacity(targetOffset + length);
-        }
         if (size < length) {
             throw new IllegalStateException("Currently, there are only " + size + "in the buffer, not " + length);
+        }
+        if (targetBuffer.isExpandable()) {
+            targetBuffer.ensureCapacity(targetOffset + length);
         }
         int offset = targetOffset;
         for (int i = 0; i < length; i++) {
@@ -154,6 +169,19 @@ public class CircularByteBuffer {
         if (++endOffset == capacity) {
             endOffset = 0;
         }
+    }
+
+    /**
+     * Inserts the specified byte into this queue, or returns {@code false} if this queue is full ({@link #write(byte)}
+     * throws an exception in that case).
+     */
+    @Override
+    public boolean offer(final byte e) {
+        if (isFull()) {
+            return false;
+        }
+        write(e);
+        return true;
     }
 
     public boolean isFull() {
@@ -207,22 +235,22 @@ public class CircularByteBuffer {
             final int targetOffset, final int length) {
         int curSourceOffset = sourceOffset;
         int curSourceLength = length;
-        //        int curTargetOffset = targetOffset;
+        int curTargetOffset = targetOffset;
         int curTargetLength = length;
         if (size > 0) {
             //drain buffer into target
             final int toBeRead = Integers.min(size, curTargetLength);
-            read(targetBuffer, targetOffset, toBeRead);
-            //            curTargetOffset += toBeRead;
+            read(targetBuffer, curTargetOffset, toBeRead);
+            curTargetOffset += toBeRead;
             curTargetLength -= toBeRead;
         }
 
         final int toBeCopied = Integers.min(curSourceLength, curTargetLength) - capacity;
         if (toBeCopied > 0) {
-            System.arraycopy(sourceBuffer, curSourceOffset, targetBuffer, curSourceOffset, toBeCopied);
+            System.arraycopy(sourceBuffer, curSourceOffset, targetBuffer, curTargetOffset, toBeCopied);
             curSourceOffset += toBeCopied;
             curSourceLength -= toBeCopied;
-            //            curTargetOffset += toBeCopied;
+            curTargetOffset += toBeCopied;
             curTargetLength -= toBeCopied;
         }
 
@@ -236,10 +264,12 @@ public class CircularByteBuffer {
         return length - curTargetLength;
     }
 
+    @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
+    @Override
     public int size() {
         return size;
     }
@@ -248,6 +278,7 @@ public class CircularByteBuffer {
         return capacity;
     }
 
+    @Override
     public void clear() {
         startOffset = 0;
         endOffset = 0;
@@ -256,6 +287,12 @@ public class CircularByteBuffer {
 
     public byte[] asByteArrayCopy() {
         final byte[] copy = new byte[size];
+        peek(copy, 0, size);
+        return copy;
+    }
+
+    public IByteBuffer asByteBufferCopy() {
+        final IByteBuffer copy = ByteBuffers.allocate(size);
         peek(copy, 0, size);
         return copy;
     }

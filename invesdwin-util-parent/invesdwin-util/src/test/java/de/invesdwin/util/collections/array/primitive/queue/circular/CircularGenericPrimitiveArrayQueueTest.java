@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.array.primitive.circular;
+package de.invesdwin.util.collections.array.primitive.queue.circular;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +8,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.array.primitive.heap.HeapGenericPrimitiveArray;
 import de.invesdwin.util.math.random.IRandomGenerator;
 import de.invesdwin.util.math.random.PseudoRandomGenerators;
 
@@ -142,6 +143,40 @@ public class CircularGenericPrimitiveArrayQueueTest {
             }
             step++;
         }
+    }
+
+    @Test
+    public void testExternalArray() {
+        final String[] values = new String[] { "seed", null };
+        final CircularGenericPrimitiveArrayQueue<String> queue = new CircularGenericPrimitiveArrayQueue<String>(values);
+        Assertions.assertThat(queue.capacity()).isEqualTo(2);
+        Assertions.assertThat(queue.isEmpty()).isTrue();
+        //the content of the given array is kept as it is
+        queue.circularAdd("a");
+        Assertions.assertThat(values).isEqualTo(new String[] { "a", null });
+        queue.circularAdd("b");
+        queue.circularAdd("c");
+        Assertions.assertThat(queue.toString()).isEqualTo("[b, c]");
+        queue.clear();
+        Assertions.assertThat(values).isEqualTo(new String[] { null, null });
+        Assertions.assertThatThrownBy(() -> new CircularGenericPrimitiveArrayQueue<String>(new String[0]))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testTypedAndInterfaceBacking() {
+        final CircularGenericPrimitiveArrayQueue<String> typed = new CircularGenericPrimitiveArrayQueue<String>(
+                String.class, 2);
+        typed.circularAdd("a");
+        Assertions.assertThat(typed.toArray(new String[0])).isEqualTo(new String[] { "a" });
+        //the interface based constructor allows using another implementation
+        final CircularGenericPrimitiveArrayQueue<String> queue = new CircularGenericPrimitiveArrayQueue<String>(
+                new HeapGenericPrimitiveArray<String>(String.class, 2));
+        queue.circularAdd("b");
+        queue.circularAdd("c");
+        Assertions.assertThat(queue.toString()).isEqualTo("[b, c]");
+        queue.clear();
+        Assertions.assertThat(queue.isEmpty()).isTrue();
     }
 
 }

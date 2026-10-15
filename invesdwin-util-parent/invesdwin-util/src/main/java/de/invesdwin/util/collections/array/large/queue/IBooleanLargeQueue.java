@@ -1,13 +1,20 @@
-package de.invesdwin.util.collections.queue;
+package de.invesdwin.util.collections.array.large.queue;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;
 
 import de.invesdwin.util.error.FastNoSuchElementException;
 
-public interface IGenericQueue<E> {
+public interface IBooleanLargeQueue {
 
-    int size();
+    /**
+     * Unlike a double there is no NaN for a boolean, so both values are valid elements. Thus
+     * {@link #MISSING_VALUE} can only be used as a best effort signal, an empty queue should be detected with
+     * {@link #isEmpty()} instead.
+     */
+    boolean MISSING_VALUE = false;
+
+    long size();
 
     boolean isEmpty();
 
@@ -21,14 +28,10 @@ public interface IGenericQueue<E> {
      * @return {@code true} (as specified by {@link Collection#add})
      * @throws IllegalStateException
      *             if the element cannot be added at this time due to capacity restrictions
-     * @throws ClassCastException
-     *             if the class of the specified element prevents it from being added to this queue
-     * @throws NullPointerException
-     *             if the specified element is null and this queue does not permit null elements
      * @throws IllegalArgumentException
      *             if some property of this element prevents it from being added to this queue
      */
-    default boolean add(final E e) {
+    default boolean add(final boolean e) {
         if (offer(e)) {
             return true;
         } else {
@@ -44,14 +47,10 @@ public interface IGenericQueue<E> {
      * @param e
      *            the element to add
      * @return {@code true} if the element was added to this queue, else {@code false}
-     * @throws ClassCastException
-     *             if the class of the specified element prevents it from being added to this queue
-     * @throws NullPointerException
-     *             if the specified element is null and this queue does not permit null elements
      * @throws IllegalArgumentException
      *             if some property of this element prevents it from being added to this queue
      */
-    boolean offer(E e);
+    boolean offer(boolean e);
 
     /**
      * Retrieves and removes the head of this queue. This method differs from {@link #poll() poll()} only in that it
@@ -61,21 +60,19 @@ public interface IGenericQueue<E> {
      * @throws NoSuchElementException
      *             if this queue is empty
      */
-    default E remove() {
-        final E poll = poll();
-        if (poll != null) {
-            return poll;
-        } else {
-            throw FastNoSuchElementException.getInstance("poll returned null");
+    default boolean remove() {
+        if (isEmpty()) {
+            throw FastNoSuchElementException.getInstance("poll returned nothing");
         }
+        return poll();
     }
 
     /**
-     * Retrieves and removes the head of this queue, or returns {@code null} if this queue is empty.
+     * Retrieves and removes the head of this queue, or returns {@link #MISSING_VALUE} if this queue is empty.
      *
-     * @return the head of this queue, or {@code null} if this queue is empty
+     * @return the head of this queue, or {@link #MISSING_VALUE} if this queue is empty
      */
-    E poll();
+    boolean poll();
 
     /**
      * Retrieves, but does not remove, the head of this queue. This method differs from {@link #peek peek} only in that
@@ -85,21 +82,19 @@ public interface IGenericQueue<E> {
      * @throws NoSuchElementException
      *             if this queue is empty
      */
-    default E element() {
-        final E peek = peek();
-        if (peek != null) {
-            return peek;
-        } else {
-            throw FastNoSuchElementException.getInstance("peek returned null");
+    default boolean element() {
+        if (isEmpty()) {
+            throw FastNoSuchElementException.getInstance("peek returned nothing");
         }
+        return peek();
     }
 
     /**
-     * Retrieves, but does not remove, the head of this queue, or returns {@code null} if this queue is empty.
+     * Retrieves, but does not remove, the head of this queue, or returns {@link #MISSING_VALUE} if this queue is empty.
      *
-     * @return the head of this queue, or {@code null} if this queue is empty
+     * @return the head of this queue, or {@link #MISSING_VALUE} if this queue is empty
      */
-    E peek();
+    boolean peek();
 
     void clear();
 

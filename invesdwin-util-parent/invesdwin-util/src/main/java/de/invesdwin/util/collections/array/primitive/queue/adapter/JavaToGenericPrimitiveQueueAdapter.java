@@ -1,4 +1,4 @@
-package de.invesdwin.util.collections.queue;
+package de.invesdwin.util.collections.array.primitive.queue.adapter;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -6,12 +6,14 @@ import java.util.Queue;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.array.primitive.queue.IGenericPrimitiveQueue;
+
 @Immutable
-public class JavaToGenericQueueAdapter<E> implements Queue<E>, IGenericQueue<E> {
+public class JavaToGenericPrimitiveQueueAdapter<E> implements Queue<E>, IGenericPrimitiveQueue<E> {
 
     private final Queue<E> delegate;
 
-    public JavaToGenericQueueAdapter(final Queue<E> delegate) {
+    public JavaToGenericPrimitiveQueueAdapter(final Queue<E> delegate) {
         this.delegate = delegate;
     }
 
