@@ -37,21 +37,20 @@ public interface IBaseArrayId {
     }
 
     static int newId(final IBaseArrayId o1, final IBaseArrayId o2, final IBaseArrayId o3) {
-        return Objects.hashCode(getId(o1), getId(o2), getId(o3), getId(o3));
+        return Objects.hashCode(getId(o1), getId(o2), getId(o3));
     }
 
-    static int newId(final IBaseArrayId o1, final IBaseArrayId o2, final IBaseArrayId o3,
-            final IBaseArrayId o4) {
+    static int newId(final IBaseArrayId o1, final IBaseArrayId o2, final IBaseArrayId o3, final IBaseArrayId o4) {
         return Objects.hashCode(getId(o1), getId(o2), getId(o3), getId(o3), getId(o4));
     }
 
-    static int newId(final IBaseArrayId o1, final IBaseArrayId o2, final IBaseArrayId o3,
-            final IBaseArrayId o4, final IBaseArrayId o5) {
+    static int newId(final IBaseArrayId o1, final IBaseArrayId o2, final IBaseArrayId o3, final IBaseArrayId o4,
+            final IBaseArrayId o5) {
         return Objects.hashCode(getId(o1), getId(o2), getId(o3), getId(o3), getId(o4), getId(o5));
     }
 
-    static int newId(final IBaseArrayId o1, final IBaseArrayId o2, final IBaseArrayId o3,
-            final IBaseArrayId o4, final IBaseArrayId o5, final IBaseArrayId o6) {
+    static int newId(final IBaseArrayId o1, final IBaseArrayId o2, final IBaseArrayId o3, final IBaseArrayId o4,
+            final IBaseArrayId o5, final IBaseArrayId o6) {
         return Objects.hashCode(getId(o1), getId(o2), getId(o3), getId(o3), getId(o4), getId(o5), getId(o6));
     }
 
