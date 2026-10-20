@@ -14,7 +14,6 @@ import de.invesdwin.util.collections.array.primitive.queue.ILongPrimitiveQueue;
 import de.invesdwin.util.collections.array.primitive.queue.circular.CircularLongPrimitiveArrayQueue;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.factory.SynchronizedLockCollectionFactory;
-import de.invesdwin.util.collections.array.primitive.queue.circular.concurrent.LockedLongPrimitiveCircularQueue;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
 @NotThreadSafe

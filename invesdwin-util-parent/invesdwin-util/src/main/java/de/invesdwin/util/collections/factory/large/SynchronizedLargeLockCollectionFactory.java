@@ -19,7 +19,6 @@ import de.invesdwin.util.collections.array.large.queue.circular.concurrent.Synch
 import de.invesdwin.util.collections.array.large.queue.circular.concurrent.SynchronizedGenericLargeCircularQueue;
 import de.invesdwin.util.collections.array.large.queue.circular.concurrent.SynchronizedIntegerLargeCircularQueue;
 import de.invesdwin.util.collections.array.large.queue.circular.concurrent.SynchronizedLongLargeCircularQueue;
-import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.factory.SynchronizedLockCollectionFactory;
 
 /**

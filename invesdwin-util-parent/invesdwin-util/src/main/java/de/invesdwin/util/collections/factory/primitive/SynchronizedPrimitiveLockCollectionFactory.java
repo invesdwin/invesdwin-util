@@ -19,7 +19,6 @@ import de.invesdwin.util.collections.array.primitive.queue.circular.concurrent.S
 import de.invesdwin.util.collections.array.primitive.queue.circular.concurrent.SynchronizedGenericPrimitiveCircularQueue;
 import de.invesdwin.util.collections.array.primitive.queue.circular.concurrent.SynchronizedIntegerPrimitiveCircularQueue;
 import de.invesdwin.util.collections.array.primitive.queue.circular.concurrent.SynchronizedLongPrimitiveCircularQueue;
-import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.factory.SynchronizedLockCollectionFactory;
 
 /**

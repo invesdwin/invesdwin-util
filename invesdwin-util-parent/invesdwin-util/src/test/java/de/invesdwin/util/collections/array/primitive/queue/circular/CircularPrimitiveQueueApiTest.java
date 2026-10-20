@@ -2,13 +2,13 @@ package de.invesdwin.util.collections.array.primitive.queue.circular;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.math.random.IRandomGenerator;
+import de.invesdwin.util.math.random.PseudoRandomGenerators;
 import de.invesdwin.util.collections.array.primitive.queue.ILongPrimitiveQueue;
 
 /**
@@ -26,11 +26,11 @@ public class CircularPrimitiveQueueApiTest {
         for (final int capacity : CAPACITIES) {
             final CircularLongPrimitiveArrayQueue queue = new CircularLongPrimitiveArrayQueue(capacity);
             final List<Long> oracle = new ArrayList<>();
-            final Random rand = new Random(42 + capacity);
+            final IRandomGenerator rand = PseudoRandomGenerators.newPseudoRandom(42 + capacity);
             for (int op = 0; op < 200; op++) {
-                final long value = rand.nextInt(1000);
+                final long value = rand.nextInt(0, 1000);
                 //pretend* not mixed in here: it exposes physical slot contents no logical oracle can model.
-                switch (rand.nextInt(6)) {
+                switch (rand.nextInt(0, 6)) {
                     case 0:
                     case 1: {
                         queue.circularAdd(value);

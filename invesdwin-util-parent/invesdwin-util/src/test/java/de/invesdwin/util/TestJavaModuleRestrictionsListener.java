@@ -1,5 +1,7 @@
 package de.invesdwin.util;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.junit.platform.launcher.LauncherSession;
 import org.junit.platform.launcher.LauncherSessionListener;
 
@@ -23,6 +25,7 @@ import de.invesdwin.util.lang.reflection.Reflections;
  * per-class blocks remain harmless ({@link Reflections#disableJavaModuleSystemRestrictions()} is
  * idempotent) and still protect runs that bypass the JUnit launcher.
  */
+@NotThreadSafe
 public class TestJavaModuleRestrictionsListener implements LauncherSessionListener {
 
     public TestJavaModuleRestrictionsListener() {

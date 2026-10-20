@@ -2,13 +2,13 @@ package de.invesdwin.util.collections.array.large.queue.circular;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.math.random.IRandomGenerator;
+import de.invesdwin.util.math.random.PseudoRandomGenerators;
 import de.invesdwin.util.collections.array.large.queue.ILongLargeCircularQueue;
 import de.invesdwin.util.collections.array.large.queue.ILongLargeQueue;
 
@@ -27,12 +27,12 @@ public class CircularLargeQueueApiTest {
         for (final long capacity : CAPACITIES) {
             final CircularLongLargeArrayQueue queue = new CircularLongLargeArrayQueue(capacity);
             final List<Long> oracle = new ArrayList<>();
-            final Random rand = new Random(42 + capacity);
+            final IRandomGenerator rand = PseudoRandomGenerators.newPseudoRandom(42 + capacity);
             for (int op = 0; op < 200; op++) {
-                final long value = rand.nextInt(1000);
+                final long value = rand.nextInt(0, 1000);
                 //NOTE: pretendAdd/Prepend deliberately NOT mixed in here - they expose physical slot contents
                 //that no logical oracle can model (stale values after poll/clear); pinned separately.
-                switch (rand.nextInt(6)) {
+                switch (rand.nextInt(0, 6)) {
                     case 0:
                     case 1: {
                         queue.circularAdd(value);

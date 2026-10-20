@@ -11,7 +11,6 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.array.large.queue.ILongLargeCircularQueue;
 import de.invesdwin.util.collections.array.large.queue.ILongLargeQueue;
 import de.invesdwin.util.collections.array.large.queue.circular.CircularLongLargeArrayQueue;
-import de.invesdwin.util.collections.array.large.queue.circular.concurrent.LockedLongLargeCircularQueue;
 import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.error.FastNoSuchElementException;

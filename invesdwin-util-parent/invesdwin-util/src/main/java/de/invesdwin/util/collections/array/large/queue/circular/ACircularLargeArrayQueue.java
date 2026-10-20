@@ -29,6 +29,11 @@ public abstract class ACircularLargeArrayQueue {
     protected long startArrayIndex = -1;
     protected long endArrayIndex = -1;
 
+    protected ACircularLargeArrayQueue(final long capacity) {
+        this.capacity = checkCapacity(capacity);
+        this.lastPossibleIndex = this.capacity - 1;
+    }
+
     /**
      * Validates that the given capacity is usable; invoked by the base constructor itself
      * (identity or throw - subclasses may also call it BEFORE their own array allocation,
@@ -39,11 +44,6 @@ public abstract class ACircularLargeArrayQueue {
             throw new IllegalArgumentException("capacity should not be negative or 0: " + capacity);
         }
         return capacity;
-    }
-
-    protected ACircularLargeArrayQueue(final long capacity) {
-        this.capacity = checkCapacity(capacity);
-        this.lastPossibleIndex = this.capacity - 1;
     }
 
     public long size() {
