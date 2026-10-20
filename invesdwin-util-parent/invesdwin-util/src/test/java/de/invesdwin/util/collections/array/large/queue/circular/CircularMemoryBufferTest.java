@@ -8,17 +8,12 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.array.large.queue.IByteLargeQueue;
-import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Bytes;
 import de.invesdwin.util.streams.buffer.memory.IMemoryBuffer;
 import de.invesdwin.util.streams.buffer.memory.MemoryBuffers;
 
 @NotThreadSafe
 public class CircularMemoryBufferTest {
-
-    static {
-        Reflections.disableJavaModuleSystemRestrictions();
-    }
 
     private static final byte[] INPUT = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 

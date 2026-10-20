@@ -16,7 +16,6 @@ import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.APushingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
-import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.random.PseudoRandomGenerator;
 import de.invesdwin.util.time.date.FDate;
@@ -27,10 +26,6 @@ import de.invesdwin.util.time.date.FDates;
 @ThreadSafe
 public abstract class ABaseHistoricalCacheTest {
     //CHECKSTYLE:ON
-
-    static {
-        Reflections.disableJavaModuleSystemRestrictions();
-    }
 
     //marker object
     protected final List<FDate> entities;

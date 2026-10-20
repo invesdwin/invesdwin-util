@@ -40,7 +40,7 @@ public interface IBooleanLargeArray extends ILargeArray, IBooleanLargeArrayAcces
         if (size == 0) {
             return EmptyBooleanLargeArray.INSTANCE;
         }
-        return new BitSetBooleanLargeArray(ILockCollectionFactory.getInstance(false).newLargeBitSet(size));
+        return new BitSetBooleanLargeArray(ILockCollectionFactory.getInstance(false).large().newBitSet(size));
     }
 
     /**

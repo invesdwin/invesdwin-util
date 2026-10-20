@@ -13,7 +13,6 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.future.Futures;
-import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
@@ -25,15 +24,6 @@ public class AllocateByteArrayTest {
 
     private static final int COUNT_BYTES = 100000000;
     private static final int COUNT_LOOPS = 10;
-
-    static {
-        //CHECKSTYLE:OFF
-        System.setProperty("io.netty.tryReflectionSetAccessible", "true");
-        System.setProperty("io.netty.uninitializedArrayAllocationThreshold", "1");
-        //CHECKSTYLE:ON
-        //java 16 otherwise requires --illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/jdk.internal.misc=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED
-        Reflections.disableJavaModuleSystemRestrictions();
-    }
 
     @Test
     public void testAllocateByteArrayPerformance() throws InterruptedException {

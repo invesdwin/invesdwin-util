@@ -4,10 +4,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.array.large.IGenericLargeArray;
-import de.invesdwin.util.collections.array.large.accessor.IGenericLargeArrayAccessor;
-import de.invesdwin.util.collections.array.large.queue.IGenericLargeQueue;
+import de.invesdwin.util.collections.array.large.queue.IGenericLargeCircularQueue;
 import de.invesdwin.util.collections.array.primitive.queue.circular.CircularGenericPrimitiveArrayQueue;
-import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.math.Integers;
 
@@ -17,22 +15,13 @@ import de.invesdwin.util.math.Integers;
  * to segmented heap arrays for capacities exceeding the maximum array size of the JVM.
  */
 @NotThreadSafe
-public class CircularGenericLargeArrayQueue<E> implements IGenericLargeQueue<E>, IGenericLargeArrayAccessor<E> {
+public class CircularGenericLargeArrayQueue<E> extends ACircularLargeArrayQueue implements IGenericLargeCircularQueue<E> {
 
     private final IGenericLargeArray<E> array;
-    private final long capacity;
-    private final long lastPossibleIndex;
-    private long size = 0;
-    private long startArrayIndex = -1;
-    private long endArrayIndex = -1;
 
     public CircularGenericLargeArrayQueue(final Class<E> type, final long capacity) {
-        if (capacity <= 0) {
-            throw new IllegalArgumentException("capacity should not be negative or 0: " + capacity);
-        }
+        super(capacity);
         this.array = IGenericLargeArray.newInstance(type, capacity);
-        this.capacity = capacity;
-        this.lastPossibleIndex = capacity - 1;
     }
 
     /**
@@ -41,12 +30,8 @@ public class CircularGenericLargeArrayQueue<E> implements IGenericLargeQueue<E>,
      * was used before can be reused as it is.
      */
     public CircularGenericLargeArrayQueue(final IGenericLargeArray<E> array) {
-        if (array.size() == 0) {
-            throw new IllegalArgumentException("array should not be empty: " + array.size());
-        }
+        super(array.size());
         this.array = array;
-        this.capacity = array.size();
-        this.lastPossibleIndex = capacity - 1;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -59,6 +44,7 @@ public class CircularGenericLargeArrayQueue<E> implements IGenericLargeQueue<E>,
     /**
      * The last value has index 0, the value before the last has index 1.
      */
+    @Override
     public E getReverse(final long index) {
         return array.get(arrayIndexReverse(index));
     }
@@ -72,98 +58,19 @@ public class CircularGenericLargeArrayQueue<E> implements IGenericLargeQueue<E>,
     }
 
     @Override
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
-    public boolean isFull() {
-        return size == capacity;
+    public E getOrMissing(final long index) {
+        if (isInRange(index)) {
+            return array.get(arrayIndexUnchecked(index));
+        }
+        return null;
     }
 
     @Override
-    public long size() {
-        return size;
-    }
-
-    public long capacity() {
-        return capacity;
-    }
-
-    /**
-     * Rolls over one element higher without adding or removing anything. Useful to circle the indexes around the
-     * existing values (e.g. when reusing the values in the circular array).
-     */
-    public void pretendAdd() {
-        endArrayIndex++;
-        if (endArrayIndex >= capacity) {
-            endArrayIndex = 0;
+    public E getReverseOrMissing(final long index) {
+        if (isInRangeReverse(index)) {
+            return array.get(arrayIndexReverseUnchecked(index));
         }
-        if (size == 0) {
-            startArrayIndex = 0;
-            size++;
-        } else if (size == capacity) {
-            incrementStartArrayIndex();
-        } else {
-            size++;
-        }
-    }
-
-    public void pretendPrepend() {
-        startArrayIndex--;
-        if (startArrayIndex < 0) {
-            startArrayIndex = lastPossibleIndex;
-        }
-        if (size == 0) {
-            endArrayIndex = lastPossibleIndex;
-            size++;
-        } else if (size == capacity) {
-            decrementEndArrayIndex();
-        } else {
-            size++;
-        }
-    }
-
-    private void incrementStartArrayIndex() {
-        startArrayIndex++;
-        if (startArrayIndex >= capacity) {
-            startArrayIndex = 0;
-        }
-    }
-
-    private void decrementEndArrayIndex() {
-        endArrayIndex--;
-        if (endArrayIndex < 0) {
-            endArrayIndex = lastPossibleIndex;
-        }
-    }
-
-    private long arrayIndexReverse(final long index) {
-        if (index >= size) {
-            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be greater or equal to size[%s]",
-                    index, size);
-        }
-        if (index < 0) {
-            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be negative", index);
-        }
-        final long idx = (endArrayIndex - index);
-        if (idx < 0) {
-            final long adjIdx = (capacity + idx);
-            return adjIdx;
-        } else {
-            return idx;
-        }
-    }
-
-    private long arrayIndex(final long index) {
-        if (index >= size) {
-            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be greater or equal to size[%s]",
-                    index, size);
-        }
-        if (index < 0) {
-            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be negative", index);
-        }
-        final long idx = (startArrayIndex + index) % capacity;
-        return idx;
+        return null;
     }
 
     @Override
@@ -222,11 +129,13 @@ public class CircularGenericLargeArrayQueue<E> implements IGenericLargeQueue<E>,
      * Adds an element to the array, if capacity is exceeded, the first element is replaced silently by the rollover (so
      * that it can be garbage collected).
      */
+    @Override
     public void circularAdd(final E value) {
         pretendAdd();
         array.set(endArrayIndex, value);
     }
 
+    @Override
     public void circularPrepend(final E value) {
         pretendPrepend();
         array.set(startArrayIndex, value);
@@ -234,18 +143,21 @@ public class CircularGenericLargeArrayQueue<E> implements IGenericLargeQueue<E>,
 
     /**
      * Adds an element to the array, if capacity is exceeded, the first element is replaced by the rollover and returned
-     * (e.g. to clean up the instance).
+     * (e.g. to clean up the instance). Returns null if nothing was evicted; an untouched slot is never reported as
+     * evicted (a stale reference after pretendClear must not leak out as an eviction).
      */
+    @Override
     public E evictAdd(final E value) {
-        pretendAdd();
-        final E evicted = array.get(endArrayIndex);
+        final long evictedSlot = evictAddSlot();
+        final E evicted = evictedSlot >= 0 ? array.get(evictedSlot) : null;
         array.set(endArrayIndex, value);
         return evicted;
     }
 
+    @Override
     public E evictPrepend(final E value) {
-        pretendPrepend();
-        final E evicted = array.get(startArrayIndex);
+        final long evictedSlot = evictPrependSlot();
+        final E evicted = evictedSlot >= 0 ? array.get(evictedSlot) : null;
         array.set(startArrayIndex, value);
         return evicted;
     }
@@ -351,12 +263,6 @@ public class CircularGenericLargeArrayQueue<E> implements IGenericLargeQueue<E>,
         for (long i = 0; i < capacity; i++) {
             array.set(i, null);
         }
-    }
-
-    public void pretendClear() {
-        this.size = 0;
-        this.startArrayIndex = -1;
-        this.endArrayIndex = -1;
     }
 
 }

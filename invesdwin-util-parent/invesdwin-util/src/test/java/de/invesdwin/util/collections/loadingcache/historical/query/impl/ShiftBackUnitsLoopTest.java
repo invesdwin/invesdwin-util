@@ -12,16 +12,11 @@ import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.iterable.skip.ASkippingIterable;
-import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDateBuilder;
 
 @NotThreadSafe
 public class ShiftBackUnitsLoopTest {
-
-    static {
-        Reflections.disableJavaModuleSystemRestrictions();
-    }
 
     private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
             .getLogger(ShiftBackUnitsLoopTest.class);

@@ -8,14 +8,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.lang.reflection.Reflections;
 
 @NotThreadSafe
 public class ListsTest {
-
-    static {
-        Reflections.disableJavaModuleSystemRestrictions();
-    }
 
     @Test
     public void testPackages() {

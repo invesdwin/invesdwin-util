@@ -5,7 +5,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.date.FWeekday;
@@ -14,10 +13,6 @@ import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
 public class WeekRangeTest {
-
-    static {
-        Reflections.disableJavaModuleSystemRestrictions();
-    }
 
     @Test
     public void testGetDuration() {

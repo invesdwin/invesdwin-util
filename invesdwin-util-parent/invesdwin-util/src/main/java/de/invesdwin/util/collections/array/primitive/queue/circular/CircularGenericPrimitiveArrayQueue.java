@@ -4,27 +4,17 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.array.primitive.IGenericPrimitiveArray;
-import de.invesdwin.util.collections.array.primitive.accessor.IGenericPrimitiveArrayAccessor;
-import de.invesdwin.util.collections.array.primitive.queue.IGenericPrimitiveQueue;
-import de.invesdwin.util.error.FastIndexOutOfBoundsException;
+import de.invesdwin.util.collections.array.primitive.queue.IGenericPrimitiveCircularQueue;
 import de.invesdwin.util.error.FastNoSuchElementException;
 
 /**
- * Similar to org.apache.commons.collections4.queue.CircularFifoQueue<E> or
- * org.jctools.queues.ConcurrentCircularArrayQueue<E>
- * 
- * Though with classic queue semantics and special functions for using the circular features with specialities for
- * memory management.
+ * Int-indexed counterpart of {@code CircularGenericLargeArrayQueue} - same circular semantics, bounded by the int
+ * range instead of the long range. Values are stored in an {@link IGenericPrimitiveArray}.
  */
 @NotThreadSafe
-public class CircularGenericPrimitiveArrayQueue<E> implements IGenericPrimitiveQueue<E>, IGenericPrimitiveArrayAccessor<E> {
+public class CircularGenericPrimitiveArrayQueue<E> extends ACircularPrimitiveArrayQueue implements IGenericPrimitiveCircularQueue<E> {
 
     private final IGenericPrimitiveArray<E> array;
-    private final int capacity;
-    private final int lastPossibleIndex;
-    private int size = 0;
-    private int startArrayIndex = -1;
-    private int endArrayIndex = -1;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public CircularGenericPrimitiveArrayQueue(final int capacity) {
@@ -35,12 +25,8 @@ public class CircularGenericPrimitiveArrayQueue<E> implements IGenericPrimitiveQ
     }
 
     public CircularGenericPrimitiveArrayQueue(final Class<E> type, final int capacity) {
-        if (capacity <= 0) {
-            throw new IllegalArgumentException("capacity should not be negative or 0: " + capacity);
-        }
+        super(capacity);
         this.array = IGenericPrimitiveArray.newInstance(type, capacity);
-        this.capacity = array.size();
-        this.lastPossibleIndex = capacity - 1;
     }
 
     /**
@@ -58,18 +44,15 @@ public class CircularGenericPrimitiveArrayQueue<E> implements IGenericPrimitiveQ
      * was used before can be reused as it is.
      */
     public CircularGenericPrimitiveArrayQueue(final IGenericPrimitiveArray<E> array) {
-        if (array.size() == 0) {
-            throw new IllegalArgumentException("array should not be empty: " + array.size());
-        }
+        super(array.size());
         this.array = array;
-        this.capacity = array.size();
-        this.lastPossibleIndex = capacity - 1;
     }
 
     /**
      * The last value has index 0, the value before the last has index 1.
      */
     @SuppressWarnings("unchecked")
+    @Override
     public E getReverse(final int index) {
         return array.get(arrayIndexReverse(index));
     }
@@ -84,98 +67,21 @@ public class CircularGenericPrimitiveArrayQueue<E> implements IGenericPrimitiveQ
     }
 
     @Override
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
-    public boolean isFull() {
-        return size == capacity;
+    @SuppressWarnings("unchecked")
+    public E getOrMissing(final int index) {
+        if (isInRange(index)) {
+            return array.get(arrayIndexUnchecked(index));
+        }
+        return null;
     }
 
     @Override
-    public int size() {
-        return size;
-    }
-
-    public int capacity() {
-        return capacity;
-    }
-
-    /**
-     * Rolls over one element higher without adding or removing anything. Useful to circle the indexes around the
-     * existing values (e.g. when reusing the values in the circular array).
-     */
-    public void pretendAdd() {
-        endArrayIndex++;
-        if (endArrayIndex >= capacity) {
-            endArrayIndex = 0;
+    @SuppressWarnings("unchecked")
+    public E getReverseOrMissing(final int index) {
+        if (isInRangeReverse(index)) {
+            return array.get(arrayIndexReverseUnchecked(index));
         }
-        if (size == 0) {
-            startArrayIndex = 0;
-            size++;
-        } else if (size == capacity) {
-            incrementStartArrayIndex();
-        } else {
-            size++;
-        }
-    }
-
-    public void pretendPrepend() {
-        startArrayIndex--;
-        if (startArrayIndex < 0) {
-            startArrayIndex = lastPossibleIndex;
-        }
-        if (size == 0) {
-            endArrayIndex = lastPossibleIndex;
-            size++;
-        } else if (size == capacity) {
-            decrementEndArrayIndex();
-        } else {
-            size++;
-        }
-    }
-
-    private void incrementStartArrayIndex() {
-        startArrayIndex++;
-        if (startArrayIndex >= capacity) {
-            startArrayIndex = 0;
-        }
-    }
-
-    private void decrementEndArrayIndex() {
-        endArrayIndex--;
-        if (endArrayIndex < 0) {
-            endArrayIndex = lastPossibleIndex;
-        }
-    }
-
-    private int arrayIndexReverse(final int index) {
-        if (index >= size) {
-            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be greater or equal to size[%s]",
-                    index, size);
-        }
-        if (index < 0) {
-            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be negative", index);
-        }
-        final int idx = (endArrayIndex - index);
-        if (idx < 0) {
-            final int adjIdx = (capacity + idx);
-            return adjIdx;
-        } else {
-            return idx;
-        }
-    }
-
-    private int arrayIndex(final int index) {
-        if (index >= size) {
-            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be greater or equal to size[%s]",
-                    index, size);
-        }
-        if (index < 0) {
-            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be negative", index);
-        }
-        final int idx = (startArrayIndex + index) % capacity;
-        return idx;
+        return null;
     }
 
     @Override
@@ -230,11 +136,13 @@ public class CircularGenericPrimitiveArrayQueue<E> implements IGenericPrimitiveQ
      * Adds an element to the array, if capacity is exceeded, the first element is replaced silently by the rollover (so
      * that it can be garbage collected).
      */
+    @Override
     public void circularAdd(final E value) {
         pretendAdd();
         array.set(endArrayIndex, value);
     }
 
+    @Override
     public void circularPrepend(final E value) {
         pretendPrepend();
         array.set(startArrayIndex, value);
@@ -242,20 +150,21 @@ public class CircularGenericPrimitiveArrayQueue<E> implements IGenericPrimitiveQ
 
     /**
      * Adds an element to the array, if capacity is exceeded, the first element is replaced by the rollover and returned
-     * (e.g. to clean up the instance).
+     * (e.g. to clean up the instance). Returns null if nothing was evicted; an untouched slot is never reported as
+     * evicted (a stale reference after pretendClear must not leak out as an eviction).
      */
-    @SuppressWarnings("unchecked")
+    @Override
     public E evictAdd(final E value) {
-        pretendAdd();
-        final E evicted = array.get(endArrayIndex);
+        final int evictedSlot = evictAddSlot();
+        final E evicted = evictedSlot >= 0 ? array.get(evictedSlot) : null;
         array.set(endArrayIndex, value);
         return evicted;
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
     public E evictPrepend(final E value) {
-        pretendPrepend();
-        final E evicted = array.get(startArrayIndex);
+        final int evictedSlot = evictPrependSlot();
+        final E evicted = evictedSlot >= 0 ? array.get(evictedSlot) : null;
         array.set(startArrayIndex, value);
         return evicted;
     }
@@ -287,8 +196,8 @@ public class CircularGenericPrimitiveArrayQueue<E> implements IGenericPrimitiveQ
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
+    @SuppressWarnings("unchecked")
     public E peek() {
         if (isEmpty()) {
             return null;
@@ -315,6 +224,7 @@ public class CircularGenericPrimitiveArrayQueue<E> implements IGenericPrimitiveQ
         return first;
     }
 
+    @SuppressWarnings("unchecked")
     public E pollLast() {
         if (isEmpty()) {
             return null;
@@ -340,21 +250,6 @@ public class CircularGenericPrimitiveArrayQueue<E> implements IGenericPrimitiveQ
         }
     }
 
-    @Override
-    public void clear() {
-        pretendClear();
-        //drop all references so that they can be garbage collected
-        for (int i = 0; i < capacity; i++) {
-            array.set(i, null);
-        }
-    }
-
-    public void pretendClear() {
-        this.size = 0;
-        this.startArrayIndex = -1;
-        this.endArrayIndex = -1;
-    }
-
     public E getTail() {
         if (isEmpty()) {
             return null;
@@ -368,6 +263,15 @@ public class CircularGenericPrimitiveArrayQueue<E> implements IGenericPrimitiveQ
             return null;
         } else {
             return get(0);
+        }
+    }
+
+    @Override
+    public void clear() {
+        pretendClear();
+        //drop all references so that they can be garbage collected
+        for (int i = 0; i < capacity; i++) {
+            array.set(i, null);
         }
     }
 

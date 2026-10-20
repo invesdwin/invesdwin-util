@@ -18,7 +18,7 @@ public class BitSetBooleanLargeArray implements IBooleanLargeArray {
     private final ILargeBitSet bitSet;
 
     public BitSetBooleanLargeArray(final long size) {
-        this.bitSet = ILockCollectionFactory.getInstance(false).newLargeBitSet(size);
+        this.bitSet = ILockCollectionFactory.getInstance(false).large().newBitSet(size);
     }
 
     public BitSetBooleanLargeArray(final ILargeBitSet values) {

@@ -8,15 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.array.primitive.queue.IBytePrimitiveQueue;
-import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Bytes;
 
 @NotThreadSafe
 public class CircularByteBufferTest {
-
-    static {
-        Reflections.disableJavaModuleSystemRestrictions();
-    }
 
     @Test
     public void testWriteThrough() {

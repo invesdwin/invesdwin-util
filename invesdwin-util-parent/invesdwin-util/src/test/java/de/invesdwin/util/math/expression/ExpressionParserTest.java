@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Characters;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
@@ -17,10 +16,6 @@ import de.invesdwin.util.time.date.IFDateProvider;
 
 @NotThreadSafe
 public class ExpressionParserTest {
-
-    static {
-        Reflections.disableJavaModuleSystemRestrictions();
-    }
 
     private static final String[] ESCAPE_STRS = new String[] { "*", ".", ",", "+", "-", "^", "\\", ":", ";", "!", "§",
             "$", "%", "&", "{", "}", "?", "#", "~", "¸", "´", "|", "<", ">", "=", "€", "ß", "@", "/" };

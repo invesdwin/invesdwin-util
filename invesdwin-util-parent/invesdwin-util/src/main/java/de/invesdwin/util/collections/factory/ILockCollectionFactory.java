@@ -10,8 +10,8 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import de.invesdwin.util.collections.Arrays;
-import de.invesdwin.util.collections.array.large.bitset.ILargeBitSet;
-import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
+import de.invesdwin.util.collections.factory.large.ILargeLockCollectionFactory;
+import de.invesdwin.util.collections.factory.primitive.IPrimitiveLockCollectionFactory;
 import de.invesdwin.util.collections.fast.IFastIterableList;
 import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
@@ -48,9 +48,17 @@ public interface ILockCollectionFactory {
 
     IReentrantReadWriteLock newReadWriteLock(String name);
 
-    IPrimitiveBitSet newPrimitiveBitSet(int initialSize);
+    /**
+     * Int-indexed view for the primitive bitsets and circular queues; this factory stays the single starting point
+     * of the fluent api, so primitive allocations can never be mixed with the long-indexed large ones.
+     */
+    IPrimitiveLockCollectionFactory primitive();
 
-    ILargeBitSet newLargeBitSet(long initialSize);
+    /**
+     * Long-indexed view for the large bitsets and circular queues; this factory stays the single starting point of
+     * the fluent api, so large allocations can never be mixed with the int-indexed primitive ones.
+     */
+    ILargeLockCollectionFactory large();
 
     @SuppressWarnings("unchecked")
     <T> List<T> newArrayList(T... copyOf);

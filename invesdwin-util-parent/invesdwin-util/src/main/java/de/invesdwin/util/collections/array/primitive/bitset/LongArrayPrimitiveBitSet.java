@@ -18,7 +18,7 @@ public class LongArrayPrimitiveBitSet implements IPrimitiveBitSet {
 
     public static final Function<LongArrayPrimitiveBitSet, IPrimitiveBitSet> COMPRESSED_COPY_FACTORY = copyFrom -> {
         final int size = copyFrom.size();
-        final IPrimitiveBitSet copy = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(size);
+        final IPrimitiveBitSet copy = ILockCollectionFactory.getInstance(false).primitive().newBitSet(size);
         copyFrom.getBooleans(0, copy, 0, size);
         return copy;
     };

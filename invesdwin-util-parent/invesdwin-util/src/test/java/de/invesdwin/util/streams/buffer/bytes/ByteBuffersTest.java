@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Files;
-import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Booleans;
 import de.invesdwin.util.math.random.IRandomGenerator;
 import de.invesdwin.util.math.random.PseudoRandomGenerators;
@@ -53,15 +52,6 @@ import net.openhft.chronicle.bytes.BytesStore;
 public class ByteBuffersTest {
 
     private static final int BUFFER_SIZE = 1000;
-
-    static {
-        //CHECKSTYLE:OFF
-        System.setProperty("io.netty.tryReflectionSetAccessible", "true");
-        System.setProperty("io.netty.uninitializedArrayAllocationThreshold", "1");
-        //CHECKSTYLE:ON
-        //java 16 otherwise requires --illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/jdk.internal.misc=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED
-        Reflections.disableJavaModuleSystemRestrictions();
-    }
 
     @Test
     public void testAgronaBuffers() throws IOException {

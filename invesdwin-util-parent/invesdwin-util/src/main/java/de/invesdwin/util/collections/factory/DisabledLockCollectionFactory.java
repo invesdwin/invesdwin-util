@@ -17,13 +17,10 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.collections.Collections;
-import de.invesdwin.util.collections.array.large.bitset.ILargeBitSet;
-import de.invesdwin.util.collections.array.large.bitset.JavaLargeBitSet;
-import de.invesdwin.util.collections.array.large.bitset.roaring.RoaringLargeBitSet;
-import de.invesdwin.util.collections.array.large.bitset.roaring.SegmentedRoaringLargeBitSet;
-import de.invesdwin.util.collections.array.primitive.bitset.IPrimitiveBitSet;
-import de.invesdwin.util.collections.array.primitive.bitset.JavaPrimitiveBitSet;
-import de.invesdwin.util.collections.array.primitive.bitset.RoaringPrimitiveBitSet;
+import de.invesdwin.util.collections.factory.large.DisabledLargeLockCollectionFactory;
+import de.invesdwin.util.collections.factory.large.ILargeLockCollectionFactory;
+import de.invesdwin.util.collections.factory.primitive.DisabledPrimitiveLockCollectionFactory;
+import de.invesdwin.util.collections.factory.primitive.IPrimitiveLockCollectionFactory;
 import de.invesdwin.util.collections.fast.FastIterableDelegateList;
 import de.invesdwin.util.collections.fast.FastIterableDelegateMap;
 import de.invesdwin.util.collections.fast.FastIterableDelegateSet;
@@ -43,7 +40,6 @@ import de.invesdwin.util.concurrent.nested.INestedExecutor;
 import de.invesdwin.util.concurrent.reference.lazy.ILazyReference;
 import de.invesdwin.util.concurrent.reference.lazy.LazyReference;
 import de.invesdwin.util.lang.comparator.IComparator;
-import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
@@ -54,8 +50,9 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     public static final DisabledLockCollectionFactory INSTANCE = new DisabledLockCollectionFactory();
     /**
-     * At a few 100k elements the speed of roaring bitmap is similar to that of java bitset (about 20-30% slower instead
-     * of 50%). Thus prefer the memory saver version at some threshold.
+     * At a few 100k elements the speed of roaring bitmap is similar to that of java bitset (about 20-30% slower
+     * instead of 50%). Thus prefer the memory saver version at some threshold. Shared by the primitive() and
+     * large() bitset views.
      */
     public static final int ROARING_BITMAP_THRESHOLD = 1_000_000;
 
@@ -72,33 +69,13 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
     }
 
     @Override
-    public IPrimitiveBitSet newPrimitiveBitSet(final int initialSize) {
-        /*
-         * java bitsets are about twice as fast as roaring bitsets, though roaring might be interesting to use with
-         * larger sizes to stay in memory limits
-         */
-        if (initialSize > ROARING_BITMAP_THRESHOLD) {
-            return new RoaringPrimitiveBitSet(initialSize);
-        } else {
-            return new JavaPrimitiveBitSet(initialSize);
-        }
+    public IPrimitiveLockCollectionFactory primitive() {
+        return DisabledPrimitiveLockCollectionFactory.INSTANCE;
     }
 
     @Override
-    public ILargeBitSet newLargeBitSet(final long initialSize) {
-        if (initialSize > RoaringLargeBitSet.MAX_SIZE) {
-            /*
-             * TODO: test which one is actually faster. Roaring64 implementations do not support range-based operations,
-             * which are used in some places. They might be slower than the segmented version, which does support them.
-             */
-            //return new Roaring64LargeNavigableBitSet(initialSize);
-            //return new Roaring64LargeBitSet(initialSize);
-            return new SegmentedRoaringLargeBitSet(initialSize);
-        } else if (initialSize > ROARING_BITMAP_THRESHOLD) {
-            return new RoaringLargeBitSet(initialSize);
-        } else {
-            return new JavaLargeBitSet(ByteBuffers.checkedCast(initialSize));
-        }
+    public ILargeLockCollectionFactory large() {
+        return DisabledLargeLockCollectionFactory.INSTANCE;
     }
 
     @Override

@@ -3,10 +3,8 @@ package de.invesdwin.util.collections.array.large.queue.circular;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.array.large.IDoubleLargeArray;
-import de.invesdwin.util.collections.array.large.accessor.IDoubleLargeArrayAccessor;
-import de.invesdwin.util.collections.array.large.queue.IDoubleLargeQueue;
+import de.invesdwin.util.collections.array.large.queue.IDoubleLargeCircularQueue;
 import de.invesdwin.util.collections.array.primitive.queue.circular.CircularDoublePrimitiveArrayQueue;
-import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 import de.invesdwin.util.math.Integers;
 
 /**
@@ -15,22 +13,13 @@ import de.invesdwin.util.math.Integers;
  * which switches to segmented heap arrays for capacities exceeding the maximum array size of the JVM.
  */
 @NotThreadSafe
-public class CircularDoubleLargeArrayQueue implements IDoubleLargeQueue, IDoubleLargeArrayAccessor {
+public class CircularDoubleLargeArrayQueue extends ACircularLargeArrayQueue implements IDoubleLargeCircularQueue {
 
     private final IDoubleLargeArray array;
-    private final long capacity;
-    private final long lastPossibleIndex;
-    private long size = 0;
-    private long startArrayIndex = -1;
-    private long endArrayIndex = -1;
 
     public CircularDoubleLargeArrayQueue(final long capacity) {
-        if (capacity <= 0) {
-            throw new IllegalArgumentException("capacity should not be negative or 0: " + capacity);
-        }
+        super(capacity);
         this.array = IDoubleLargeArray.newInstance(capacity);
-        this.capacity = capacity;
-        this.lastPossibleIndex = capacity - 1;
     }
 
     /**
@@ -39,17 +28,14 @@ public class CircularDoubleLargeArrayQueue implements IDoubleLargeQueue, IDouble
      * was used before can be reused as it is.
      */
     public CircularDoubleLargeArrayQueue(final IDoubleLargeArray array) {
-        if (array.size() == 0) {
-            throw new IllegalArgumentException("array should not be empty: " + array.size());
-        }
+        super(array.size());
         this.array = array;
-        this.capacity = array.size();
-        this.lastPossibleIndex = capacity - 1;
     }
 
     /**
      * The last value has index 0, the value before the last has index 1.
      */
+    @Override
     public double getReverse(final long index) {
         return array.get(arrayIndexReverse(index));
     }
@@ -63,98 +49,42 @@ public class CircularDoubleLargeArrayQueue implements IDoubleLargeQueue, IDouble
     }
 
     @Override
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
-    public boolean isFull() {
-        return size == capacity;
+    public double getOrMissing(final long index) {
+        if (isInRange(index)) {
+            return array.get(arrayIndexUnchecked(index));
+        }
+        return MISSING_VALUE;
     }
 
     @Override
-    public long size() {
-        return size;
+    public double getReverseOrMissing(final long index) {
+        if (isInRangeReverse(index)) {
+            return array.get(arrayIndexReverseUnchecked(index));
+        }
+        return MISSING_VALUE;
     }
 
-    public long capacity() {
-        return capacity;
-    }
-
-    /**
-     * Rolls over one element higher without adding or removing anything. Useful to circle the indexes around the
-     * existing values (e.g. when reusing the values in the circular array).
-     */
-    public void pretendAdd() {
-        endArrayIndex++;
-        if (endArrayIndex >= capacity) {
-            endArrayIndex = 0;
+    @Override
+    public int getDoubles(final double[] dst, final int dstOffset, final long srcIndex, final int length) {
+        if (length < 0) {
+            throw new IllegalArgumentException("length should not be negative: " + length);
         }
-        if (size == 0) {
-            startArrayIndex = 0;
-            size++;
-        } else if (size == capacity) {
-            incrementStartArrayIndex();
-        } else {
-            size++;
+        //overflow-safe bounds check in subtraction form: dstOffset + length > dst.length
+        if (dstOffset < 0 || length > dst.length - dstOffset) {
+            throw new IllegalArgumentException("destination window [" + dstOffset + ", " + (dstOffset + length)
+                    + ") does not fit into dst of length " + dst.length);
         }
-    }
-
-    public void pretendPrepend() {
-        startArrayIndex--;
-        if (startArrayIndex < 0) {
-            startArrayIndex = lastPossibleIndex;
+        int copied = 0;
+        for (int i = 0; i < length; i++) {
+            final long idx = srcIndex + i;
+            if (isInRange(idx)) {
+                dst[dstOffset + i] = array.get(arrayIndexUnchecked(idx));
+                copied++;
+            } else {
+                dst[dstOffset + i] = MISSING_VALUE;
+            }
         }
-        if (size == 0) {
-            endArrayIndex = lastPossibleIndex;
-            size++;
-        } else if (size == capacity) {
-            decrementEndArrayIndex();
-        } else {
-            size++;
-        }
-    }
-
-    private void incrementStartArrayIndex() {
-        startArrayIndex++;
-        if (startArrayIndex >= capacity) {
-            startArrayIndex = 0;
-        }
-    }
-
-    private void decrementEndArrayIndex() {
-        endArrayIndex--;
-        if (endArrayIndex < 0) {
-            endArrayIndex = lastPossibleIndex;
-        }
-    }
-
-    private long arrayIndexReverse(final long index) {
-        if (index >= size) {
-            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be greater or equal to size[%s]",
-                    index, size);
-        }
-        if (index < 0) {
-            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be negative", index);
-        }
-        final long idx = (endArrayIndex - index);
-        if (idx < 0) {
-            final long adjIdx = (capacity + idx);
-            return adjIdx;
-        } else {
-            return idx;
-        }
-    }
-
-    private long arrayIndex(final long index) {
-        if (index >= size) {
-            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be greater or equal to size[%s]",
-                    index, size);
-        }
-        if (index < 0) {
-            throw FastIndexOutOfBoundsException.getInstance("index[%s] should not be negative", index);
-        }
-        final long idx = (startArrayIndex + index) % capacity;
-        return idx;
+        return copied;
     }
 
     @Override
@@ -212,11 +142,13 @@ public class CircularDoubleLargeArrayQueue implements IDoubleLargeQueue, IDouble
      * Adds an element to the array, if capacity is exceeded, the first element is replaced silently by the rollover (so
      * that it can be garbage collected).
      */
+    @Override
     public void circularAdd(final double value) {
         pretendAdd();
         array.set(endArrayIndex, value);
     }
 
+    @Override
     public void circularPrepend(final double value) {
         pretendPrepend();
         array.set(startArrayIndex, value);
@@ -226,20 +158,18 @@ public class CircularDoubleLargeArrayQueue implements IDoubleLargeQueue, IDouble
      * Adds an element to the array, if capacity is exceeded, the first element is replaced by the rollover and returned
      * (e.g. to clean up the instance).
      */
+    @Override
     public double evictAdd(final double value) {
-        //an untouched slot is never read, so only a real rollover reports an evicted element
-        final boolean rolling = isFull();
-        pretendAdd();
-        final double evicted = rolling ? array.get(endArrayIndex) : MISSING_VALUE;
+        final long evictedSlot = evictAddSlot();
+        final double evicted = evictedSlot >= 0 ? array.get(evictedSlot) : MISSING_VALUE;
         array.set(endArrayIndex, value);
         return evicted;
     }
 
+    @Override
     public double evictPrepend(final double value) {
-        //an untouched slot is never read, so only a real rollover reports an evicted element
-        final boolean rolling = isFull();
-        pretendPrepend();
-        final double evicted = rolling ? array.get(startArrayIndex) : MISSING_VALUE;
+        final long evictedSlot = evictPrependSlot();
+        final double evicted = evictedSlot >= 0 ? array.get(evictedSlot) : MISSING_VALUE;
         array.set(startArrayIndex, value);
         return evicted;
     }
@@ -301,12 +231,6 @@ public class CircularDoubleLargeArrayQueue implements IDoubleLargeQueue, IDouble
     public void clear() {
         //untouched slots are never read, so they are left at their default value
         pretendClear();
-    }
-
-    public void pretendClear() {
-        this.size = 0;
-        this.startArrayIndex = -1;
-        this.endArrayIndex = -1;
     }
 
 }
