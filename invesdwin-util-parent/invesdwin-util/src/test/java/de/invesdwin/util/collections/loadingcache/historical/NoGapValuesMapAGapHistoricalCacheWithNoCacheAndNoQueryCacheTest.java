@@ -23,7 +23,7 @@ public class NoGapValuesMapAGapHistoricalCacheWithNoCacheAndNoQueryCacheTest ext
 
     @Override
     protected ATestGapHistoricalCache newTestGapHistoricalCache() {
-        return new TestGapHistoricalCache();
+        return new TestGapHistoricalCacheNoGapNoCacheNoQueryCache();
     }
 
     @Test
@@ -142,7 +142,7 @@ public class NoGapValuesMapAGapHistoricalCacheWithNoCacheAndNoQueryCacheTest ext
         for (final FDate entity : ILockCollectionFactory.getInstance(false).newSet(entities)) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(25);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(21);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(2);
 
         //simulate cache eviction
@@ -154,7 +154,7 @@ public class NoGapValuesMapAGapHistoricalCacheWithNoCacheAndNoQueryCacheTest ext
         for (final FDate entity : entities) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(43);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(39);
         Assertions.assertThat(countReadNewestValueTo).isEqualTo(6);
     }
 
@@ -881,7 +881,7 @@ public class NoGapValuesMapAGapHistoricalCacheWithNoCacheAndNoQueryCacheTest ext
         Assertions.assertThat(countAdjustKey).isEqualTo(0);
     }
 
-    private final class TestGapHistoricalCache extends ATestGapHistoricalCache {
+    private final class TestGapHistoricalCacheNoGapNoCacheNoQueryCache extends ATestGapHistoricalCache {
 
         @Override
         protected IValuesMap<FDate> newValuesMap() {

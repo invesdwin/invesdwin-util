@@ -21,7 +21,7 @@ public class NoGapValuesMapAGapHistoricalCacheTest extends ABaseHistoricalCacheT
 
     @Override
     protected ATestGapHistoricalCache newTestGapHistoricalCache() {
-        return new TestGapHistoricalCache();
+        return new TestGapHistoricalCacheNoGapDefault();
     }
 
     @Test
@@ -1014,7 +1014,7 @@ public class NoGapValuesMapAGapHistoricalCacheTest extends ABaseHistoricalCacheT
         Assertions.assertThat(countAdjustKey).isEqualTo(0);
     }
 
-    private final class TestGapHistoricalCache extends ATestGapHistoricalCache {
+    private final class TestGapHistoricalCacheNoGapDefault extends ATestGapHistoricalCache {
 
         {
             enableTrailingQueryCore();

@@ -25,7 +25,7 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
 
     @Override
     protected ATestGapHistoricalCache newTestGapHistoricalCache() {
-        return new TestGapHistoricalCache();
+        return new TestGapHistoricalCacheGapNoCacheNoQueryCache();
     }
 
     @Test
@@ -88,8 +88,8 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
         for (final FDate entity : ILockCollectionFactory.getInstance(false).newSet(entities)) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(7);
-        Assertions.assertThat(countReadNewestValueTo).isLessThanOrEqualTo(5);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(5);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
 
         //simulate cache eviction
         cache.clear();
@@ -100,8 +100,8 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
         for (final FDate entity : entities) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(11);
-        Assertions.assertThat(countReadNewestValueTo).isLessThanOrEqualTo(11);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(9);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(10);
     }
 
     @Test
@@ -144,8 +144,8 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
         for (final FDate entity : ILockCollectionFactory.getInstance(false).newSet(entities)) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(17);
-        Assertions.assertThat(countReadNewestValueTo).isLessThanOrEqualTo(6);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(11);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(4);
 
         //simulate cache eviction
         cache.clear();
@@ -156,8 +156,8 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
         for (final FDate entity : entities) {
             Assertions.assertThat(cache.query().getValue(entity.addDays(2))).isNotNull();
         }
-        Assertions.assertThat(countReadAllValuesAscendingFrom).isLessThanOrEqualTo(25);
-        Assertions.assertThat(countReadNewestValueTo).isLessThanOrEqualTo(12);
+        Assertions.assertThat(countReadAllValuesAscendingFrom).isEqualTo(19);
+        Assertions.assertThat(countReadNewestValueTo).isEqualTo(10);
     }
 
     @Test
@@ -885,7 +885,7 @@ public class AGapHistoricalCacheWithNoCacheAndNoQueryCacheTest extends ABaseHist
         Assertions.assertThat(countAdjustKey).isEqualTo(0);
     }
 
-    private final class TestGapHistoricalCache extends ATestGapHistoricalCache {
+    private final class TestGapHistoricalCacheGapNoCacheNoQueryCache extends ATestGapHistoricalCache {
 
         @Override
         protected IHistoricalCacheQueryCore<FDate> newQueryCore() {
