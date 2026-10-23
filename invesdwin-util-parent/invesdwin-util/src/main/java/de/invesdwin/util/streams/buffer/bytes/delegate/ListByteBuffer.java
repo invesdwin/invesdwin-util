@@ -189,6 +189,696 @@ public class ListByteBuffer implements IByteBuffer {
         return capacity;
     }
 
+
+
+
+
+
+
+
+
+
+
+
+    private IByteBuffer segmentForWide(final int index, final int size, final String method, final int[] bufferPositionOut) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            final IByteBuffer buffer = list.get(buf);
+            final int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                final int bufferPosition = index - position;
+                if (capacity >= bufferPosition + size) {
+                    bufferPositionOut[0] = bufferPosition;
+                    return buffer;
+                } else {
+                    //value splits across buffers: cross-part wide access is not atomic-supported
+                    throw new UnsupportedOperationException(method + ": index="
+                            + index + " splits across buffers (not atomic-supported)");
+                }
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @Override
+    public int wrapAdjustment() {
+        if (list.isEmpty()) {
+            return EmptyByteBuffer.INSTANCE.wrapAdjustment();
+        } else if (list.size() == 1) {
+            return list.get(0).wrapAdjustment();
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public boolean isExpandable() {
+        if (list.isEmpty()) {
+            return false;
+        } else {
+            final IByteBuffer lastBuffer = list.get(list.size() - 1);
+            return lastBuffer.isExpandable();
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @Override
+    public byte getByte(final int index) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            final IByteBuffer buffer = list.get(buf);
+            final int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                return buffer.getByte(index - position);
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    @Override
+    public byte getByteVolatile(final int index) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            final IByteBuffer buffer = list.get(buf);
+            final int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                return buffer.getByteVolatile(index - position);
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    @Override
+    public void putByte(final int index, final byte value) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            final IByteBuffer buffer = list.get(buf);
+            final int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                buffer.putByte(index - position, value);
+                return;
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    @Override
+    public void putByteVolatile(final int index, final byte value) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            final IByteBuffer buffer = list.get(buf);
+            final int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                buffer.putByteVolatile(index - position, value);
+                return;
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    @Override
+    public char getChar(final int index) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IByteBuffer buffer = list.get(buf);
+            int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                int bufferPosition = index - position;
+                if (capacity >= bufferPosition + Character.BYTES) {
+                    return buffer.getChar(bufferPosition);
+                } else {
+                    final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
+                    final int limit = index + Character.BYTES;
+                    for (int i = index, ri = 0; i < limit;) {
+                        while (bufferPosition >= capacity) {
+                            buf++;
+                            buffer = list.get(buf);
+                            capacity = buffer.capacity();
+                            bufferPosition = 0;
+                        }
+                        readBuffer[ri] = buffer.getByte(bufferPosition);
+                        i++;
+                        ri++;
+                        bufferPosition++;
+                    }
+                    return (char) ((readBuffer[0] << 8) + (readBuffer[1] & 0xFF));
+                }
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    @Override
+    public char getCharReverse(final int index) {
+        final short bits = (short) getChar(index);
+        return (char) Short.reverseBytes(bits);
+    }
+    /**
+     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public char getCharVolatile(final int index) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            final IByteBuffer buffer = list.get(buf);
+            final int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                final int bufferPosition = index - position;
+                if (capacity >= bufferPosition + Character.BYTES) {
+                    return buffer.getCharVolatile(bufferPosition);
+                } else {
+                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
+                    throw new UnsupportedOperationException("getCharVolatile: index="
+                            + index + " splits across buffers (not atomic-supported)");
+                }
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    /**
+     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public char getCharVolatileReverse(final int index) {
+        final int[] bufferPosition = new int[1];
+        final IByteBuffer buffer = segmentForWide(index, Character.BYTES, "getCharVolatileReverse", bufferPosition);
+        return buffer.getCharVolatileReverse(bufferPosition[0]);
+    }
+    @Override
+    public void putChar(final int index, final char value) {
+        final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
+        writeBuffer[0] = (byte) (value >>> 8);
+        writeBuffer[1] = (byte) (value);
+        putBytes(index, writeBuffer, 0, Short.BYTES);
+    }
+    @Override
+    public void putCharReverse(final int index, final char value) {
+        final short bits = Short.reverseBytes((short) value);
+        putShort(index, bits);
+    }
+    /**
+     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public void putCharVolatile(final int index, final char value) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            final IByteBuffer buffer = list.get(buf);
+            final int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                final int bufferPosition = index - position;
+                if (capacity >= bufferPosition + Character.BYTES) {
+                    buffer.putCharVolatile(bufferPosition, value);
+                } else {
+                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
+                    throw new UnsupportedOperationException("putCharVolatile: index="
+                            + index + " splits across buffers (not atomic-supported)");
+                }
+                return;
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    /**
+     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public void putCharVolatileReverse(final int index, final char value) {
+        final int[] bufferPosition = new int[1];
+        final IByteBuffer buffer = segmentForWide(index, Character.BYTES, "putCharVolatileReverse", bufferPosition);
+        buffer.putCharVolatileReverse(bufferPosition[0], value);
+    }
+    @Override
+    public short getShort(final int index) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IByteBuffer buffer = list.get(buf);
+            int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                int bufferPosition = index - position;
+                if (capacity >= bufferPosition + Short.BYTES) {
+                    return buffer.getShort(bufferPosition);
+                } else {
+                    final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
+                    final int limit = index + Short.BYTES;
+                    for (int i = index, ri = 0; i < limit;) {
+                        while (bufferPosition >= capacity) {
+                            buf++;
+                            buffer = list.get(buf);
+                            capacity = buffer.capacity();
+                            bufferPosition = 0;
+                        }
+                        readBuffer[ri] = buffer.getByte(bufferPosition);
+                        i++;
+                        ri++;
+                        bufferPosition++;
+                    }
+                    return (short) ((readBuffer[0] << 8) + (readBuffer[1] & 0xFF));
+                }
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    @Override
+    public short getShortReverse(final int index) {
+        final short bits = getShort(index);
+        return Short.reverseBytes(bits);
+    }
+    /**
+     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public short getShortVolatile(final int index) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            final IByteBuffer buffer = list.get(buf);
+            final int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                final int bufferPosition = index - position;
+                if (capacity >= bufferPosition + Short.BYTES) {
+                    return buffer.getShortVolatile(bufferPosition);
+                } else {
+                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
+                    throw new UnsupportedOperationException("getShortVolatile: index="
+                            + index + " splits across buffers (not atomic-supported)");
+                }
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    /**
+     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public short getShortVolatileReverse(final int index) {
+        final int[] bufferPosition = new int[1];
+        final IByteBuffer buffer = segmentForWide(index, Short.BYTES, "getShortVolatileReverse", bufferPosition);
+        return buffer.getShortVolatileReverse(bufferPosition[0]);
+    }
+    @Override
+    public void putShort(final int index, final short value) {
+        final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
+        writeBuffer[0] = (byte) (value >>> 8);
+        writeBuffer[1] = (byte) (value);
+        putBytes(index, writeBuffer, 0, Short.BYTES);
+    }
+    @Override
+    public void putShortReverse(final int index, final short value) {
+        final short bits = Short.reverseBytes(value);
+        putShort(index, bits);
+    }
+    /**
+     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public void putShortVolatile(final int index, final short value) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            final IByteBuffer buffer = list.get(buf);
+            final int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                final int bufferPosition = index - position;
+                if (capacity >= bufferPosition + Short.BYTES) {
+                    buffer.putShortVolatile(bufferPosition, value);
+                } else {
+                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
+                    throw new UnsupportedOperationException("putShortVolatile: index="
+                            + index + " splits across buffers (not atomic-supported)");
+                }
+                return;
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    /**
+     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public void putShortVolatileReverse(final int index, final short value) {
+        final int[] bufferPosition = new int[1];
+        final IByteBuffer buffer = segmentForWide(index, Short.BYTES, "putShortVolatileReverse", bufferPosition);
+        buffer.putShortVolatileReverse(bufferPosition[0], value);
+    }
+    @Override
+    public int getInt(final int index) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            IByteBuffer buffer = list.get(buf);
+            int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                int bufferPosition = index - position;
+                if (capacity >= bufferPosition + Integer.BYTES) {
+                    return buffer.getInt(bufferPosition);
+                } else {
+                    final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
+                    final int limit = index + Integer.BYTES;
+                    for (int i = index, ri = 0; i < limit;) {
+                        while (bufferPosition >= capacity) {
+                            buf++;
+                            buffer = list.get(buf);
+                            capacity = buffer.capacity();
+                            bufferPosition = 0;
+                        }
+                        readBuffer[ri] = buffer.getByte(bufferPosition);
+                        i++;
+                        ri++;
+                        bufferPosition++;
+                    }
+                    return ((readBuffer[0] << 24) + ((readBuffer[1] & 0xFF) << 16) + ((readBuffer[2] & 0xFF) << 8)
+                            + ((readBuffer[3] & 0xFF)));
+                }
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    @Override
+    public int getIntReverse(final int index) {
+        final int bits = getInt(index);
+        return Integer.reverseBytes(bits);
+    }
+    /**
+     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public int getIntVolatile(final int index) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            final IByteBuffer buffer = list.get(buf);
+            final int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                final int bufferPosition = index - position;
+                if (capacity >= bufferPosition + Integer.BYTES) {
+                    return buffer.getIntVolatile(bufferPosition);
+                } else {
+                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
+                    throw new UnsupportedOperationException("getIntVolatile: index="
+                            + index + " splits across buffers (not atomic-supported)");
+                }
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    /**
+     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public int getIntVolatileReverse(final int index) {
+        final int[] bufferPosition = new int[1];
+        final IByteBuffer buffer = segmentForWide(index, Integer.BYTES, "getIntVolatileReverse", bufferPosition);
+        return buffer.getIntVolatileReverse(bufferPosition[0]);
+    }
+    /**
+     * Reads the value at the given index with acquire semantics. Atomic acquire wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public int getIntAcquire(final int index) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            final IByteBuffer buffer = list.get(buf);
+            final int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                final int bufferPosition = index - position;
+                if (capacity >= bufferPosition + Integer.BYTES) {
+                    return buffer.getIntAcquire(bufferPosition);
+                } else {
+                    //value splits across buffers: cross-part acquire wide access is not atomic-supported
+                    throw new UnsupportedOperationException("getIntAcquire: index="
+                            + index + " splits across buffers (not atomic-supported)");
+                }
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    /**
+     * Reads the value at the given index with acquire semantics. Atomic acquire wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public int getIntAcquireReverse(final int index) {
+        final int[] bufferPosition = new int[1];
+        final IByteBuffer buffer = segmentForWide(index, Integer.BYTES, "getIntAcquireReverse", bufferPosition);
+        return buffer.getIntAcquireReverse(bufferPosition[0]);
+    }
+    @Override
+    public void putInt(final int index, final int value) {
+        final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
+        writeBuffer[0] = (byte) (value >>> 24);
+        writeBuffer[1] = (byte) (value >>> 16);
+        writeBuffer[2] = (byte) (value >>> 8);
+        writeBuffer[3] = (byte) (value);
+        putBytes(index, writeBuffer, 0, Integer.BYTES);
+    }
+    @Override
+    public void putIntReverse(final int index, final int value) {
+        final int bits = Integer.reverseBytes(value);
+        putInt(index, bits);
+    }
+    /**
+     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public void putIntVolatile(final int index, final int value) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            final IByteBuffer buffer = list.get(buf);
+            final int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                final int bufferPosition = index - position;
+                if (capacity >= bufferPosition + Integer.BYTES) {
+                    buffer.putIntVolatile(bufferPosition, value);
+                } else {
+                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
+                    throw new UnsupportedOperationException("putIntVolatile: index="
+                            + index + " splits across buffers (not atomic-supported)");
+                }
+                return;
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    /**
+     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public void putIntVolatileReverse(final int index, final int value) {
+        final int[] bufferPosition = new int[1];
+        final IByteBuffer buffer = segmentForWide(index, Integer.BYTES, "putIntVolatileReverse", bufferPosition);
+        buffer.putIntVolatileReverse(bufferPosition[0], value);
+    }
+    /**
+     * Writes the value at the given index with release semantics. Atomic release wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public void putIntRelease(final int index, final int value) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            final IByteBuffer buffer = list.get(buf);
+            final int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                final int bufferPosition = index - position;
+                if (capacity >= bufferPosition + Integer.BYTES) {
+                    buffer.putIntRelease(bufferPosition, value);
+                } else {
+                    //value splits across buffers: cross-part release wide access is not atomic-supported
+                    throw new UnsupportedOperationException("putIntRelease: index="
+                            + index + " splits across buffers (not atomic-supported)");
+                }
+                return;
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    /**
+     * Writes the value at the given index with release semantics. Atomic release wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public void putIntReleaseReverse(final int index, final int value) {
+        final int[] bufferPosition = new int[1];
+        final IByteBuffer buffer = segmentForWide(index, Integer.BYTES, "putIntReleaseReverse", bufferPosition);
+        buffer.putIntReleaseReverse(bufferPosition[0], value);
+    }
+    /**
+     * Writes the value at the given index with ordered semantics. Atomic ordered wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public void putIntOrdered(final int index, final int value) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            final IByteBuffer buffer = list.get(buf);
+            final int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                final int bufferPosition = index - position;
+                if (capacity >= bufferPosition + Integer.BYTES) {
+                    buffer.putIntOrdered(bufferPosition, value);
+                } else {
+                    //value splits across buffers: cross-part ordered wide access is not atomic-supported
+                    throw new UnsupportedOperationException("putIntOrdered: index="
+                            + index + " splits across buffers (not atomic-supported)");
+                }
+                return;
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    /**
+     * Writes the value at the given index with ordered semantics. Atomic ordered wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public void putIntOrderedReverse(final int index, final int value) {
+        final int[] bufferPosition = new int[1];
+        final IByteBuffer buffer = segmentForWide(index, Integer.BYTES, "putIntOrderedReverse", bufferPosition);
+        buffer.putIntOrderedReverse(bufferPosition[0], value);
+    }
     @Override
     public long getLong(final int index) {
         int position = 0;
@@ -228,116 +918,11 @@ public class ListByteBuffer implements IByteBuffer {
         }
         throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
-
     @Override
     public long getLongReverse(final int index) {
         final long bits = getLong(index);
         return Long.reverseBytes(bits);
     }
-
-    /**
-     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public int getIntVolatile(final int index) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            final IByteBuffer buffer = list.get(buf);
-            final int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                final int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Integer.BYTES) {
-                    return buffer.getIntVolatile(bufferPosition);
-                } else {
-                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
-                    throw new UnsupportedOperationException("getIntVolatile: index="
-                            + index + " splits across buffers (not atomic-supported)");
-                }
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
-    @Override
-    public byte getByteVolatile(final int index) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            final IByteBuffer buffer = list.get(buf);
-            final int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                return buffer.getByteVolatile(index - position);
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
-    /**
-     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public char getCharVolatile(final int index) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            final IByteBuffer buffer = list.get(buf);
-            final int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                final int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Character.BYTES) {
-                    return buffer.getCharVolatile(bufferPosition);
-                } else {
-                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
-                    throw new UnsupportedOperationException("getCharVolatile: index="
-                            + index + " splits across buffers (not atomic-supported)");
-                }
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
-    /**
-     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public short getShortVolatile(final int index) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            final IByteBuffer buffer = list.get(buf);
-            final int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                final int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Short.BYTES) {
-                    return buffer.getShortVolatile(bufferPosition);
-                } else {
-                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
-                    throw new UnsupportedOperationException("getShortVolatile: index="
-                            + index + " splits across buffers (not atomic-supported)");
-                }
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
     /**
      * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
      * only available where the value fits completely inside a single buffer of this list;
@@ -366,7 +951,6 @@ public class ListByteBuffer implements IByteBuffer {
         }
         throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
-
     /**
      * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
      * only available where the value fits completely inside a single buffer of this list;
@@ -374,86 +958,11 @@ public class ListByteBuffer implements IByteBuffer {
      * the method and index, because cross-part volatile wide access is not atomic-supported.
      */
     @Override
-    public float getFloatVolatile(final int index) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            final IByteBuffer buffer = list.get(buf);
-            final int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                final int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Float.BYTES) {
-                    return buffer.getFloatVolatile(bufferPosition);
-                } else {
-                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
-                    throw new UnsupportedOperationException("getFloatVolatile: index="
-                            + index + " splits across buffers (not atomic-supported)");
-                }
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    public long getLongVolatileReverse(final int index) {
+        final int[] bufferPosition = new int[1];
+        final IByteBuffer buffer = segmentForWide(index, Long.BYTES, "getLongVolatileReverse", bufferPosition);
+        return buffer.getLongVolatileReverse(bufferPosition[0]);
     }
-
-    /**
-     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public double getDoubleVolatile(final int index) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            final IByteBuffer buffer = list.get(buf);
-            final int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                final int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Double.BYTES) {
-                    return buffer.getDoubleVolatile(bufferPosition);
-                } else {
-                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
-                    throw new UnsupportedOperationException("getDoubleVolatile: index="
-                            + index + " splits across buffers (not atomic-supported)");
-                }
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
-    /**
-     * Reads the value at the given index with acquire semantics. Atomic acquire wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public int getIntAcquire(final int index) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            final IByteBuffer buffer = list.get(buf);
-            final int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                final int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Integer.BYTES) {
-                    return buffer.getIntAcquire(bufferPosition);
-                } else {
-                    //value splits across buffers: cross-part acquire wide access is not atomic-supported
-                    throw new UnsupportedOperationException("getIntAcquire: index="
-                            + index + " splits across buffers (not atomic-supported)");
-                }
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
     /**
      * Reads the value at the given index with acquire semantics. Atomic acquire wide access is
      * only available where the value fits completely inside a single buffer of this list;
@@ -482,121 +991,6 @@ public class ListByteBuffer implements IByteBuffer {
         }
         throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
-
-    private IByteBuffer segmentForWide(final int index, final int size, final String method, final int[] bufferPositionOut) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            final IByteBuffer buffer = list.get(buf);
-            final int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                final int bufferPosition = index - position;
-                if (capacity >= bufferPosition + size) {
-                    bufferPositionOut[0] = bufferPosition;
-                    return buffer;
-                } else {
-                    //value splits across buffers: cross-part wide access is not atomic-supported
-                    throw new UnsupportedOperationException(method + ": index="
-                            + index + " splits across buffers (not atomic-supported)");
-                }
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
-    /**
-     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public char getCharVolatileReverse(final int index) {
-        final int[] bufferPosition = new int[1];
-        final IByteBuffer buffer = segmentForWide(index, Character.BYTES, "getCharVolatileReverse", bufferPosition);
-        return buffer.getCharVolatileReverse(bufferPosition[0]);
-    }
-
-    /**
-     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public short getShortVolatileReverse(final int index) {
-        final int[] bufferPosition = new int[1];
-        final IByteBuffer buffer = segmentForWide(index, Short.BYTES, "getShortVolatileReverse", bufferPosition);
-        return buffer.getShortVolatileReverse(bufferPosition[0]);
-    }
-
-    /**
-     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public int getIntVolatileReverse(final int index) {
-        final int[] bufferPosition = new int[1];
-        final IByteBuffer buffer = segmentForWide(index, Integer.BYTES, "getIntVolatileReverse", bufferPosition);
-        return buffer.getIntVolatileReverse(bufferPosition[0]);
-    }
-
-    /**
-     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public long getLongVolatileReverse(final int index) {
-        final int[] bufferPosition = new int[1];
-        final IByteBuffer buffer = segmentForWide(index, Long.BYTES, "getLongVolatileReverse", bufferPosition);
-        return buffer.getLongVolatileReverse(bufferPosition[0]);
-    }
-
-    /**
-     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public float getFloatVolatileReverse(final int index) {
-        final int[] bufferPosition = new int[1];
-        final IByteBuffer buffer = segmentForWide(index, Float.BYTES, "getFloatVolatileReverse", bufferPosition);
-        return buffer.getFloatVolatileReverse(bufferPosition[0]);
-    }
-
-    /**
-     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public double getDoubleVolatileReverse(final int index) {
-        final int[] bufferPosition = new int[1];
-        final IByteBuffer buffer = segmentForWide(index, Double.BYTES, "getDoubleVolatileReverse", bufferPosition);
-        return buffer.getDoubleVolatileReverse(bufferPosition[0]);
-    }
-
-    /**
-     * Reads the value at the given index with acquire semantics. Atomic acquire wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public int getIntAcquireReverse(final int index) {
-        final int[] bufferPosition = new int[1];
-        final IByteBuffer buffer = segmentForWide(index, Integer.BYTES, "getIntAcquireReverse", bufferPosition);
-        return buffer.getIntAcquireReverse(bufferPosition[0]);
-    }
-
     /**
      * Reads the value at the given index with acquire semantics. Atomic acquire wide access is
      * only available where the value fits completely inside a single buffer of this list;
@@ -609,190 +1003,6 @@ public class ListByteBuffer implements IByteBuffer {
         final IByteBuffer buffer = segmentForWide(index, Long.BYTES, "getLongAcquireReverse", bufferPosition);
         return buffer.getLongAcquireReverse(bufferPosition[0]);
     }
-
-    @Override
-    public int getInt(final int index) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            IByteBuffer buffer = list.get(buf);
-            int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Integer.BYTES) {
-                    return buffer.getInt(bufferPosition);
-                } else {
-                    final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
-                    final int limit = index + Integer.BYTES;
-                    for (int i = index, ri = 0; i < limit;) {
-                        while (bufferPosition >= capacity) {
-                            buf++;
-                            buffer = list.get(buf);
-                            capacity = buffer.capacity();
-                            bufferPosition = 0;
-                        }
-                        readBuffer[ri] = buffer.getByte(bufferPosition);
-                        i++;
-                        ri++;
-                        bufferPosition++;
-                    }
-                    return ((readBuffer[0] << 24) + ((readBuffer[1] & 0xFF) << 16) + ((readBuffer[2] & 0xFF) << 8)
-                            + ((readBuffer[3] & 0xFF)));
-                }
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
-    @Override
-    public int getIntReverse(final int index) {
-        final int bits = getInt(index);
-        return Integer.reverseBytes(bits);
-    }
-
-    @Override
-    public double getDouble(final int index) {
-        return Double.longBitsToDouble(getLong(index));
-    }
-
-    @Override
-    public double getDoubleReverse(final int index) {
-        final long bits = getLong(index);
-        return Double.longBitsToDouble(Long.reverseBytes(bits));
-    }
-
-    @Override
-    public float getFloat(final int index) {
-        return Float.intBitsToFloat(getInt(index));
-    }
-
-    @Override
-    public float getFloatReverse(final int index) {
-        final int bits = getInt(index);
-        return Float.intBitsToFloat(Integer.reverseBytes(bits));
-    }
-
-    @Override
-    public short getShort(final int index) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            IByteBuffer buffer = list.get(buf);
-            int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Short.BYTES) {
-                    return buffer.getShort(bufferPosition);
-                } else {
-                    final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
-                    final int limit = index + Short.BYTES;
-                    for (int i = index, ri = 0; i < limit;) {
-                        while (bufferPosition >= capacity) {
-                            buf++;
-                            buffer = list.get(buf);
-                            capacity = buffer.capacity();
-                            bufferPosition = 0;
-                        }
-                        readBuffer[ri] = buffer.getByte(bufferPosition);
-                        i++;
-                        ri++;
-                        bufferPosition++;
-                    }
-                    return (short) ((readBuffer[0] << 8) + (readBuffer[1] & 0xFF));
-                }
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
-    @Override
-    public short getShortReverse(final int index) {
-        final short bits = getShort(index);
-        return Short.reverseBytes(bits);
-    }
-
-    @Override
-    public char getChar(final int index) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            IByteBuffer buffer = list.get(buf);
-            int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Character.BYTES) {
-                    return buffer.getChar(bufferPosition);
-                } else {
-                    final byte[] readBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
-                    final int limit = index + Character.BYTES;
-                    for (int i = index, ri = 0; i < limit;) {
-                        while (bufferPosition >= capacity) {
-                            buf++;
-                            buffer = list.get(buf);
-                            capacity = buffer.capacity();
-                            bufferPosition = 0;
-                        }
-                        readBuffer[ri] = buffer.getByte(bufferPosition);
-                        i++;
-                        ri++;
-                        bufferPosition++;
-                    }
-                    return (char) ((readBuffer[0] << 8) + (readBuffer[1] & 0xFF));
-                }
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
-    @Override
-    public char getCharReverse(final int index) {
-        final short bits = (short) getChar(index);
-        return (char) Short.reverseBytes(bits);
-    }
-
-    @Override
-    public byte getByte(final int index) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            final IByteBuffer buffer = list.get(buf);
-            final int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                return buffer.getByte(index - position);
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
-    @Override
-    public int wrapAdjustment() {
-        if (list.isEmpty()) {
-            return EmptyByteBuffer.INSTANCE.wrapAdjustment();
-        } else if (list.size() == 1) {
-            return list.get(0).wrapAdjustment();
-        } else {
-            return 0;
-        }
-    }
-
-    @Override
-    public boolean isExpandable() {
-        if (list.isEmpty()) {
-            return false;
-        } else {
-            final IByteBuffer lastBuffer = list.get(list.size() - 1);
-            return lastBuffer.isExpandable();
-        }
-    }
-
     @Override
     public void putLong(final int index, final long value) {
         final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
@@ -806,90 +1016,11 @@ public class ListByteBuffer implements IByteBuffer {
         writeBuffer[7] = (byte) (value);
         putBytes(index, writeBuffer);
     }
-
     @Override
     public void putLongReverse(final int index, final long value) {
         final long bits = Long.reverseBytes(value);
         putLong(index, bits);
     }
-
-    @Override
-    public void putByteVolatile(final int index, final byte value) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            final IByteBuffer buffer = list.get(buf);
-            final int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                buffer.putByteVolatile(index - position, value);
-                return;
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
-    /**
-     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public void putCharVolatile(final int index, final char value) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            final IByteBuffer buffer = list.get(buf);
-            final int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                final int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Character.BYTES) {
-                    buffer.putCharVolatile(bufferPosition, value);
-                } else {
-                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
-                    throw new UnsupportedOperationException("putCharVolatile: index="
-                            + index + " splits across buffers (not atomic-supported)");
-                }
-                return;
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
-    /**
-     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public void putShortVolatile(final int index, final short value) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            final IByteBuffer buffer = list.get(buf);
-            final int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                final int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Short.BYTES) {
-                    buffer.putShortVolatile(bufferPosition, value);
-                } else {
-                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
-                    throw new UnsupportedOperationException("putShortVolatile: index="
-                            + index + " splits across buffers (not atomic-supported)");
-                }
-                return;
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
     /**
      * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
      * only available where the value fits completely inside a single buffer of this list;
@@ -919,7 +1050,6 @@ public class ListByteBuffer implements IByteBuffer {
         }
         throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
-
     /**
      * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
      * only available where the value fits completely inside a single buffer of this list;
@@ -927,119 +1057,11 @@ public class ListByteBuffer implements IByteBuffer {
      * the method and index, because cross-part volatile wide access is not atomic-supported.
      */
     @Override
-    public void putFloatVolatile(final int index, final float value) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            final IByteBuffer buffer = list.get(buf);
-            final int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                final int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Float.BYTES) {
-                    buffer.putFloatVolatile(bufferPosition, value);
-                } else {
-                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
-                    throw new UnsupportedOperationException("putFloatVolatile: index="
-                            + index + " splits across buffers (not atomic-supported)");
-                }
-                return;
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    public void putLongVolatileReverse(final int index, final long value) {
+        final int[] bufferPosition = new int[1];
+        final IByteBuffer buffer = segmentForWide(index, Long.BYTES, "putLongVolatileReverse", bufferPosition);
+        buffer.putLongVolatileReverse(bufferPosition[0], value);
     }
-
-    /**
-     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public void putDoubleVolatile(final int index, final double value) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            final IByteBuffer buffer = list.get(buf);
-            final int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                final int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Double.BYTES) {
-                    buffer.putDoubleVolatile(bufferPosition, value);
-                } else {
-                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
-                    throw new UnsupportedOperationException("putDoubleVolatile: index="
-                            + index + " splits across buffers (not atomic-supported)");
-                }
-                return;
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
-    /**
-     * Writes the value at the given index with release semantics. Atomic release wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public void putIntRelease(final int index, final int value) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            final IByteBuffer buffer = list.get(buf);
-            final int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                final int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Integer.BYTES) {
-                    buffer.putIntRelease(bufferPosition, value);
-                } else {
-                    //value splits across buffers: cross-part release wide access is not atomic-supported
-                    throw new UnsupportedOperationException("putIntRelease: index="
-                            + index + " splits across buffers (not atomic-supported)");
-                }
-                return;
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
-    /**
-     * Writes the value at the given index with ordered semantics. Atomic ordered wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public void putIntOrdered(final int index, final int value) {
-        int position = 0;
-        for (int buf = 0; buf < list.size(); buf++) {
-            final IByteBuffer buffer = list.get(buf);
-            final int capacity = buffer.capacity();
-            if (index >= position + capacity) {
-                position += capacity;
-                continue;
-            } else {
-                final int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Integer.BYTES) {
-                    buffer.putIntOrdered(bufferPosition, value);
-                } else {
-                    //value splits across buffers: cross-part ordered wide access is not atomic-supported
-                    throw new UnsupportedOperationException("putIntOrdered: index="
-                            + index + " splits across buffers (not atomic-supported)");
-                }
-                return;
-            }
-        }
-        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
-    }
-
     /**
      * Writes the value at the given index with release semantics. Atomic release wide access is
      * only available where the value fits completely inside a single buffer of this list;
@@ -1069,7 +1091,18 @@ public class ListByteBuffer implements IByteBuffer {
         }
         throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
-
+    /**
+     * Writes the value at the given index with release semantics. Atomic release wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public void putLongReleaseReverse(final int index, final long value) {
+        final int[] bufferPosition = new int[1];
+        final IByteBuffer buffer = segmentForWide(index, Long.BYTES, "putLongReleaseReverse", bufferPosition);
+        buffer.putLongReleaseReverse(bufferPosition[0], value);
+    }
     /**
      * Writes the value at the given index with ordered semantics. Atomic ordered wide access is
      * only available where the value fits completely inside a single buffer of this list;
@@ -1099,124 +1132,6 @@ public class ListByteBuffer implements IByteBuffer {
         }
         throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
-
-    /**
-     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public void putCharVolatileReverse(final int index, final char value) {
-        final int[] bufferPosition = new int[1];
-        final IByteBuffer buffer = segmentForWide(index, Character.BYTES, "putCharVolatileReverse", bufferPosition);
-        buffer.putCharVolatileReverse(bufferPosition[0], value);
-    }
-
-    /**
-     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public void putShortVolatileReverse(final int index, final short value) {
-        final int[] bufferPosition = new int[1];
-        final IByteBuffer buffer = segmentForWide(index, Short.BYTES, "putShortVolatileReverse", bufferPosition);
-        buffer.putShortVolatileReverse(bufferPosition[0], value);
-    }
-
-    /**
-     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public void putIntVolatileReverse(final int index, final int value) {
-        final int[] bufferPosition = new int[1];
-        final IByteBuffer buffer = segmentForWide(index, Integer.BYTES, "putIntVolatileReverse", bufferPosition);
-        buffer.putIntVolatileReverse(bufferPosition[0], value);
-    }
-
-    /**
-     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public void putLongVolatileReverse(final int index, final long value) {
-        final int[] bufferPosition = new int[1];
-        final IByteBuffer buffer = segmentForWide(index, Long.BYTES, "putLongVolatileReverse", bufferPosition);
-        buffer.putLongVolatileReverse(bufferPosition[0], value);
-    }
-
-    /**
-     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public void putFloatVolatileReverse(final int index, final float value) {
-        final int[] bufferPosition = new int[1];
-        final IByteBuffer buffer = segmentForWide(index, Float.BYTES, "putFloatVolatileReverse", bufferPosition);
-        buffer.putFloatVolatileReverse(bufferPosition[0], value);
-    }
-
-    /**
-     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public void putDoubleVolatileReverse(final int index, final double value) {
-        final int[] bufferPosition = new int[1];
-        final IByteBuffer buffer = segmentForWide(index, Double.BYTES, "putDoubleVolatileReverse", bufferPosition);
-        buffer.putDoubleVolatileReverse(bufferPosition[0], value);
-    }
-
-    /**
-     * Writes the value at the given index with release semantics. Atomic release wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public void putIntReleaseReverse(final int index, final int value) {
-        final int[] bufferPosition = new int[1];
-        final IByteBuffer buffer = segmentForWide(index, Integer.BYTES, "putIntReleaseReverse", bufferPosition);
-        buffer.putIntReleaseReverse(bufferPosition[0], value);
-    }
-
-    /**
-     * Writes the value at the given index with release semantics. Atomic release wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public void putLongReleaseReverse(final int index, final long value) {
-        final int[] bufferPosition = new int[1];
-        final IByteBuffer buffer = segmentForWide(index, Long.BYTES, "putLongReleaseReverse", bufferPosition);
-        buffer.putLongReleaseReverse(bufferPosition[0], value);
-    }
-
-    /**
-     * Writes the value at the given index with ordered semantics. Atomic ordered wide access is
-     * only available where the value fits completely inside a single buffer of this list;
-     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
-     */
-    @Override
-    public void putIntOrderedReverse(final int index, final int value) {
-        final int[] bufferPosition = new int[1];
-        final IByteBuffer buffer = segmentForWide(index, Integer.BYTES, "putIntOrderedReverse", bufferPosition);
-        buffer.putIntOrderedReverse(bufferPosition[0], value);
-    }
-
     /**
      * Writes the value at the given index with ordered semantics. Atomic ordered wide access is
      * only available where the value fits completely inside a single buffer of this list;
@@ -1229,25 +1144,23 @@ public class ListByteBuffer implements IByteBuffer {
         final IByteBuffer buffer = segmentForWide(index, Long.BYTES, "putLongOrderedReverse", bufferPosition);
         buffer.putLongOrderedReverse(bufferPosition[0], value);
     }
-
     @Override
-    public void putInt(final int index, final int value) {
-        final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
-        writeBuffer[0] = (byte) (value >>> 24);
-        writeBuffer[1] = (byte) (value >>> 16);
-        writeBuffer[2] = (byte) (value >>> 8);
-        writeBuffer[3] = (byte) (value);
-        putBytes(index, writeBuffer, 0, Integer.BYTES);
+    public float getFloat(final int index) {
+        return Float.intBitsToFloat(getInt(index));
     }
-
+    @Override
+    public float getFloatReverse(final int index) {
+        final int bits = getInt(index);
+        return Float.intBitsToFloat(Integer.reverseBytes(bits));
+    }
     /**
-     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
+     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
      * only available where the value fits completely inside a single buffer of this list;
      * positions that split across buffers throw an {@link UnsupportedOperationException} naming
      * the method and index, because cross-part volatile wide access is not atomic-supported.
      */
     @Override
-    public void putIntVolatile(final int index, final int value) {
+    public float getFloatVolatile(final int index) {
         int position = 0;
         for (int buf = 0; buf < list.size(); buf++) {
             final IByteBuffer buffer = list.get(buf);
@@ -1257,77 +1170,46 @@ public class ListByteBuffer implements IByteBuffer {
                 continue;
             } else {
                 final int bufferPosition = index - position;
-                if (capacity >= bufferPosition + Integer.BYTES) {
-                    buffer.putIntVolatile(bufferPosition, value);
+                if (capacity >= bufferPosition + Float.BYTES) {
+                    return buffer.getFloatVolatile(bufferPosition);
                 } else {
                     //value splits across buffers: cross-part volatile wide access is not atomic-supported
-                    throw new UnsupportedOperationException("putIntVolatile: index="
+                    throw new UnsupportedOperationException("getFloatVolatile: index="
                             + index + " splits across buffers (not atomic-supported)");
                 }
-                return;
             }
         }
         throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
     }
-
+    /**
+     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
     @Override
-    public void putIntReverse(final int index, final int value) {
-        final int bits = Integer.reverseBytes(value);
-        putInt(index, bits);
+    public float getFloatVolatileReverse(final int index) {
+        final int[] bufferPosition = new int[1];
+        final IByteBuffer buffer = segmentForWide(index, Float.BYTES, "getFloatVolatileReverse", bufferPosition);
+        return buffer.getFloatVolatileReverse(bufferPosition[0]);
     }
-
-    @Override
-    public void putDouble(final int index, final double value) {
-        putLong(index, Double.doubleToLongBits(value));
-    }
-
-    @Override
-    public void putDoubleReverse(final int index, final double value) {
-        final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
-        putLong(index, bits);
-    }
-
     @Override
     public void putFloat(final int index, final float value) {
         putInt(index, Float.floatToIntBits(value));
     }
-
     @Override
     public void putFloatReverse(final int index, final float value) {
         final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
         putInt(index, bits);
     }
-
+    /**
+     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
     @Override
-    public void putShort(final int index, final short value) {
-        final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
-        writeBuffer[0] = (byte) (value >>> 8);
-        writeBuffer[1] = (byte) (value);
-        putBytes(index, writeBuffer, 0, Short.BYTES);
-    }
-
-    @Override
-    public void putShortReverse(final int index, final short value) {
-        final short bits = Short.reverseBytes(value);
-        putShort(index, bits);
-    }
-
-    @Override
-    public void putChar(final int index, final char value) {
-        final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
-        writeBuffer[0] = (byte) (value >>> 8);
-        writeBuffer[1] = (byte) (value);
-        putBytes(index, writeBuffer, 0, Short.BYTES);
-    }
-
-    @Override
-    public void putCharReverse(final int index, final char value) {
-        final short bits = Short.reverseBytes((short) value);
-        putShort(index, bits);
-    }
-
-    @Override
-    public void putByte(final int index, final byte value) {
+    public void putFloatVolatile(final int index, final float value) {
         int position = 0;
         for (int buf = 0; buf < list.size(); buf++) {
             final IByteBuffer buffer = list.get(buf);
@@ -1336,11 +1218,129 @@ public class ListByteBuffer implements IByteBuffer {
                 position += capacity;
                 continue;
             } else {
-                buffer.putByte(index - position, value);
+                final int bufferPosition = index - position;
+                if (capacity >= bufferPosition + Float.BYTES) {
+                    buffer.putFloatVolatile(bufferPosition, value);
+                } else {
+                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
+                    throw new UnsupportedOperationException("putFloatVolatile: index="
+                            + index + " splits across buffers (not atomic-supported)");
+                }
                 return;
             }
         }
         throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    /**
+     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public void putFloatVolatileReverse(final int index, final float value) {
+        final int[] bufferPosition = new int[1];
+        final IByteBuffer buffer = segmentForWide(index, Float.BYTES, "putFloatVolatileReverse", bufferPosition);
+        buffer.putFloatVolatileReverse(bufferPosition[0], value);
+    }
+    @Override
+    public double getDouble(final int index) {
+        return Double.longBitsToDouble(getLong(index));
+    }
+    @Override
+    public double getDoubleReverse(final int index) {
+        final long bits = getLong(index);
+        return Double.longBitsToDouble(Long.reverseBytes(bits));
+    }
+    /**
+     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public double getDoubleVolatile(final int index) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            final IByteBuffer buffer = list.get(buf);
+            final int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                final int bufferPosition = index - position;
+                if (capacity >= bufferPosition + Double.BYTES) {
+                    return buffer.getDoubleVolatile(bufferPosition);
+                } else {
+                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
+                    throw new UnsupportedOperationException("getDoubleVolatile: index="
+                            + index + " splits across buffers (not atomic-supported)");
+                }
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    /**
+     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public double getDoubleVolatileReverse(final int index) {
+        final int[] bufferPosition = new int[1];
+        final IByteBuffer buffer = segmentForWide(index, Double.BYTES, "getDoubleVolatileReverse", bufferPosition);
+        return buffer.getDoubleVolatileReverse(bufferPosition[0]);
+    }
+    @Override
+    public void putDouble(final int index, final double value) {
+        putLong(index, Double.doubleToLongBits(value));
+    }
+    @Override
+    public void putDoubleReverse(final int index, final double value) {
+        final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
+        putLong(index, bits);
+    }
+    /**
+     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public void putDoubleVolatile(final int index, final double value) {
+        int position = 0;
+        for (int buf = 0; buf < list.size(); buf++) {
+            final IByteBuffer buffer = list.get(buf);
+            final int capacity = buffer.capacity();
+            if (index >= position + capacity) {
+                position += capacity;
+                continue;
+            } else {
+                final int bufferPosition = index - position;
+                if (capacity >= bufferPosition + Double.BYTES) {
+                    buffer.putDoubleVolatile(bufferPosition, value);
+                } else {
+                    //value splits across buffers: cross-part volatile wide access is not atomic-supported
+                    throw new UnsupportedOperationException("putDoubleVolatile: index="
+                            + index + " splits across buffers (not atomic-supported)");
+                }
+                return;
+            }
+        }
+        throw FastIndexOutOfBoundsException.getInstance("index=%s capacity=%s", index, capacity());
+    }
+    /**
+     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
+     * only available where the value fits completely inside a single buffer of this list;
+     * positions that split across buffers throw an {@link UnsupportedOperationException} naming
+     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     */
+    @Override
+    public void putDoubleVolatileReverse(final int index, final double value) {
+        final int[] bufferPosition = new int[1];
+        final IByteBuffer buffer = segmentForWide(index, Double.BYTES, "putDoubleVolatileReverse", bufferPosition);
+        buffer.putDoubleVolatileReverse(bufferPosition[0], value);
     }
 
     @Override

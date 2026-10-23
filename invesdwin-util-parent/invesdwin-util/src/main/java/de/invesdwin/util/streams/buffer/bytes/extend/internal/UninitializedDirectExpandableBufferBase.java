@@ -262,408 +262,58 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
     ////////////////////////////////////////////////////////////////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getLong(final int index, final ByteOrder byteOrder) {
-        boundsCheck0(index, SIZE_OF_LONG);
 
-        long bits = UnsafeApi.getLong(null, finalizer.address + index);
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            bits = Long.reverseBytes(bits);
-        }
 
-        return bits;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putLong(final int index, final long value, final ByteOrder byteOrder) {
-        ensureCapacity(index, SIZE_OF_LONG);
-
-        long bits = value;
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            bits = Long.reverseBytes(bits);
-        }
-
-        UnsafeApi.putLong(null, finalizer.address + index, bits);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getLong(final int index) {
-        boundsCheck0(index, SIZE_OF_LONG);
-
-        return UnsafeApi.getLong(null, finalizer.address + index);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putLong(final int index, final long value) {
-        ensureCapacity(index, SIZE_OF_LONG);
-
-        UnsafeApi.putLong(null, finalizer.address + index, value);
-    }
 
     ////////////////////////////////////////////////////////////////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getInt(final int index, final ByteOrder byteOrder) {
-        boundsCheck0(index, SIZE_OF_INT);
 
-        int bits = UnsafeApi.getInt(null, finalizer.address + index);
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            bits = Integer.reverseBytes(bits);
-        }
 
-        return bits;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putInt(final int index, final int value, final ByteOrder byteOrder) {
-        ensureCapacity(index, SIZE_OF_INT);
 
-        int bits = value;
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            bits = Integer.reverseBytes(bits);
-        }
 
-        UnsafeApi.putInt(null, finalizer.address + index, bits);
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getInt(final int index) {
-        boundsCheck0(index, SIZE_OF_INT);
 
-        return UnsafeApi.getInt(null, finalizer.address + index);
-    }
 
-    public int getIntVolatile(final int index) {
-        boundsCheck0(index, SIZE_OF_INT);
 
-        return UnsafeApi.getIntVolatile(null, finalizer.address + index);
-    }
 
-    public byte getByteVolatile(final int index) {
-        boundsCheck0(index, SIZE_OF_BYTE);
 
-        return UnsafeApi.getByteVolatile(null, finalizer.address + index);
-    }
 
-    public char getCharVolatile(final int index) {
-        boundsCheck0(index, SIZE_OF_CHAR);
 
-        return UnsafeApi.getCharVolatile(null, finalizer.address + index);
-    }
 
-    public short getShortVolatile(final int index) {
-        boundsCheck0(index, SIZE_OF_SHORT);
 
-        return UnsafeApi.getShortVolatile(null, finalizer.address + index);
-    }
 
-    public long getLongVolatile(final int index) {
-        boundsCheck0(index, SIZE_OF_LONG);
 
-        return UnsafeApi.getLongVolatile(null, finalizer.address + index);
-    }
 
-    public float getFloatVolatile(final int index) {
-        boundsCheck0(index, SIZE_OF_FLOAT);
 
-        //agrona has no volatile float - raw bits over the volatile int keeps the full fence and the NaN payload
-        return Float.intBitsToFloat(UnsafeApi.getIntVolatile(null, finalizer.address + index));
-    }
-
-    public double getDoubleVolatile(final int index) {
-        boundsCheck0(index, SIZE_OF_DOUBLE);
-
-        //agrona has no volatile double - raw bits over the volatile long keeps the full fence and the NaN payload
-        return Double.longBitsToDouble(UnsafeApi.getLongVolatile(null, finalizer.address + index));
-    }
-
-    public int getIntAcquire(final int index) {
-        boundsCheck0(index, SIZE_OF_INT);
-
-        return UnsafeApi.getIntAcquire(null, finalizer.address + index);
-    }
-
-    public long getLongAcquire(final int index) {
-        boundsCheck0(index, SIZE_OF_LONG);
-
-        return UnsafeApi.getLongAcquire(null, finalizer.address + index);
-    }
-
-    public char getCharVolatileReverse(final int index) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final short bits = getShortVolatile(index);
-            return (char) Short.reverseBytes(bits);
-        } else {
-            return getCharVolatile(index);
-        }
-    }
-
-    public short getShortVolatileReverse(final int index) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final short bits = getShortVolatile(index);
-            return Short.reverseBytes(bits);
-        } else {
-            return getShortVolatile(index);
-        }
-    }
-
-    public int getIntVolatileReverse(final int index) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final int bits = getIntVolatile(index);
-            return Integer.reverseBytes(bits);
-        } else {
-            return getIntVolatile(index);
-        }
-    }
-
-    public long getLongVolatileReverse(final int index) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final long bits = getLongVolatile(index);
-            return Long.reverseBytes(bits);
-        } else {
-            return getLongVolatile(index);
-        }
-    }
-
-    public float getFloatVolatileReverse(final int index) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            //agrona has no volatile float - swapped raw bits over the volatile int keeps the fence and NaN payload
-            final int bits = Integer.reverseBytes(getIntVolatile(index));
-            return Float.intBitsToFloat(bits);
-        } else {
-            return getFloatVolatile(index);
-        }
-    }
-
-    public double getDoubleVolatileReverse(final int index) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            //agrona has no volatile double - swapped raw bits over the volatile long keeps the fence and NaN payload
-            final long bits = Long.reverseBytes(getLongVolatile(index));
-            return Double.longBitsToDouble(bits);
-        } else {
-            return getDoubleVolatile(index);
-        }
-    }
-
-    public int getIntAcquireReverse(final int index) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final int bits = getIntAcquire(index);
-            return Integer.reverseBytes(bits);
-        } else {
-            return getIntAcquire(index);
-        }
-    }
-
-    public long getLongAcquireReverse(final int index) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final long bits = getLongAcquire(index);
-            return Long.reverseBytes(bits);
-        } else {
-            return getLongAcquire(index);
-        }
-    }
 
     ////////////////////////////////////////////////////////////////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getDouble(final int index, final ByteOrder byteOrder) {
-        boundsCheck0(index, SIZE_OF_DOUBLE);
 
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            final long bits = UnsafeApi.getLong(null, finalizer.address + index);
-            return Double.longBitsToDouble(Long.reverseBytes(bits));
-        } else {
-            return UnsafeApi.getDouble(null, finalizer.address + index);
-        }
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putDouble(final int index, final double value, final ByteOrder byteOrder) {
-        ensureCapacity(index, SIZE_OF_DOUBLE);
 
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
-            UnsafeApi.putLong(null, finalizer.address + index, bits);
-        } else {
-            UnsafeApi.putDouble(null, finalizer.address + index, value);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getDouble(final int index) {
-        boundsCheck0(index, SIZE_OF_DOUBLE);
-
-        return UnsafeApi.getDouble(null, finalizer.address + index);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putDouble(final int index, final double value) {
-        ensureCapacity(index, SIZE_OF_DOUBLE);
-
-        UnsafeApi.putDouble(null, finalizer.address + index, value);
-    }
 
     ////////////////////////////////////////////////////////////////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public float getFloat(final int index, final ByteOrder byteOrder) {
-        boundsCheck0(index, SIZE_OF_FLOAT);
 
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            final int bits = UnsafeApi.getInt(null, finalizer.address + index);
-            return Float.intBitsToFloat(Integer.reverseBytes(bits));
-        } else {
-            return UnsafeApi.getFloat(null, finalizer.address + index);
-        }
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putFloat(final int index, final float value, final ByteOrder byteOrder) {
-        ensureCapacity(index, SIZE_OF_FLOAT);
 
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
-            UnsafeApi.putInt(null, finalizer.address + index, bits);
-        } else {
-            UnsafeApi.putFloat(null, finalizer.address + index, value);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public float getFloat(final int index) {
-        boundsCheck0(index, SIZE_OF_FLOAT);
-
-        return UnsafeApi.getFloat(null, finalizer.address + index);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putFloat(final int index, final float value) {
-        ensureCapacity(index, SIZE_OF_FLOAT);
-
-        UnsafeApi.putFloat(null, finalizer.address + index, value);
-    }
 
     ////////////////////////////////////////////////////////////////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public short getShort(final int index, final ByteOrder byteOrder) {
-        boundsCheck0(index, SIZE_OF_SHORT);
 
-        short bits = UnsafeApi.getShort(null, finalizer.address + index);
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            bits = Short.reverseBytes(bits);
-        }
 
-        return bits;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putShort(final int index, final short value, final ByteOrder byteOrder) {
-        ensureCapacity(index, SIZE_OF_SHORT);
-
-        short bits = value;
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            bits = Short.reverseBytes(bits);
-        }
-
-        UnsafeApi.putShort(null, finalizer.address + index, bits);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public short getShort(final int index) {
-        boundsCheck0(index, SIZE_OF_SHORT);
-
-        return UnsafeApi.getShort(null, finalizer.address + index);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putShort(final int index, final short value) {
-        ensureCapacity(index, SIZE_OF_SHORT);
-
-        UnsafeApi.putShort(null, finalizer.address + index, value);
-    }
 
     ////////////////////////////////////////////////////////////////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public byte getByte(final int index) {
-        boundsCheck0(index, SIZE_OF_BYTE);
-        return UnsafeApi.getByte(null, finalizer.address + index);
-    }
 
     private byte getByte0(final int index) {
         boundsCheck0(index, SIZE_OF_BYTE);
         return UnsafeApi.getByte(null, finalizer.address + index);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putByte(final int index, final byte value) {
-        ensureCapacity(index, SIZE_OF_BYTE);
-        UnsafeApi.putByte(null, finalizer.address + index, value);
-    }
 
     private void putByte0(final int index, final byte value) {
         ensureCapacity(index, SIZE_OF_BYTE);
@@ -793,55 +443,9 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
     ////////////////////////////////////////////////////////////////
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public char getChar(final int index, final ByteOrder byteOrder) {
-        boundsCheck0(index, SIZE_OF_SHORT);
 
-        char bits = UnsafeApi.getChar(null, finalizer.address + index);
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            bits = (char) Short.reverseBytes((short) bits);
-        }
 
-        return bits;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putChar(final int index, final char value, final ByteOrder byteOrder) {
-        ensureCapacity(index, SIZE_OF_CHAR);
-
-        char bits = value;
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            bits = (char) Short.reverseBytes((short) bits);
-        }
-
-        UnsafeApi.putChar(null, finalizer.address + index, bits);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public char getChar(final int index) {
-        boundsCheck0(index, SIZE_OF_CHAR);
-
-        return UnsafeApi.getChar(null, finalizer.address + index);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void putChar(final int index, final char value) {
-        ensureCapacity(index, SIZE_OF_CHAR);
-
-        UnsafeApi.putChar(null, finalizer.address + index, value);
-    }
 
     ////////////////////////////////////////////////////////////////
 
@@ -1390,6 +994,260 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         }
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public byte getByte(final int index) {
+        boundsCheck0(index, SIZE_OF_BYTE);
+        return UnsafeApi.getByte(null, finalizer.address + index);
+    }
+    public byte getByteVolatile(final int index) {
+        boundsCheck0(index, SIZE_OF_BYTE);
+
+        return UnsafeApi.getByteVolatile(null, finalizer.address + index);
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void putByte(final int index, final byte value) {
+        ensureCapacity(index, SIZE_OF_BYTE);
+        UnsafeApi.putByte(null, finalizer.address + index, value);
+    }
+    public void putByteVolatile(final int index, final byte value) {
+        ensureCapacity(index, SIZE_OF_BYTE);
+
+        UnsafeApi.putByteVolatile(null, finalizer.address + index, value);
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public char getChar(final int index, final ByteOrder byteOrder) {
+        boundsCheck0(index, SIZE_OF_SHORT);
+
+        char bits = UnsafeApi.getChar(null, finalizer.address + index);
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            bits = (char) Short.reverseBytes((short) bits);
+        }
+
+        return bits;
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public char getChar(final int index) {
+        boundsCheck0(index, SIZE_OF_CHAR);
+
+        return UnsafeApi.getChar(null, finalizer.address + index);
+    }
+    public char getCharVolatile(final int index) {
+        boundsCheck0(index, SIZE_OF_CHAR);
+
+        return UnsafeApi.getCharVolatile(null, finalizer.address + index);
+    }
+    public char getCharVolatileReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = getShortVolatile(index);
+            return (char) Short.reverseBytes(bits);
+        } else {
+            return getCharVolatile(index);
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void putChar(final int index, final char value, final ByteOrder byteOrder) {
+        ensureCapacity(index, SIZE_OF_CHAR);
+
+        char bits = value;
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            bits = (char) Short.reverseBytes((short) bits);
+        }
+
+        UnsafeApi.putChar(null, finalizer.address + index, bits);
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void putChar(final int index, final char value) {
+        ensureCapacity(index, SIZE_OF_CHAR);
+
+        UnsafeApi.putChar(null, finalizer.address + index, value);
+    }
+    public void putCharVolatile(final int index, final char value) {
+        ensureCapacity(index, SIZE_OF_CHAR);
+
+        UnsafeApi.putCharVolatile(null, finalizer.address + index, value);
+    }
+    public void putCharVolatileReverse(final int index, final char value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = Short.reverseBytes((short) value);
+            putShortVolatile(index, bits);
+        } else {
+            putCharVolatile(index, value);
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public short getShort(final int index, final ByteOrder byteOrder) {
+        boundsCheck0(index, SIZE_OF_SHORT);
+
+        short bits = UnsafeApi.getShort(null, finalizer.address + index);
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            bits = Short.reverseBytes(bits);
+        }
+
+        return bits;
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public short getShort(final int index) {
+        boundsCheck0(index, SIZE_OF_SHORT);
+
+        return UnsafeApi.getShort(null, finalizer.address + index);
+    }
+    public short getShortVolatile(final int index) {
+        boundsCheck0(index, SIZE_OF_SHORT);
+
+        return UnsafeApi.getShortVolatile(null, finalizer.address + index);
+    }
+    public short getShortVolatileReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = getShortVolatile(index);
+            return Short.reverseBytes(bits);
+        } else {
+            return getShortVolatile(index);
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void putShort(final int index, final short value, final ByteOrder byteOrder) {
+        ensureCapacity(index, SIZE_OF_SHORT);
+
+        short bits = value;
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            bits = Short.reverseBytes(bits);
+        }
+
+        UnsafeApi.putShort(null, finalizer.address + index, bits);
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void putShort(final int index, final short value) {
+        ensureCapacity(index, SIZE_OF_SHORT);
+
+        UnsafeApi.putShort(null, finalizer.address + index, value);
+    }
+    public void putShortVolatile(final int index, final short value) {
+        ensureCapacity(index, SIZE_OF_SHORT);
+
+        UnsafeApi.putShortVolatile(null, finalizer.address + index, value);
+    }
+    public void putShortVolatileReverse(final int index, final short value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = Short.reverseBytes(value);
+            putShortVolatile(index, bits);
+        } else {
+            putShortVolatile(index, value);
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getInt(final int index, final ByteOrder byteOrder) {
+        boundsCheck0(index, SIZE_OF_INT);
+
+        int bits = UnsafeApi.getInt(null, finalizer.address + index);
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            bits = Integer.reverseBytes(bits);
+        }
+
+        return bits;
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getInt(final int index) {
+        boundsCheck0(index, SIZE_OF_INT);
+
+        return UnsafeApi.getInt(null, finalizer.address + index);
+    }
+    public int getIntVolatile(final int index) {
+        boundsCheck0(index, SIZE_OF_INT);
+
+        return UnsafeApi.getIntVolatile(null, finalizer.address + index);
+    }
+    public int getIntVolatileReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getIntVolatile(index);
+            return Integer.reverseBytes(bits);
+        } else {
+            return getIntVolatile(index);
+        }
+    }
+    public int getIntAcquire(final int index) {
+        boundsCheck0(index, SIZE_OF_INT);
+
+        return UnsafeApi.getIntAcquire(null, finalizer.address + index);
+    }
+    public int getIntAcquireReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getIntAcquire(index);
+            return Integer.reverseBytes(bits);
+        } else {
+            return getIntAcquire(index);
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void putInt(final int index, final int value, final ByteOrder byteOrder) {
+        ensureCapacity(index, SIZE_OF_INT);
+
+        int bits = value;
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            bits = Integer.reverseBytes(bits);
+        }
+
+        UnsafeApi.putInt(null, finalizer.address + index, bits);
+    }
     /**
      * {@inheritDoc}
      */
@@ -1399,91 +1257,11 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         UnsafeApi.putInt(null, finalizer.address + index, value);
     }
-
     public void putIntVolatile(final int index, final int value) {
         ensureCapacity(index, SIZE_OF_INT);
 
         UnsafeApi.putIntVolatile(null, finalizer.address + index, value);
     }
-
-    public void putByteVolatile(final int index, final byte value) {
-        ensureCapacity(index, SIZE_OF_BYTE);
-
-        UnsafeApi.putByteVolatile(null, finalizer.address + index, value);
-    }
-
-    public void putCharVolatile(final int index, final char value) {
-        ensureCapacity(index, SIZE_OF_CHAR);
-
-        UnsafeApi.putCharVolatile(null, finalizer.address + index, value);
-    }
-
-    public void putShortVolatile(final int index, final short value) {
-        ensureCapacity(index, SIZE_OF_SHORT);
-
-        UnsafeApi.putShortVolatile(null, finalizer.address + index, value);
-    }
-
-    public void putLongVolatile(final int index, final long value) {
-        ensureCapacity(index, SIZE_OF_LONG);
-
-        UnsafeApi.putLongVolatile(null, finalizer.address + index, value);
-    }
-
-    public void putFloatVolatile(final int index, final float value) {
-        ensureCapacity(index, SIZE_OF_FLOAT);
-
-        UnsafeApi.putIntVolatile(null, finalizer.address + index, Float.floatToRawIntBits(value));
-    }
-
-    public void putDoubleVolatile(final int index, final double value) {
-        ensureCapacity(index, SIZE_OF_DOUBLE);
-
-        UnsafeApi.putLongVolatile(null, finalizer.address + index, Double.doubleToRawLongBits(value));
-    }
-
-    public void putIntRelease(final int index, final int value) {
-        ensureCapacity(index, SIZE_OF_INT);
-
-        UnsafeApi.putIntRelease(null, finalizer.address + index, value);
-    }
-
-    public void putIntOrdered(final int index, final int value) {
-        ensureCapacity(index, SIZE_OF_INT);
-
-        UnsafeApi.putIntRelease(null, finalizer.address + index, value);
-    }
-
-    public void putLongRelease(final int index, final long value) {
-        ensureCapacity(index, SIZE_OF_LONG);
-
-        UnsafeApi.putLongRelease(null, finalizer.address + index, value);
-    }
-
-    public void putLongOrdered(final int index, final long value) {
-        ensureCapacity(index, SIZE_OF_LONG);
-
-        UnsafeApi.putLongRelease(null, finalizer.address + index, value);
-    }
-
-    public void putCharVolatileReverse(final int index, final char value) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final short bits = Short.reverseBytes((short) value);
-            putShortVolatile(index, bits);
-        } else {
-            putCharVolatile(index, value);
-        }
-    }
-
-    public void putShortVolatileReverse(final int index, final short value) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final short bits = Short.reverseBytes(value);
-            putShortVolatile(index, bits);
-        } else {
-            putShortVolatile(index, value);
-        }
-    }
-
     public void putIntVolatileReverse(final int index, final int value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(value);
@@ -1492,7 +1270,109 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             putIntVolatile(index, value);
         }
     }
+    public void putIntRelease(final int index, final int value) {
+        ensureCapacity(index, SIZE_OF_INT);
 
+        UnsafeApi.putIntRelease(null, finalizer.address + index, value);
+    }
+    public void putIntReleaseReverse(final int index, final int value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            putIntRelease(index, bits);
+        } else {
+            putIntRelease(index, value);
+        }
+    }
+    public void putIntOrdered(final int index, final int value) {
+        ensureCapacity(index, SIZE_OF_INT);
+
+        UnsafeApi.putIntRelease(null, finalizer.address + index, value);
+    }
+    public void putIntOrderedReverse(final int index, final int value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            putIntOrdered(index, bits);
+        } else {
+            putIntOrdered(index, value);
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getLong(final int index, final ByteOrder byteOrder) {
+        boundsCheck0(index, SIZE_OF_LONG);
+
+        long bits = UnsafeApi.getLong(null, finalizer.address + index);
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            bits = Long.reverseBytes(bits);
+        }
+
+        return bits;
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getLong(final int index) {
+        boundsCheck0(index, SIZE_OF_LONG);
+
+        return UnsafeApi.getLong(null, finalizer.address + index);
+    }
+    public long getLongVolatile(final int index) {
+        boundsCheck0(index, SIZE_OF_LONG);
+
+        return UnsafeApi.getLongVolatile(null, finalizer.address + index);
+    }
+    public long getLongVolatileReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getLongVolatile(index);
+            return Long.reverseBytes(bits);
+        } else {
+            return getLongVolatile(index);
+        }
+    }
+    public long getLongAcquire(final int index) {
+        boundsCheck0(index, SIZE_OF_LONG);
+
+        return UnsafeApi.getLongAcquire(null, finalizer.address + index);
+    }
+    public long getLongAcquireReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getLongAcquire(index);
+            return Long.reverseBytes(bits);
+        } else {
+            return getLongAcquire(index);
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void putLong(final int index, final long value, final ByteOrder byteOrder) {
+        ensureCapacity(index, SIZE_OF_LONG);
+
+        long bits = value;
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            bits = Long.reverseBytes(bits);
+        }
+
+        UnsafeApi.putLong(null, finalizer.address + index, bits);
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void putLong(final int index, final long value) {
+        ensureCapacity(index, SIZE_OF_LONG);
+
+        UnsafeApi.putLong(null, finalizer.address + index, value);
+    }
+    public void putLongVolatile(final int index, final long value) {
+        ensureCapacity(index, SIZE_OF_LONG);
+
+        UnsafeApi.putLongVolatile(null, finalizer.address + index, value);
+    }
     public void putLongVolatileReverse(final int index, final long value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(value);
@@ -1501,7 +1381,98 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             putLongVolatile(index, value);
         }
     }
+    public void putLongRelease(final int index, final long value) {
+        ensureCapacity(index, SIZE_OF_LONG);
 
+        UnsafeApi.putLongRelease(null, finalizer.address + index, value);
+    }
+    public void putLongReleaseReverse(final int index, final long value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            putLongRelease(index, bits);
+        } else {
+            putLongRelease(index, value);
+        }
+    }
+    public void putLongOrdered(final int index, final long value) {
+        ensureCapacity(index, SIZE_OF_LONG);
+
+        UnsafeApi.putLongRelease(null, finalizer.address + index, value);
+    }
+    public void putLongOrderedReverse(final int index, final long value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            putLongOrdered(index, bits);
+        } else {
+            putLongOrdered(index, value);
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public float getFloat(final int index, final ByteOrder byteOrder) {
+        boundsCheck0(index, SIZE_OF_FLOAT);
+
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            final int bits = UnsafeApi.getInt(null, finalizer.address + index);
+            return Float.intBitsToFloat(Integer.reverseBytes(bits));
+        } else {
+            return UnsafeApi.getFloat(null, finalizer.address + index);
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public float getFloat(final int index) {
+        boundsCheck0(index, SIZE_OF_FLOAT);
+
+        return UnsafeApi.getFloat(null, finalizer.address + index);
+    }
+    public float getFloatVolatile(final int index) {
+        boundsCheck0(index, SIZE_OF_FLOAT);
+
+        //agrona has no volatile float - raw bits over the volatile int keeps the full fence and the NaN payload
+        return Float.intBitsToFloat(UnsafeApi.getIntVolatile(null, finalizer.address + index));
+    }
+    public float getFloatVolatileReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            //agrona has no volatile float - swapped raw bits over the volatile int keeps the fence and NaN payload
+            final int bits = Integer.reverseBytes(getIntVolatile(index));
+            return Float.intBitsToFloat(bits);
+        } else {
+            return getFloatVolatile(index);
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void putFloat(final int index, final float value, final ByteOrder byteOrder) {
+        ensureCapacity(index, SIZE_OF_FLOAT);
+
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
+            UnsafeApi.putInt(null, finalizer.address + index, bits);
+        } else {
+            UnsafeApi.putFloat(null, finalizer.address + index, value);
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void putFloat(final int index, final float value) {
+        ensureCapacity(index, SIZE_OF_FLOAT);
+
+        UnsafeApi.putFloat(null, finalizer.address + index, value);
+    }
+    public void putFloatVolatile(final int index, final float value) {
+        ensureCapacity(index, SIZE_OF_FLOAT);
+
+        UnsafeApi.putIntVolatile(null, finalizer.address + index, Float.floatToRawIntBits(value));
+    }
     public void putFloatVolatileReverse(final int index, final float value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             //agrona has no volatile float - swapped raw bits over the volatile int keeps the fence and NaN payload
@@ -1511,7 +1482,72 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             putFloatVolatile(index, value);
         }
     }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getDouble(final int index, final ByteOrder byteOrder) {
+        boundsCheck0(index, SIZE_OF_DOUBLE);
 
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            final long bits = UnsafeApi.getLong(null, finalizer.address + index);
+            return Double.longBitsToDouble(Long.reverseBytes(bits));
+        } else {
+            return UnsafeApi.getDouble(null, finalizer.address + index);
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getDouble(final int index) {
+        boundsCheck0(index, SIZE_OF_DOUBLE);
+
+        return UnsafeApi.getDouble(null, finalizer.address + index);
+    }
+    public double getDoubleVolatile(final int index) {
+        boundsCheck0(index, SIZE_OF_DOUBLE);
+
+        //agrona has no volatile double - raw bits over the volatile long keeps the full fence and the NaN payload
+        return Double.longBitsToDouble(UnsafeApi.getLongVolatile(null, finalizer.address + index));
+    }
+    public double getDoubleVolatileReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            //agrona has no volatile double - swapped raw bits over the volatile long keeps the fence and NaN payload
+            final long bits = Long.reverseBytes(getLongVolatile(index));
+            return Double.longBitsToDouble(bits);
+        } else {
+            return getDoubleVolatile(index);
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void putDouble(final int index, final double value, final ByteOrder byteOrder) {
+        ensureCapacity(index, SIZE_OF_DOUBLE);
+
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
+            UnsafeApi.putLong(null, finalizer.address + index, bits);
+        } else {
+            UnsafeApi.putDouble(null, finalizer.address + index, value);
+        }
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void putDouble(final int index, final double value) {
+        ensureCapacity(index, SIZE_OF_DOUBLE);
+
+        UnsafeApi.putDouble(null, finalizer.address + index, value);
+    }
+    public void putDoubleVolatile(final int index, final double value) {
+        ensureCapacity(index, SIZE_OF_DOUBLE);
+
+        UnsafeApi.putLongVolatile(null, finalizer.address + index, Double.doubleToRawLongBits(value));
+    }
     public void putDoubleVolatileReverse(final int index, final double value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             //agrona has no volatile double - swapped raw bits over the volatile long keeps the fence and NaN payload
@@ -1519,42 +1555,6 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             putLongVolatile(index, bits);
         } else {
             putDoubleVolatile(index, value);
-        }
-    }
-
-    public void putIntReleaseReverse(final int index, final int value) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final int bits = Integer.reverseBytes(value);
-            putIntRelease(index, bits);
-        } else {
-            putIntRelease(index, value);
-        }
-    }
-
-    public void putLongReleaseReverse(final int index, final long value) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final long bits = Long.reverseBytes(value);
-            putLongRelease(index, bits);
-        } else {
-            putLongRelease(index, value);
-        }
-    }
-
-    public void putIntOrderedReverse(final int index, final int value) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final int bits = Integer.reverseBytes(value);
-            putIntOrdered(index, bits);
-        } else {
-            putIntOrdered(index, value);
-        }
-    }
-
-    public void putLongOrderedReverse(final int index, final long value) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final long bits = Long.reverseBytes(value);
-            putLongOrdered(index, bits);
-        } else {
-            putLongOrdered(index, value);
         }
     }
 

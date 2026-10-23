@@ -250,257 +250,47 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
 
     ///
 
-    public long getLong(final long index, final ByteOrder byteOrder) {
-        boundsCheck0(index, SIZE_OF_LONG);
 
-        long bits = UnsafeApi.getLong(null, finalizer.address + index);
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            bits = Long.reverseBytes(bits);
-        }
 
-        return bits;
-    }
 
-    public void putLong(final long index, final long value, final ByteOrder byteOrder) {
-        ensureCapacity(index, SIZE_OF_LONG);
-
-        long bits = value;
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            bits = Long.reverseBytes(bits);
-        }
-
-        UnsafeApi.putLong(null, finalizer.address + index, bits);
-    }
-
-    public long getLong(final long index) {
-        boundsCheck0(index, SIZE_OF_LONG);
-
-        return UnsafeApi.getLong(null, finalizer.address + index);
-    }
-
-    public void putLong(final long index, final long value) {
-        ensureCapacity(index, SIZE_OF_LONG);
-
-        UnsafeApi.putLong(null, finalizer.address + index, value);
-    }
 
     ///
 
-    public int getInt(final long index, final ByteOrder byteOrder) {
-        boundsCheck0(index, SIZE_OF_INT);
 
-        int bits = UnsafeApi.getInt(null, finalizer.address + index);
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            bits = Integer.reverseBytes(bits);
-        }
 
-        return bits;
-    }
 
-    public void putInt(final long index, final int value, final ByteOrder byteOrder) {
-        ensureCapacity(index, SIZE_OF_INT);
 
-        int bits = value;
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            bits = Integer.reverseBytes(bits);
-        }
 
-        UnsafeApi.putInt(null, finalizer.address + index, bits);
-    }
 
-    public int getInt(final long index) {
-        boundsCheck0(index, SIZE_OF_INT);
 
-        return UnsafeApi.getInt(null, finalizer.address + index);
-    }
 
-    public int getIntVolatile(final long index) {
-        boundsCheck0(index, SIZE_OF_INT);
 
-        return UnsafeApi.getIntVolatile(null, finalizer.address + index);
-    }
-
-    public byte getByteVolatile(final long index) {
-        boundsCheck0(index, SIZE_OF_BYTE);
-
-        return UnsafeApi.getByteVolatile(null, finalizer.address + index);
-    }
-
-    public char getCharVolatile(final long index) {
-        boundsCheck0(index, SIZE_OF_CHAR);
-
-        return UnsafeApi.getCharVolatile(null, finalizer.address + index);
-    }
-
-    public short getShortVolatile(final long index) {
-        boundsCheck0(index, SIZE_OF_SHORT);
-
-        return UnsafeApi.getShortVolatile(null, finalizer.address + index);
-    }
-
-    public long getLongVolatile(final long index) {
-        boundsCheck0(index, SIZE_OF_LONG);
-
-        return UnsafeApi.getLongVolatile(null, finalizer.address + index);
-    }
-
-    public int getIntAcquire(final long index) {
-        boundsCheck0(index, SIZE_OF_INT);
-
-        return UnsafeApi.getIntAcquire(null, finalizer.address + index);
-    }
-
-    public long getLongAcquire(final long index) {
-        boundsCheck0(index, SIZE_OF_LONG);
-
-        return UnsafeApi.getLongAcquire(null, finalizer.address + index);
-    }
 
     ///
 
-    public double getDouble(final long index, final ByteOrder byteOrder) {
-        boundsCheck0(index, SIZE_OF_DOUBLE);
 
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            final long bits = UnsafeApi.getLong(null, finalizer.address + index);
-            return Double.longBitsToDouble(Long.reverseBytes(bits));
-        } else {
-            return UnsafeApi.getDouble(null, finalizer.address + index);
-        }
-    }
 
-    public void putDouble(final long index, final double value, final ByteOrder byteOrder) {
-        ensureCapacity(index, SIZE_OF_DOUBLE);
 
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
-            UnsafeApi.putLong(null, finalizer.address + index, bits);
-        } else {
-            UnsafeApi.putDouble(null, finalizer.address + index, value);
-        }
-    }
-
-    public double getDouble(final long index) {
-        boundsCheck0(index, SIZE_OF_DOUBLE);
-
-        return UnsafeApi.getDouble(null, finalizer.address + index);
-    }
-
-    public void putDouble(final long index, final double value) {
-        ensureCapacity(index, SIZE_OF_DOUBLE);
-
-        UnsafeApi.putDouble(null, finalizer.address + index, value);
-    }
 
     ///
 
-    public float getFloat(final long index, final ByteOrder byteOrder) {
-        boundsCheck0(index, SIZE_OF_FLOAT);
 
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            final int bits = UnsafeApi.getInt(null, finalizer.address + index);
-            return Float.intBitsToFloat(Integer.reverseBytes(bits));
-        } else {
-            return UnsafeApi.getFloat(null, finalizer.address + index);
-        }
-    }
 
-    public void putFloat(final long index, final float value, final ByteOrder byteOrder) {
-        ensureCapacity(index, SIZE_OF_FLOAT);
 
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
-            UnsafeApi.putInt(null, finalizer.address + index, bits);
-        } else {
-            UnsafeApi.putFloat(null, finalizer.address + index, value);
-        }
-    }
 
-    public float getFloat(final long index) {
-        boundsCheck0(index, SIZE_OF_FLOAT);
 
-        return UnsafeApi.getFloat(null, finalizer.address + index);
-    }
 
-    public void putFloat(final long index, final float value) {
-        ensureCapacity(index, SIZE_OF_FLOAT);
 
-        UnsafeApi.putFloat(null, finalizer.address + index, value);
-    }
-
-    public double getDoubleVolatile(final long index) {
-        boundsCheck0(index, SIZE_OF_DOUBLE);
-
-        //agrona has no volatile double - raw bits over the volatile long keeps the full fence and the NaN payload
-        return Double.longBitsToDouble(UnsafeApi.getLongVolatile(null, finalizer.address + index));
-    }
-
-    public void putDoubleVolatile(final long index, final double value) {
-        ensureCapacity(index, SIZE_OF_DOUBLE);
-
-        UnsafeApi.putLongVolatile(null, finalizer.address + index, Double.doubleToRawLongBits(value));
-    }
-
-    public float getFloatVolatile(final long index) {
-        boundsCheck0(index, SIZE_OF_FLOAT);
-
-        //agrona has no volatile float - raw bits over the volatile int keeps the full fence and the NaN payload
-        return Float.intBitsToFloat(UnsafeApi.getIntVolatile(null, finalizer.address + index));
-    }
-
-    public void putFloatVolatile(final long index, final float value) {
-        ensureCapacity(index, SIZE_OF_FLOAT);
-
-        UnsafeApi.putIntVolatile(null, finalizer.address + index, Float.floatToRawIntBits(value));
-    }
 
     ///
 
-    public short getShort(final long index, final ByteOrder byteOrder) {
-        boundsCheck0(index, SIZE_OF_SHORT);
 
-        short bits = UnsafeApi.getShort(null, finalizer.address + index);
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            bits = Short.reverseBytes(bits);
-        }
 
-        return bits;
-    }
 
-    public void putShort(final long index, final short value, final ByteOrder byteOrder) {
-        ensureCapacity(index, SIZE_OF_SHORT);
-
-        short bits = value;
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            bits = Short.reverseBytes(bits);
-        }
-
-        UnsafeApi.putShort(null, finalizer.address + index, bits);
-    }
-
-    public short getShort(final long index) {
-        boundsCheck0(index, SIZE_OF_SHORT);
-
-        return UnsafeApi.getShort(null, finalizer.address + index);
-    }
-
-    public void putShort(final long index, final short value) {
-        ensureCapacity(index, SIZE_OF_SHORT);
-
-        UnsafeApi.putShort(null, finalizer.address + index, value);
-    }
 
     ///
 
-    public byte getByte(final long index) {
-        boundsCheck0(index, SIZE_OF_BYTE);
-        return UnsafeApi.getByte(null, finalizer.address + index);
-    }
 
-    public void putByte(final long index, final byte value) {
-        ensureCapacity(index, SIZE_OF_BYTE);
-        UnsafeApi.putByte(null, finalizer.address + index, value);
-    }
 
     private void putByte0(final long index, final byte value) {
         ensureCapacity(index, SIZE_OF_BYTE);
@@ -601,39 +391,9 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
 
     ///
 
-    public char getChar(final long index, final ByteOrder byteOrder) {
-        boundsCheck0(index, SIZE_OF_SHORT);
 
-        char bits = UnsafeApi.getChar(null, finalizer.address + index);
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            bits = (char) Short.reverseBytes((short) bits);
-        }
 
-        return bits;
-    }
 
-    public void putChar(final long index, final char value, final ByteOrder byteOrder) {
-        ensureCapacity(index, SIZE_OF_CHAR);
-
-        char bits = value;
-        if (NATIVE_BYTE_ORDER != byteOrder) {
-            bits = (char) Short.reverseBytes((short) bits);
-        }
-
-        UnsafeApi.putChar(null, finalizer.address + index, bits);
-    }
-
-    public char getChar(final long index) {
-        boundsCheck0(index, SIZE_OF_CHAR);
-
-        return UnsafeApi.getChar(null, finalizer.address + index);
-    }
-
-    public void putChar(final long index, final char value) {
-        ensureCapacity(index, SIZE_OF_CHAR);
-
-        UnsafeApi.putChar(null, finalizer.address + index, value);
-    }
 
     ///
 
@@ -1070,64 +830,304 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
         }
     }
 
-    public void putInt(final long index, final int value) {
-        ensureCapacity(index, SIZE_OF_INT);
 
-        UnsafeApi.putInt(null, finalizer.address + index, value);
+
+
+
+
+
+
+
+
+    public byte getByte(final long index) {
+        boundsCheck0(index, SIZE_OF_BYTE);
+        return UnsafeApi.getByte(null, finalizer.address + index);
     }
+    public byte getByteVolatile(final long index) {
+        boundsCheck0(index, SIZE_OF_BYTE);
 
-    public void putIntVolatile(final long index, final int value) {
-        ensureCapacity(index, SIZE_OF_INT);
-
-        UnsafeApi.putIntVolatile(null, finalizer.address + index, value);
+        return UnsafeApi.getByteVolatile(null, finalizer.address + index);
     }
-
+    public void putByte(final long index, final byte value) {
+        ensureCapacity(index, SIZE_OF_BYTE);
+        UnsafeApi.putByte(null, finalizer.address + index, value);
+    }
     public void putByteVolatile(final long index, final byte value) {
         ensureCapacity(index, SIZE_OF_BYTE);
 
         UnsafeApi.putByteVolatile(null, finalizer.address + index, value);
     }
+    public char getChar(final long index, final ByteOrder byteOrder) {
+        boundsCheck0(index, SIZE_OF_SHORT);
 
+        char bits = UnsafeApi.getChar(null, finalizer.address + index);
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            bits = (char) Short.reverseBytes((short) bits);
+        }
+
+        return bits;
+    }
+    public char getChar(final long index) {
+        boundsCheck0(index, SIZE_OF_CHAR);
+
+        return UnsafeApi.getChar(null, finalizer.address + index);
+    }
+    public char getCharVolatile(final long index) {
+        boundsCheck0(index, SIZE_OF_CHAR);
+
+        return UnsafeApi.getCharVolatile(null, finalizer.address + index);
+    }
+    public void putChar(final long index, final char value, final ByteOrder byteOrder) {
+        ensureCapacity(index, SIZE_OF_CHAR);
+
+        char bits = value;
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            bits = (char) Short.reverseBytes((short) bits);
+        }
+
+        UnsafeApi.putChar(null, finalizer.address + index, bits);
+    }
+    public void putChar(final long index, final char value) {
+        ensureCapacity(index, SIZE_OF_CHAR);
+
+        UnsafeApi.putChar(null, finalizer.address + index, value);
+    }
     public void putCharVolatile(final long index, final char value) {
         ensureCapacity(index, SIZE_OF_CHAR);
 
         UnsafeApi.putCharVolatile(null, finalizer.address + index, value);
     }
+    public short getShort(final long index, final ByteOrder byteOrder) {
+        boundsCheck0(index, SIZE_OF_SHORT);
 
+        short bits = UnsafeApi.getShort(null, finalizer.address + index);
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            bits = Short.reverseBytes(bits);
+        }
+
+        return bits;
+    }
+    public short getShort(final long index) {
+        boundsCheck0(index, SIZE_OF_SHORT);
+
+        return UnsafeApi.getShort(null, finalizer.address + index);
+    }
+    public short getShortVolatile(final long index) {
+        boundsCheck0(index, SIZE_OF_SHORT);
+
+        return UnsafeApi.getShortVolatile(null, finalizer.address + index);
+    }
+    public void putShort(final long index, final short value, final ByteOrder byteOrder) {
+        ensureCapacity(index, SIZE_OF_SHORT);
+
+        short bits = value;
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            bits = Short.reverseBytes(bits);
+        }
+
+        UnsafeApi.putShort(null, finalizer.address + index, bits);
+    }
+    public void putShort(final long index, final short value) {
+        ensureCapacity(index, SIZE_OF_SHORT);
+
+        UnsafeApi.putShort(null, finalizer.address + index, value);
+    }
     public void putShortVolatile(final long index, final short value) {
         ensureCapacity(index, SIZE_OF_SHORT);
 
         UnsafeApi.putShortVolatile(null, finalizer.address + index, value);
     }
+    public int getInt(final long index, final ByteOrder byteOrder) {
+        boundsCheck0(index, SIZE_OF_INT);
 
-    public void putLongVolatile(final long index, final long value) {
-        ensureCapacity(index, SIZE_OF_LONG);
+        int bits = UnsafeApi.getInt(null, finalizer.address + index);
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            bits = Integer.reverseBytes(bits);
+        }
 
-        UnsafeApi.putLongVolatile(null, finalizer.address + index, value);
+        return bits;
     }
+    public int getInt(final long index) {
+        boundsCheck0(index, SIZE_OF_INT);
 
+        return UnsafeApi.getInt(null, finalizer.address + index);
+    }
+    public int getIntVolatile(final long index) {
+        boundsCheck0(index, SIZE_OF_INT);
+
+        return UnsafeApi.getIntVolatile(null, finalizer.address + index);
+    }
+    public int getIntAcquire(final long index) {
+        boundsCheck0(index, SIZE_OF_INT);
+
+        return UnsafeApi.getIntAcquire(null, finalizer.address + index);
+    }
+    public void putInt(final long index, final int value, final ByteOrder byteOrder) {
+        ensureCapacity(index, SIZE_OF_INT);
+
+        int bits = value;
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            bits = Integer.reverseBytes(bits);
+        }
+
+        UnsafeApi.putInt(null, finalizer.address + index, bits);
+    }
+    public void putInt(final long index, final int value) {
+        ensureCapacity(index, SIZE_OF_INT);
+
+        UnsafeApi.putInt(null, finalizer.address + index, value);
+    }
+    public void putIntVolatile(final long index, final int value) {
+        ensureCapacity(index, SIZE_OF_INT);
+
+        UnsafeApi.putIntVolatile(null, finalizer.address + index, value);
+    }
     public void putIntRelease(final long index, final int value) {
         ensureCapacity(index, SIZE_OF_INT);
 
         UnsafeApi.putIntRelease(null, finalizer.address + index, value);
     }
-
     public void putIntOrdered(final long index, final int value) {
         ensureCapacity(index, SIZE_OF_INT);
 
         UnsafeApi.putIntRelease(null, finalizer.address + index, value);
     }
+    public long getLong(final long index, final ByteOrder byteOrder) {
+        boundsCheck0(index, SIZE_OF_LONG);
 
+        long bits = UnsafeApi.getLong(null, finalizer.address + index);
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            bits = Long.reverseBytes(bits);
+        }
+
+        return bits;
+    }
+    public long getLong(final long index) {
+        boundsCheck0(index, SIZE_OF_LONG);
+
+        return UnsafeApi.getLong(null, finalizer.address + index);
+    }
+    public long getLongVolatile(final long index) {
+        boundsCheck0(index, SIZE_OF_LONG);
+
+        return UnsafeApi.getLongVolatile(null, finalizer.address + index);
+    }
+    public long getLongAcquire(final long index) {
+        boundsCheck0(index, SIZE_OF_LONG);
+
+        return UnsafeApi.getLongAcquire(null, finalizer.address + index);
+    }
+    public void putLong(final long index, final long value, final ByteOrder byteOrder) {
+        ensureCapacity(index, SIZE_OF_LONG);
+
+        long bits = value;
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            bits = Long.reverseBytes(bits);
+        }
+
+        UnsafeApi.putLong(null, finalizer.address + index, bits);
+    }
+    public void putLong(final long index, final long value) {
+        ensureCapacity(index, SIZE_OF_LONG);
+
+        UnsafeApi.putLong(null, finalizer.address + index, value);
+    }
+    public void putLongVolatile(final long index, final long value) {
+        ensureCapacity(index, SIZE_OF_LONG);
+
+        UnsafeApi.putLongVolatile(null, finalizer.address + index, value);
+    }
     public void putLongRelease(final long index, final long value) {
         ensureCapacity(index, SIZE_OF_LONG);
 
         UnsafeApi.putLongRelease(null, finalizer.address + index, value);
     }
-
     public void putLongOrdered(final long index, final long value) {
         ensureCapacity(index, SIZE_OF_LONG);
 
         UnsafeApi.putLongRelease(null, finalizer.address + index, value);
+    }
+    public float getFloat(final long index, final ByteOrder byteOrder) {
+        boundsCheck0(index, SIZE_OF_FLOAT);
+
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            final int bits = UnsafeApi.getInt(null, finalizer.address + index);
+            return Float.intBitsToFloat(Integer.reverseBytes(bits));
+        } else {
+            return UnsafeApi.getFloat(null, finalizer.address + index);
+        }
+    }
+    public float getFloat(final long index) {
+        boundsCheck0(index, SIZE_OF_FLOAT);
+
+        return UnsafeApi.getFloat(null, finalizer.address + index);
+    }
+    public float getFloatVolatile(final long index) {
+        boundsCheck0(index, SIZE_OF_FLOAT);
+
+        //agrona has no volatile float - raw bits over the volatile int keeps the full fence and the NaN payload
+        return Float.intBitsToFloat(UnsafeApi.getIntVolatile(null, finalizer.address + index));
+    }
+    public void putFloat(final long index, final float value, final ByteOrder byteOrder) {
+        ensureCapacity(index, SIZE_OF_FLOAT);
+
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
+            UnsafeApi.putInt(null, finalizer.address + index, bits);
+        } else {
+            UnsafeApi.putFloat(null, finalizer.address + index, value);
+        }
+    }
+    public void putFloat(final long index, final float value) {
+        ensureCapacity(index, SIZE_OF_FLOAT);
+
+        UnsafeApi.putFloat(null, finalizer.address + index, value);
+    }
+    public void putFloatVolatile(final long index, final float value) {
+        ensureCapacity(index, SIZE_OF_FLOAT);
+
+        UnsafeApi.putIntVolatile(null, finalizer.address + index, Float.floatToRawIntBits(value));
+    }
+    public double getDouble(final long index, final ByteOrder byteOrder) {
+        boundsCheck0(index, SIZE_OF_DOUBLE);
+
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            final long bits = UnsafeApi.getLong(null, finalizer.address + index);
+            return Double.longBitsToDouble(Long.reverseBytes(bits));
+        } else {
+            return UnsafeApi.getDouble(null, finalizer.address + index);
+        }
+    }
+    public double getDouble(final long index) {
+        boundsCheck0(index, SIZE_OF_DOUBLE);
+
+        return UnsafeApi.getDouble(null, finalizer.address + index);
+    }
+    public double getDoubleVolatile(final long index) {
+        boundsCheck0(index, SIZE_OF_DOUBLE);
+
+        //agrona has no volatile double - raw bits over the volatile long keeps the full fence and the NaN payload
+        return Double.longBitsToDouble(UnsafeApi.getLongVolatile(null, finalizer.address + index));
+    }
+    public void putDouble(final long index, final double value, final ByteOrder byteOrder) {
+        ensureCapacity(index, SIZE_OF_DOUBLE);
+
+        if (NATIVE_BYTE_ORDER != byteOrder) {
+            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
+            UnsafeApi.putLong(null, finalizer.address + index, bits);
+        } else {
+            UnsafeApi.putDouble(null, finalizer.address + index, value);
+        }
+    }
+    public void putDouble(final long index, final double value) {
+        ensureCapacity(index, SIZE_OF_DOUBLE);
+
+        UnsafeApi.putDouble(null, finalizer.address + index, value);
+    }
+    public void putDoubleVolatile(final long index, final double value) {
+        ensureCapacity(index, SIZE_OF_DOUBLE);
+
+        UnsafeApi.putLongVolatile(null, finalizer.address + index, Double.doubleToRawLongBits(value));
     }
 
     public int putIntAscii(final long index, final int value) {
