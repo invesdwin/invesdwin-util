@@ -66,6 +66,51 @@ public class ZeroMemoryBuffer implements ICloseableMemoryBuffer {
     }
 
     @Override
+    public int getIntVolatile(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
+    public byte getByteVolatile(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
+    public char getCharVolatile(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
+    public short getShortVolatile(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
+    public long getLongVolatile(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
+    public float getFloatVolatile(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
+    public double getDoubleVolatile(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
+    public int getIntAcquire(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
+    public long getLongAcquire(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
     public double getDouble(final long index) {
         throw newZeroException();
     }
@@ -176,6 +221,151 @@ public class ZeroMemoryBuffer implements ICloseableMemoryBuffer {
 
     @Override
     public void putInt(final long index, final int value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putIntVolatile(final long index, final int value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putByteVolatile(final long index, final byte value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putCharVolatile(final long index, final char value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putShortVolatile(final long index, final short value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putLongVolatile(final long index, final long value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putFloatVolatile(final long index, final float value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putDoubleVolatile(final long index, final double value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putIntRelease(final long index, final int value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putIntOrdered(final long index, final int value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putLongRelease(final long index, final long value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putLongOrdered(final long index, final long value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public char getCharVolatileReverse(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
+    public short getShortVolatileReverse(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
+    public int getIntVolatileReverse(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
+    public long getLongVolatileReverse(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
+    public float getFloatVolatileReverse(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
+    public double getDoubleVolatileReverse(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
+    public int getIntAcquireReverse(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
+    public long getLongAcquireReverse(final long index) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putCharVolatileReverse(final long index, final char value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putShortVolatileReverse(final long index, final short value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putIntVolatileReverse(final long index, final int value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putLongVolatileReverse(final long index, final long value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putFloatVolatileReverse(final long index, final float value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putDoubleVolatileReverse(final long index, final double value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putIntReleaseReverse(final long index, final int value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putLongReleaseReverse(final long index, final long value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putIntOrderedReverse(final long index, final int value) {
+        throw newZeroException();
+    }
+
+    @Override
+    public void putLongOrderedReverse(final long index, final long value) {
         throw newZeroException();
     }
 

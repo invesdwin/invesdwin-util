@@ -69,6 +69,91 @@ public class SlicedFromDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
+    public int getIntVolatile(final long index) {
+        return delegate.getIntVolatile(index + from);
+    }
+
+    @Override
+    public byte getByteVolatile(final long index) {
+        return delegate.getByteVolatile(index + from);
+    }
+
+    @Override
+    public char getCharVolatile(final long index) {
+        return delegate.getCharVolatile(index + from);
+    }
+
+    @Override
+    public short getShortVolatile(final long index) {
+        return delegate.getShortVolatile(index + from);
+    }
+
+    @Override
+    public long getLongVolatile(final long index) {
+        return delegate.getLongVolatile(index + from);
+    }
+
+    @Override
+    public float getFloatVolatile(final long index) {
+        return delegate.getFloatVolatile(index + from);
+    }
+
+    @Override
+    public double getDoubleVolatile(final long index) {
+        return delegate.getDoubleVolatile(index + from);
+    }
+
+    @Override
+    public int getIntAcquire(final long index) {
+        return delegate.getIntAcquire(index + from);
+    }
+
+    @Override
+    public long getLongAcquire(final long index) {
+        return delegate.getLongAcquire(index + from);
+    }
+
+    @Override
+    public char getCharVolatileReverse(final long index) {
+        return delegate.getCharVolatileReverse(index + from);
+    }
+
+    @Override
+    public short getShortVolatileReverse(final long index) {
+        return delegate.getShortVolatileReverse(index + from);
+    }
+
+    @Override
+    public int getIntVolatileReverse(final long index) {
+        return delegate.getIntVolatileReverse(index + from);
+    }
+
+    @Override
+    public long getLongVolatileReverse(final long index) {
+        return delegate.getLongVolatileReverse(index + from);
+    }
+
+    @Override
+    public float getFloatVolatileReverse(final long index) {
+        return delegate.getFloatVolatileReverse(index + from);
+    }
+
+    @Override
+    public double getDoubleVolatileReverse(final long index) {
+        return delegate.getDoubleVolatileReverse(index + from);
+    }
+
+    @Override
+    public int getIntAcquireReverse(final long index) {
+        return delegate.getIntAcquireReverse(index + from);
+    }
+
+    @Override
+    public long getLongAcquireReverse(final long index) {
+        return delegate.getLongAcquireReverse(index + from);
+    }
+
+    @Override
     public double getDouble(final long index) {
         return delegate.getDouble(index + from);
     }
@@ -166,6 +251,111 @@ public class SlicedFromDelegateMemoryBuffer implements IMemoryBuffer {
     @Override
     public void putInt(final long index, final int value) {
         delegate.putInt(index + from, value);
+    }
+
+    @Override
+    public void putIntVolatile(final long index, final int value) {
+        delegate.putIntVolatile(index + from, value);
+    }
+
+    @Override
+    public void putByteVolatile(final long index, final byte value) {
+        delegate.putByteVolatile(index + from, value);
+    }
+
+    @Override
+    public void putCharVolatile(final long index, final char value) {
+        delegate.putCharVolatile(index + from, value);
+    }
+
+    @Override
+    public void putShortVolatile(final long index, final short value) {
+        delegate.putShortVolatile(index + from, value);
+    }
+
+    @Override
+    public void putLongVolatile(final long index, final long value) {
+        delegate.putLongVolatile(index + from, value);
+    }
+
+    @Override
+    public void putFloatVolatile(final long index, final float value) {
+        delegate.putFloatVolatile(index + from, value);
+    }
+
+    @Override
+    public void putDoubleVolatile(final long index, final double value) {
+        delegate.putDoubleVolatile(index + from, value);
+    }
+
+    @Override
+    public void putIntRelease(final long index, final int value) {
+        delegate.putIntRelease(index + from, value);
+    }
+
+    @Override
+    public void putIntOrdered(final long index, final int value) {
+        delegate.putIntOrdered(index + from, value);
+    }
+
+    @Override
+    public void putLongRelease(final long index, final long value) {
+        delegate.putLongRelease(index + from, value);
+    }
+
+    @Override
+    public void putLongOrdered(final long index, final long value) {
+        delegate.putLongOrdered(index + from, value);
+    }
+
+    @Override
+    public void putCharVolatileReverse(final long index, final char value) {
+        delegate.putCharVolatileReverse(index + from, value);
+    }
+
+    @Override
+    public void putShortVolatileReverse(final long index, final short value) {
+        delegate.putShortVolatileReverse(index + from, value);
+    }
+
+    @Override
+    public void putIntVolatileReverse(final long index, final int value) {
+        delegate.putIntVolatileReverse(index + from, value);
+    }
+
+    @Override
+    public void putLongVolatileReverse(final long index, final long value) {
+        delegate.putLongVolatileReverse(index + from, value);
+    }
+
+    @Override
+    public void putFloatVolatileReverse(final long index, final float value) {
+        delegate.putFloatVolatileReverse(index + from, value);
+    }
+
+    @Override
+    public void putDoubleVolatileReverse(final long index, final double value) {
+        delegate.putDoubleVolatileReverse(index + from, value);
+    }
+
+    @Override
+    public void putIntReleaseReverse(final long index, final int value) {
+        delegate.putIntReleaseReverse(index + from, value);
+    }
+
+    @Override
+    public void putLongReleaseReverse(final long index, final long value) {
+        delegate.putLongReleaseReverse(index + from, value);
+    }
+
+    @Override
+    public void putIntOrderedReverse(final long index, final int value) {
+        delegate.putIntOrderedReverse(index + from, value);
+    }
+
+    @Override
+    public void putLongOrderedReverse(final long index, final long value) {
+        delegate.putLongOrderedReverse(index + from, value);
     }
 
     @Override

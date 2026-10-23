@@ -135,6 +135,12 @@ public class NioDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public synchronized int getIntVolatile(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getInt(index);
+    }
+
+    @Override
     public double getDouble(final int index) {
         return delegate.getDouble(index);
     }
@@ -157,6 +163,102 @@ public class NioDelegateByteBuffer implements IByteBuffer {
     @Override
     public long getLongReverse(final int index) {
         return getReverse().getLong(index);
+    }
+
+    @Override
+    public synchronized byte getByteVolatile(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getByte(index);
+    }
+
+    @Override
+    public synchronized char getCharVolatile(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getChar(index);
+    }
+
+    @Override
+    public synchronized short getShortVolatile(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getShort(index);
+    }
+
+    @Override
+    public synchronized long getLongVolatile(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getLong(index);
+    }
+
+    @Override
+    public synchronized float getFloatVolatile(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getFloat(index);
+    }
+
+    @Override
+    public synchronized double getDoubleVolatile(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getDouble(index);
+    }
+
+    @Override
+    public synchronized int getIntAcquire(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getInt(index);
+    }
+
+    @Override
+    public synchronized long getLongAcquire(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getLong(index);
+    }
+
+    @Override
+    public synchronized char getCharVolatileReverse(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getCharReverse(index);
+    }
+
+    @Override
+    public synchronized short getShortVolatileReverse(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getShortReverse(index);
+    }
+
+    @Override
+    public synchronized int getIntVolatileReverse(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getIntReverse(index);
+    }
+
+    @Override
+    public synchronized long getLongVolatileReverse(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getLongReverse(index);
+    }
+
+    @Override
+    public synchronized float getFloatVolatileReverse(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getFloatReverse(index);
+    }
+
+    @Override
+    public synchronized double getDoubleVolatileReverse(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getDoubleReverse(index);
+    }
+
+    @Override
+    public synchronized int getIntAcquireReverse(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getIntReverse(index);
+    }
+
+    @Override
+    public synchronized long getLongAcquireReverse(final int index) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        return getLongReverse(index);
     }
 
     @Override
@@ -264,6 +366,12 @@ public class NioDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public synchronized void putIntVolatile(final int index, final int value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putInt(index, value);
+    }
+
+    @Override
     public void putDouble(final int index, final double value) {
         delegate.putDouble(index, value);
     }
@@ -286,6 +394,126 @@ public class NioDelegateByteBuffer implements IByteBuffer {
     @Override
     public void putLongReverse(final int index, final long value) {
         getReverse().putLong(index, value);
+    }
+
+    @Override
+    public synchronized void putByteVolatile(final int index, final byte value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putByte(index, value);
+    }
+
+    @Override
+    public synchronized void putCharVolatile(final int index, final char value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putChar(index, value);
+    }
+
+    @Override
+    public synchronized void putShortVolatile(final int index, final short value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putShort(index, value);
+    }
+
+    @Override
+    public synchronized void putLongVolatile(final int index, final long value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putLong(index, value);
+    }
+
+    @Override
+    public synchronized void putFloatVolatile(final int index, final float value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putFloat(index, value);
+    }
+
+    @Override
+    public synchronized void putDoubleVolatile(final int index, final double value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putDouble(index, value);
+    }
+
+    @Override
+    public synchronized void putIntRelease(final int index, final int value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putInt(index, value);
+    }
+
+    @Override
+    public synchronized void putIntOrdered(final int index, final int value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putInt(index, value);
+    }
+
+    @Override
+    public synchronized void putLongRelease(final int index, final long value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putLong(index, value);
+    }
+
+    @Override
+    public synchronized void putLongOrdered(final int index, final long value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putLong(index, value);
+    }
+
+    @Override
+    public synchronized void putCharVolatileReverse(final int index, final char value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putCharReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putShortVolatileReverse(final int index, final short value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putShortReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putIntVolatileReverse(final int index, final int value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putIntReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putLongVolatileReverse(final int index, final long value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putLongReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putFloatVolatileReverse(final int index, final float value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putFloatReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putDoubleVolatileReverse(final int index, final double value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putDoubleReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putIntReleaseReverse(final int index, final int value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putIntReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putLongReleaseReverse(final int index, final long value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putLongReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putIntOrderedReverse(final int index, final int value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putIntReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putLongOrderedReverse(final int index, final long value) {
+        //no native volatile path in java.nio.ByteBuffer - the monitor provides the visibility guarantee until nio exposes atomics
+        putLongReverse(index, value);
     }
 
     @Override

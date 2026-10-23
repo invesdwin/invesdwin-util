@@ -77,6 +77,91 @@ public class ByteDelegateMemoryBuffer implements IMemoryBuffer {
     }
 
     @Override
+    public int getIntVolatile(final long index) {
+        return delegate.getIntVolatile(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
+    public byte getByteVolatile(final long index) {
+        return delegate.getByteVolatile(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
+    public char getCharVolatile(final long index) {
+        return delegate.getCharVolatile(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
+    public short getShortVolatile(final long index) {
+        return delegate.getShortVolatile(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
+    public long getLongVolatile(final long index) {
+        return delegate.getLongVolatile(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
+    public float getFloatVolatile(final long index) {
+        return delegate.getFloatVolatile(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
+    public double getDoubleVolatile(final long index) {
+        return delegate.getDoubleVolatile(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
+    public int getIntAcquire(final long index) {
+        return delegate.getIntAcquire(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
+    public long getLongAcquire(final long index) {
+        return delegate.getLongAcquire(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
+    public char getCharVolatileReverse(final long index) {
+        return delegate.getCharVolatileReverse(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
+    public short getShortVolatileReverse(final long index) {
+        return delegate.getShortVolatileReverse(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
+    public int getIntVolatileReverse(final long index) {
+        return delegate.getIntVolatileReverse(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
+    public long getLongVolatileReverse(final long index) {
+        return delegate.getLongVolatileReverse(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
+    public float getFloatVolatileReverse(final long index) {
+        return delegate.getFloatVolatileReverse(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
+    public double getDoubleVolatileReverse(final long index) {
+        return delegate.getDoubleVolatileReverse(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
+    public int getIntAcquireReverse(final long index) {
+        return delegate.getIntAcquireReverse(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
+    public long getLongAcquireReverse(final long index) {
+        return delegate.getLongAcquireReverse(ByteBuffers.checkedCast(index));
+    }
+
+    @Override
     public double getDouble(final long index) {
         return delegate.getDouble(ByteBuffers.checkedCast(index));
     }
@@ -184,6 +269,111 @@ public class ByteDelegateMemoryBuffer implements IMemoryBuffer {
     @Override
     public void putInt(final long index, final int value) {
         delegate.putInt(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putIntVolatile(final long index, final int value) {
+        delegate.putIntVolatile(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putByteVolatile(final long index, final byte value) {
+        delegate.putByteVolatile(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putCharVolatile(final long index, final char value) {
+        delegate.putCharVolatile(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putShortVolatile(final long index, final short value) {
+        delegate.putShortVolatile(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putLongVolatile(final long index, final long value) {
+        delegate.putLongVolatile(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putFloatVolatile(final long index, final float value) {
+        delegate.putFloatVolatile(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putDoubleVolatile(final long index, final double value) {
+        delegate.putDoubleVolatile(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putIntRelease(final long index, final int value) {
+        delegate.putIntRelease(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putIntOrdered(final long index, final int value) {
+        delegate.putIntOrdered(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putLongRelease(final long index, final long value) {
+        delegate.putLongRelease(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putLongOrdered(final long index, final long value) {
+        delegate.putLongOrdered(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putCharVolatileReverse(final long index, final char value) {
+        delegate.putCharVolatileReverse(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putShortVolatileReverse(final long index, final short value) {
+        delegate.putShortVolatileReverse(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putIntVolatileReverse(final long index, final int value) {
+        delegate.putIntVolatileReverse(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putLongVolatileReverse(final long index, final long value) {
+        delegate.putLongVolatileReverse(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putFloatVolatileReverse(final long index, final float value) {
+        delegate.putFloatVolatileReverse(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putDoubleVolatileReverse(final long index, final double value) {
+        delegate.putDoubleVolatileReverse(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putIntReleaseReverse(final long index, final int value) {
+        delegate.putIntReleaseReverse(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putLongReleaseReverse(final long index, final long value) {
+        delegate.putLongReleaseReverse(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putIntOrderedReverse(final long index, final int value) {
+        delegate.putIntOrderedReverse(ByteBuffers.checkedCast(index), value);
+    }
+
+    @Override
+    public void putLongOrderedReverse(final long index, final long value) {
+        delegate.putLongOrderedReverse(ByteBuffers.checkedCast(index), value);
     }
 
     @Override

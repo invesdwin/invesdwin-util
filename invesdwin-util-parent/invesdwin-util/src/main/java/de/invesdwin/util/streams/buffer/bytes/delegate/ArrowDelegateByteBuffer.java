@@ -142,6 +142,12 @@ public class ArrowDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public synchronized int getIntVolatile(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getInt(index);
+    }
+
+    @Override
     public double getDouble(final int index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final long bits = delegate.getLong(index);
@@ -189,6 +195,102 @@ public class ArrowDelegateByteBuffer implements IByteBuffer {
         } else {
             return delegate.getLong(index);
         }
+    }
+
+    @Override
+    public synchronized byte getByteVolatile(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getByte(index);
+    }
+
+    @Override
+    public synchronized char getCharVolatile(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getChar(index);
+    }
+
+    @Override
+    public synchronized short getShortVolatile(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getShort(index);
+    }
+
+    @Override
+    public synchronized long getLongVolatile(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getLong(index);
+    }
+
+    @Override
+    public synchronized float getFloatVolatile(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getFloat(index);
+    }
+
+    @Override
+    public synchronized double getDoubleVolatile(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getDouble(index);
+    }
+
+    @Override
+    public synchronized int getIntAcquire(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getInt(index);
+    }
+
+    @Override
+    public synchronized long getLongAcquire(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getLong(index);
+    }
+
+    @Override
+    public synchronized char getCharVolatileReverse(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getCharReverse(index);
+    }
+
+    @Override
+    public synchronized short getShortVolatileReverse(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getShortReverse(index);
+    }
+
+    @Override
+    public synchronized int getIntVolatileReverse(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getIntReverse(index);
+    }
+
+    @Override
+    public synchronized long getLongVolatileReverse(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getLongReverse(index);
+    }
+
+    @Override
+    public synchronized float getFloatVolatileReverse(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getFloatReverse(index);
+    }
+
+    @Override
+    public synchronized double getDoubleVolatileReverse(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getDoubleReverse(index);
+    }
+
+    @Override
+    public synchronized int getIntAcquireReverse(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getIntReverse(index);
+    }
+
+    @Override
+    public synchronized long getLongAcquireReverse(final int index) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        return getLongReverse(index);
     }
 
     @Override
@@ -319,6 +421,12 @@ public class ArrowDelegateByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public synchronized void putIntVolatile(final int index, final int value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putInt(index, value);
+    }
+
+    @Override
     public void putDouble(final int index, final double value) {
         ensureCapacity(index, Double.BYTES);
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -371,6 +479,126 @@ public class ArrowDelegateByteBuffer implements IByteBuffer {
         } else {
             delegate.setLong(index, value);
         }
+    }
+
+    @Override
+    public synchronized void putByteVolatile(final int index, final byte value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putByte(index, value);
+    }
+
+    @Override
+    public synchronized void putCharVolatile(final int index, final char value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putChar(index, value);
+    }
+
+    @Override
+    public synchronized void putShortVolatile(final int index, final short value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putShort(index, value);
+    }
+
+    @Override
+    public synchronized void putLongVolatile(final int index, final long value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putLong(index, value);
+    }
+
+    @Override
+    public synchronized void putFloatVolatile(final int index, final float value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putFloat(index, value);
+    }
+
+    @Override
+    public synchronized void putDoubleVolatile(final int index, final double value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putDouble(index, value);
+    }
+
+    @Override
+    public synchronized void putIntRelease(final int index, final int value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putInt(index, value);
+    }
+
+    @Override
+    public synchronized void putIntOrdered(final int index, final int value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putInt(index, value);
+    }
+
+    @Override
+    public synchronized void putLongRelease(final int index, final long value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putLong(index, value);
+    }
+
+    @Override
+    public synchronized void putLongOrdered(final int index, final long value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putLong(index, value);
+    }
+
+    @Override
+    public synchronized void putCharVolatileReverse(final int index, final char value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putCharReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putShortVolatileReverse(final int index, final short value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putShortReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putIntVolatileReverse(final int index, final int value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putIntReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putLongVolatileReverse(final int index, final long value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putLongReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putFloatVolatileReverse(final int index, final float value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putFloatReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putDoubleVolatileReverse(final int index, final double value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putDoubleReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putIntReleaseReverse(final int index, final int value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putIntReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putLongReleaseReverse(final int index, final long value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putLongReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putIntOrderedReverse(final int index, final int value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putIntReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putLongOrderedReverse(final int index, final long value) {
+        //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
+        putLongReverse(index, value);
     }
 
     @Override

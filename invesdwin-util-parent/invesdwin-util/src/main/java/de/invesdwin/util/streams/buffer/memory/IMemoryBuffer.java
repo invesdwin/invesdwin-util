@@ -51,6 +51,117 @@ public interface IMemoryBuffer extends IMemoryBufferProvider, ILargeArray, IUnwr
 
     int getInt(long index);
 
+    /**
+     * Reads the int at the given byte offset with volatile semantics. Implementations must provide memory-barrier
+     * semantics equivalent to agrona UnsafeApi.getIntVolatile (full fence in both directions). Where an implementation
+     * has no native volatile path it must delegate to its plain accessor under a lock so visibility is still
+     * guaranteed. The circular ring's epoch tag torn-read self-check depends on these semantics.
+     */
+    int getIntVolatile(long index);
+
+    /**
+     * Volatile read of the byte at the given offset - same barrier contract as getIntVolatile(long), agrona
+     * UnsafeApi.getByteVolatile equivalent.
+     */
+    byte getByteVolatile(long index);
+
+    /**
+     * Volatile read of the char at the given offset - same barrier contract as getIntVolatile(long), agrona
+     * UnsafeApi.getCharVolatile equivalent.
+     */
+    char getCharVolatile(long index);
+
+    /**
+     * Volatile read of the short at the given offset - same barrier contract as getIntVolatile(long), agrona
+     * UnsafeApi.getShortVolatile equivalent.
+     */
+    short getShortVolatile(long index);
+
+    /**
+     * Volatile read of the long at the given offset - same barrier contract as getIntVolatile(long), agrona
+     * UnsafeApi.getLongVolatile equivalent.
+     */
+    long getLongVolatile(long index);
+
+    /**
+     * Volatile read of the float at the given offset - same barrier contract as getIntVolatile(long). agrona has no
+     * volatile float, so this is implemented as Float.intBitsToFloat over the volatile int (the Raw bits variants
+     * are used for writes to preserve NaN payloads).
+     */
+    float getFloatVolatile(long index);
+
+    /**
+     * Volatile read of the double at the given offset - same barrier contract as getLongVolatile(long). agrona has no
+     * volatile double, so this is implemented as Double.longBitsToDouble over the volatile long (the Raw bits
+     * variants are used for writes to preserve NaN payloads).
+     */
+    double getDoubleVolatile(long index);
+
+    /**
+     * Acquire-semantics read of the int at the given offset (agrona UnsafeApi.getIntAcquire equivalent) - pairs with
+     * putIntRelease/putIntOrdered.
+     */
+    int getIntAcquire(long index);
+
+    /**
+     * Acquire-semantics read of the long at the given offset (agrona UnsafeApi.getLongAcquire equivalent) - pairs
+     * with putLongRelease/putLongOrdered.
+     */
+    long getLongAcquire(long index);
+
+    /**
+     * Little-endian twin of getCharVolatile(long): the char is read under the same full-fence volatile barrier
+     * contract as getIntVolatile(long) and the bytes of the loaded value are swapped afterwards - reverseBytes over
+     * the barrier-protected native-order read. The barrier guards the single atomic access; the swap is a value
+     * level step applied to the loaded value, never a byte-wise reassembly of the buffer. Every Reverse twin in
+     * this block shares this barrier-then-swap contract.
+     */
+    char getCharVolatileReverse(long index);
+
+    /**
+     * Little-endian twin of getShortVolatile(long) - same barrier-then-swap contract as
+     * getCharVolatileReverse(long).
+     */
+    short getShortVolatileReverse(long index);
+
+    /**
+     * Little-endian twin of getIntVolatile(long) - same barrier-then-swap contract as getCharVolatileReverse(long).
+     */
+    int getIntVolatileReverse(long index);
+
+    /**
+     * Little-endian twin of getLongVolatile(long) - same barrier-then-swap contract as getCharVolatileReverse(long).
+     */
+    long getLongVolatileReverse(long index);
+
+    /**
+     * Little-endian twin of getFloatVolatile(long): Float.intBitsToFloat over the swapped raw bits of
+     * getIntVolatileReverse(long), so the swap rides the same volatile-int barrier chain as the non-reverse variant
+     * and the Raw bits path preserves NaN payloads.
+     */
+    float getFloatVolatileReverse(long index);
+
+    /**
+     * Little-endian twin of getDoubleVolatile(long): Double.longBitsToDouble over the swapped raw bits of
+     * getLongVolatileReverse(long), so the swap rides the same volatile-long barrier chain as the non-reverse
+     * variant and the Raw bits path preserves NaN payloads.
+     */
+    double getDoubleVolatileReverse(long index);
+
+    /**
+     * Little-endian twin of getIntAcquire(long): acquire-semantics native-order read (agrona UnsafeApi.getIntAcquire
+     * equivalent) followed by a value level swap - same barrier-then-swap contract as
+     * getCharVolatileReverse(long). Pairs with putIntReleaseReverse/putIntOrderedReverse.
+     */
+    int getIntAcquireReverse(long index);
+
+    /**
+     * Little-endian twin of getLongAcquire(long): acquire-semantics native-order read (agrona
+     * UnsafeApi.getLongAcquire equivalent) followed by a value level swap - same barrier-then-swap contract as
+     * getCharVolatileReverse(long). Pairs with putLongReleaseReverse/putLongOrderedReverse.
+     */
+    long getLongAcquireReverse(long index);
+
     int getIntReverse(long index);
 
     double getDouble(long index);
@@ -154,6 +265,141 @@ public interface IMemoryBuffer extends IMemoryBufferProvider, ILargeArray, IUnwr
     void putLongReverse(long index, long value);
 
     void putInt(long index, int value);
+
+    /**
+     * Writes the int at the given byte offset with volatile semantics. Implementations must provide memory-barrier
+     * semantics equivalent to agrona UnsafeApi.putIntVolatile (full fence in both directions). Where an
+     * implementation has no native volatile path it must delegate to its plain accessor under a lock so visibility is
+     * still guaranteed. The circular ring's epoch tag torn-read self-check depends on these semantics.
+     */
+    void putIntVolatile(long index, int value);
+
+    /**
+     * Volatile write of the byte at the given offset - same barrier contract as putIntVolatile(long, int), agrona
+     * UnsafeApi.putByteVolatile equivalent.
+     */
+    void putByteVolatile(long index, byte value);
+
+    /**
+     * Volatile write of the char at the given offset - same barrier contract as putIntVolatile(long, int), agrona
+     * UnsafeApi.putCharVolatile equivalent.
+     */
+    void putCharVolatile(long index, char value);
+
+    /**
+     * Volatile write of the short at the given offset - same barrier contract as putIntVolatile(long, int), agrona
+     * UnsafeApi.putShortVolatile equivalent.
+     */
+    void putShortVolatile(long index, short value);
+
+    /**
+     * Volatile write of the long at the given offset - same barrier contract as putIntVolatile(long, int), agrona
+     * UnsafeApi.putLongVolatile equivalent.
+     */
+    void putLongVolatile(long index, long value);
+
+    /**
+     * Volatile write of the float at the given offset - same barrier contract as putIntVolatile(long, int). agrona has
+     * no volatile float, so this is implemented via UnsafeApi.putIntVolatile over Float.floatToRawIntBits (the Raw
+     * variant preserves NaN payloads).
+     */
+    void putFloatVolatile(long index, float value);
+
+    /**
+     * Volatile write of the double at the given offset - same barrier contract as putLongVolatile(long, long). agrona
+     * has no volatile double, so this is implemented via UnsafeApi.putLongVolatile over Double.doubleToRawLongBits
+     * (the Raw variant preserves NaN payloads).
+     */
+    void putDoubleVolatile(long index, double value);
+
+    /**
+     * Release-semantics write of the int at the given offset (agrona UnsafeApi.putIntRelease equivalent) - pairs with
+     * getIntAcquire.
+     */
+    void putIntRelease(long index, int value);
+
+    /**
+     * Ordered-semantics write of the int at the given offset (agrona putIntOrdered which maps to putIntRelease) -
+     * pairs with getIntAcquire.
+     */
+    void putIntOrdered(long index, int value);
+
+    /**
+     * Release-semantics write of the long at the given offset (agrona UnsafeApi.putLongRelease equivalent) - pairs
+     * with getLongAcquire.
+     */
+    void putLongRelease(long index, long value);
+
+    /**
+     * Ordered-semantics write of the long at the given offset (agrona putLongOrdered which maps to putLongRelease) -
+     * pairs with getLongAcquire.
+     */
+    void putLongOrdered(long index, long value);
+
+    /**
+     * Little-endian twin of putCharVolatile(long, char): the value bytes are swapped first and the swapped value is
+     * written through the same full-fence volatile barrier contract as putIntVolatile(long, int) - the barrier
+     * guards the single atomic write of the whole value, never a byte-wise assembly. Where a class's plain
+     * putCharReverse inverts the swap under the ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED configuration, this twin
+     * must apply the same inversion. Every Reverse twin in this block shares this swap-then-barrier contract.
+     */
+    void putCharVolatileReverse(long index, char value);
+
+    /**
+     * Little-endian twin of putShortVolatile(long, short) - same swap-then-barrier contract as
+     * putCharVolatileReverse(long, char).
+     */
+    void putShortVolatileReverse(long index, short value);
+
+    /**
+     * Little-endian twin of putIntVolatile(long, int) - same swap-then-barrier contract as
+     * putCharVolatileReverse(long, char).
+     */
+    void putIntVolatileReverse(long index, int value);
+
+    /**
+     * Little-endian twin of putLongVolatile(long, long) - same swap-then-barrier contract as
+     * putCharVolatileReverse(long, char).
+     */
+    void putLongVolatileReverse(long index, long value);
+
+    /**
+     * Little-endian twin of putFloatVolatile(long, float): Float.floatToRawIntBits(value) swapped on the int level
+     * and written through the volatile-int barrier chain - the Raw bits path preserves NaN payloads.
+     */
+    void putFloatVolatileReverse(long index, float value);
+
+    /**
+     * Little-endian twin of putDoubleVolatile(long, double): Double.doubleToRawLongBits(value) swapped on the long
+     * level and written through the volatile-long barrier chain - the Raw bits path preserves NaN payloads.
+     */
+    void putDoubleVolatileReverse(long index, double value);
+
+    /**
+     * Little-endian twin of putIntRelease(long, int): release-semantics write (agrona UnsafeApi.putIntRelease
+     * equivalent) of the value-swapped int - same swap-then-barrier contract as putCharVolatileReverse(long, char).
+     * Pairs with getIntAcquireReverse(long).
+     */
+    void putIntReleaseReverse(long index, int value);
+
+    /**
+     * Little-endian twin of putLongRelease(long, long): release-semantics write (agrona UnsafeApi.putLongRelease
+     * equivalent) of the value-swapped long - same swap-then-barrier contract as
+     * putCharVolatileReverse(long, char). Pairs with getLongAcquireReverse(long).
+     */
+    void putLongReleaseReverse(long index, long value);
+
+    /**
+     * Little-endian twin of putIntOrdered(long, int) (agrona putIntOrdered which maps to putIntRelease) - same
+     * swap-then-barrier contract as putIntReleaseReverse(long, int); pairs with getIntAcquireReverse(long).
+     */
+    void putIntOrderedReverse(long index, int value);
+
+    /**
+     * Little-endian twin of putLongOrdered(long, long) (agrona putLongOrdered which maps to putLongRelease) - same
+     * swap-then-barrier contract as putLongReleaseReverse(long, long); pairs with getLongAcquireReverse(long).
+     */
+    void putLongOrderedReverse(long index, long value);
 
     void putIntReverse(long index, int value);
 

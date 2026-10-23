@@ -85,6 +85,233 @@ public class OrderedDelegateMemoryBuffer implements IMemoryBuffer {
         delegate.putIntReverse(index, value);
     }
 
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public void putIntVolatile(final long index, final int value) {
+        delegate.putIntVolatile(index, Integer.reverseBytes(value));
+    }
+
+    @Override
+    public void putByteVolatile(final long index, final byte value) {
+        delegate.putByteVolatile(index, value);
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public void putCharVolatile(final long index, final char value) {
+        delegate.putCharVolatile(index, (char) Short.reverseBytes((short) value));
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public void putShortVolatile(final long index, final short value) {
+        delegate.putShortVolatile(index, Short.reverseBytes(value));
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public void putLongVolatile(final long index, final long value) {
+        delegate.putLongVolatile(index, Long.reverseBytes(value));
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public void putFloatVolatile(final long index, final float value) {
+        final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
+        delegate.putFloatVolatile(index, Float.intBitsToFloat(bits));
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public void putDoubleVolatile(final long index, final double value) {
+        final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
+        delegate.putDoubleVolatile(index, Double.longBitsToDouble(bits));
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public void putIntRelease(final long index, final int value) {
+        delegate.putIntRelease(index, Integer.reverseBytes(value));
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public void putIntOrdered(final long index, final int value) {
+        delegate.putIntOrdered(index, Integer.reverseBytes(value));
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public void putLongRelease(final long index, final long value) {
+        delegate.putLongRelease(index, Long.reverseBytes(value));
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public void putLongOrdered(final long index, final long value) {
+        delegate.putLongOrdered(index, Long.reverseBytes(value));
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public void putCharVolatileReverse(final long index, final char value) {
+        delegate.putCharVolatile(index, value);
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public void putShortVolatileReverse(final long index, final short value) {
+        delegate.putShortVolatile(index, value);
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public void putIntVolatileReverse(final long index, final int value) {
+        delegate.putIntVolatile(index, value);
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public void putLongVolatileReverse(final long index, final long value) {
+        delegate.putLongVolatile(index, value);
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public void putFloatVolatileReverse(final long index, final float value) {
+        delegate.putFloatVolatile(index, value);
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public void putDoubleVolatileReverse(final long index, final double value) {
+        delegate.putDoubleVolatile(index, value);
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public void putIntReleaseReverse(final long index, final int value) {
+        delegate.putIntRelease(index, value);
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public void putLongReleaseReverse(final long index, final long value) {
+        delegate.putLongRelease(index, value);
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public void putIntOrderedReverse(final long index, final int value) {
+        delegate.putIntOrdered(index, value);
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public void putLongOrderedReverse(final long index, final long value) {
+        delegate.putLongOrdered(index, value);
+    }
+
     @Override
     public void putIntReverse(final long index, final int value) {
         delegate.putInt(index, value);
@@ -143,6 +370,189 @@ public class OrderedDelegateMemoryBuffer implements IMemoryBuffer {
     @Override
     public int getInt(final long index) {
         return delegate.getIntReverse(index);
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public int getIntVolatile(final long index) {
+        return Integer.reverseBytes(delegate.getIntVolatile(index));
+    }
+
+    @Override
+    public byte getByteVolatile(final long index) {
+        return delegate.getByteVolatile(index);
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public char getCharVolatile(final long index) {
+        return (char) Short.reverseBytes((short) delegate.getCharVolatile(index));
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public short getShortVolatile(final long index) {
+        return Short.reverseBytes(delegate.getShortVolatile(index));
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public long getLongVolatile(final long index) {
+        return Long.reverseBytes(delegate.getLongVolatile(index));
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public float getFloatVolatile(final long index) {
+        final int bits = Float.floatToRawIntBits(delegate.getFloatVolatile(index));
+        return Float.intBitsToFloat(Integer.reverseBytes(bits));
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public double getDoubleVolatile(final long index) {
+        final long bits = Double.doubleToRawLongBits(delegate.getDoubleVolatile(index));
+        return Double.longBitsToDouble(Long.reverseBytes(bits));
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public int getIntAcquire(final long index) {
+        return Integer.reverseBytes(delegate.getIntAcquire(index));
+    }
+
+    /**
+     * Byte-order reversal wrapper: the barrier access stays on the delegate's volatile path while the byte
+     * order flip is applied to the value, so plain and volatile encodings at an index agree in this wrapper's
+     * order - parity with the plain sibling, which delegates to the delegate's Reverse method. The float and
+     * double variants use the raw-bits recipe over the barrier-protected int/long primitive.
+     */
+    @Override
+    public long getLongAcquire(final long index) {
+        return Long.reverseBytes(delegate.getLongAcquire(index));
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public char getCharVolatileReverse(final long index) {
+        return delegate.getCharVolatile(index);
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public short getShortVolatileReverse(final long index) {
+        return delegate.getShortVolatile(index);
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public int getIntVolatileReverse(final long index) {
+        return delegate.getIntVolatile(index);
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public long getLongVolatileReverse(final long index) {
+        return delegate.getLongVolatile(index);
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public float getFloatVolatileReverse(final long index) {
+        return delegate.getFloatVolatile(index);
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public double getDoubleVolatileReverse(final long index) {
+        return delegate.getDoubleVolatile(index);
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public int getIntAcquireReverse(final long index) {
+        return delegate.getIntAcquire(index);
+    }
+
+    /**
+     * Byte-order reversal wrapper: for the little-endian twin of a composite the wrapper
+     * inversion and the twin inversion cancel each other, so the value passes through the
+     * delegate's barrier-protected volatile path unswapped - parity with the plain Reverse
+     * sibling, which delegates to the delegate's plain method.
+     */
+    @Override
+    public long getLongAcquireReverse(final long index) {
+        return delegate.getLongAcquire(index);
     }
 
     @Override

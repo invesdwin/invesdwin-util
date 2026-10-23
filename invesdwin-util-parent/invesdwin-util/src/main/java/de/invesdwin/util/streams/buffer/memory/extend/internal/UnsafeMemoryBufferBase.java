@@ -454,6 +454,22 @@ public class UnsafeMemoryBufferBase {
         UnsafeApi.putLongRelease(byteArray, addressOffset + index, value);
     }
 
+    public long getLongAcquire(final long index) {
+        if (SHOULD_BOUNDS_CHECK) {
+            boundsCheck0(index, SIZE_OF_LONG);
+        }
+
+        return UnsafeApi.getLongAcquire(byteArray, addressOffset + index);
+    }
+
+    public void putLongRelease(final long index, final long value) {
+        if (SHOULD_BOUNDS_CHECK) {
+            boundsCheck0(index, SIZE_OF_LONG);
+        }
+
+        UnsafeApi.putLongRelease(byteArray, addressOffset + index, value);
+    }
+
     public long addLongOrdered(final long index, final long increment) {
         if (SHOULD_BOUNDS_CHECK) {
             boundsCheck0(index, SIZE_OF_LONG);
@@ -552,6 +568,22 @@ public class UnsafeMemoryBufferBase {
     }
 
     public void putIntOrdered(final long index, final int value) {
+        if (SHOULD_BOUNDS_CHECK) {
+            boundsCheck0(index, SIZE_OF_INT);
+        }
+
+        UnsafeApi.putIntRelease(byteArray, addressOffset + index, value);
+    }
+
+    public int getIntAcquire(final long index) {
+        if (SHOULD_BOUNDS_CHECK) {
+            boundsCheck0(index, SIZE_OF_INT);
+        }
+
+        return UnsafeApi.getIntAcquire(byteArray, addressOffset + index);
+    }
+
+    public void putIntRelease(final long index, final int value) {
         if (SHOULD_BOUNDS_CHECK) {
             boundsCheck0(index, SIZE_OF_INT);
         }
@@ -682,6 +714,40 @@ public class UnsafeMemoryBufferBase {
         }
 
         UnsafeApi.putFloat(byteArray, addressOffset + index, value);
+    }
+
+    public double getDoubleVolatile(final long index) {
+        if (SHOULD_BOUNDS_CHECK) {
+            boundsCheck0(index, SIZE_OF_DOUBLE);
+        }
+
+        //agrona has no volatile double - raw bits over the volatile long keeps the full fence and the NaN payload
+        return Double.longBitsToDouble(UnsafeApi.getLongVolatile(byteArray, addressOffset + index));
+    }
+
+    public void putDoubleVolatile(final long index, final double value) {
+        if (SHOULD_BOUNDS_CHECK) {
+            boundsCheck0(index, SIZE_OF_DOUBLE);
+        }
+
+        UnsafeApi.putLongVolatile(byteArray, addressOffset + index, Double.doubleToRawLongBits(value));
+    }
+
+    public float getFloatVolatile(final long index) {
+        if (SHOULD_BOUNDS_CHECK) {
+            boundsCheck0(index, SIZE_OF_FLOAT);
+        }
+
+        //agrona has no volatile float - raw bits over the volatile int keeps the full fence and the NaN payload
+        return Float.intBitsToFloat(UnsafeApi.getIntVolatile(byteArray, addressOffset + index));
+    }
+
+    public void putFloatVolatile(final long index, final float value) {
+        if (SHOULD_BOUNDS_CHECK) {
+            boundsCheck0(index, SIZE_OF_FLOAT);
+        }
+
+        UnsafeApi.putIntVolatile(byteArray, addressOffset + index, Float.floatToRawIntBits(value));
     }
 
     /////////////////////////////////////////////////////////

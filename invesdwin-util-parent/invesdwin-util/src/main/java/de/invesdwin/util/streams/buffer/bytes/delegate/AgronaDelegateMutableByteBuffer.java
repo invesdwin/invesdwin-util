@@ -120,6 +120,12 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public synchronized int getIntVolatile(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getInt(index);
+    }
+
+    @Override
     public double getDouble(final int index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final long bits = delegate.getLong(index);
@@ -167,6 +173,102 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
         } else {
             return delegate.getLong(index);
         }
+    }
+
+    @Override
+    public synchronized byte getByteVolatile(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getByte(index);
+    }
+
+    @Override
+    public synchronized char getCharVolatile(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getChar(index);
+    }
+
+    @Override
+    public synchronized short getShortVolatile(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getShort(index);
+    }
+
+    @Override
+    public synchronized long getLongVolatile(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getLong(index);
+    }
+
+    @Override
+    public synchronized float getFloatVolatile(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getFloat(index);
+    }
+
+    @Override
+    public synchronized double getDoubleVolatile(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getDouble(index);
+    }
+
+    @Override
+    public synchronized int getIntAcquire(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getInt(index);
+    }
+
+    @Override
+    public synchronized long getLongAcquire(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getLong(index);
+    }
+
+    @Override
+    public synchronized char getCharVolatileReverse(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getCharReverse(index);
+    }
+
+    @Override
+    public synchronized short getShortVolatileReverse(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getShortReverse(index);
+    }
+
+    @Override
+    public synchronized int getIntVolatileReverse(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getIntReverse(index);
+    }
+
+    @Override
+    public synchronized long getLongVolatileReverse(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getLongReverse(index);
+    }
+
+    @Override
+    public synchronized float getFloatVolatileReverse(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getFloatReverse(index);
+    }
+
+    @Override
+    public synchronized double getDoubleVolatileReverse(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getDoubleReverse(index);
+    }
+
+    @Override
+    public synchronized int getIntAcquireReverse(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getIntReverse(index);
+    }
+
+    @Override
+    public synchronized long getLongAcquireReverse(final int index) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        return getLongReverse(index);
     }
 
     @Override
@@ -294,6 +396,12 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
     }
 
     @Override
+    public synchronized void putIntVolatile(final int index, final int value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putInt(index, value);
+    }
+
+    @Override
     public void putDouble(final int index, final double value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
@@ -341,6 +449,126 @@ public class AgronaDelegateMutableByteBuffer implements IByteBuffer {
         } else {
             delegate.putLong(index, value);
         }
+    }
+
+    @Override
+    public synchronized void putByteVolatile(final int index, final byte value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putByte(index, value);
+    }
+
+    @Override
+    public synchronized void putCharVolatile(final int index, final char value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putChar(index, value);
+    }
+
+    @Override
+    public synchronized void putShortVolatile(final int index, final short value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putShort(index, value);
+    }
+
+    @Override
+    public synchronized void putLongVolatile(final int index, final long value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putLong(index, value);
+    }
+
+    @Override
+    public synchronized void putFloatVolatile(final int index, final float value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putFloat(index, value);
+    }
+
+    @Override
+    public synchronized void putDoubleVolatile(final int index, final double value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putDouble(index, value);
+    }
+
+    @Override
+    public synchronized void putIntRelease(final int index, final int value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putInt(index, value);
+    }
+
+    @Override
+    public synchronized void putIntOrdered(final int index, final int value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putInt(index, value);
+    }
+
+    @Override
+    public synchronized void putLongRelease(final int index, final long value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putLong(index, value);
+    }
+
+    @Override
+    public synchronized void putLongOrdered(final int index, final long value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putLong(index, value);
+    }
+
+    @Override
+    public synchronized void putCharVolatileReverse(final int index, final char value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putCharReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putShortVolatileReverse(final int index, final short value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putShortReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putIntVolatileReverse(final int index, final int value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putIntReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putLongVolatileReverse(final int index, final long value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putLongReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putFloatVolatileReverse(final int index, final float value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putFloatReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putDoubleVolatileReverse(final int index, final double value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putDoubleReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putIntReleaseReverse(final int index, final int value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putIntReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putLongReleaseReverse(final int index, final long value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putLongReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putIntOrderedReverse(final int index, final int value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putIntReverse(index, value);
+    }
+
+    @Override
+    public synchronized void putLongOrderedReverse(final int index, final long value) {
+        //no volatile accessor on agrona MutableDirectBuffer - the monitor provides the visibility guarantee
+        putLongReverse(index, value);
     }
 
     @Override

@@ -314,6 +314,48 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
         return UnsafeApi.getInt(null, finalizer.address + index);
     }
 
+    public int getIntVolatile(final long index) {
+        boundsCheck0(index, SIZE_OF_INT);
+
+        return UnsafeApi.getIntVolatile(null, finalizer.address + index);
+    }
+
+    public byte getByteVolatile(final long index) {
+        boundsCheck0(index, SIZE_OF_BYTE);
+
+        return UnsafeApi.getByteVolatile(null, finalizer.address + index);
+    }
+
+    public char getCharVolatile(final long index) {
+        boundsCheck0(index, SIZE_OF_CHAR);
+
+        return UnsafeApi.getCharVolatile(null, finalizer.address + index);
+    }
+
+    public short getShortVolatile(final long index) {
+        boundsCheck0(index, SIZE_OF_SHORT);
+
+        return UnsafeApi.getShortVolatile(null, finalizer.address + index);
+    }
+
+    public long getLongVolatile(final long index) {
+        boundsCheck0(index, SIZE_OF_LONG);
+
+        return UnsafeApi.getLongVolatile(null, finalizer.address + index);
+    }
+
+    public int getIntAcquire(final long index) {
+        boundsCheck0(index, SIZE_OF_INT);
+
+        return UnsafeApi.getIntAcquire(null, finalizer.address + index);
+    }
+
+    public long getLongAcquire(final long index) {
+        boundsCheck0(index, SIZE_OF_LONG);
+
+        return UnsafeApi.getLongAcquire(null, finalizer.address + index);
+    }
+
     ///
 
     public double getDouble(final long index, final ByteOrder byteOrder) {
@@ -384,6 +426,32 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
         ensureCapacity(index, SIZE_OF_FLOAT);
 
         UnsafeApi.putFloat(null, finalizer.address + index, value);
+    }
+
+    public double getDoubleVolatile(final long index) {
+        boundsCheck0(index, SIZE_OF_DOUBLE);
+
+        //agrona has no volatile double - raw bits over the volatile long keeps the full fence and the NaN payload
+        return Double.longBitsToDouble(UnsafeApi.getLongVolatile(null, finalizer.address + index));
+    }
+
+    public void putDoubleVolatile(final long index, final double value) {
+        ensureCapacity(index, SIZE_OF_DOUBLE);
+
+        UnsafeApi.putLongVolatile(null, finalizer.address + index, Double.doubleToRawLongBits(value));
+    }
+
+    public float getFloatVolatile(final long index) {
+        boundsCheck0(index, SIZE_OF_FLOAT);
+
+        //agrona has no volatile float - raw bits over the volatile int keeps the full fence and the NaN payload
+        return Float.intBitsToFloat(UnsafeApi.getIntVolatile(null, finalizer.address + index));
+    }
+
+    public void putFloatVolatile(final long index, final float value) {
+        ensureCapacity(index, SIZE_OF_FLOAT);
+
+        UnsafeApi.putIntVolatile(null, finalizer.address + index, Float.floatToRawIntBits(value));
     }
 
     ///
@@ -1006,6 +1074,60 @@ public class MappedExpandableMemoryBufferBase implements Closeable {
         ensureCapacity(index, SIZE_OF_INT);
 
         UnsafeApi.putInt(null, finalizer.address + index, value);
+    }
+
+    public void putIntVolatile(final long index, final int value) {
+        ensureCapacity(index, SIZE_OF_INT);
+
+        UnsafeApi.putIntVolatile(null, finalizer.address + index, value);
+    }
+
+    public void putByteVolatile(final long index, final byte value) {
+        ensureCapacity(index, SIZE_OF_BYTE);
+
+        UnsafeApi.putByteVolatile(null, finalizer.address + index, value);
+    }
+
+    public void putCharVolatile(final long index, final char value) {
+        ensureCapacity(index, SIZE_OF_CHAR);
+
+        UnsafeApi.putCharVolatile(null, finalizer.address + index, value);
+    }
+
+    public void putShortVolatile(final long index, final short value) {
+        ensureCapacity(index, SIZE_OF_SHORT);
+
+        UnsafeApi.putShortVolatile(null, finalizer.address + index, value);
+    }
+
+    public void putLongVolatile(final long index, final long value) {
+        ensureCapacity(index, SIZE_OF_LONG);
+
+        UnsafeApi.putLongVolatile(null, finalizer.address + index, value);
+    }
+
+    public void putIntRelease(final long index, final int value) {
+        ensureCapacity(index, SIZE_OF_INT);
+
+        UnsafeApi.putIntRelease(null, finalizer.address + index, value);
+    }
+
+    public void putIntOrdered(final long index, final int value) {
+        ensureCapacity(index, SIZE_OF_INT);
+
+        UnsafeApi.putIntRelease(null, finalizer.address + index, value);
+    }
+
+    public void putLongRelease(final long index, final long value) {
+        ensureCapacity(index, SIZE_OF_LONG);
+
+        UnsafeApi.putLongRelease(null, finalizer.address + index, value);
+    }
+
+    public void putLongOrdered(final long index, final long value) {
+        ensureCapacity(index, SIZE_OF_LONG);
+
+        UnsafeApi.putLongRelease(null, finalizer.address + index, value);
     }
 
     public int putIntAscii(final long index, final int value) {

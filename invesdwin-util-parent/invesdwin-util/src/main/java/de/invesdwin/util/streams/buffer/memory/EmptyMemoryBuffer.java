@@ -61,6 +61,151 @@ public final class EmptyMemoryBuffer implements ICloseableMemoryBuffer {
     }
 
     @Override
+    public void putIntVolatile(final long index, final int value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putByteVolatile(final long index, final byte value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putCharVolatile(final long index, final char value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putShortVolatile(final long index, final short value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putLongVolatile(final long index, final long value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putFloatVolatile(final long index, final float value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putDoubleVolatile(final long index, final double value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putIntRelease(final long index, final int value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putIntOrdered(final long index, final int value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putLongRelease(final long index, final long value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putLongOrdered(final long index, final long value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public char getCharVolatileReverse(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public short getShortVolatileReverse(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public int getIntVolatileReverse(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public long getLongVolatileReverse(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public float getFloatVolatileReverse(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public double getDoubleVolatileReverse(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public int getIntAcquireReverse(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public long getLongAcquireReverse(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putCharVolatileReverse(final long index, final char value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putShortVolatileReverse(final long index, final short value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putIntVolatileReverse(final long index, final int value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putLongVolatileReverse(final long index, final long value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putFloatVolatileReverse(final long index, final float value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putDoubleVolatileReverse(final long index, final double value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putIntReleaseReverse(final long index, final int value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putLongReleaseReverse(final long index, final long value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putIntOrderedReverse(final long index, final int value) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public void putLongOrderedReverse(final long index, final long value) {
+        throw newEmptyException();
+    }
+
+    @Override
     public void putDouble(final long index, final double value) {
         throw newEmptyException();
     }
@@ -180,6 +325,51 @@ public final class EmptyMemoryBuffer implements ICloseableMemoryBuffer {
 
     @Override
     public int getInt(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public int getIntVolatile(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public byte getByteVolatile(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public char getCharVolatile(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public short getShortVolatile(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public long getLongVolatile(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public float getFloatVolatile(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public double getDoubleVolatile(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public int getIntAcquire(final long index) {
+        throw newEmptyException();
+    }
+
+    @Override
+    public long getLongAcquire(final long index) {
         throw newEmptyException();
     }
 

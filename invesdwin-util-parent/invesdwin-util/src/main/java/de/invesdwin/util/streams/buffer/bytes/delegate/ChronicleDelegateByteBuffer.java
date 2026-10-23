@@ -197,6 +197,16 @@ public class ChronicleDelegateByteBuffer implements ICloseableByteBuffer {
     }
 
     @Override
+    public int getIntVolatile(final int index) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getDelegate().readVolatileInt(index);
+            return Integer.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileInt(index);
+        }
+    }
+
+    @Override
     public double getDouble(final int index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
             final long bits = getDelegate().readLong(index);
@@ -243,6 +253,167 @@ public class ChronicleDelegateByteBuffer implements ICloseableByteBuffer {
             return Long.reverseBytes(bits);
         } else {
             return getDelegate().readLong(index);
+        }
+    }
+
+    @Override
+    public byte getByteVolatile(final int index) {
+        return getDelegate().readVolatileByte(index);
+    }
+
+    @Override
+    public char getCharVolatile(final int index) {
+        //chronicle has no volatile char - volatile short mirrors the plain getChar representation
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = getDelegate().readVolatileShort(index);
+            return (char) Short.reverseBytes(bits);
+        } else {
+            return (char) getDelegate().readVolatileShort(index);
+        }
+    }
+
+    @Override
+    public short getShortVolatile(final int index) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = getDelegate().readVolatileShort(index);
+            return Short.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileShort(index);
+        }
+    }
+
+    @Override
+    public long getLongVolatile(final int index) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getDelegate().readVolatileLong(index);
+            return Long.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileLong(index);
+        }
+    }
+
+    @Override
+    public float getFloatVolatile(final int index) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getDelegate().readVolatileInt(index);
+            return Float.intBitsToFloat(Integer.reverseBytes(bits));
+        } else {
+            return getDelegate().readVolatileFloat(index);
+        }
+    }
+
+    @Override
+    public double getDoubleVolatile(final int index) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getDelegate().readVolatileLong(index);
+            return Double.longBitsToDouble(Long.reverseBytes(bits));
+        } else {
+            return getDelegate().readVolatileDouble(index);
+        }
+    }
+
+    @Override
+    public int getIntAcquire(final int index) {
+        //chronicle has no acquire - a volatile load satisfies the acquire guarantee
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getDelegate().readVolatileInt(index);
+            return Integer.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileInt(index);
+        }
+    }
+
+    @Override
+    public long getLongAcquire(final int index) {
+        //chronicle has no acquire - a volatile load satisfies the acquire guarantee
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getDelegate().readVolatileLong(index);
+            return Long.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileLong(index);
+        }
+    }
+
+    @Override
+    public char getCharVolatileReverse(final int index) {
+        //chronicle has no volatile char - volatile short mirrors the plain getCharReverse representation
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = getDelegate().readVolatileShort(index);
+            return (char) Short.reverseBytes(bits);
+        } else {
+            return (char) getDelegate().readVolatileShort(index);
+        }
+    }
+
+    @Override
+    public short getShortVolatileReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = getDelegate().readVolatileShort(index);
+            return Short.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileShort(index);
+        }
+    }
+
+    @Override
+    public int getIntVolatileReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getDelegate().readVolatileInt(index);
+            return Integer.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileInt(index);
+        }
+    }
+
+    @Override
+    public long getLongVolatileReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getDelegate().readVolatileLong(index);
+            return Long.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileLong(index);
+        }
+    }
+
+    @Override
+    public float getFloatVolatileReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getDelegate().readVolatileInt(index);
+            return Float.intBitsToFloat(Integer.reverseBytes(bits));
+        } else {
+            return getDelegate().readVolatileFloat(index);
+        }
+    }
+
+    @Override
+    public double getDoubleVolatileReverse(final int index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getDelegate().readVolatileLong(index);
+            return Double.longBitsToDouble(Long.reverseBytes(bits));
+        } else {
+            return getDelegate().readVolatileDouble(index);
+        }
+    }
+
+    @Override
+    public int getIntAcquireReverse(final int index) {
+        //chronicle has no acquire - a volatile load satisfies the acquire guarantee
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getDelegate().readVolatileInt(index);
+            return Integer.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileInt(index);
+        }
+    }
+
+    @Override
+    public long getLongAcquireReverse(final int index) {
+        //chronicle has no acquire - a volatile load satisfies the acquire guarantee
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getDelegate().readVolatileLong(index);
+            return Long.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileLong(index);
         }
     }
 
@@ -375,6 +546,17 @@ public class ChronicleDelegateByteBuffer implements ICloseableByteBuffer {
     }
 
     @Override
+    public void putIntVolatile(final int index, final int value) {
+        ensureCapacity(index, Integer.BYTES);
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            getDelegate().writeVolatileInt(index, bits);
+        } else {
+            getDelegate().writeVolatileInt(index, value);
+        }
+    }
+
+    @Override
     public void putDouble(final int index, final double value) {
         ensureCapacity(index, Double.BYTES);
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -426,6 +608,227 @@ public class ChronicleDelegateByteBuffer implements ICloseableByteBuffer {
             getDelegate().writeLong(index, bits);
         } else {
             getDelegate().writeLong(index, value);
+        }
+    }
+
+    @Override
+    public void putByteVolatile(final int index, final byte value) {
+        ensureCapacity(index, Byte.BYTES);
+        getDelegate().writeVolatileByte(index, value);
+    }
+
+    @Override
+    public void putCharVolatile(final int index, final char value) {
+        //chronicle has no volatile char - volatile short mirrors the plain putChar representation
+        ensureCapacity(index, Character.BYTES);
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = Short.reverseBytes((short) value);
+            getDelegate().writeVolatileShort(index, bits);
+        } else {
+            getDelegate().writeVolatileShort(index, (short) value);
+        }
+    }
+
+    @Override
+    public void putShortVolatile(final int index, final short value) {
+        ensureCapacity(index, Short.BYTES);
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = Short.reverseBytes(value);
+            getDelegate().writeVolatileShort(index, bits);
+        } else {
+            getDelegate().writeVolatileShort(index, value);
+        }
+    }
+
+    @Override
+    public void putLongVolatile(final int index, final long value) {
+        ensureCapacity(index, Long.BYTES);
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            getDelegate().writeVolatileLong(index, bits);
+        } else {
+            getDelegate().writeVolatileLong(index, value);
+        }
+    }
+
+    @Override
+    public void putFloatVolatile(final int index, final float value) {
+        ensureCapacity(index, Float.BYTES);
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
+            getDelegate().writeVolatileInt(index, bits);
+        } else {
+            getDelegate().writeVolatileFloat(index, value);
+        }
+    }
+
+    @Override
+    public void putDoubleVolatile(final int index, final double value) {
+        ensureCapacity(index, Double.BYTES);
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
+            getDelegate().writeVolatileLong(index, bits);
+        } else {
+            getDelegate().writeVolatileDouble(index, value);
+        }
+    }
+
+    @Override
+    public void putIntRelease(final int index, final int value) {
+        //chronicle writeOrderedInt is the release-ordered store (agrona maps ordered to release as well)
+        ensureCapacity(index, Integer.BYTES);
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            getDelegate().writeOrderedInt(index, bits);
+        } else {
+            getDelegate().writeOrderedInt(index, value);
+        }
+    }
+
+    @Override
+    public void putIntOrdered(final int index, final int value) {
+        ensureCapacity(index, Integer.BYTES);
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            getDelegate().writeOrderedInt(index, bits);
+        } else {
+            getDelegate().writeOrderedInt(index, value);
+        }
+    }
+
+    @Override
+    public void putLongRelease(final int index, final long value) {
+        //chronicle writeOrderedLong is the release-ordered store (agrona maps ordered to release as well)
+        ensureCapacity(index, Long.BYTES);
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            getDelegate().writeOrderedLong(index, bits);
+        } else {
+            getDelegate().writeOrderedLong(index, value);
+        }
+    }
+
+    @Override
+    public void putLongOrdered(final int index, final long value) {
+        ensureCapacity(index, Long.BYTES);
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            getDelegate().writeOrderedLong(index, bits);
+        } else {
+            getDelegate().writeOrderedLong(index, value);
+        }
+    }
+
+    @Override
+    public void putCharVolatileReverse(final int index, final char value) {
+        //chronicle has no volatile char - volatile short mirrors the plain putCharReverse representation
+        ensureCapacity(index, Character.BYTES);
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = Short.reverseBytes((short) value);
+            getDelegate().writeVolatileShort(index, bits);
+        } else {
+            getDelegate().writeVolatileShort(index, (short) value);
+        }
+    }
+
+    @Override
+    public void putShortVolatileReverse(final int index, final short value) {
+        ensureCapacity(index, Short.BYTES);
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = Short.reverseBytes(value);
+            getDelegate().writeVolatileShort(index, bits);
+        } else {
+            getDelegate().writeVolatileShort(index, value);
+        }
+    }
+
+    @Override
+    public void putIntVolatileReverse(final int index, final int value) {
+        ensureCapacity(index, Integer.BYTES);
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            getDelegate().writeVolatileInt(index, bits);
+        } else {
+            getDelegate().writeVolatileInt(index, value);
+        }
+    }
+
+    @Override
+    public void putLongVolatileReverse(final int index, final long value) {
+        ensureCapacity(index, Long.BYTES);
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            getDelegate().writeVolatileLong(index, bits);
+        } else {
+            getDelegate().writeVolatileLong(index, value);
+        }
+    }
+
+    @Override
+    public void putFloatVolatileReverse(final int index, final float value) {
+        ensureCapacity(index, Float.BYTES);
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
+            getDelegate().writeVolatileInt(index, bits);
+        } else {
+            getDelegate().writeVolatileFloat(index, value);
+        }
+    }
+
+    @Override
+    public void putDoubleVolatileReverse(final int index, final double value) {
+        ensureCapacity(index, Double.BYTES);
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
+            getDelegate().writeVolatileLong(index, bits);
+        } else {
+            getDelegate().writeVolatileDouble(index, value);
+        }
+    }
+
+    @Override
+    public void putIntReleaseReverse(final int index, final int value) {
+        //chronicle writeOrderedInt is the release-ordered store (agrona maps ordered to release as well)
+        ensureCapacity(index, Integer.BYTES);
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            getDelegate().writeOrderedInt(index, bits);
+        } else {
+            getDelegate().writeOrderedInt(index, value);
+        }
+    }
+
+    @Override
+    public void putLongReleaseReverse(final int index, final long value) {
+        //chronicle writeOrderedLong is the release-ordered store (agrona maps ordered to release as well)
+        ensureCapacity(index, Long.BYTES);
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            getDelegate().writeOrderedLong(index, bits);
+        } else {
+            getDelegate().writeOrderedLong(index, value);
+        }
+    }
+
+    @Override
+    public void putIntOrderedReverse(final int index, final int value) {
+        ensureCapacity(index, Integer.BYTES);
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            getDelegate().writeOrderedInt(index, bits);
+        } else {
+            getDelegate().writeOrderedInt(index, value);
+        }
+    }
+
+    @Override
+    public void putLongOrderedReverse(final int index, final long value) {
+        ensureCapacity(index, Long.BYTES);
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            getDelegate().writeOrderedLong(index, bits);
+        } else {
+            getDelegate().writeOrderedLong(index, value);
         }
     }
 

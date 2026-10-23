@@ -56,6 +56,109 @@ public final class DisabledMemoryBuffer implements ICloseableMemoryBuffer {
     public void putInt(final long index, final int value) {}
 
     @Override
+    public void putIntVolatile(final long index, final int value) {}
+
+    @Override
+    public void putByteVolatile(final long index, final byte value) {}
+
+    @Override
+    public void putCharVolatile(final long index, final char value) {}
+
+    @Override
+    public void putShortVolatile(final long index, final short value) {}
+
+    @Override
+    public void putLongVolatile(final long index, final long value) {}
+
+    @Override
+    public void putFloatVolatile(final long index, final float value) {}
+
+    @Override
+    public void putDoubleVolatile(final long index, final double value) {}
+
+    @Override
+    public void putIntRelease(final long index, final int value) {}
+
+    @Override
+    public void putIntOrdered(final long index, final int value) {}
+
+    @Override
+    public void putLongRelease(final long index, final long value) {}
+
+    @Override
+    public void putLongOrdered(final long index, final long value) {}
+
+    @Override
+    public char getCharVolatileReverse(final long index) {
+        return 0;
+    }
+
+    @Override
+    public short getShortVolatileReverse(final long index) {
+        return 0;
+    }
+
+    @Override
+    public int getIntVolatileReverse(final long index) {
+        return 0;
+    }
+
+    @Override
+    public long getLongVolatileReverse(final long index) {
+        return 0;
+    }
+
+    @Override
+    public float getFloatVolatileReverse(final long index) {
+        return 0;
+    }
+
+    @Override
+    public double getDoubleVolatileReverse(final long index) {
+        return 0;
+    }
+
+    @Override
+    public int getIntAcquireReverse(final long index) {
+        return 0;
+    }
+
+    @Override
+    public long getLongAcquireReverse(final long index) {
+        return 0;
+    }
+
+    @Override
+    public void putCharVolatileReverse(final long index, final char value) {}
+
+    @Override
+    public void putShortVolatileReverse(final long index, final short value) {}
+
+    @Override
+    public void putIntVolatileReverse(final long index, final int value) {}
+
+    @Override
+    public void putLongVolatileReverse(final long index, final long value) {}
+
+    @Override
+    public void putFloatVolatileReverse(final long index, final float value) {}
+
+    @Override
+    public void putDoubleVolatileReverse(final long index, final double value) {}
+
+    @Override
+    public void putIntReleaseReverse(final long index, final int value) {}
+
+    @Override
+    public void putLongReleaseReverse(final long index, final long value) {}
+
+    @Override
+    public void putIntOrderedReverse(final long index, final int value) {}
+
+    @Override
+    public void putLongOrderedReverse(final long index, final long value) {}
+
+    @Override
     public void putDouble(final long index, final double value) {}
 
     @Override
@@ -123,6 +226,51 @@ public final class DisabledMemoryBuffer implements ICloseableMemoryBuffer {
 
     @Override
     public int getInt(final long index) {
+        return 0;
+    }
+
+    @Override
+    public int getIntVolatile(final long index) {
+        return 0;
+    }
+
+    @Override
+    public byte getByteVolatile(final long index) {
+        return 0;
+    }
+
+    @Override
+    public char getCharVolatile(final long index) {
+        return 0;
+    }
+
+    @Override
+    public short getShortVolatile(final long index) {
+        return 0;
+    }
+
+    @Override
+    public long getLongVolatile(final long index) {
+        return 0;
+    }
+
+    @Override
+    public float getFloatVolatile(final long index) {
+        return 0;
+    }
+
+    @Override
+    public double getDoubleVolatile(final long index) {
+        return 0;
+    }
+
+    @Override
+    public int getIntAcquire(final long index) {
+        return 0;
+    }
+
+    @Override
+    public long getLongAcquire(final long index) {
         return 0;
     }
 

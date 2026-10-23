@@ -123,6 +123,11 @@ public class ClosedByteBuffer implements ICloseableByteBuffer {
     }
 
     @Override
+    public int getIntVolatile(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
     public double getDouble(final int index) {
         throw newClosedException();
     }
@@ -144,6 +149,86 @@ public class ClosedByteBuffer implements ICloseableByteBuffer {
 
     @Override
     public long getLongReverse(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public byte getByteVolatile(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public char getCharVolatile(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public short getShortVolatile(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public long getLongVolatile(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public float getFloatVolatile(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public double getDoubleVolatile(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public int getIntAcquire(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public long getLongAcquire(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public char getCharVolatileReverse(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public short getShortVolatileReverse(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public int getIntVolatileReverse(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public long getLongVolatileReverse(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public float getFloatVolatileReverse(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public double getDoubleVolatileReverse(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public int getIntAcquireReverse(final int index) {
+        throw newClosedException();
+    }
+
+    @Override
+    public long getLongAcquireReverse(final int index) {
         throw newClosedException();
     }
 
@@ -242,6 +327,11 @@ public class ClosedByteBuffer implements ICloseableByteBuffer {
     }
 
     @Override
+    public void putIntVolatile(final int index, final int value) {
+        throw newClosedException();
+    }
+
+    @Override
     public void putDouble(final int index, final double value) {
         throw newClosedException();
     }
@@ -263,6 +353,106 @@ public class ClosedByteBuffer implements ICloseableByteBuffer {
 
     @Override
     public void putLongReverse(final int index, final long value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putByteVolatile(final int index, final byte value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putCharVolatile(final int index, final char value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putShortVolatile(final int index, final short value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putLongVolatile(final int index, final long value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putFloatVolatile(final int index, final float value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putDoubleVolatile(final int index, final double value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putIntRelease(final int index, final int value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putIntOrdered(final int index, final int value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putLongRelease(final int index, final long value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putLongOrdered(final int index, final long value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putCharVolatileReverse(final int index, final char value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putShortVolatileReverse(final int index, final short value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putIntVolatileReverse(final int index, final int value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putLongVolatileReverse(final int index, final long value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putFloatVolatileReverse(final int index, final float value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putDoubleVolatileReverse(final int index, final double value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putIntReleaseReverse(final int index, final int value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putLongReleaseReverse(final int index, final long value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putIntOrderedReverse(final int index, final int value) {
+        throw newClosedException();
+    }
+
+    @Override
+    public void putLongOrderedReverse(final int index, final long value) {
         throw newClosedException();
     }
 

@@ -124,6 +124,91 @@ public class DataOutputDelegateByteBuffer implements IByteBuffer, ISafeCloseable
     }
 
     @Override
+    public int getIntVolatile(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public byte getByteVolatile(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public char getCharVolatile(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public short getShortVolatile(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public long getLongVolatile(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public float getFloatVolatile(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public double getDoubleVolatile(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public int getIntAcquire(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public long getLongAcquire(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public char getCharVolatileReverse(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public short getShortVolatileReverse(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public int getIntVolatileReverse(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public long getLongVolatileReverse(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public float getFloatVolatileReverse(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public double getDoubleVolatileReverse(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public int getIntAcquireReverse(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public long getLongAcquireReverse(final int index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
     public int getIntReverse(final int index) {
         throw newUnsupportedOperationException();
     }
@@ -254,6 +339,247 @@ public class DataOutputDelegateByteBuffer implements IByteBuffer, ISafeCloseable
         checkPosition(index, Integer.BYTES);
         try {
             out.writeInt(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putIntVolatile(final int index, final int value) {
+        //write-once stream delegate - same semantics as putInt, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Integer.BYTES);
+        try {
+            out.writeInt(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putByteVolatile(final int index, final byte value) {
+        //write-once stream delegate - same semantics as putByte, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Byte.BYTES);
+        try {
+            out.writeByte(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putCharVolatile(final int index, final char value) {
+        //write-once stream delegate - same semantics as putChar, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Character.BYTES);
+        try {
+            out.writeChar(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putShortVolatile(final int index, final short value) {
+        //write-once stream delegate - same semantics as putShort, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Short.BYTES);
+        try {
+            out.writeShort(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putLongVolatile(final int index, final long value) {
+        //write-once stream delegate - same semantics as putLong, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Long.BYTES);
+        try {
+            out.writeLong(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putFloatVolatile(final int index, final float value) {
+        //write-once stream delegate - same semantics as putFloat, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Float.BYTES);
+        try {
+            out.writeFloat(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putDoubleVolatile(final int index, final double value) {
+        //write-once stream delegate - same semantics as putDouble, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Double.BYTES);
+        try {
+            out.writeDouble(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putIntRelease(final int index, final int value) {
+        //write-once stream delegate - same semantics as putInt, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Integer.BYTES);
+        try {
+            out.writeInt(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putIntOrdered(final int index, final int value) {
+        //write-once stream delegate - same semantics as putInt, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Integer.BYTES);
+        try {
+            out.writeInt(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putLongRelease(final int index, final long value) {
+        //write-once stream delegate - same semantics as putLong, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Long.BYTES);
+        try {
+            out.writeLong(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putLongOrdered(final int index, final long value) {
+        //write-once stream delegate - same semantics as putLong, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Long.BYTES);
+        try {
+            out.writeLong(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putCharVolatileReverse(final int index, final char value) {
+        //write-once stream delegate - same semantics as putCharReverse, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Character.BYTES);
+        try {
+            final short bits = Short.reverseBytes((short) value);
+            out.writeShort(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putShortVolatileReverse(final int index, final short value) {
+        //write-once stream delegate - same semantics as putShortReverse, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Short.BYTES);
+        try {
+            final short bits = Short.reverseBytes(value);
+            out.writeShort(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putIntVolatileReverse(final int index, final int value) {
+        //write-once stream delegate - same semantics as putIntReverse, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Integer.BYTES);
+        try {
+            final int bits = Integer.reverseBytes(value);
+            out.writeInt(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putLongVolatileReverse(final int index, final long value) {
+        //write-once stream delegate - same semantics as putLongReverse, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Long.BYTES);
+        try {
+            final long bits = Long.reverseBytes(value);
+            out.writeLong(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putFloatVolatileReverse(final int index, final float value) {
+        //write-once stream delegate - same semantics as putFloatReverse, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Float.BYTES);
+        try {
+            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
+            out.writeInt(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putDoubleVolatileReverse(final int index, final double value) {
+        //write-once stream delegate - same semantics as putDoubleReverse, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Double.BYTES);
+        try {
+            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
+            out.writeLong(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putIntReleaseReverse(final int index, final int value) {
+        //write-once stream delegate - same semantics as putIntReverse, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Integer.BYTES);
+        try {
+            final int bits = Integer.reverseBytes(value);
+            out.writeInt(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putLongReleaseReverse(final int index, final long value) {
+        //write-once stream delegate - same semantics as putLongReverse, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Long.BYTES);
+        try {
+            final long bits = Long.reverseBytes(value);
+            out.writeLong(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putIntOrderedReverse(final int index, final int value) {
+        //write-once stream delegate - same semantics as putIntReverse, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Integer.BYTES);
+        try {
+            final int bits = Integer.reverseBytes(value);
+            out.writeInt(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putLongOrderedReverse(final int index, final long value) {
+        //write-once stream delegate - same semantics as putLongReverse, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Long.BYTES);
+        try {
+            final long bits = Long.reverseBytes(value);
+            out.writeLong(bits);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
