@@ -50,9 +50,9 @@ public final class DisabledLockCollectionFactory implements ILockCollectionFacto
 
     public static final DisabledLockCollectionFactory INSTANCE = new DisabledLockCollectionFactory();
     /**
-     * At a few 100k elements the speed of roaring bitmap is similar to that of java bitset (about 20-30% slower
-     * instead of 50%). Thus prefer the memory saver version at some threshold. Shared by the primitive() and
-     * large() bitset views.
+     * At a few 100k elements the speed of roaring bitmap is similar to that of java bitset (about 20-30% slower instead
+     * of 50%). Thus prefer the memory saver version at some threshold. Shared by the primitive() and large() bitset
+     * views.
      */
     public static final int ROARING_BITMAP_THRESHOLD = 1_000_000;
 

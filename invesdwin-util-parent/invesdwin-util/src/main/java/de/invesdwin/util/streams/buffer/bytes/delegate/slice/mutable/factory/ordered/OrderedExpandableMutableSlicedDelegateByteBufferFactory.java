@@ -11,7 +11,8 @@ import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.MutableSlic
 import de.invesdwin.util.streams.buffer.bytes.delegate.slice.mutable.factory.IMutableSlicedDelegateByteBufferFactory;
 
 @NotThreadSafe
-public class OrderedExpandableMutableSlicedDelegateByteBufferFactory implements IMutableSlicedDelegateByteBufferFactory {
+public class OrderedExpandableMutableSlicedDelegateByteBufferFactory
+        implements IMutableSlicedDelegateByteBufferFactory {
 
     private final IByteBuffer delegate;
     private final ByteOrder order;

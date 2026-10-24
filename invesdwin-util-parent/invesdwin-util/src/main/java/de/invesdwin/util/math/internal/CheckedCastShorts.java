@@ -17,8 +17,7 @@ import de.invesdwin.util.math.decimal.ADecimal;
 @Immutable
 public final class CheckedCastShorts {
 
-    private CheckedCastShorts() {
-    }
+    private CheckedCastShorts() {}
 
     public static short checkedCast(final Object value) {
         if (value instanceof Number) {

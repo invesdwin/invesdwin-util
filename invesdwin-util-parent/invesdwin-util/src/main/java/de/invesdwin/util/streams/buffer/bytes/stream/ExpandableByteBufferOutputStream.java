@@ -19,8 +19,7 @@ public class ExpandableByteBufferOutputStream extends OutputStream {
     /**
      * Default constructor.
      */
-    public ExpandableByteBufferOutputStream() {
-    }
+    public ExpandableByteBufferOutputStream() {}
 
     /**
      * Wrap given {@link IByteBuffer}.
@@ -132,6 +131,5 @@ public class ExpandableByteBufferOutputStream extends OutputStream {
      * {@inheritDoc}
      */
     @Override
-    public void close() {
-    }
+    public void close() {}
 }

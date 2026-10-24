@@ -10,8 +10,8 @@ import de.invesdwin.util.marshallers.serde.lookup.response.IResponseSerdeProvide
 @Immutable
 public class SerdeLookupConfig {
 
-    public static final SerdeLookupConfig DEFAULT = new SerdeLookupConfig(
-            DefaultRequestSerdeProviderLookup.INSTANCE, DefaultResponseSerdeProviderLookup.INSTANCE);
+    public static final SerdeLookupConfig DEFAULT = new SerdeLookupConfig(DefaultRequestSerdeProviderLookup.INSTANCE,
+            DefaultResponseSerdeProviderLookup.INSTANCE);
 
     private final IRequestSerdeProviderLookup requestLookup;
     private final IResponseSerdeProviderLookup responseLookup;

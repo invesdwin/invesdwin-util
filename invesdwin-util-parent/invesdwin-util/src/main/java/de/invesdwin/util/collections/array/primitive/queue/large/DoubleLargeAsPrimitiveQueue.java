@@ -8,8 +8,8 @@ import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.streams.buffer.bytes.ByteBuffers;
 
 /**
- * Adapter for using a {@link IDoubleLargeQueue} where a {@link IDoublePrimitiveQueue} is expected, throws if
- * the queue grows beyond the maximum size of an int.
+ * Adapter for using a {@link IDoubleLargeQueue} where a {@link IDoublePrimitiveQueue} is expected, throws if the queue
+ * grows beyond the maximum size of an int.
  */
 @NotThreadSafe
 public class DoubleLargeAsPrimitiveQueue implements IDoublePrimitiveQueue {

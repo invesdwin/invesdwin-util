@@ -52,8 +52,8 @@ public class LockCollectionFactoryCircularQueueTest {
         final ILockCollectionFactory disabled = ILockCollectionFactory.getInstance(false);
         Assertions.assertThat(disabled.large().newCircularGenericQueue(String.class, 3).capacity()).isEqualTo(3);
         final ILockCollectionFactory synced = ILockCollectionFactory.getInstance(true);
-        final de.invesdwin.util.collections.array.large.queue.IGenericLargeCircularQueue<String> queue = synced.large().newCircularGenericQueue(
-                String.class, 3);
+        final de.invesdwin.util.collections.array.large.queue.IGenericLargeCircularQueue<String> queue = synced.large()
+                .newCircularGenericQueue(String.class, 3);
         queue.circularAdd("a");
         Assertions.assertThat(queue.get(0)).isEqualTo("a");
         Assertions.assertThat(queue.getOrMissing(9)).isNull();

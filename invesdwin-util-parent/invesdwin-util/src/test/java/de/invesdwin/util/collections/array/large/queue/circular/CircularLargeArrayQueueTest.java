@@ -117,14 +117,14 @@ public class CircularLargeArrayQueueTest {
 
     @Test
     public void testCapacityValidation() {
-        Assertions.assertThatThrownBy(() -> new CircularLongLargeArrayQueue(0)).isInstanceOf(
-                IllegalArgumentException.class);
-        Assertions.assertThatThrownBy(() -> new CircularDoubleLargeArrayQueue(-1)).isInstanceOf(
-                IllegalArgumentException.class);
-        Assertions.assertThatThrownBy(() -> new CircularIntegerLargeArrayQueue(-1)).isInstanceOf(
-                IllegalArgumentException.class);
-        Assertions.assertThatThrownBy(() -> new CircularBooleanLargeArrayQueue(0)).isInstanceOf(
-                IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> new CircularLongLargeArrayQueue(0))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> new CircularDoubleLargeArrayQueue(-1))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> new CircularIntegerLargeArrayQueue(-1))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> new CircularBooleanLargeArrayQueue(0))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

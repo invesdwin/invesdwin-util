@@ -13,8 +13,7 @@ import de.invesdwin.util.math.Integers;
 @Immutable
 public final class Frames {
 
-    private Frames() {
-    }
+    private Frames() {}
 
     public static Dimension getMaxFrameSize(final Window window) {
         final GraphicsConfiguration config = window.getGraphicsConfiguration();

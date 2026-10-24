@@ -15,8 +15,7 @@ public final class DummyDecimalAggregateRandomizers<E extends ADecimal<E>> imple
     @SuppressWarnings("rawtypes")
     public static final DummyDecimalAggregateRandomizers INSTANCE = new DummyDecimalAggregateRandomizers();
 
-    private DummyDecimalAggregateRandomizers() {
-    }
+    private DummyDecimalAggregateRandomizers() {}
 
     @Override
     public Iterator<E> shuffle(final IRandomGenerator random) {

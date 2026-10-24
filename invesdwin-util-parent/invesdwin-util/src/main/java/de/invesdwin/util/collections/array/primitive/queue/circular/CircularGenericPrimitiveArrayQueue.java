@@ -8,11 +8,12 @@ import de.invesdwin.util.collections.array.primitive.queue.IGenericPrimitiveCirc
 import de.invesdwin.util.error.FastNoSuchElementException;
 
 /**
- * Int-indexed counterpart of {@code CircularGenericLargeArrayQueue} - same circular semantics, bounded by the int
- * range instead of the long range. Values are stored in an {@link IGenericPrimitiveArray}.
+ * Int-indexed counterpart of {@code CircularGenericLargeArrayQueue} - same circular semantics, bounded by the int range
+ * instead of the long range. Values are stored in an {@link IGenericPrimitiveArray}.
  */
 @NotThreadSafe
-public class CircularGenericPrimitiveArrayQueue<E> extends ACircularPrimitiveArrayQueue implements IGenericPrimitiveCircularQueue<E> {
+public class CircularGenericPrimitiveArrayQueue<E> extends ACircularPrimitiveArrayQueue
+        implements IGenericPrimitiveCircularQueue<E> {
 
     private final IGenericPrimitiveArray<E> array;
 

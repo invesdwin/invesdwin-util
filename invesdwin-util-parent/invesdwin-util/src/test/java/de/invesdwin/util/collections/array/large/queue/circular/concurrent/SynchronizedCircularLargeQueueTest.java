@@ -20,7 +20,8 @@ public class SynchronizedCircularLargeQueueTest {
 
     @Test
     public void testSequentialInterface() {
-        final ILongLargeCircularQueue queue = new SynchronizedLongLargeCircularQueue(new CircularLongLargeArrayQueue(3));
+        final ILongLargeCircularQueue queue = new SynchronizedLongLargeCircularQueue(
+                new CircularLongLargeArrayQueue(3));
         queue.circularAdd(1);
         queue.circularAdd(2);
         Assertions.assertThat(queue.get(0)).isEqualTo(1);
@@ -77,7 +78,6 @@ public class SynchronizedCircularLargeQueueTest {
         Assertions.assertThat(failure.get()).isNull();
         Assertions.assertThat(queue.size()).isEqualTo(capacity);
     }
-
 
     @Test
     public void testLockedVariantKeptBesideMonitor() {

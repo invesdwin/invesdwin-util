@@ -181,8 +181,7 @@ final class ParallelSuiteTestDescriptor extends AbstractTestDescriptor
         final LauncherDiscoveryResult discoveryResult = java.util.Objects.requireNonNull(this.launcherDiscoveryResult)
                 .withRetainedEngines(getChildren()::contains);
         return java.util.Objects.requireNonNull(launcher)
-                .execute(discoveryResult, executionListener, requestLevelStore,
-                        cancellationToken);
+                .execute(discoveryResult, executionListener, requestLevelStore, cancellationToken);
     }
 
     private void executeAfterSuiteMethods(final ThrowableCollector throwableCollector) {

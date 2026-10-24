@@ -15,7 +15,8 @@ import de.invesdwin.util.math.Integers;
  * to segmented heap arrays for capacities exceeding the maximum array size of the JVM.
  */
 @NotThreadSafe
-public class CircularGenericLargeArrayQueue<E> extends ACircularLargeArrayQueue implements IGenericLargeCircularQueue<E> {
+public class CircularGenericLargeArrayQueue<E> extends ACircularLargeArrayQueue
+        implements IGenericLargeCircularQueue<E> {
 
     private final IGenericLargeArray<E> array;
 

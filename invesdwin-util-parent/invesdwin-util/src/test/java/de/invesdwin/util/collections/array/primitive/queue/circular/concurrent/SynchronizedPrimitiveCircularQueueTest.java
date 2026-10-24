@@ -90,8 +90,8 @@ public class SynchronizedPrimitiveCircularQueueTest {
     @Test
     public void testFactoryPrimitiveQueue() {
         final ILockCollectionFactory disabled = ILockCollectionFactory.getInstance(false);
-        Assertions.assertThat(disabled.primitive().newCircularLongQueue(4)).isInstanceOf(
-                CircularLongPrimitiveArrayQueue.class);
+        Assertions.assertThat(disabled.primitive().newCircularLongQueue(4))
+                .isInstanceOf(CircularLongPrimitiveArrayQueue.class);
         Assertions.assertThat(disabled.primitive().newCircularGenericQueue(String.class, 3).capacity()).isEqualTo(3);
         final ILockCollectionFactory synced = SynchronizedLockCollectionFactory.INSTANCE;
         final ILongPrimitiveCircularQueue queue = synced.primitive().newCircularLongQueue(2);
@@ -101,13 +101,12 @@ public class SynchronizedPrimitiveCircularQueueTest {
         Assertions.assertThat(queue.getReverse(0)).isEqualTo(8);
         Assertions.assertThat(queue.evictAdd(9)).isEqualTo(7);
         Assertions.assertThat(synced.primitive().newCircularGenericQueue(String.class, 2).getOrMissing(9)).isNull();
-        final de.invesdwin.util.collections.array.primitive.ILongPrimitiveArray store = de.invesdwin.util.collections.array.primitive.ILongPrimitiveArray.newInstance(
-                2);
+        final de.invesdwin.util.collections.array.primitive.ILongPrimitiveArray store = de.invesdwin.util.collections.array.primitive.ILongPrimitiveArray
+                .newInstance(2);
         final ILongPrimitiveCircularQueue backed = disabled.primitive().newCircularLongQueue(store);
         backed.circularAdd(4);
         Assertions.assertThat(store.get(0)).isEqualTo(4);
     }
-
 
     @Test
     public void testConcurrentRemoveNeverSeesTornStateOnLockedVariant() throws InterruptedException {

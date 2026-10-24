@@ -96,14 +96,14 @@ public class BufferVolatileAccessTest {
         mem.putShortVolatile(18, (short) 7);
         Assertions.assertThat(mem.getShortVolatileReverse(18)).isEqualTo(Short.reverseBytes((short) 7));
         mem.putFloatVolatile(20, FLOAT_VALUE);
-        Assertions.assertThat(mem.getFloatVolatileReverse(20)).isEqualTo(
-                Float.intBitsToFloat(Integer.reverseBytes(Float.floatToRawIntBits(FLOAT_VALUE))));
+        Assertions.assertThat(mem.getFloatVolatileReverse(20))
+                .isEqualTo(Float.intBitsToFloat(Integer.reverseBytes(Float.floatToRawIntBits(FLOAT_VALUE))));
         mem.putDoubleVolatile(24, DOUBLE_VALUE);
         //bit-level comparison: DOUBLE_VALUE is NaN, and the contract under test IS NaN-payload
         //preservation through the raw-bits chain — long-bits equality is the strongest form
-        Assertions.assertThat(Double.doubleToRawLongBits(mem.getDoubleVolatileReverse(24))).isEqualTo(
-                Double.doubleToRawLongBits(Double.longBitsToDouble(
-                        Long.reverseBytes(Double.doubleToRawLongBits(DOUBLE_VALUE)))));
+        Assertions.assertThat(Double.doubleToRawLongBits(mem.getDoubleVolatileReverse(24)))
+                .isEqualTo(Double.doubleToRawLongBits(
+                        Double.longBitsToDouble(Long.reverseBytes(Double.doubleToRawLongBits(DOUBLE_VALUE)))));
 
         //swap-then-barrier store: the little-endian volatile store lands byte-swapped under the plain reads
         mem.putIntVolatileReverse(32, INT_VALUE);
@@ -121,16 +121,14 @@ public class BufferVolatileAccessTest {
         mem.putFloatVolatileReverse(52, Float.intBitsToFloat(NAN_FLOAT_BITS));
         Assertions.assertThat(Float.floatToRawIntBits(mem.getFloat(52)))
                 .isEqualTo(Integer.reverseBytes(NAN_FLOAT_BITS));
-        Assertions.assertThat(Float.floatToRawIntBits(mem.getFloatVolatileReverse(52)))
-                .isEqualTo(NAN_FLOAT_BITS);
+        Assertions.assertThat(Float.floatToRawIntBits(mem.getFloatVolatileReverse(52))).isEqualTo(NAN_FLOAT_BITS);
         mem.putDoubleVolatile(56, Double.longBitsToDouble(NAN_DOUBLE_BITS));
         Assertions.assertThat(Double.doubleToRawLongBits(mem.getDoubleVolatileReverse(56)))
                 .isEqualTo(Long.reverseBytes(NAN_DOUBLE_BITS));
         mem.putDoubleVolatileReverse(0, Double.longBitsToDouble(NAN_DOUBLE_BITS));
         Assertions.assertThat(Double.doubleToRawLongBits(mem.getDouble(0)))
                 .isEqualTo(Long.reverseBytes(NAN_DOUBLE_BITS));
-        Assertions.assertThat(Double.doubleToRawLongBits(mem.getDoubleVolatileReverse(0)))
-                .isEqualTo(NAN_DOUBLE_BITS);
+        Assertions.assertThat(Double.doubleToRawLongBits(mem.getDoubleVolatileReverse(0))).isEqualTo(NAN_DOUBLE_BITS);
 
         //the bytes twin obeys the same contract
         final UnsafeByteBuffer bytes = new UnsafeByteBuffer(new byte[64]);
@@ -139,13 +137,13 @@ public class BufferVolatileAccessTest {
         bytes.putLongVolatile(8, LONG_VALUE);
         Assertions.assertThat(bytes.getLongVolatileReverse(8)).isEqualTo(Long.reverseBytes(LONG_VALUE));
         bytes.putFloatVolatile(16, FLOAT_VALUE);
-        Assertions.assertThat(bytes.getFloatVolatileReverse(16)).isEqualTo(
-                Float.intBitsToFloat(Integer.reverseBytes(Float.floatToRawIntBits(FLOAT_VALUE))));
+        Assertions.assertThat(bytes.getFloatVolatileReverse(16))
+                .isEqualTo(Float.intBitsToFloat(Integer.reverseBytes(Float.floatToRawIntBits(FLOAT_VALUE))));
         bytes.putDoubleVolatile(24, DOUBLE_VALUE);
         //bit-level: the swapped MAX_VALUE pattern is a NaN — == is the wrong comparison, raw bits are exact
-        Assertions.assertThat(Double.doubleToRawLongBits(bytes.getDoubleVolatileReverse(24))).isEqualTo(
-                Double.doubleToRawLongBits(Double.longBitsToDouble(
-                        Long.reverseBytes(Double.doubleToRawLongBits(DOUBLE_VALUE)))));
+        Assertions.assertThat(Double.doubleToRawLongBits(bytes.getDoubleVolatileReverse(24)))
+                .isEqualTo(Double.doubleToRawLongBits(
+                        Double.longBitsToDouble(Long.reverseBytes(Double.doubleToRawLongBits(DOUBLE_VALUE)))));
         bytes.putIntVolatileReverse(32, INT_VALUE);
         Assertions.assertThat(bytes.getInt(32)).isEqualTo(Integer.reverseBytes(INT_VALUE));
         bytes.putLongVolatileReverse(40, LONG_VALUE);
@@ -153,8 +151,7 @@ public class BufferVolatileAccessTest {
         bytes.putFloatVolatileReverse(48, Float.intBitsToFloat(NAN_FLOAT_BITS));
         Assertions.assertThat(Float.floatToRawIntBits(bytes.getFloat(48)))
                 .isEqualTo(Integer.reverseBytes(NAN_FLOAT_BITS));
-        Assertions.assertThat(Float.floatToRawIntBits(bytes.getFloatVolatileReverse(48)))
-                .isEqualTo(NAN_FLOAT_BITS);
+        Assertions.assertThat(Float.floatToRawIntBits(bytes.getFloatVolatileReverse(48))).isEqualTo(NAN_FLOAT_BITS);
         bytes.putDoubleVolatileReverse(56, Double.longBitsToDouble(NAN_DOUBLE_BITS));
         Assertions.assertThat(Double.doubleToRawLongBits(bytes.getDouble(56)))
                 .isEqualTo(Long.reverseBytes(NAN_DOUBLE_BITS));
@@ -234,9 +231,8 @@ public class BufferVolatileAccessTest {
 
     @Test
     public void testSegmentedMemoryBufferReverseVolatileSinglePartAndCrossPart() {
-        final SegmentedMemoryBuffer buffer = new SegmentedMemoryBuffer(
-                new IMemoryBuffer[] {MemoryBuffers.wrap(new byte[PART_SIZE]), MemoryBuffers.wrap(new byte[PART_SIZE])},
-                PART_SIZE);
+        final SegmentedMemoryBuffer buffer = new SegmentedMemoryBuffer(new IMemoryBuffer[] {
+                MemoryBuffers.wrap(new byte[PART_SIZE]), MemoryBuffers.wrap(new byte[PART_SIZE]) }, PART_SIZE);
 
         testReverseVolatileSinglePartAndCrossPartMemory(buffer);
     }
@@ -260,28 +256,23 @@ public class BufferVolatileAccessTest {
         //cross-part wide Reverse volatile access is refused, not silently torn
         assertSplitThrowsMemory(buffer, "putIntVolatileReverse",
                 () -> buffer.putIntVolatileReverse(PART_SIZE - 2, INT_VALUE));
-        assertSplitThrowsMemory(buffer, "getIntVolatileReverse",
-                () -> buffer.getIntVolatileReverse(PART_SIZE - 2));
+        assertSplitThrowsMemory(buffer, "getIntVolatileReverse", () -> buffer.getIntVolatileReverse(PART_SIZE - 2));
         assertSplitThrowsMemory(buffer, "putLongVolatileReverse",
                 () -> buffer.putLongVolatileReverse(PART_SIZE - 4, LONG_VALUE));
-        assertSplitThrowsMemory(buffer, "getLongVolatileReverse",
-                () -> buffer.getLongVolatileReverse(PART_SIZE - 4));
+        assertSplitThrowsMemory(buffer, "getLongVolatileReverse", () -> buffer.getLongVolatileReverse(PART_SIZE - 4));
         assertSplitThrowsMemory(buffer, "putFloatVolatileReverse",
                 () -> buffer.putFloatVolatileReverse(PART_SIZE - 3, FLOAT_VALUE));
-        assertSplitThrowsMemory(buffer, "getFloatVolatileReverse",
-                () -> buffer.getFloatVolatileReverse(PART_SIZE - 3));
+        assertSplitThrowsMemory(buffer, "getFloatVolatileReverse", () -> buffer.getFloatVolatileReverse(PART_SIZE - 3));
         assertSplitThrowsMemory(buffer, "putDoubleVolatileReverse",
                 () -> buffer.putDoubleVolatileReverse(PART_SIZE - 5, DOUBLE_VALUE));
         assertSplitThrowsMemory(buffer, "getDoubleVolatileReverse",
                 () -> buffer.getDoubleVolatileReverse(PART_SIZE - 5));
         assertSplitThrowsMemory(buffer, "putCharVolatileReverse",
                 () -> buffer.putCharVolatileReverse(PART_SIZE - 1, 'x'));
-        assertSplitThrowsMemory(buffer, "getCharVolatileReverse",
-                () -> buffer.getCharVolatileReverse(PART_SIZE - 1));
+        assertSplitThrowsMemory(buffer, "getCharVolatileReverse", () -> buffer.getCharVolatileReverse(PART_SIZE - 1));
         assertSplitThrowsMemory(buffer, "putShortVolatileReverse",
                 () -> buffer.putShortVolatileReverse(PART_SIZE - 1, (short) 7));
-        assertSplitThrowsMemory(buffer, "getShortVolatileReverse",
-                () -> buffer.getShortVolatileReverse(PART_SIZE - 1));
+        assertSplitThrowsMemory(buffer, "getShortVolatileReverse", () -> buffer.getShortVolatileReverse(PART_SIZE - 1));
         assertSplitThrowsMemory(buffer, "putIntReleaseReverse",
                 () -> buffer.putIntReleaseReverse(PART_SIZE - 2, INT_VALUE));
         assertSplitThrowsMemory(buffer, "putIntOrderedReverse",
@@ -290,10 +281,8 @@ public class BufferVolatileAccessTest {
                 () -> buffer.putLongReleaseReverse(PART_SIZE - 4, LONG_VALUE));
         assertSplitThrowsMemory(buffer, "putLongOrderedReverse",
                 () -> buffer.putLongOrderedReverse(PART_SIZE - 4, LONG_VALUE));
-        assertSplitThrowsMemory(buffer, "getIntAcquireReverse",
-                () -> buffer.getIntAcquireReverse(PART_SIZE - 2));
-        assertSplitThrowsMemory(buffer, "getLongAcquireReverse",
-                () -> buffer.getLongAcquireReverse(PART_SIZE - 4));
+        assertSplitThrowsMemory(buffer, "getIntAcquireReverse", () -> buffer.getIntAcquireReverse(PART_SIZE - 2));
+        assertSplitThrowsMemory(buffer, "getLongAcquireReverse", () -> buffer.getLongAcquireReverse(PART_SIZE - 4));
     }
 
     @Test
@@ -308,10 +297,8 @@ public class BufferVolatileAccessTest {
 
     @Test
     public void testSegmentedByteBufferReverseVolatileSinglePartAndCrossPart() {
-        final SegmentedByteBuffer buffer = new SegmentedByteBuffer(
-                new IByteBuffer[] {new UnsafeByteBuffer(new byte[PART_SIZE]),
-                        new UnsafeByteBuffer(new byte[PART_SIZE])},
-                PART_SIZE);
+        final SegmentedByteBuffer buffer = new SegmentedByteBuffer(new IByteBuffer[] {
+                new UnsafeByteBuffer(new byte[PART_SIZE]), new UnsafeByteBuffer(new byte[PART_SIZE]) }, PART_SIZE);
 
         testReverseVolatileSinglePartAndCrossPartBytes(buffer);
     }
@@ -333,28 +320,23 @@ public class BufferVolatileAccessTest {
 
         assertSplitThrowsBytes(buffer, "putIntVolatileReverse",
                 () -> buffer.putIntVolatileReverse(PART_SIZE - 2, INT_VALUE));
-        assertSplitThrowsBytes(buffer, "getIntVolatileReverse",
-                () -> buffer.getIntVolatileReverse(PART_SIZE - 2));
+        assertSplitThrowsBytes(buffer, "getIntVolatileReverse", () -> buffer.getIntVolatileReverse(PART_SIZE - 2));
         assertSplitThrowsBytes(buffer, "putLongVolatileReverse",
                 () -> buffer.putLongVolatileReverse(PART_SIZE - 4, LONG_VALUE));
-        assertSplitThrowsBytes(buffer, "getLongVolatileReverse",
-                () -> buffer.getLongVolatileReverse(PART_SIZE - 4));
+        assertSplitThrowsBytes(buffer, "getLongVolatileReverse", () -> buffer.getLongVolatileReverse(PART_SIZE - 4));
         assertSplitThrowsBytes(buffer, "putFloatVolatileReverse",
                 () -> buffer.putFloatVolatileReverse(PART_SIZE - 3, FLOAT_VALUE));
-        assertSplitThrowsBytes(buffer, "getFloatVolatileReverse",
-                () -> buffer.getFloatVolatileReverse(PART_SIZE - 3));
+        assertSplitThrowsBytes(buffer, "getFloatVolatileReverse", () -> buffer.getFloatVolatileReverse(PART_SIZE - 3));
         assertSplitThrowsBytes(buffer, "putDoubleVolatileReverse",
                 () -> buffer.putDoubleVolatileReverse(PART_SIZE - 5, DOUBLE_VALUE));
         assertSplitThrowsBytes(buffer, "getDoubleVolatileReverse",
                 () -> buffer.getDoubleVolatileReverse(PART_SIZE - 5));
         assertSplitThrowsBytes(buffer, "putCharVolatileReverse",
                 () -> buffer.putCharVolatileReverse(PART_SIZE - 1, 'x'));
-        assertSplitThrowsBytes(buffer, "getCharVolatileReverse",
-                () -> buffer.getCharVolatileReverse(PART_SIZE - 1));
+        assertSplitThrowsBytes(buffer, "getCharVolatileReverse", () -> buffer.getCharVolatileReverse(PART_SIZE - 1));
         assertSplitThrowsBytes(buffer, "putShortVolatileReverse",
                 () -> buffer.putShortVolatileReverse(PART_SIZE - 1, (short) 7));
-        assertSplitThrowsBytes(buffer, "getShortVolatileReverse",
-                () -> buffer.getShortVolatileReverse(PART_SIZE - 1));
+        assertSplitThrowsBytes(buffer, "getShortVolatileReverse", () -> buffer.getShortVolatileReverse(PART_SIZE - 1));
         assertSplitThrowsBytes(buffer, "putIntReleaseReverse",
                 () -> buffer.putIntReleaseReverse(PART_SIZE - 2, INT_VALUE));
         assertSplitThrowsBytes(buffer, "putIntOrderedReverse",
@@ -363,10 +345,8 @@ public class BufferVolatileAccessTest {
                 () -> buffer.putLongReleaseReverse(PART_SIZE - 4, LONG_VALUE));
         assertSplitThrowsBytes(buffer, "putLongOrderedReverse",
                 () -> buffer.putLongOrderedReverse(PART_SIZE - 4, LONG_VALUE));
-        assertSplitThrowsBytes(buffer, "getIntAcquireReverse",
-                () -> buffer.getIntAcquireReverse(PART_SIZE - 2));
-        assertSplitThrowsBytes(buffer, "getLongAcquireReverse",
-                () -> buffer.getLongAcquireReverse(PART_SIZE - 4));
+        assertSplitThrowsBytes(buffer, "getIntAcquireReverse", () -> buffer.getIntAcquireReverse(PART_SIZE - 2));
+        assertSplitThrowsBytes(buffer, "getLongAcquireReverse", () -> buffer.getLongAcquireReverse(PART_SIZE - 4));
     }
 
     @Test
@@ -390,8 +370,7 @@ public class BufferVolatileAccessTest {
         underlying.putDoubleVolatileReverse(32, Double.longBitsToDouble(NAN_DOUBLE_BITS));
         Assertions.assertThat(Double.doubleToRawLongBits(mem.getDouble(32)))
                 .isEqualTo(Long.reverseBytes(NAN_DOUBLE_BITS));
-        Assertions.assertThat(Double.doubleToRawLongBits(mem.getDoubleVolatileReverse(32)))
-                .isEqualTo(NAN_DOUBLE_BITS);
+        Assertions.assertThat(Double.doubleToRawLongBits(mem.getDoubleVolatileReverse(32))).isEqualTo(NAN_DOUBLE_BITS);
 
         //sliced memory buffer: the Reverse twins must land at the shifted delegate coordinates
         final UnsafeMemoryBuffer underlyingMem = new UnsafeMemoryBuffer(new byte[64]);
@@ -462,9 +441,8 @@ public class BufferVolatileAccessTest {
 
     @Test
     public void testSegmentedMemoryBufferVolatileSinglePartAndCrossPart() {
-        final SegmentedMemoryBuffer buffer = new SegmentedMemoryBuffer(
-                new IMemoryBuffer[] {MemoryBuffers.wrap(new byte[PART_SIZE]), MemoryBuffers.wrap(new byte[PART_SIZE])},
-                PART_SIZE);
+        final SegmentedMemoryBuffer buffer = new SegmentedMemoryBuffer(new IMemoryBuffer[] {
+                MemoryBuffers.wrap(new byte[PART_SIZE]), MemoryBuffers.wrap(new byte[PART_SIZE]) }, PART_SIZE);
 
         testVolatileSinglePartAndCrossPartMemory(buffer);
     }
@@ -491,8 +469,7 @@ public class BufferVolatileAccessTest {
         assertSplitThrowsMemory(buffer, "getShortVolatile", () -> buffer.getShortVolatile(PART_SIZE - 1));
         assertSplitThrowsMemory(buffer, "putLongVolatile", () -> buffer.putLongVolatile(PART_SIZE - 4, LONG_VALUE));
         assertSplitThrowsMemory(buffer, "getLongVolatile", () -> buffer.getLongVolatile(PART_SIZE - 4));
-        assertSplitThrowsMemory(buffer, "putFloatVolatile",
-                () -> buffer.putFloatVolatile(PART_SIZE - 3, FLOAT_VALUE));
+        assertSplitThrowsMemory(buffer, "putFloatVolatile", () -> buffer.putFloatVolatile(PART_SIZE - 3, FLOAT_VALUE));
         assertSplitThrowsMemory(buffer, "getFloatVolatile", () -> buffer.getFloatVolatile(PART_SIZE - 3));
         assertSplitThrowsMemory(buffer, "putDoubleVolatile",
                 () -> buffer.putDoubleVolatile(PART_SIZE - 5, DOUBLE_VALUE));
@@ -513,7 +490,8 @@ public class BufferVolatileAccessTest {
 
     private void assertSplitThrowsMemory(final IMemoryBuffer buffer, final String method,
             final ThrowingCallable access) {
-        Assertions.assertThatThrownBy(access).isInstanceOf(UnsupportedOperationException.class)
+        Assertions.assertThatThrownBy(access)
+                .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessageContaining(method);
     }
 
@@ -529,10 +507,8 @@ public class BufferVolatileAccessTest {
 
     @Test
     public void testSegmentedByteBufferVolatileSinglePartAndCrossPart() {
-        final SegmentedByteBuffer buffer = new SegmentedByteBuffer(
-                new IByteBuffer[] {new UnsafeByteBuffer(new byte[PART_SIZE]),
-                        new UnsafeByteBuffer(new byte[PART_SIZE])},
-                PART_SIZE);
+        final SegmentedByteBuffer buffer = new SegmentedByteBuffer(new IByteBuffer[] {
+                new UnsafeByteBuffer(new byte[PART_SIZE]), new UnsafeByteBuffer(new byte[PART_SIZE]) }, PART_SIZE);
 
         testVolatileSinglePartAndCrossPartBytes(buffer);
     }
@@ -557,8 +533,7 @@ public class BufferVolatileAccessTest {
         assertSplitThrowsBytes(buffer, "getShortVolatile", () -> buffer.getShortVolatile(PART_SIZE - 1));
         assertSplitThrowsBytes(buffer, "putLongVolatile", () -> buffer.putLongVolatile(PART_SIZE - 4, LONG_VALUE));
         assertSplitThrowsBytes(buffer, "getLongVolatile", () -> buffer.getLongVolatile(PART_SIZE - 4));
-        assertSplitThrowsBytes(buffer, "putFloatVolatile",
-                () -> buffer.putFloatVolatile(PART_SIZE - 3, FLOAT_VALUE));
+        assertSplitThrowsBytes(buffer, "putFloatVolatile", () -> buffer.putFloatVolatile(PART_SIZE - 3, FLOAT_VALUE));
         assertSplitThrowsBytes(buffer, "getFloatVolatile", () -> buffer.getFloatVolatile(PART_SIZE - 3));
         assertSplitThrowsBytes(buffer, "putDoubleVolatile",
                 () -> buffer.putDoubleVolatile(PART_SIZE - 5, DOUBLE_VALUE));
@@ -576,9 +551,9 @@ public class BufferVolatileAccessTest {
         Assertions.assertThat(buffer.getByteVolatile(PART_SIZE)).isEqualTo((byte) 3);
     }
 
-    private void assertSplitThrowsBytes(final IByteBuffer buffer, final String method,
-            final ThrowingCallable access) {
-        Assertions.assertThatThrownBy(access).isInstanceOf(UnsupportedOperationException.class)
+    private void assertSplitThrowsBytes(final IByteBuffer buffer, final String method, final ThrowingCallable access) {
+        Assertions.assertThatThrownBy(access)
+                .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessageContaining(method);
     }
 

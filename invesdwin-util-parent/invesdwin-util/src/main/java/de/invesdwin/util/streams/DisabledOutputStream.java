@@ -10,8 +10,7 @@ public final class DisabledOutputStream extends OutputStream {
 
     public static final DisabledOutputStream INSTANCE = new DisabledOutputStream();
 
-    private DisabledOutputStream() {
-    }
+    private DisabledOutputStream() {}
 
     @Override
     public void write(final int b) throws IOException {

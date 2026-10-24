@@ -21,8 +21,7 @@ public final class DummyDecimalAggregate<E extends ADecimal<E>> implements IDeci
     @SuppressWarnings("rawtypes")
     private static final DummyDecimalAggregate INSTANCE = new DummyDecimalAggregate();
 
-    private DummyDecimalAggregate() {
-    }
+    private DummyDecimalAggregate() {}
 
     @Override
     public IDecimalAggregate<Percent> growthRates() {

@@ -106,36 +106,6 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
         return delegate.capacity();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public void getBytes(final long index, final byte[] dst, final int dstIndex, final int length) {
         delegate.getBytes(index, dst, dstIndex, length);
@@ -184,58 +154,29 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
         return true;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public byte getByte(final long index) {
         return delegate.getByte(index);
     }
+
     @Override
     public synchronized byte getByteVolatile(final long index) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getByte(index);
     }
+
     @Override
     public void putByte(final long index, final byte value) {
         ensureCapacity(index, Byte.BYTES);
         delegate.setByte(index, value);
     }
+
     @Override
     public synchronized void putByteVolatile(final long index, final byte value) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putByte(index, value);
     }
+
     @Override
     public char getChar(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -245,6 +186,7 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             return delegate.getChar(index);
         }
     }
+
     @Override
     public char getCharReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -254,16 +196,19 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             return delegate.getChar(index);
         }
     }
+
     @Override
     public synchronized char getCharVolatile(final long index) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getChar(index);
     }
+
     @Override
     public synchronized char getCharVolatileReverse(final long index) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getCharReverse(index);
     }
+
     @Override
     public void putChar(final long index, final char value) {
         ensureCapacity(index, Character.BYTES);
@@ -274,6 +219,7 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             delegate.setShort(index, (short) value);
         }
     }
+
     @Override
     public void putCharReverse(final long index, final char value) {
         ensureCapacity(index, Character.BYTES);
@@ -284,16 +230,19 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             delegate.setShort(index, (short) value);
         }
     }
+
     @Override
     public synchronized void putCharVolatile(final long index, final char value) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putChar(index, value);
     }
+
     @Override
     public synchronized void putCharVolatileReverse(final long index, final char value) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putCharReverse(index, value);
     }
+
     @Override
     public short getShort(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -303,6 +252,7 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             return delegate.getShort(index);
         }
     }
+
     @Override
     public short getShortReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -312,16 +262,19 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             return delegate.getShort(index);
         }
     }
+
     @Override
     public synchronized short getShortVolatile(final long index) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getShort(index);
     }
+
     @Override
     public synchronized short getShortVolatileReverse(final long index) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getShortReverse(index);
     }
+
     @Override
     public void putShort(final long index, final short value) {
         ensureCapacity(index, Short.BYTES);
@@ -332,6 +285,7 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             delegate.setShort(index, value);
         }
     }
+
     @Override
     public void putShortReverse(final long index, final short value) {
         ensureCapacity(index, Short.BYTES);
@@ -342,16 +296,19 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             delegate.setShort(index, value);
         }
     }
+
     @Override
     public synchronized void putShortVolatile(final long index, final short value) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putShort(index, value);
     }
+
     @Override
     public synchronized void putShortVolatileReverse(final long index, final short value) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putShortReverse(index, value);
     }
+
     @Override
     public int getInt(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -361,6 +318,7 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             return delegate.getInt(index);
         }
     }
+
     @Override
     public int getIntReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -370,26 +328,31 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             return delegate.getInt(index);
         }
     }
+
     @Override
     public synchronized int getIntVolatile(final long index) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getInt(index);
     }
+
     @Override
     public synchronized int getIntVolatileReverse(final long index) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getIntReverse(index);
     }
+
     @Override
     public synchronized int getIntAcquire(final long index) {
         //no native acquire path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getInt(index);
     }
+
     @Override
     public synchronized int getIntAcquireReverse(final long index) {
         //no native acquire path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getIntReverse(index);
     }
+
     @Override
     public void putInt(final long index, final int value) {
         ensureCapacity(index, Integer.BYTES);
@@ -400,6 +363,7 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             delegate.setInt(index, value);
         }
     }
+
     @Override
     public void putIntReverse(final long index, final int value) {
         ensureCapacity(index, Integer.BYTES);
@@ -410,36 +374,43 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             delegate.setInt(index, value);
         }
     }
+
     @Override
     public synchronized void putIntVolatile(final long index, final int value) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putInt(index, value);
     }
+
     @Override
     public synchronized void putIntVolatileReverse(final long index, final int value) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putIntReverse(index, value);
     }
+
     @Override
     public synchronized void putIntRelease(final long index, final int value) {
         //no native release path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putInt(index, value);
     }
+
     @Override
     public synchronized void putIntReleaseReverse(final long index, final int value) {
         //no native release path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putIntReverse(index, value);
     }
+
     @Override
     public synchronized void putIntOrdered(final long index, final int value) {
         //no native release path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putInt(index, value);
     }
+
     @Override
     public synchronized void putIntOrderedReverse(final long index, final int value) {
         //no native release path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putIntReverse(index, value);
     }
+
     @Override
     public long getLong(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -449,6 +420,7 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             return delegate.getLong(index);
         }
     }
+
     @Override
     public long getLongReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -458,26 +430,31 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             return delegate.getLong(index);
         }
     }
+
     @Override
     public synchronized long getLongVolatile(final long index) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getLong(index);
     }
+
     @Override
     public synchronized long getLongVolatileReverse(final long index) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getLongReverse(index);
     }
+
     @Override
     public synchronized long getLongAcquire(final long index) {
         //no native acquire path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getLong(index);
     }
+
     @Override
     public synchronized long getLongAcquireReverse(final long index) {
         //no native acquire path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getLongReverse(index);
     }
+
     @Override
     public void putLong(final long index, final long value) {
         ensureCapacity(index, Long.BYTES);
@@ -488,6 +465,7 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             delegate.setLong(index, value);
         }
     }
+
     @Override
     public void putLongReverse(final long index, final long value) {
         ensureCapacity(index, Long.BYTES);
@@ -498,36 +476,43 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             delegate.setLong(index, value);
         }
     }
+
     @Override
     public synchronized void putLongVolatile(final long index, final long value) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putLong(index, value);
     }
+
     @Override
     public synchronized void putLongVolatileReverse(final long index, final long value) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putLongReverse(index, value);
     }
+
     @Override
     public synchronized void putLongRelease(final long index, final long value) {
         //no native release path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putLong(index, value);
     }
+
     @Override
     public synchronized void putLongReleaseReverse(final long index, final long value) {
         //no native release path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putLongReverse(index, value);
     }
+
     @Override
     public synchronized void putLongOrdered(final long index, final long value) {
         //no native release path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putLong(index, value);
     }
+
     @Override
     public synchronized void putLongOrderedReverse(final long index, final long value) {
         //no native release path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putLongReverse(index, value);
     }
+
     @Override
     public float getFloat(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -537,6 +522,7 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             return delegate.getFloat(index);
         }
     }
+
     @Override
     public float getFloatReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -546,16 +532,19 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             return delegate.getFloat(index);
         }
     }
+
     @Override
     public synchronized float getFloatVolatile(final long index) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getFloat(index);
     }
+
     @Override
     public synchronized float getFloatVolatileReverse(final long index) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getFloatReverse(index);
     }
+
     @Override
     public void putFloat(final long index, final float value) {
         ensureCapacity(index, Float.BYTES);
@@ -566,6 +555,7 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             delegate.setFloat(index, value);
         }
     }
+
     @Override
     public void putFloatReverse(final long index, final float value) {
         ensureCapacity(index, Float.BYTES);
@@ -576,16 +566,19 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             delegate.setFloat(index, value);
         }
     }
+
     @Override
     public synchronized void putFloatVolatile(final long index, final float value) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putFloat(index, value);
     }
+
     @Override
     public synchronized void putFloatVolatileReverse(final long index, final float value) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putFloatReverse(index, value);
     }
+
     @Override
     public double getDouble(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -595,6 +588,7 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             return delegate.getDouble(index);
         }
     }
+
     @Override
     public double getDoubleReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -604,16 +598,19 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             return delegate.getDouble(index);
         }
     }
+
     @Override
     public synchronized double getDoubleVolatile(final long index) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getDouble(index);
     }
+
     @Override
     public synchronized double getDoubleVolatileReverse(final long index) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         return getDoubleReverse(index);
     }
+
     @Override
     public void putDouble(final long index, final double value) {
         ensureCapacity(index, Double.BYTES);
@@ -624,6 +621,7 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             delegate.setDouble(index, value);
         }
     }
+
     @Override
     public void putDoubleReverse(final long index, final double value) {
         ensureCapacity(index, Double.BYTES);
@@ -634,11 +632,13 @@ public class ArrowDelegateMemoryBuffer implements IMemoryBuffer {
             delegate.setDouble(index, value);
         }
     }
+
     @Override
     public synchronized void putDoubleVolatile(final long index, final double value) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics
         putDouble(index, value);
     }
+
     @Override
     public synchronized void putDoubleVolatileReverse(final long index, final double value) {
         //no native volatile path in arrow yet - the monitor provides the visibility guarantee until arrow exposes atomics

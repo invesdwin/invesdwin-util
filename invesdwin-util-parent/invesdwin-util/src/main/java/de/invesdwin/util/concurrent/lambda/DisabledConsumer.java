@@ -11,8 +11,7 @@ public class DisabledConsumer<E> implements Consumer<E> {
     private static final DisabledConsumer INSTANCE = new DisabledConsumer();
 
     @Override
-    public void accept(final Object t) {
-    }
+    public void accept(final Object t) {}
 
     @SuppressWarnings("unchecked")
     public static <T> DisabledConsumer<T> getInstance() {

@@ -155,21 +155,20 @@ public class CircularPrimitiveArrayQueueTest {
         Assertions.assertThat(array.toString()).isEqualTo("[1, 2, 3, 4]");
         Assertions.assertThat(array.toString(2, 4)).isEqualTo("[3, 4]");
         Assertions.assertThat(array.toStringReverse(2, 4)).isEqualTo("[2, 1]");
-        Assertions.assertThat(array.toArray(new int[6])).isEqualTo(
-                new int[] { 1, 2, 3, 4, Integer.MIN_VALUE, 0 });
+        Assertions.assertThat(array.toArray(new int[6])).isEqualTo(new int[] { 1, 2, 3, 4, Integer.MIN_VALUE, 0 });
         Assertions.assertThat(array.toArray(new int[2])).isEqualTo(new int[] { 1, 2, 3, 4 });
     }
 
     @Test
     public void testCapacityValidation() {
-        Assertions.assertThatThrownBy(() -> new CircularLongPrimitiveArrayQueue(0)).isInstanceOf(
-                IllegalArgumentException.class);
-        Assertions.assertThatThrownBy(() -> new CircularDoublePrimitiveArrayQueue(-1)).isInstanceOf(
-                IllegalArgumentException.class);
-        Assertions.assertThatThrownBy(() -> new CircularIntegerPrimitiveArrayQueue(-1)).isInstanceOf(
-                IllegalArgumentException.class);
-        Assertions.assertThatThrownBy(() -> new CircularBooleanPrimitiveArrayQueue(0)).isInstanceOf(
-                IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> new CircularLongPrimitiveArrayQueue(0))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> new CircularDoublePrimitiveArrayQueue(-1))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> new CircularIntegerPrimitiveArrayQueue(-1))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> new CircularBooleanPrimitiveArrayQueue(0))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -195,8 +194,8 @@ public class CircularPrimitiveArrayQueueTest {
         other.circularAdd(4L);
         Assertions.assertThat(other.toString()).isEqualTo("[4]");
         Assertions.assertThat(values).isEqualTo(new long[] { 4L, 2L });
-        Assertions.assertThatThrownBy(() -> new CircularIntegerPrimitiveArrayQueue(new int[0])).isInstanceOf(
-                IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> new CircularIntegerPrimitiveArrayQueue(new int[0]))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

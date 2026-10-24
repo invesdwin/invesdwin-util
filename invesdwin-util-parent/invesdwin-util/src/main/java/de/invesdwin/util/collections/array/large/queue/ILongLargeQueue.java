@@ -8,8 +8,8 @@ import de.invesdwin.util.error.FastNoSuchElementException;
 public interface ILongLargeQueue {
 
     /**
-     * Unlike a double there is no NaN for a long, so an out of range value is used to signal that there
-     * is nothing to poll or peek (adding this value on purpose will make it indistinguishable from a missing value).
+     * Unlike a double there is no NaN for a long, so an out of range value is used to signal that there is nothing to
+     * poll or peek (adding this value on purpose will make it indistinguishable from a missing value).
      */
     long MISSING_VALUE = Long.MIN_VALUE;
 

@@ -54,15 +54,14 @@ public abstract class ABaseHistoricalCacheTest {
     protected abstract ATestGapHistoricalCache newTestGapHistoricalCache();
 
     /**
-     * Makes the cache state explicit for every test method: the very first query that a JVM process
-     * runs against a given cache class performs one more underlying read than every later query, and
-     * the junit discovery order used to decide which of the tests pays for it - making exact read
-     * counter expectations dependent on that order. Warming the concrete test's cache class with two
-     * in-range queries before the test method runs, and resetting the counters to zero right after
-     * that warmup, keeps those exact expectations stable independent of method order and JVM startup
-     * - also when a single method runs in isolation or inside the junit runner of an IDE. The nested
-     * cache classes carry process-unique names on purpose: this first-query state is keyed by the
-     * cache class' simple name, so warming it must not consume state other caches rely on.
+     * Makes the cache state explicit for every test method: the very first query that a JVM process runs against a
+     * given cache class performs one more underlying read than every later query, and the junit discovery order used to
+     * decide which of the tests pays for it - making exact read counter expectations dependent on that order. Warming
+     * the concrete test's cache class with two in-range queries before the test method runs, and resetting the counters
+     * to zero right after that warmup, keeps those exact expectations stable independent of method order and JVM
+     * startup - also when a single method runs in isolation or inside the junit runner of an IDE. The nested cache
+     * classes carry process-unique names on purpose: this first-query state is keyed by the cache class' simple name,
+     * so warming it must not consume state other caches rely on.
      */
     @BeforeEach
     protected final void warmUpCacheSingletons() {

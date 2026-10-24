@@ -9,16 +9,14 @@ import de.invesdwin.util.error.FastNoSuchElementException;
 
 /**
  * Serializes all {@link IBooleanLargeCircularQueue} operations with an {@link ILock}; clamped reads and the window copy
- * take the lock once for the whole operation; remove()/element() are overridden to keep the
- * check-then-act atomic under a single lock acquisition (the inherited interface defaults would
- * take two).
- * ILock-based variant, kept beside the monitor-based Synchronized* siblings exactly like the
- * platform's LockedMap sits beside SynchronizedMap: use it when this lock needs Locks features
- * (cycle detection / wait timeouts when enabled via Locks) or when one ILock is shared across
- * structures (series-level seam). The synchronized factory's newCircular* methods return the
- * monitor-based Synchronized* variants by default - there are no factory wrap methods for
- * queues (unlike externally provided maps/sets these are always factory-created), so construct
- * this class directly around a queue when an ILock guard is wanted.
+ * take the lock once for the whole operation; remove()/element() are overridden to keep the check-then-act atomic under
+ * a single lock acquisition (the inherited interface defaults would take two). ILock-based variant, kept beside the
+ * monitor-based Synchronized* siblings exactly like the platform's LockedMap sits beside SynchronizedMap: use it when
+ * this lock needs Locks features (cycle detection / wait timeouts when enabled via Locks) or when one ILock is shared
+ * across structures (series-level seam). The synchronized factory's newCircular* methods return the monitor-based
+ * Synchronized* variants by default - there are no factory wrap methods for queues (unlike externally provided
+ * maps/sets these are always factory-created), so construct this class directly around a queue when an ILock guard is
+ * wanted.
  */
 @ThreadSafe
 public class LockedBooleanLargeCircularQueue implements IBooleanLargeCircularQueue {

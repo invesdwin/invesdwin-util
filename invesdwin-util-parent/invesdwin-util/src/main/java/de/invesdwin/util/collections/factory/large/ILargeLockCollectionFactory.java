@@ -15,23 +15,23 @@ import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.factory.primitive.IPrimitiveLockCollectionFactory;
 
 /**
- * Long-indexed view of {@link ILockCollectionFactory} for the large array world (bitsets and circular queues).
- * Always reached via {@code lockCollectionFactory.large()} - {@link ILockCollectionFactory} stays the single
- * starting point, so long-indexed allocations can never be mixed with the int-indexed {@link IPrimitiveLockCollectionFactory}
- * ones whose cursors cannot span them.
+ * Long-indexed view of {@link ILockCollectionFactory} for the large array world (bitsets and circular queues). Always
+ * reached via {@code lockCollectionFactory.large()} - {@link ILockCollectionFactory} stays the single starting point,
+ * so long-indexed allocations can never be mixed with the int-indexed {@link IPrimitiveLockCollectionFactory} ones
+ * whose cursors cannot span them.
  */
 public interface ILargeLockCollectionFactory {
 
     /**
-     * A java bitset below the roaring threshold (about twice as fast), a roaring bitmap above it to stay within
-     * memory limits, and a segmented roaring bitmap beyond what a single roaring bitmap can address.
+     * A java bitset below the roaring threshold (about twice as fast), a roaring bitmap above it to stay within memory
+     * limits, and a segmented roaring bitmap beyond what a single roaring bitmap can address.
      */
     ILargeBitSet newBitSet(long initialSize);
 
     /**
-     * Circular queues with rollover and clamped positional reads; the thread-safe factory returns locked wrappers,
-     * the disabled one raw unlocked instances (headless backtests pay no locking). The backing-store overloads let
-     * the caller provide the storage (e.g. an off heap array) which becomes the queue's capacity.
+     * Circular queues with rollover and clamped positional reads; the thread-safe factory returns locked wrappers, the
+     * disabled one raw unlocked instances (headless backtests pay no locking). The backing-store overloads let the
+     * caller provide the storage (e.g. an off heap array) which becomes the queue's capacity.
      */
     IDoubleLargeCircularQueue newCircularDoubleQueue(long capacity);
 

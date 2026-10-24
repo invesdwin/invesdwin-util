@@ -31,8 +31,7 @@ public class CircularMemoryBufferTest {
         Assertions.assertThat(written2).isEqualTo((int) circular.capacity());
         Assertions.assertThat(circular.size()).isEqualTo(circular.capacity());
         Assertions.assertThat(Bytes.subArray(output, 0, written2)).isEqualTo(Bytes.subArray(INPUT, 0, written2));
-        Assertions.assertThat(asBytes(circular))
-                .isEqualTo(Bytes.subArray(INPUT, 0, (int) circular.capacity()));
+        Assertions.assertThat(asBytes(circular)).isEqualTo(Bytes.subArray(INPUT, 0, (int) circular.capacity()));
     }
 
     @Test
@@ -123,8 +122,7 @@ public class CircularMemoryBufferTest {
         Assertions.assertThat(written1).isEqualTo(INPUT.length - circular.capacity());
         Assertions.assertThat(getBytes(target, 0, written1)).isEqualTo(Bytes.subArray(INPUT, 0, (int) written1));
         Assertions.assertThat(circular.size()).isEqualTo(circular.capacity());
-        Assertions.assertThat(asBytes(circular))
-                .isEqualTo(Bytes.subArray(INPUT, (int) written1, INPUT.length));
+        Assertions.assertThat(asBytes(circular)).isEqualTo(Bytes.subArray(INPUT, (int) written1, INPUT.length));
 
         final IMemoryBuffer target2 = MemoryBuffers.allocate(14);
         final long written2 = circular.writeThrough(source, 0, target2, 6, 8);
@@ -132,8 +130,7 @@ public class CircularMemoryBufferTest {
         Assertions.assertThat(getBytes(target2, 6, written2))
                 .isEqualTo(Bytes.subArray(INPUT, (int) written1, INPUT.length));
         Assertions.assertThat(circular.size()).isEqualTo(circular.capacity());
-        Assertions.assertThat(asBytes(circular))
-                .isEqualTo(Bytes.subArray(INPUT, 0, (int) circular.capacity()));
+        Assertions.assertThat(asBytes(circular)).isEqualTo(Bytes.subArray(INPUT, 0, (int) circular.capacity()));
     }
 
     /**

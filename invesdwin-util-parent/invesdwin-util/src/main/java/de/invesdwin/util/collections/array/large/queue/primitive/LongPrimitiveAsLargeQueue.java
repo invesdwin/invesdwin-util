@@ -6,8 +6,8 @@ import de.invesdwin.util.collections.array.large.queue.ILongLargeQueue;
 import de.invesdwin.util.collections.array.primitive.queue.ILongPrimitiveQueue;
 
 /**
- * Adapter for using a {@link ILongPrimitiveQueue} where a {@link ILongLargeQueue} is expected, the int based
- * size is widened to a long, so nothing can overflow.
+ * Adapter for using a {@link ILongPrimitiveQueue} where a {@link ILongLargeQueue} is expected, the int based size is
+ * widened to a long, so nothing can overflow.
  */
 @NotThreadSafe
 public class LongPrimitiveAsLargeQueue implements ILongLargeQueue {

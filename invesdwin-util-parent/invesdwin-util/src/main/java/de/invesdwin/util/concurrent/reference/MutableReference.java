@@ -10,8 +10,7 @@ public class MutableReference<T> implements IMutableReference<T>, ISerializableV
 
     private T value;
 
-    public MutableReference() {
-    }
+    public MutableReference() {}
 
     public MutableReference(final T value) {
         this.value = value;

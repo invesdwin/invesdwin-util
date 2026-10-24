@@ -90,36 +90,6 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
         return delegate.capacity();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public void getBytes(final int index, final byte[] dst, final int dstIndex, final int length) {
         delegate.getBytes(index, dst, dstIndex, length);
@@ -173,56 +143,27 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
         return new UnsupportedOperationException("read only");
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public byte getByte(final int index) {
         return delegate.getByte(index);
     }
+
     @Override
     public synchronized byte getByteVolatile(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getByte(index);
     }
+
     @Override
     public void putByte(final int index, final byte value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putByteVolatile(final int index, final byte value) {
         throw newReadOnlyException();
     }
+
     @Override
     public char getChar(final int index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -232,6 +173,7 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
             return delegate.getChar(index);
         }
     }
+
     @Override
     public char getCharReverse(final int index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -241,32 +183,39 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
             return delegate.getChar(index);
         }
     }
+
     @Override
     public synchronized char getCharVolatile(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getChar(index);
     }
+
     @Override
     public synchronized char getCharVolatileReverse(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getCharReverse(index);
     }
+
     @Override
     public void putChar(final int index, final char value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putCharReverse(final int index, final char value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putCharVolatile(final int index, final char value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putCharVolatileReverse(final int index, final char value) {
         throw newReadOnlyException();
     }
+
     @Override
     public short getShort(final int index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -276,6 +225,7 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
             return delegate.getShort(index);
         }
     }
+
     @Override
     public short getShortReverse(final int index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -285,32 +235,39 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
             return delegate.getShort(index);
         }
     }
+
     @Override
     public synchronized short getShortVolatile(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getShort(index);
     }
+
     @Override
     public synchronized short getShortVolatileReverse(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getShortReverse(index);
     }
+
     @Override
     public void putShort(final int index, final short value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putShortReverse(final int index, final short value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putShortVolatile(final int index, final short value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putShortVolatileReverse(final int index, final short value) {
         throw newReadOnlyException();
     }
+
     @Override
     public int getInt(final int index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -320,6 +277,7 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
             return delegate.getInt(index);
         }
     }
+
     @Override
     public int getIntReverse(final int index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -329,58 +287,71 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
             return delegate.getInt(index);
         }
     }
+
     @Override
     public synchronized int getIntVolatile(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getInt(index);
     }
+
     @Override
     public synchronized int getIntVolatileReverse(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getIntReverse(index);
     }
+
     @Override
     public synchronized int getIntAcquire(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getInt(index);
     }
+
     @Override
     public synchronized int getIntAcquireReverse(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getIntReverse(index);
     }
+
     @Override
     public void putInt(final int index, final int value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putIntReverse(final int index, final int value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putIntVolatile(final int index, final int value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putIntVolatileReverse(final int index, final int value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putIntRelease(final int index, final int value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putIntReleaseReverse(final int index, final int value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putIntOrdered(final int index, final int value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putIntOrderedReverse(final int index, final int value) {
         throw newReadOnlyException();
     }
+
     @Override
     public long getLong(final int index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -390,6 +361,7 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
             return delegate.getLong(index);
         }
     }
+
     @Override
     public long getLongReverse(final int index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -399,58 +371,71 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
             return delegate.getLong(index);
         }
     }
+
     @Override
     public synchronized long getLongVolatile(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getLong(index);
     }
+
     @Override
     public synchronized long getLongVolatileReverse(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getLongReverse(index);
     }
+
     @Override
     public synchronized long getLongAcquire(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getLong(index);
     }
+
     @Override
     public synchronized long getLongAcquireReverse(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getLongReverse(index);
     }
+
     @Override
     public void putLong(final int index, final long value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putLongReverse(final int index, final long value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putLongVolatile(final int index, final long value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putLongVolatileReverse(final int index, final long value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putLongRelease(final int index, final long value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putLongReleaseReverse(final int index, final long value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putLongOrdered(final int index, final long value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putLongOrderedReverse(final int index, final long value) {
         throw newReadOnlyException();
     }
+
     @Override
     public float getFloat(final int index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -460,6 +445,7 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
             return delegate.getFloat(index);
         }
     }
+
     @Override
     public float getFloatReverse(final int index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -469,32 +455,39 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
             return delegate.getFloat(index);
         }
     }
+
     @Override
     public synchronized float getFloatVolatile(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getFloat(index);
     }
+
     @Override
     public synchronized float getFloatVolatileReverse(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getFloatReverse(index);
     }
+
     @Override
     public void putFloat(final int index, final float value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putFloatReverse(final int index, final float value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putFloatVolatile(final int index, final float value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putFloatVolatileReverse(final int index, final float value) {
         throw newReadOnlyException();
     }
+
     @Override
     public double getDouble(final int index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -504,6 +497,7 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
             return delegate.getDouble(index);
         }
     }
+
     @Override
     public double getDoubleReverse(final int index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -513,28 +507,34 @@ public class AgronaDelegateByteBuffer implements IByteBuffer {
             return delegate.getDouble(index);
         }
     }
+
     @Override
     public synchronized double getDoubleVolatile(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getDouble(index);
     }
+
     @Override
     public synchronized double getDoubleVolatileReverse(final int index) {
         //no volatile accessor on agrona DirectBuffer - the monitor provides the visibility guarantee
         return getDoubleReverse(index);
     }
+
     @Override
     public void putDouble(final int index, final double value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putDoubleReverse(final int index, final double value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putDoubleVolatile(final int index, final double value) {
         throw newReadOnlyException();
     }
+
     @Override
     public void putDoubleVolatileReverse(final int index, final double value) {
         throw newReadOnlyException();

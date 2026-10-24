@@ -19,8 +19,7 @@ public final class NewYearsEveHolidayManager implements IHolidayManager {
     private static final int DECEMBER = FMonth.December.indexValue();
     private static final int NEW_YEARS_EVE_DAY_OF_MONTH = 31;
 
-    private NewYearsEveHolidayManager() {
-    }
+    private NewYearsEveHolidayManager() {}
 
     @Override
     public boolean isHoliday(final FDate date) {

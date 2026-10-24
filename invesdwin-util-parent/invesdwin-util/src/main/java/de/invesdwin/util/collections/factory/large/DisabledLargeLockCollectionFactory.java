@@ -39,9 +39,8 @@ public final class DisabledLargeLockCollectionFactory implements ILargeLockColle
     public ILargeBitSet newBitSet(final long initialSize) {
         if (initialSize > RoaringLargeBitSet.MAX_SIZE) {
             /*
-             * TODO: test which one is actually faster. Roaring64 implementations do not support range-based
-             * operations, which are used in some places. They might be slower than the segmented version, which does
-             * support them.
+             * TODO: test which one is actually faster. Roaring64 implementations do not support range-based operations,
+             * which are used in some places. They might be slower than the segmented version, which does support them.
              */
             //return new Roaring64LargeNavigableBitSet(initialSize);
             //return new Roaring64LargeBitSet(initialSize);

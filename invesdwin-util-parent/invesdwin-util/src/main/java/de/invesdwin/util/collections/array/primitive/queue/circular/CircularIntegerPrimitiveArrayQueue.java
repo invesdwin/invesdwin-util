@@ -6,11 +6,12 @@ import de.invesdwin.util.collections.array.primitive.IIntegerPrimitiveArray;
 import de.invesdwin.util.collections.array.primitive.queue.IIntegerPrimitiveCircularQueue;
 
 /**
- * Int-indexed counterpart of {@code CircularIntegerLargeArrayQueue} - same circular semantics, bounded by the int
- * range instead of the long range. Values are stored in an {@link IIntegerPrimitiveArray}.
+ * Int-indexed counterpart of {@code CircularIntegerLargeArrayQueue} - same circular semantics, bounded by the int range
+ * instead of the long range. Values are stored in an {@link IIntegerPrimitiveArray}.
  */
 @NotThreadSafe
-public class CircularIntegerPrimitiveArrayQueue extends ACircularPrimitiveArrayQueue implements IIntegerPrimitiveCircularQueue {
+public class CircularIntegerPrimitiveArrayQueue extends ACircularPrimitiveArrayQueue
+        implements IIntegerPrimitiveCircularQueue {
 
     private final IIntegerPrimitiveArray array;
 

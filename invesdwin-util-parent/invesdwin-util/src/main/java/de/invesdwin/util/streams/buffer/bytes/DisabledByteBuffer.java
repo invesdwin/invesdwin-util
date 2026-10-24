@@ -56,40 +56,6 @@ public final class DisabledByteBuffer implements ICloseableByteBuffer {
         return false;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public void putBytes(final int index, final byte[] src) {}
 
@@ -128,221 +94,255 @@ public final class DisabledByteBuffer implements ICloseableByteBuffer {
         return 0;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public byte getByte(final int index) {
         return 0;
     }
+
     @Override
     public byte getByteVolatile(final int index) {
         return 0;
     }
+
     @Override
     public void putByte(final int index, final byte value) {}
+
     @Override
     public void putByteVolatile(final int index, final byte value) {}
+
     @Override
     public char getChar(final int index) {
         return 0;
     }
+
     @Override
     public char getCharReverse(final int index) {
         return 0;
     }
+
     @Override
     public char getCharVolatile(final int index) {
         return 0;
     }
+
     @Override
     public char getCharVolatileReverse(final int index) {
         return 0;
     }
+
     @Override
     public void putChar(final int index, final char value) {}
+
     @Override
     public void putCharReverse(final int index, final char value) {}
+
     @Override
     public void putCharVolatile(final int index, final char value) {}
+
     @Override
     public void putCharVolatileReverse(final int index, final char value) {}
+
     @Override
     public short getShort(final int index) {
         return 0;
     }
+
     @Override
     public short getShortReverse(final int index) {
         return 0;
     }
+
     @Override
     public short getShortVolatile(final int index) {
         return 0;
     }
+
     @Override
     public short getShortVolatileReverse(final int index) {
         return 0;
     }
+
     @Override
     public void putShort(final int index, final short value) {}
+
     @Override
     public void putShortReverse(final int index, final short value) {}
+
     @Override
     public void putShortVolatile(final int index, final short value) {}
+
     @Override
     public void putShortVolatileReverse(final int index, final short value) {}
+
     @Override
     public int getInt(final int index) {
         return 0;
     }
+
     @Override
     public int getIntReverse(final int index) {
         return 0;
     }
+
     @Override
     public int getIntVolatile(final int index) {
         return 0;
     }
+
     @Override
     public int getIntVolatileReverse(final int index) {
         return 0;
     }
+
     @Override
     public int getIntAcquire(final int index) {
         return 0;
     }
+
     @Override
     public int getIntAcquireReverse(final int index) {
         return 0;
     }
+
     @Override
     public void putInt(final int index, final int value) {}
+
     @Override
     public void putIntReverse(final int index, final int value) {}
+
     @Override
     public void putIntVolatile(final int index, final int value) {}
+
     @Override
     public void putIntVolatileReverse(final int index, final int value) {}
+
     @Override
     public void putIntRelease(final int index, final int value) {}
+
     @Override
     public void putIntReleaseReverse(final int index, final int value) {}
+
     @Override
     public void putIntOrdered(final int index, final int value) {}
+
     @Override
     public void putIntOrderedReverse(final int index, final int value) {}
+
     @Override
     public long getLong(final int index) {
         return 0;
     }
+
     @Override
     public long getLongReverse(final int index) {
         return 0;
     }
+
     @Override
     public long getLongVolatile(final int index) {
         return 0;
     }
+
     @Override
     public long getLongVolatileReverse(final int index) {
         return 0;
     }
+
     @Override
     public long getLongAcquire(final int index) {
         return 0;
     }
+
     @Override
     public long getLongAcquireReverse(final int index) {
         return 0;
     }
+
     @Override
     public void putLong(final int index, final long value) {}
+
     @Override
     public void putLongReverse(final int index, final long value) {}
+
     @Override
     public void putLongVolatile(final int index, final long value) {}
+
     @Override
     public void putLongVolatileReverse(final int index, final long value) {}
+
     @Override
     public void putLongRelease(final int index, final long value) {}
+
     @Override
     public void putLongReleaseReverse(final int index, final long value) {}
+
     @Override
     public void putLongOrdered(final int index, final long value) {}
+
     @Override
     public void putLongOrderedReverse(final int index, final long value) {}
+
     @Override
     public float getFloat(final int index) {
         return 0;
     }
+
     @Override
     public float getFloatReverse(final int index) {
         return 0;
     }
+
     @Override
     public float getFloatVolatile(final int index) {
         return 0;
     }
+
     @Override
     public float getFloatVolatileReverse(final int index) {
         return 0;
     }
+
     @Override
     public void putFloat(final int index, final float value) {}
+
     @Override
     public void putFloatReverse(final int index, final float value) {}
+
     @Override
     public void putFloatVolatile(final int index, final float value) {}
+
     @Override
     public void putFloatVolatileReverse(final int index, final float value) {}
+
     @Override
     public double getDouble(final int index) {
         return 0;
     }
+
     @Override
     public double getDoubleReverse(final int index) {
         return 0;
     }
+
     @Override
     public double getDoubleVolatile(final int index) {
         return 0;
     }
+
     @Override
     public double getDoubleVolatileReverse(final int index) {
         return 0;
     }
+
     @Override
     public void putDouble(final int index, final double value) {}
+
     @Override
     public void putDoubleReverse(final int index, final double value) {}
+
     @Override
     public void putDoubleVolatile(final int index, final double value) {}
+
     @Override
     public void putDoubleVolatileReverse(final int index, final double value) {}
 

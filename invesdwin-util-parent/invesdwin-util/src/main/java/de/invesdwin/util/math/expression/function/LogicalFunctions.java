@@ -649,8 +649,7 @@ public final class LogicalFunctions {
 
     };
 
-    private LogicalFunctions() {
-    }
+    private LogicalFunctions() {}
 
     public static ADoubleFunction newMapFunction(final String expressionName) {
         return new ADoubleFunction() {

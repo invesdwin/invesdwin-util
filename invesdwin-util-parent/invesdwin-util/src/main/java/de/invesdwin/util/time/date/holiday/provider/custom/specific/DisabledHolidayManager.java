@@ -10,8 +10,7 @@ public final class DisabledHolidayManager implements IHolidayManager {
 
     public static final DisabledHolidayManager INSTANCE = new DisabledHolidayManager();
 
-    private DisabledHolidayManager() {
-    }
+    private DisabledHolidayManager() {}
 
     @Override
     public boolean isHoliday(final FDate date) {

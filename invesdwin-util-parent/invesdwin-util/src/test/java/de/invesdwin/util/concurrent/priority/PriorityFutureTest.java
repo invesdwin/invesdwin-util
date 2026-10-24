@@ -35,8 +35,7 @@ public class PriorityFutureTest {
             }
 
             @Override
-            public void run() {
-            }
+            public void run() {}
 
             @Override
             public String toString() {

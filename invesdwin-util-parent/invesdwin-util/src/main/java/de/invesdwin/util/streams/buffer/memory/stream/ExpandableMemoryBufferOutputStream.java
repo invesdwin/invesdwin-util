@@ -19,8 +19,7 @@ public class ExpandableMemoryBufferOutputStream extends OutputStream {
     /**
      * Default constructor.
      */
-    public ExpandableMemoryBufferOutputStream() {
-    }
+    public ExpandableMemoryBufferOutputStream() {}
 
     /**
      * Wrap given {@link IMemoryBuffer}.
@@ -132,6 +131,5 @@ public class ExpandableMemoryBufferOutputStream extends OutputStream {
      * {@inheritDoc}
      */
     @Override
-    public void close() {
-    }
+    public void close() {}
 }

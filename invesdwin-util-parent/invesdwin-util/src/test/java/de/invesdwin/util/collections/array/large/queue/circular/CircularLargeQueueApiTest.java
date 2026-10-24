@@ -14,8 +14,8 @@ import de.invesdwin.util.collections.array.large.queue.ILongLargeQueue;
 
 /**
  * Differential tests for the circular queue API against an ArrayList oracle (the semantics pinned by
- * {@link CircularLargeArrayQueueTest}), covering the shared cursor base (conditional subtract instead of modulo for
- * ALL capacities, especially non power-of-two), the clamped reads, the window copy and the generic eviction guard.
+ * {@link CircularLargeArrayQueueTest}), covering the shared cursor base (conditional subtract instead of modulo for ALL
+ * capacities, especially non power-of-two), the clamped reads, the window copy and the generic eviction guard.
  */
 @NotThreadSafe
 public class CircularLargeQueueApiTest {
@@ -33,54 +33,54 @@ public class CircularLargeQueueApiTest {
                 //NOTE: pretendAdd/Prepend deliberately NOT mixed in here - they expose physical slot contents
                 //that no logical oracle can model (stale values after poll/clear); pinned separately.
                 switch (rand.nextInt(0, 6)) {
-                    case 0:
-                    case 1: {
-                        queue.circularAdd(value);
-                        oracle.add(value);
-                        if (oracle.size() > capacity) {
-                            //append overflow drops the head
-                            oracle.remove(0);
-                        }
-                        break;
+                case 0:
+                case 1: {
+                    queue.circularAdd(value);
+                    oracle.add(value);
+                    if (oracle.size() > capacity) {
+                        //append overflow drops the head
+                        oracle.remove(0);
                     }
-                    case 2: {
-                        queue.circularPrepend(value);
-                        oracle.add(0, value);
-                        if (oracle.size() > capacity) {
-                            //prepend overflow drops the tail
-                            oracle.remove(oracle.size() - 1);
-                        }
-                        break;
+                    break;
+                }
+                case 2: {
+                    queue.circularPrepend(value);
+                    oracle.add(0, value);
+                    if (oracle.size() > capacity) {
+                        //prepend overflow drops the tail
+                        oracle.remove(oracle.size() - 1);
                     }
-                    case 3: {
-                        final long evicted = queue.evictAdd(value);
-                        final long expectedEvicted = oracle.size() == capacity ? oracle.remove(0)
-                                : ILongLargeQueue.MISSING_VALUE;
-                        oracle.add(value);
-                        Assertions.assertThat(evicted).isEqualTo(expectedEvicted);
-                        break;
+                    break;
+                }
+                case 3: {
+                    final long evicted = queue.evictAdd(value);
+                    final long expectedEvicted = oracle.size() == capacity ? oracle.remove(0)
+                            : ILongLargeQueue.MISSING_VALUE;
+                    oracle.add(value);
+                    Assertions.assertThat(evicted).isEqualTo(expectedEvicted);
+                    break;
+                }
+                case 4: {
+                    final long evicted = queue.evictPrepend(value);
+                    final long expectedEvicted = oracle.size() == capacity ? oracle.remove(oracle.size() - 1)
+                            : ILongLargeQueue.MISSING_VALUE;
+                    oracle.add(0, value);
+                    Assertions.assertThat(evicted).isEqualTo(expectedEvicted);
+                    break;
+                }
+                case 5: {
+                    if (!queue.isEmpty()) {
+                        final long first = queue.poll();
+                        final long expected = oracle.remove(0);
+                        Assertions.assertThat(first).isEqualTo(expected);
+                    } else {
+                        queue.clear();
+                        oracle.clear();
                     }
-                    case 4: {
-                        final long evicted = queue.evictPrepend(value);
-                        final long expectedEvicted = oracle.size() == capacity
-                                ? oracle.remove(oracle.size() - 1) : ILongLargeQueue.MISSING_VALUE;
-                        oracle.add(0, value);
-                        Assertions.assertThat(evicted).isEqualTo(expectedEvicted);
-                        break;
-                    }
-                    case 5: {
-                        if (!queue.isEmpty()) {
-                            final long first = queue.poll();
-                            final long expected = oracle.remove(0);
-                            Assertions.assertThat(first).isEqualTo(expected);
-                        } else {
-                            queue.clear();
-                            oracle.clear();
-                        }
-                        break;
-                    }
-                    default:
-                        throw new IllegalStateException();
+                    break;
+                }
+                default:
+                    throw new IllegalStateException();
                 }
                 //full positional equivalence between queue and oracle
                 Assertions.assertThat(queue.size()).as("size @cap" + capacity).isEqualTo(oracle.size());
@@ -161,12 +161,12 @@ public class CircularLargeQueueApiTest {
         Assertions.assertThat(dst[4]).isEqualTo(3);
         Assertions.assertThat(dst[5]).isEqualTo(4);
         //destination guards are overflow-safe subtraction forms
-        Assertions.assertThatThrownBy(() -> queue.getLongs(new long[4], 2, 0, 3)).isInstanceOf(
-                IllegalArgumentException.class);
-        Assertions.assertThatThrownBy(() -> queue.getLongs(new long[4], -1, 0, 1)).isInstanceOf(
-                IllegalArgumentException.class);
-        Assertions.assertThatThrownBy(() -> queue.getLongs(new long[4], 0, 0, -1)).isInstanceOf(
-                IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> queue.getLongs(new long[4], 2, 0, 3))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> queue.getLongs(new long[4], -1, 0, 1))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> queue.getLongs(new long[4], 0, 0, -1))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

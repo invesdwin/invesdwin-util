@@ -54,8 +54,7 @@ public final class MaintenanceIntervalException extends RuntimeException {
         }
     }
 
-    public static MaintenanceIntervalException getInstance(final String message, final Object arg1,
-            final Object arg2) {
+    public static MaintenanceIntervalException getInstance(final String message, final Object arg1, final Object arg2) {
         if (Throwables.isDebugStackTraceEnabled()) {
             return new MaintenanceIntervalException(TextDescription.format(message, arg1, arg2));
         } else {

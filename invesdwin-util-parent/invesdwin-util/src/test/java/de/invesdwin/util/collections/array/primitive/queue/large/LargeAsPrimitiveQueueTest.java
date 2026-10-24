@@ -97,8 +97,8 @@ public class LargeAsPrimitiveQueueTest {
 
     @Test
     public void testGeneric() {
-        final CircularGenericLargeArrayQueue<String> delegate = new CircularGenericLargeArrayQueue<String>(
-                String.class, 2);
+        final CircularGenericLargeArrayQueue<String> delegate = new CircularGenericLargeArrayQueue<String>(String.class,
+                2);
         final IGenericPrimitiveQueue<String> queue = new GenericLargeAsPrimitiveQueue<String>(delegate);
         Assertions.assertThat(queue.isEmpty()).isTrue();
         Assertions.assertThat(queue.peek()).isNull();

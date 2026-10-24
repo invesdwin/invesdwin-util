@@ -39,52 +39,62 @@ public final class SynchronizedLargeLockCollectionFactory implements ILargeLockC
 
     @Override
     public IDoubleLargeCircularQueue newCircularDoubleQueue(final long capacity) {
-        return new SynchronizedDoubleLargeCircularQueue(DisabledLargeLockCollectionFactory.INSTANCE.newCircularDoubleQueue(capacity));
+        return new SynchronizedDoubleLargeCircularQueue(
+                DisabledLargeLockCollectionFactory.INSTANCE.newCircularDoubleQueue(capacity));
     }
 
     @Override
     public IDoubleLargeCircularQueue newCircularDoubleQueue(final IDoubleLargeArray backingStore) {
-        return new SynchronizedDoubleLargeCircularQueue(DisabledLargeLockCollectionFactory.INSTANCE.newCircularDoubleQueue(backingStore));
+        return new SynchronizedDoubleLargeCircularQueue(
+                DisabledLargeLockCollectionFactory.INSTANCE.newCircularDoubleQueue(backingStore));
     }
 
     @Override
     public ILongLargeCircularQueue newCircularLongQueue(final long capacity) {
-        return new SynchronizedLongLargeCircularQueue(DisabledLargeLockCollectionFactory.INSTANCE.newCircularLongQueue(capacity));
+        return new SynchronizedLongLargeCircularQueue(
+                DisabledLargeLockCollectionFactory.INSTANCE.newCircularLongQueue(capacity));
     }
 
     @Override
     public ILongLargeCircularQueue newCircularLongQueue(final ILongLargeArray backingStore) {
-        return new SynchronizedLongLargeCircularQueue(DisabledLargeLockCollectionFactory.INSTANCE.newCircularLongQueue(backingStore));
+        return new SynchronizedLongLargeCircularQueue(
+                DisabledLargeLockCollectionFactory.INSTANCE.newCircularLongQueue(backingStore));
     }
 
     @Override
     public IIntegerLargeCircularQueue newCircularIntegerQueue(final long capacity) {
-        return new SynchronizedIntegerLargeCircularQueue(DisabledLargeLockCollectionFactory.INSTANCE.newCircularIntegerQueue(capacity));
+        return new SynchronizedIntegerLargeCircularQueue(
+                DisabledLargeLockCollectionFactory.INSTANCE.newCircularIntegerQueue(capacity));
     }
 
     @Override
     public IIntegerLargeCircularQueue newCircularIntegerQueue(final IIntegerLargeArray backingStore) {
-        return new SynchronizedIntegerLargeCircularQueue(DisabledLargeLockCollectionFactory.INSTANCE.newCircularIntegerQueue(backingStore));
+        return new SynchronizedIntegerLargeCircularQueue(
+                DisabledLargeLockCollectionFactory.INSTANCE.newCircularIntegerQueue(backingStore));
     }
 
     @Override
     public IBooleanLargeCircularQueue newCircularBooleanQueue(final long capacity) {
-        return new SynchronizedBooleanLargeCircularQueue(DisabledLargeLockCollectionFactory.INSTANCE.newCircularBooleanQueue(capacity));
+        return new SynchronizedBooleanLargeCircularQueue(
+                DisabledLargeLockCollectionFactory.INSTANCE.newCircularBooleanQueue(capacity));
     }
 
     @Override
     public IBooleanLargeCircularQueue newCircularBooleanQueue(final IBooleanLargeArray backingStore) {
-        return new SynchronizedBooleanLargeCircularQueue(DisabledLargeLockCollectionFactory.INSTANCE.newCircularBooleanQueue(backingStore));
+        return new SynchronizedBooleanLargeCircularQueue(
+                DisabledLargeLockCollectionFactory.INSTANCE.newCircularBooleanQueue(backingStore));
     }
 
     @Override
     public <E> IGenericLargeCircularQueue<E> newCircularGenericQueue(final Class<E> type, final long capacity) {
-        return new SynchronizedGenericLargeCircularQueue<E>(DisabledLargeLockCollectionFactory.INSTANCE.newCircularGenericQueue(type, capacity));
+        return new SynchronizedGenericLargeCircularQueue<E>(
+                DisabledLargeLockCollectionFactory.INSTANCE.newCircularGenericQueue(type, capacity));
     }
 
     @Override
     public <E> IGenericLargeCircularQueue<E> newCircularGenericQueue(final IGenericLargeArray<E> backingStore) {
-        return new SynchronizedGenericLargeCircularQueue<E>(DisabledLargeLockCollectionFactory.INSTANCE.newCircularGenericQueue(backingStore));
+        return new SynchronizedGenericLargeCircularQueue<E>(
+                DisabledLargeLockCollectionFactory.INSTANCE.newCircularGenericQueue(backingStore));
     }
 
 }

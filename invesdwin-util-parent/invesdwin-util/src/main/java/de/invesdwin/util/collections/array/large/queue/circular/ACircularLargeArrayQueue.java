@@ -5,10 +5,10 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 
 /**
- * Type-free cursor parts shared by all {@code Circular*LargeArrayQueue} implementations: capacity, size and the
- * rolling window indexes (start/end) plus their index arithmetic. Element type specific code (reads, writes, eviction
- * values) stays in the typed subclasses, so no slot access ever goes through an Object-returning method (boxing on
- * every primitive read would defeat the purpose of the large primitive queues).
+ * Type-free cursor parts shared by all {@code Circular*LargeArrayQueue} implementations: capacity, size and the rolling
+ * window indexes (start/end) plus their index arithmetic. Element type specific code (reads, writes, eviction values)
+ * stays in the typed subclasses, so no slot access ever goes through an Object-returning method (boxing on every
+ * primitive read would defeat the purpose of the large primitive queues).
  *
  * <p>
  * The forward index arithmetic uses a conditional subtract instead of a modulo: with {@code 0 <= startArrayIndex <
@@ -35,9 +35,9 @@ public abstract class ACircularLargeArrayQueue {
     }
 
     /**
-     * Validates that the given capacity is usable; invoked by the base constructor itself
-     * (identity or throw - subclasses may also call it BEFORE their own array allocation,
-     * but must never NORMALIZE here: they size their backing array from their own parameter).
+     * Validates that the given capacity is usable; invoked by the base constructor itself (identity or throw -
+     * subclasses may also call it BEFORE their own array allocation, but must never NORMALIZE here: they size their
+     * backing array from their own parameter).
      */
     protected static long checkCapacity(final long capacity) {
         if (capacity <= 0) {
@@ -193,8 +193,8 @@ public abstract class ACircularLargeArrayQueue {
      * Type-free part of an evicting add: rolls over and reports which slot currently holds the value that gets
      * overwritten by the caller's write.
      *
-     * @return {@link #endArrayIndex} (the slot holding the evicted value) if a real eviction happened, otherwise -1;
-     *         an untouched slot is never reported as evicted
+     * @return {@link #endArrayIndex} (the slot holding the evicted value) if a real eviction happened, otherwise -1; an
+     *         untouched slot is never reported as evicted
      */
     protected final long evictAddSlot() {
         //an untouched slot is never read, so only a real rollover reports an evicted element

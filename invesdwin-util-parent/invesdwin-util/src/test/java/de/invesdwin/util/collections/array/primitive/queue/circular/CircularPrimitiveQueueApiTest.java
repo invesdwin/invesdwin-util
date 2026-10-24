@@ -12,9 +12,9 @@ import de.invesdwin.util.math.random.PseudoRandomGenerators;
 import de.invesdwin.util.collections.array.primitive.queue.ILongPrimitiveQueue;
 
 /**
- * Int-indexed mirror of {@code CircularLargeQueueApiTest}: differential against an ArrayList oracle across
- * capacities (conditional-subtract index math with the long-guarded int cursor), clamped reads, window copy with
- * int srcIndex overflow probing, pretend bookkeeping and the generic eviction guard.
+ * Int-indexed mirror of {@code CircularLargeQueueApiTest}: differential against an ArrayList oracle across capacities
+ * (conditional-subtract index math with the long-guarded int cursor), clamped reads, window copy with int srcIndex
+ * overflow probing, pretend bookkeeping and the generic eviction guard.
  */
 @NotThreadSafe
 public class CircularPrimitiveQueueApiTest {
@@ -31,52 +31,52 @@ public class CircularPrimitiveQueueApiTest {
                 final long value = rand.nextInt(0, 1000);
                 //pretend* not mixed in here: it exposes physical slot contents no logical oracle can model.
                 switch (rand.nextInt(0, 6)) {
-                    case 0:
-                    case 1: {
-                        queue.circularAdd(value);
-                        oracle.add(value);
-                        if (oracle.size() > capacity) {
-                            oracle.remove(0);
-                        }
-                        break;
+                case 0:
+                case 1: {
+                    queue.circularAdd(value);
+                    oracle.add(value);
+                    if (oracle.size() > capacity) {
+                        oracle.remove(0);
                     }
-                    case 2: {
-                        queue.circularPrepend(value);
-                        oracle.add(0, value);
-                        if (oracle.size() > capacity) {
-                            oracle.remove(oracle.size() - 1);
-                        }
-                        break;
+                    break;
+                }
+                case 2: {
+                    queue.circularPrepend(value);
+                    oracle.add(0, value);
+                    if (oracle.size() > capacity) {
+                        oracle.remove(oracle.size() - 1);
                     }
-                    case 3: {
-                        final long evicted = queue.evictAdd(value);
-                        final long expectedEvicted = oracle.size() == capacity ? oracle.remove(0)
-                                : ILongPrimitiveQueue.MISSING_VALUE;
-                        oracle.add(value);
-                        Assertions.assertThat(evicted).isEqualTo(expectedEvicted);
-                        break;
+                    break;
+                }
+                case 3: {
+                    final long evicted = queue.evictAdd(value);
+                    final long expectedEvicted = oracle.size() == capacity ? oracle.remove(0)
+                            : ILongPrimitiveQueue.MISSING_VALUE;
+                    oracle.add(value);
+                    Assertions.assertThat(evicted).isEqualTo(expectedEvicted);
+                    break;
+                }
+                case 4: {
+                    final long evicted = queue.evictPrepend(value);
+                    final long expectedEvicted = oracle.size() == capacity ? oracle.remove(oracle.size() - 1)
+                            : ILongPrimitiveQueue.MISSING_VALUE;
+                    oracle.add(0, value);
+                    Assertions.assertThat(evicted).isEqualTo(expectedEvicted);
+                    break;
+                }
+                case 5: {
+                    if (!queue.isEmpty()) {
+                        final long first = queue.poll();
+                        final long expected = oracle.remove(0);
+                        Assertions.assertThat(first).isEqualTo(expected);
+                    } else {
+                        queue.clear();
+                        oracle.clear();
                     }
-                    case 4: {
-                        final long evicted = queue.evictPrepend(value);
-                        final long expectedEvicted = oracle.size() == capacity ? oracle.remove(oracle.size() - 1)
-                                : ILongPrimitiveQueue.MISSING_VALUE;
-                        oracle.add(0, value);
-                        Assertions.assertThat(evicted).isEqualTo(expectedEvicted);
-                        break;
-                    }
-                    case 5: {
-                        if (!queue.isEmpty()) {
-                            final long first = queue.poll();
-                            final long expected = oracle.remove(0);
-                            Assertions.assertThat(first).isEqualTo(expected);
-                        } else {
-                            queue.clear();
-                            oracle.clear();
-                        }
-                        break;
-                    }
-                    default:
-                        throw new IllegalStateException();
+                    break;
+                }
+                default:
+                    throw new IllegalStateException();
                 }
                 Assertions.assertThat(queue.size()).as("size @cap" + capacity).isEqualTo(oracle.size());
                 Assertions.assertThat(queue.toString()).as("toString @cap" + capacity).isEqualTo(oracle.toString());
@@ -133,12 +133,12 @@ public class CircularPrimitiveQueueApiTest {
         Assertions.assertThat(queue.getLongs(dst, 0, Integer.MAX_VALUE - 1, 4)).isEqualTo(0);
         Assertions.assertThat(dst[0]).isEqualTo(ILongPrimitiveQueue.MISSING_VALUE);
         //destination guards
-        Assertions.assertThatThrownBy(() -> queue.getLongs(new long[4], 2, 0, 3)).isInstanceOf(
-                IllegalArgumentException.class);
-        Assertions.assertThatThrownBy(() -> queue.getLongs(new long[4], -1, 0, 1)).isInstanceOf(
-                IllegalArgumentException.class);
-        Assertions.assertThatThrownBy(() -> queue.getLongs(new long[4], 0, 0, -1)).isInstanceOf(
-                IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> queue.getLongs(new long[4], 2, 0, 3))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> queue.getLongs(new long[4], -1, 0, 1))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> queue.getLongs(new long[4], 0, 0, -1))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -165,7 +165,8 @@ public class CircularPrimitiveQueueApiTest {
 
     @Test
     public void testGenericEvictGuardNoStaleGhost() {
-        final CircularGenericPrimitiveArrayQueue<String> queue = new CircularGenericPrimitiveArrayQueue<>(String.class, 2);
+        final CircularGenericPrimitiveArrayQueue<String> queue = new CircularGenericPrimitiveArrayQueue<>(String.class,
+                2);
         Assertions.assertThat(queue.evictAdd("a")).isNull();
         queue.pretendClear();
         Assertions.assertThat(queue.evictAdd("b")).as("stale slot must not be reported as evicted").isNull();
@@ -195,15 +196,16 @@ public class CircularPrimitiveQueueApiTest {
     @Test
     public void testCapacityValidation() {
         //checkCapacity now runs in the base constructor - pin the rejection path for both ctor shapes
-        Assertions.assertThatThrownBy(() -> new CircularLongPrimitiveArrayQueue(0)).isInstanceOf(
-                IllegalArgumentException.class);
-        Assertions.assertThatThrownBy(() -> new CircularDoublePrimitiveArrayQueue(-1)).isInstanceOf(
-                IllegalArgumentException.class);
-        Assertions.assertThatThrownBy(() -> new CircularGenericPrimitiveArrayQueue<String>(String.class, 0)).isInstanceOf(
-                IllegalArgumentException.class);
-        Assertions.assertThatThrownBy(
-                () -> new CircularLongPrimitiveArrayQueue(de.invesdwin.util.collections.array.primitive.ILongPrimitiveArray.newInstance(
-                        0))).isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> new CircularLongPrimitiveArrayQueue(0))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> new CircularDoublePrimitiveArrayQueue(-1))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() -> new CircularGenericPrimitiveArrayQueue<String>(String.class, 0))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions
+                .assertThatThrownBy(() -> new CircularLongPrimitiveArrayQueue(
+                        de.invesdwin.util.collections.array.primitive.ILongPrimitiveArray.newInstance(0)))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
 }

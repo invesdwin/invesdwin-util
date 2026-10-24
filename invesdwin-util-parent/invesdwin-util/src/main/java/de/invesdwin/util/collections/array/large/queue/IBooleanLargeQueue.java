@@ -8,9 +8,8 @@ import de.invesdwin.util.error.FastNoSuchElementException;
 public interface IBooleanLargeQueue {
 
     /**
-     * Unlike a double there is no NaN for a boolean, so both values are valid elements. Thus
-     * {@link #MISSING_VALUE} can only be used as a best effort signal, an empty queue should be detected with
-     * {@link #isEmpty()} instead.
+     * Unlike a double there is no NaN for a boolean, so both values are valid elements. Thus {@link #MISSING_VALUE} can
+     * only be used as a best effort signal, an empty queue should be detected with {@link #isEmpty()} instead.
      */
     boolean MISSING_VALUE = false;
 

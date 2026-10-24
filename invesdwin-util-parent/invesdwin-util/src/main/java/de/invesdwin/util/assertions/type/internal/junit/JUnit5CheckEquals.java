@@ -26,8 +26,7 @@ public final class JUnit5CheckEquals {
 
     private static final int COMPARISON_FAILURE_MESSAGE_LIMIT = Assertions.COMPARISON_FAILURE_MESSAGE_LIMIT;
 
-    private JUnit5CheckEquals() {
-    }
+    private JUnit5CheckEquals() {}
 
     public static void checkEqualsJunit(final String expected, final String actual, final String message,
             final Object... args) {

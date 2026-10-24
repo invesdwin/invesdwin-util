@@ -6,19 +6,20 @@ import de.invesdwin.util.collections.array.primitive.accessor.IGenericPrimitiveA
  * Circular window semantics on top of {@link IGenericPrimitiveQueue} (the int-indexed mirror of
  * {@code IGenericLargeCircularQueue}): bounded capacity with rollover, positional reads from both ends and clamped
  * variants. Unlike the plain queue, reading is a total function with {@link #getOrMissing(int)}/
- * {@link #getReverseOrMissing(int)}: any out-of-range index returns null instead of throwing, which lets window
- * based consumers probe past the ring edges cheaply. The clamped reads cover positional staleness only; deciding
- * whether reading beyond a watermark is allowed at all stays the consumer's policy.
+ * {@link #getReverseOrMissing(int)}: any out-of-range index returns null instead of throwing, which lets window based
+ * consumers probe past the ring edges cheaply. The clamped reads cover positional staleness only; deciding whether
+ * reading beyond a watermark is allowed at all stays the consumer's policy.
  *
  * <p>
  * The queues stay capacity-agnostic (any capacity &gt; 0, no power-of-two rule): absolute-slot/ring protocols are
  * layered on top by their consumers.
  *
  * <p>
- * Class only (not part of this interface, present on the concrete implementations): offerPrepend, prepend,
- * toArray, toString ranges, pretendClear, pollLast, removeLast, getHead, getTail.
+ * Class only (not part of this interface, present on the concrete implementations): offerPrepend, prepend, toArray,
+ * toString ranges, pretendClear, pollLast, removeLast, getHead, getTail.
  */
-public interface IGenericPrimitiveCircularQueue<E> extends IGenericPrimitiveQueue<E>, IGenericPrimitiveArrayAccessor<E> {
+public interface IGenericPrimitiveCircularQueue<E>
+        extends IGenericPrimitiveQueue<E>, IGenericPrimitiveArrayAccessor<E> {
 
     int capacity();
 
@@ -78,9 +79,9 @@ public interface IGenericPrimitiveCircularQueue<E> extends IGenericPrimitiveQueu
     void circularPrepend(E value);
 
     /**
-     * Adds an element to the array, if capacity is exceeded, the first element is replaced by the rollover and
-     * returned (e.g. to clean up the instance). Returns null if nothing was evicted - a slot that was never rolled
-     * over is never reported as evicted.
+     * Adds an element to the array, if capacity is exceeded, the first element is replaced by the rollover and returned
+     * (e.g. to clean up the instance). Returns null if nothing was evicted - a slot that was never rolled over is never
+     * reported as evicted.
      */
     E evictAdd(E value);
 

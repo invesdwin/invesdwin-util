@@ -260,60 +260,22 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         ensureCapacity(limit, SIZE_OF_BYTE);
     }
 
-    ////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
 
+    ///////////////////////////////////////////////////////////////
 
+    ///////////////////////////////////////////////////////////////
 
+    ///////////////////////////////////////////////////////////////
 
+    ///////////////////////////////////////////////////////////////
 
-    ////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    ////////////////////////////////////////////////////////////////
-
-
-
-
-
-    ////////////////////////////////////////////////////////////////
-
-
-
-
-
-    ////////////////////////////////////////////////////////////////
-
-
-
-
-
-    ////////////////////////////////////////////////////////////////
-
+    ///////////////////////////////////////////////////////////////
 
     private byte getByte0(final int index) {
         boundsCheck0(index, SIZE_OF_BYTE);
         return UnsafeApi.getByte(null, finalizer.address + index);
     }
-
 
     private void putByte0(final int index, final byte value) {
         ensureCapacity(index, SIZE_OF_BYTE);
@@ -441,13 +403,9 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
                 finalizer.address + index, length);
     }
 
-    ////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
 
-
-
-
-
-    ////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -759,7 +717,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         return len;
     }
 
-    ////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -888,7 +846,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         return bytes.length;
     }
 
-    ////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}
@@ -994,27 +952,6 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * {@inheritDoc}
      */
@@ -1023,11 +960,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         boundsCheck0(index, SIZE_OF_BYTE);
         return UnsafeApi.getByte(null, finalizer.address + index);
     }
+
     public byte getByteVolatile(final int index) {
         boundsCheck0(index, SIZE_OF_BYTE);
 
         return UnsafeApi.getByteVolatile(null, finalizer.address + index);
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1036,11 +975,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         ensureCapacity(index, SIZE_OF_BYTE);
         UnsafeApi.putByte(null, finalizer.address + index, value);
     }
+
     public void putByteVolatile(final int index, final byte value) {
         ensureCapacity(index, SIZE_OF_BYTE);
 
         UnsafeApi.putByteVolatile(null, finalizer.address + index, value);
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1055,6 +996,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         return bits;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1064,11 +1006,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         return UnsafeApi.getChar(null, finalizer.address + index);
     }
+
     public char getCharVolatile(final int index) {
         boundsCheck0(index, SIZE_OF_CHAR);
 
         return UnsafeApi.getCharVolatile(null, finalizer.address + index);
     }
+
     public char getCharVolatileReverse(final int index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final short bits = getShortVolatile(index);
@@ -1077,6 +1021,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             return getCharVolatile(index);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1091,6 +1036,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         UnsafeApi.putChar(null, finalizer.address + index, bits);
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1100,11 +1046,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         UnsafeApi.putChar(null, finalizer.address + index, value);
     }
+
     public void putCharVolatile(final int index, final char value) {
         ensureCapacity(index, SIZE_OF_CHAR);
 
         UnsafeApi.putCharVolatile(null, finalizer.address + index, value);
     }
+
     public void putCharVolatileReverse(final int index, final char value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final short bits = Short.reverseBytes((short) value);
@@ -1113,6 +1061,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             putCharVolatile(index, value);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1127,6 +1076,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         return bits;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1136,11 +1086,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         return UnsafeApi.getShort(null, finalizer.address + index);
     }
+
     public short getShortVolatile(final int index) {
         boundsCheck0(index, SIZE_OF_SHORT);
 
         return UnsafeApi.getShortVolatile(null, finalizer.address + index);
     }
+
     public short getShortVolatileReverse(final int index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final short bits = getShortVolatile(index);
@@ -1149,6 +1101,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             return getShortVolatile(index);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1163,6 +1116,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         UnsafeApi.putShort(null, finalizer.address + index, bits);
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1172,11 +1126,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         UnsafeApi.putShort(null, finalizer.address + index, value);
     }
+
     public void putShortVolatile(final int index, final short value) {
         ensureCapacity(index, SIZE_OF_SHORT);
 
         UnsafeApi.putShortVolatile(null, finalizer.address + index, value);
     }
+
     public void putShortVolatileReverse(final int index, final short value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final short bits = Short.reverseBytes(value);
@@ -1185,6 +1141,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             putShortVolatile(index, value);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1199,6 +1156,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         return bits;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1208,11 +1166,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         return UnsafeApi.getInt(null, finalizer.address + index);
     }
+
     public int getIntVolatile(final int index) {
         boundsCheck0(index, SIZE_OF_INT);
 
         return UnsafeApi.getIntVolatile(null, finalizer.address + index);
     }
+
     public int getIntVolatileReverse(final int index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final int bits = getIntVolatile(index);
@@ -1221,11 +1181,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             return getIntVolatile(index);
         }
     }
+
     public int getIntAcquire(final int index) {
         boundsCheck0(index, SIZE_OF_INT);
 
         return UnsafeApi.getIntAcquire(null, finalizer.address + index);
     }
+
     public int getIntAcquireReverse(final int index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final int bits = getIntAcquire(index);
@@ -1234,6 +1196,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             return getIntAcquire(index);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1248,6 +1211,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         UnsafeApi.putInt(null, finalizer.address + index, bits);
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1257,11 +1221,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         UnsafeApi.putInt(null, finalizer.address + index, value);
     }
+
     public void putIntVolatile(final int index, final int value) {
         ensureCapacity(index, SIZE_OF_INT);
 
         UnsafeApi.putIntVolatile(null, finalizer.address + index, value);
     }
+
     public void putIntVolatileReverse(final int index, final int value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(value);
@@ -1270,11 +1236,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             putIntVolatile(index, value);
         }
     }
+
     public void putIntRelease(final int index, final int value) {
         ensureCapacity(index, SIZE_OF_INT);
 
         UnsafeApi.putIntRelease(null, finalizer.address + index, value);
     }
+
     public void putIntReleaseReverse(final int index, final int value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(value);
@@ -1283,11 +1251,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             putIntRelease(index, value);
         }
     }
+
     public void putIntOrdered(final int index, final int value) {
         ensureCapacity(index, SIZE_OF_INT);
 
         UnsafeApi.putIntRelease(null, finalizer.address + index, value);
     }
+
     public void putIntOrderedReverse(final int index, final int value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final int bits = Integer.reverseBytes(value);
@@ -1296,6 +1266,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             putIntOrdered(index, value);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1310,6 +1281,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         return bits;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1319,11 +1291,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         return UnsafeApi.getLong(null, finalizer.address + index);
     }
+
     public long getLongVolatile(final int index) {
         boundsCheck0(index, SIZE_OF_LONG);
 
         return UnsafeApi.getLongVolatile(null, finalizer.address + index);
     }
+
     public long getLongVolatileReverse(final int index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final long bits = getLongVolatile(index);
@@ -1332,11 +1306,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             return getLongVolatile(index);
         }
     }
+
     public long getLongAcquire(final int index) {
         boundsCheck0(index, SIZE_OF_LONG);
 
         return UnsafeApi.getLongAcquire(null, finalizer.address + index);
     }
+
     public long getLongAcquireReverse(final int index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final long bits = getLongAcquire(index);
@@ -1345,6 +1321,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             return getLongAcquire(index);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1359,6 +1336,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         UnsafeApi.putLong(null, finalizer.address + index, bits);
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1368,11 +1346,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         UnsafeApi.putLong(null, finalizer.address + index, value);
     }
+
     public void putLongVolatile(final int index, final long value) {
         ensureCapacity(index, SIZE_OF_LONG);
 
         UnsafeApi.putLongVolatile(null, finalizer.address + index, value);
     }
+
     public void putLongVolatileReverse(final int index, final long value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(value);
@@ -1381,11 +1361,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             putLongVolatile(index, value);
         }
     }
+
     public void putLongRelease(final int index, final long value) {
         ensureCapacity(index, SIZE_OF_LONG);
 
         UnsafeApi.putLongRelease(null, finalizer.address + index, value);
     }
+
     public void putLongReleaseReverse(final int index, final long value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(value);
@@ -1394,11 +1376,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             putLongRelease(index, value);
         }
     }
+
     public void putLongOrdered(final int index, final long value) {
         ensureCapacity(index, SIZE_OF_LONG);
 
         UnsafeApi.putLongRelease(null, finalizer.address + index, value);
     }
+
     public void putLongOrderedReverse(final int index, final long value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             final long bits = Long.reverseBytes(value);
@@ -1407,6 +1391,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             putLongOrdered(index, value);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1421,6 +1406,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             return UnsafeApi.getFloat(null, finalizer.address + index);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1430,12 +1416,14 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         return UnsafeApi.getFloat(null, finalizer.address + index);
     }
+
     public float getFloatVolatile(final int index) {
         boundsCheck0(index, SIZE_OF_FLOAT);
 
         //agrona has no volatile float - raw bits over the volatile int keeps the full fence and the NaN payload
         return Float.intBitsToFloat(UnsafeApi.getIntVolatile(null, finalizer.address + index));
     }
+
     public float getFloatVolatileReverse(final int index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             //agrona has no volatile float - swapped raw bits over the volatile int keeps the fence and NaN payload
@@ -1445,6 +1433,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             return getFloatVolatile(index);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1459,6 +1448,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             UnsafeApi.putFloat(null, finalizer.address + index, value);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1468,11 +1458,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         UnsafeApi.putFloat(null, finalizer.address + index, value);
     }
+
     public void putFloatVolatile(final int index, final float value) {
         ensureCapacity(index, SIZE_OF_FLOAT);
 
         UnsafeApi.putIntVolatile(null, finalizer.address + index, Float.floatToRawIntBits(value));
     }
+
     public void putFloatVolatileReverse(final int index, final float value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             //agrona has no volatile float - swapped raw bits over the volatile int keeps the fence and NaN payload
@@ -1482,6 +1474,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             putFloatVolatile(index, value);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1496,6 +1489,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             return UnsafeApi.getDouble(null, finalizer.address + index);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1505,12 +1499,14 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         return UnsafeApi.getDouble(null, finalizer.address + index);
     }
+
     public double getDoubleVolatile(final int index) {
         boundsCheck0(index, SIZE_OF_DOUBLE);
 
         //agrona has no volatile double - raw bits over the volatile long keeps the full fence and the NaN payload
         return Double.longBitsToDouble(UnsafeApi.getLongVolatile(null, finalizer.address + index));
     }
+
     public double getDoubleVolatileReverse(final int index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             //agrona has no volatile double - swapped raw bits over the volatile long keeps the fence and NaN payload
@@ -1520,6 +1516,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             return getDoubleVolatile(index);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1534,6 +1531,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
             UnsafeApi.putDouble(null, finalizer.address + index, value);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -1543,11 +1541,13 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
 
         UnsafeApi.putDouble(null, finalizer.address + index, value);
     }
+
     public void putDoubleVolatile(final int index, final double value) {
         ensureCapacity(index, SIZE_OF_DOUBLE);
 
         UnsafeApi.putLongVolatile(null, finalizer.address + index, Double.doubleToRawLongBits(value));
     }
+
     public void putDoubleVolatileReverse(final int index, final double value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
             //agrona has no volatile double - swapped raw bits over the volatile long keeps the fence and NaN payload
@@ -1729,7 +1729,7 @@ public class UninitializedDirectExpandableBufferBase implements MutableDirectBuf
         return 0;
     }
 
-    ////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
 
     /**
      * {@inheritDoc}

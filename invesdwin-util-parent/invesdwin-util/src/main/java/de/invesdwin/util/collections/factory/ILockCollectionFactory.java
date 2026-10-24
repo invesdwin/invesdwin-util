@@ -49,14 +49,14 @@ public interface ILockCollectionFactory {
     IReentrantReadWriteLock newReadWriteLock(String name);
 
     /**
-     * Int-indexed view for the primitive bitsets and circular queues; this factory stays the single starting point
-     * of the fluent api, so primitive allocations can never be mixed with the long-indexed large ones.
+     * Int-indexed view for the primitive bitsets and circular queues; this factory stays the single starting point of
+     * the fluent api, so primitive allocations can never be mixed with the long-indexed large ones.
      */
     IPrimitiveLockCollectionFactory primitive();
 
     /**
-     * Long-indexed view for the large bitsets and circular queues; this factory stays the single starting point of
-     * the fluent api, so large allocations can never be mixed with the int-indexed primitive ones.
+     * Long-indexed view for the large bitsets and circular queues; this factory stays the single starting point of the
+     * fluent api, so large allocations can never be mixed with the int-indexed primitive ones.
      */
     ILargeLockCollectionFactory large();
 

@@ -1889,8 +1889,8 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
      * assertThat(myFDate).isWithinHour(hourOfDayOf(otherFDate))
      * </pre>
      * 
-     * see {@link org.assertj.core.util.FDatesAssertions#hourOfDayOf(java.util.FDateMillis) hourOfDayOf} to get the hour of a
-     * given FDate.
+     * see {@link org.assertj.core.util.FDatesAssertions#hourOfDayOf(java.util.FDateMillis) hourOfDayOf} to get the hour
+     * of a given FDate.
      * <p/>
      * Note that using a custom comparator has no effect on this assertion (see {@link #usingComparator(Comparator)}).
      *
@@ -1910,8 +1910,8 @@ public class FDateAssert extends AbstractAssert<FDateAssert, FDate> {
     }
 
     /**
-     * Same assertion as {@link #isInSameHourWindowAs(java.util.FDateMillis)} but given date is represented as String either
-     * with one of the supported defaults date format or a user custom date format (set with method
+     * Same assertion as {@link #isInSameHourWindowAs(java.util.FDateMillis)} but given date is represented as String
+     * either with one of the supported defaults date format or a user custom date format (set with method
      * {@link #withDateFormat(DateFormat)}).
      * <p/>
      * Beware that the default formats are expressed in the current local timezone.

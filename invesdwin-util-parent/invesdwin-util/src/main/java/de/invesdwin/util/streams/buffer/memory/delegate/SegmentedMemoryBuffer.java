@@ -175,36 +175,6 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public long wrapAdjustment() {
         if (segments.length == 1) {
@@ -220,39 +190,6 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
         return lastBuffer.isExpandable();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public byte getByte(final long index) {
         final int buf = getSegmentIndex(index);
@@ -262,6 +199,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
         final long bufferPosition = getSegmentOffset(index);
         return buffer.getByte(bufferPosition);
     }
+
     @Override
     public byte getByteVolatile(final long index) {
         final int buf = getSegmentIndex(index);
@@ -271,6 +209,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
         final long bufferPosition = getSegmentOffset(index);
         return buffer.getByteVolatile(bufferPosition);
     }
+
     @Override
     public void putByte(final long index, final byte value) {
         final int buf = getSegmentIndex(index);
@@ -280,6 +219,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
         final long bufferPosition = getSegmentOffset(index);
         buffer.putByte(bufferPosition, value);
     }
+
     @Override
     public void putByteVolatile(final long index, final byte value) {
         final int buf = getSegmentIndex(index);
@@ -289,6 +229,7 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
         final long bufferPosition = getSegmentOffset(index);
         buffer.putByteVolatile(bufferPosition, value);
     }
+
     @Override
     public char getChar(final long index) {
         int buf = getSegmentIndex(index);
@@ -316,16 +257,18 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return (char) ((readBuffer[0] << 8) + (readBuffer[1] & 0xFF));
         }
     }
+
     @Override
     public char getCharReverse(final long index) {
         final short bits = (short) getChar(index);
         return (char) Short.reverseBytes(bits);
     }
+
     /**
-     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public char getCharVolatile(final long index) {
@@ -337,16 +280,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return buffer.getCharVolatile(bufferPosition);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("getCharVolatile: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "getCharVolatile: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of getCharVolatile(long) for this segmented composite: the swap is a value level
-     * step on the single volatile access of the segment that owns the position. Atomic volatile wide access
-     * is only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Little-endian twin of getCharVolatile(long) for this segmented composite: the swap is a value level step on the
+     * single volatile access of the segment that owns the position. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public char getCharVolatileReverse(final long index) {
@@ -358,10 +302,11 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return buffer.getCharVolatileReverse(bufferPosition);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("getCharVolatileReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "getCharVolatileReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     @Override
     public void putChar(final long index, final char value) {
         final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
@@ -369,16 +314,18 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
         writeBuffer[1] = (byte) (value);
         putBytes(index, writeBuffer, 0, Short.BYTES);
     }
+
     @Override
     public void putCharReverse(final long index, final char value) {
         final short bits = Short.reverseBytes((short) value);
         putShort(index, bits);
     }
+
     /**
-     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public void putCharVolatile(final long index, final char value) {
@@ -390,16 +337,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putCharVolatile(bufferPosition, value);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("putCharVolatile: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putCharVolatile: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of putCharVolatile(long, x) for this segmented composite: the value bytes are
-     * swapped by the segment and written in a single volatile access of it. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Little-endian twin of putCharVolatile(long, x) for this segmented composite: the value bytes are swapped by the
+     * segment and written in a single volatile access of it. Atomic volatile wide access is only available where the
+     * value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public void putCharVolatileReverse(final long index, final char value) {
@@ -411,10 +359,11 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putCharVolatileReverse(bufferPosition, value);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("putCharVolatileReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putCharVolatileReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     @Override
     public short getShort(final long index) {
         int buf = getSegmentIndex(index);
@@ -442,16 +391,18 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return (short) ((readBuffer[0] << 8) + (readBuffer[1] & 0xFF));
         }
     }
+
     @Override
     public short getShortReverse(final long index) {
         final short bits = getShort(index);
         return Short.reverseBytes(bits);
     }
+
     /**
-     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public short getShortVolatile(final long index) {
@@ -463,16 +414,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return buffer.getShortVolatile(bufferPosition);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("getShortVolatile: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "getShortVolatile: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of getShortVolatile(long) for this segmented composite: the swap is a value level
-     * step on the single volatile access of the segment that owns the position. Atomic volatile wide access
-     * is only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Little-endian twin of getShortVolatile(long) for this segmented composite: the swap is a value level step on the
+     * single volatile access of the segment that owns the position. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public short getShortVolatileReverse(final long index) {
@@ -484,10 +436,11 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return buffer.getShortVolatileReverse(bufferPosition);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("getShortVolatileReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "getShortVolatileReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     @Override
     public void putShort(final long index, final short value) {
         final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
@@ -495,16 +448,18 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
         writeBuffer[1] = (byte) (value);
         putBytes(index, writeBuffer, 0, Short.BYTES);
     }
+
     @Override
     public void putShortReverse(final long index, final short value) {
         final short bits = Short.reverseBytes(value);
         putShort(index, bits);
     }
+
     /**
-     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public void putShortVolatile(final long index, final short value) {
@@ -516,16 +471,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putShortVolatile(bufferPosition, value);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("putShortVolatile: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putShortVolatile: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of putShortVolatile(long, x) for this segmented composite: the value bytes are
-     * swapped by the segment and written in a single volatile access of it. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Little-endian twin of putShortVolatile(long, x) for this segmented composite: the value bytes are swapped by the
+     * segment and written in a single volatile access of it. Atomic volatile wide access is only available where the
+     * value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public void putShortVolatileReverse(final long index, final short value) {
@@ -537,10 +493,11 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putShortVolatileReverse(bufferPosition, value);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("putShortVolatileReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putShortVolatileReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     @Override
     public int getInt(final long index) {
         int buf = getSegmentIndex(index);
@@ -569,16 +526,18 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
                     + ((readBuffer[3] & 0xFF)));
         }
     }
+
     @Override
     public int getIntReverse(final long index) {
         final int bits = getInt(index);
         return Integer.reverseBytes(bits);
     }
+
     /**
-     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public int getIntVolatile(final long index) {
@@ -590,16 +549,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return buffer.getIntVolatile(bufferPosition);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("getIntVolatile: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "getIntVolatile: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of getIntVolatile(long) for this segmented composite: the swap is a value level
-     * step on the single volatile access of the segment that owns the position. Atomic volatile wide access
-     * is only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Little-endian twin of getIntVolatile(long) for this segmented composite: the swap is a value level step on the
+     * single volatile access of the segment that owns the position. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public int getIntVolatileReverse(final long index) {
@@ -611,15 +571,16 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return buffer.getIntVolatileReverse(bufferPosition);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("getIntVolatileReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "getIntVolatileReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Reads the value at the given index with acquire semantics. Atomic acquire wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Reads the value at the given index with acquire semantics. Atomic acquire wide access is only available where the
+     * value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public int getIntAcquire(final long index) {
@@ -631,16 +592,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return buffer.getIntAcquire(bufferPosition);
         } else {
             //value splits across segments: cross-part acquire wide access is not atomic-supported
-            throw new UnsupportedOperationException("getIntAcquire: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "getIntAcquire: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of getIntAcquire(long) for this segmented composite: the swap is a value level
-     * step on the single acquire access of the segment that owns the position. Atomic acquire wide access
-     * is only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part acquire wide access is not atomic-supported.
+     * Little-endian twin of getIntAcquire(long) for this segmented composite: the swap is a value level step on the
+     * single acquire access of the segment that owns the position. Atomic acquire wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part acquire wide access is not
+     * atomic-supported.
      */
     @Override
     public int getIntAcquireReverse(final long index) {
@@ -652,10 +614,11 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return buffer.getIntAcquireReverse(bufferPosition);
         } else {
             //value splits across segments: cross-part acquire wide access is not atomic-supported
-            throw new UnsupportedOperationException("getIntAcquireReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "getIntAcquireReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     @Override
     public void putInt(final long index, final int value) {
         final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
@@ -665,16 +628,18 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
         writeBuffer[3] = (byte) (value);
         putBytes(index, writeBuffer, 0, Integer.BYTES);
     }
+
     @Override
     public void putIntReverse(final long index, final int value) {
         final int bits = Integer.reverseBytes(value);
         putInt(index, bits);
     }
+
     /**
-     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public void putIntVolatile(final long index, final int value) {
@@ -686,16 +651,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putIntVolatile(bufferPosition, value);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("putIntVolatile: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putIntVolatile: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of putIntVolatile(long, x) for this segmented composite: the value bytes are
-     * swapped by the segment and written in a single volatile access of it. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Little-endian twin of putIntVolatile(long, x) for this segmented composite: the value bytes are swapped by the
+     * segment and written in a single volatile access of it. Atomic volatile wide access is only available where the
+     * value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public void putIntVolatileReverse(final long index, final int value) {
@@ -707,15 +673,16 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putIntVolatileReverse(bufferPosition, value);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("putIntVolatileReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putIntVolatileReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Writes the value at the given index with release semantics. Atomic release wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Writes the value at the given index with release semantics. Atomic release wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public void putIntRelease(final long index, final int value) {
@@ -727,16 +694,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putIntRelease(bufferPosition, value);
         } else {
             //value splits across segments: cross-part release wide access is not atomic-supported
-            throw new UnsupportedOperationException("putIntRelease: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putIntRelease: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of putIntRelease(long, x) for this segmented composite: the value bytes are
-     * swapped by the segment and written in a single release access of it. Atomic release wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part release wide access is not atomic-supported.
+     * Little-endian twin of putIntRelease(long, x) for this segmented composite: the value bytes are swapped by the
+     * segment and written in a single release access of it. Atomic release wide access is only available where the
+     * value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part release wide access is not
+     * atomic-supported.
      */
     @Override
     public void putIntReleaseReverse(final long index, final int value) {
@@ -748,15 +716,16 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putIntReleaseReverse(bufferPosition, value);
         } else {
             //value splits across segments: cross-part release wide access is not atomic-supported
-            throw new UnsupportedOperationException("putIntReleaseReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putIntReleaseReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Writes the value at the given index with ordered semantics. Atomic ordered wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Writes the value at the given index with ordered semantics. Atomic ordered wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public void putIntOrdered(final long index, final int value) {
@@ -768,16 +737,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putIntOrdered(bufferPosition, value);
         } else {
             //value splits across segments: cross-part ordered wide access is not atomic-supported
-            throw new UnsupportedOperationException("putIntOrdered: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putIntOrdered: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of putIntOrdered(long, x) for this segmented composite: the value bytes are
-     * swapped by the segment and written in a single ordered access of it. Atomic ordered wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part ordered wide access is not atomic-supported.
+     * Little-endian twin of putIntOrdered(long, x) for this segmented composite: the value bytes are swapped by the
+     * segment and written in a single ordered access of it. Atomic ordered wide access is only available where the
+     * value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part ordered wide access is not
+     * atomic-supported.
      */
     @Override
     public void putIntOrderedReverse(final long index, final int value) {
@@ -789,10 +759,11 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putIntOrderedReverse(bufferPosition, value);
         } else {
             //value splits across segments: cross-part ordered wide access is not atomic-supported
-            throw new UnsupportedOperationException("putIntOrderedReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putIntOrderedReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     @Override
     public long getLong(final long index) {
         int buf = getSegmentIndex(index);
@@ -825,16 +796,18 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             //CHECKSTYLE:ON
         }
     }
+
     @Override
     public long getLongReverse(final long index) {
         final long bits = getLong(index);
         return Long.reverseBytes(bits);
     }
+
     /**
-     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public long getLongVolatile(final long index) {
@@ -846,16 +819,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return buffer.getLongVolatile(bufferPosition);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("getLongVolatile: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "getLongVolatile: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of getLongVolatile(long) for this segmented composite: the swap is a value level
-     * step on the single volatile access of the segment that owns the position. Atomic volatile wide access
-     * is only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Little-endian twin of getLongVolatile(long) for this segmented composite: the swap is a value level step on the
+     * single volatile access of the segment that owns the position. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public long getLongVolatileReverse(final long index) {
@@ -867,15 +841,16 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return buffer.getLongVolatileReverse(bufferPosition);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("getLongVolatileReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "getLongVolatileReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Reads the value at the given index with acquire semantics. Atomic acquire wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Reads the value at the given index with acquire semantics. Atomic acquire wide access is only available where the
+     * value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public long getLongAcquire(final long index) {
@@ -887,16 +862,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return buffer.getLongAcquire(bufferPosition);
         } else {
             //value splits across segments: cross-part acquire wide access is not atomic-supported
-            throw new UnsupportedOperationException("getLongAcquire: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "getLongAcquire: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of getLongAcquire(long) for this segmented composite: the swap is a value level
-     * step on the single acquire access of the segment that owns the position. Atomic acquire wide access
-     * is only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part acquire wide access is not atomic-supported.
+     * Little-endian twin of getLongAcquire(long) for this segmented composite: the swap is a value level step on the
+     * single acquire access of the segment that owns the position. Atomic acquire wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part acquire wide access is not
+     * atomic-supported.
      */
     @Override
     public long getLongAcquireReverse(final long index) {
@@ -908,10 +884,11 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return buffer.getLongAcquireReverse(bufferPosition);
         } else {
             //value splits across segments: cross-part acquire wide access is not atomic-supported
-            throw new UnsupportedOperationException("getLongAcquireReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "getLongAcquireReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     @Override
     public void putLong(final long index, final long value) {
         final byte[] writeBuffer = InputStreams.LONG_BUFFER_HOLDER.get();
@@ -925,16 +902,18 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
         writeBuffer[7] = (byte) (value);
         putBytes(index, writeBuffer);
     }
+
     @Override
     public void putLongReverse(final long index, final long value) {
         final long bits = Long.reverseBytes(value);
         putLong(index, bits);
     }
+
     /**
-     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public void putLongVolatile(final long index, final long value) {
@@ -946,16 +925,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putLongVolatile(bufferPosition, value);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("putLongVolatile: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putLongVolatile: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of putLongVolatile(long, x) for this segmented composite: the value bytes are
-     * swapped by the segment and written in a single volatile access of it. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Little-endian twin of putLongVolatile(long, x) for this segmented composite: the value bytes are swapped by the
+     * segment and written in a single volatile access of it. Atomic volatile wide access is only available where the
+     * value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public void putLongVolatileReverse(final long index, final long value) {
@@ -967,15 +947,16 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putLongVolatileReverse(bufferPosition, value);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("putLongVolatileReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putLongVolatileReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Writes the value at the given index with release semantics. Atomic release wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Writes the value at the given index with release semantics. Atomic release wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public void putLongRelease(final long index, final long value) {
@@ -987,16 +968,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putLongRelease(bufferPosition, value);
         } else {
             //value splits across segments: cross-part release wide access is not atomic-supported
-            throw new UnsupportedOperationException("putLongRelease: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putLongRelease: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of putLongRelease(long, x) for this segmented composite: the value bytes are
-     * swapped by the segment and written in a single release access of it. Atomic release wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part release wide access is not atomic-supported.
+     * Little-endian twin of putLongRelease(long, x) for this segmented composite: the value bytes are swapped by the
+     * segment and written in a single release access of it. Atomic release wide access is only available where the
+     * value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part release wide access is not
+     * atomic-supported.
      */
     @Override
     public void putLongReleaseReverse(final long index, final long value) {
@@ -1008,15 +990,16 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putLongReleaseReverse(bufferPosition, value);
         } else {
             //value splits across segments: cross-part release wide access is not atomic-supported
-            throw new UnsupportedOperationException("putLongReleaseReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putLongReleaseReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Writes the value at the given index with ordered semantics. Atomic ordered wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Writes the value at the given index with ordered semantics. Atomic ordered wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public void putLongOrdered(final long index, final long value) {
@@ -1028,16 +1011,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putLongOrdered(bufferPosition, value);
         } else {
             //value splits across segments: cross-part ordered wide access is not atomic-supported
-            throw new UnsupportedOperationException("putLongOrdered: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putLongOrdered: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of putLongOrdered(long, x) for this segmented composite: the value bytes are
-     * swapped by the segment and written in a single ordered access of it. Atomic ordered wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part ordered wide access is not atomic-supported.
+     * Little-endian twin of putLongOrdered(long, x) for this segmented composite: the value bytes are swapped by the
+     * segment and written in a single ordered access of it. Atomic ordered wide access is only available where the
+     * value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part ordered wide access is not
+     * atomic-supported.
      */
     @Override
     public void putLongOrderedReverse(final long index, final long value) {
@@ -1049,24 +1033,27 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putLongOrderedReverse(bufferPosition, value);
         } else {
             //value splits across segments: cross-part ordered wide access is not atomic-supported
-            throw new UnsupportedOperationException("putLongOrderedReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putLongOrderedReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     @Override
     public float getFloat(final long index) {
         return Float.intBitsToFloat(getInt(index));
     }
+
     @Override
     public float getFloatReverse(final long index) {
         final int bits = getInt(index);
         return Float.intBitsToFloat(Integer.reverseBytes(bits));
     }
+
     /**
-     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public float getFloatVolatile(final long index) {
@@ -1078,16 +1065,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return buffer.getFloatVolatile(bufferPosition);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("getFloatVolatile: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "getFloatVolatile: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of getFloatVolatile(long) for this segmented composite: the swap is a value level
-     * step on the single volatile access of the segment that owns the position. Atomic volatile wide access
-     * is only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Little-endian twin of getFloatVolatile(long) for this segmented composite: the swap is a value level step on the
+     * single volatile access of the segment that owns the position. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public float getFloatVolatileReverse(final long index) {
@@ -1099,24 +1087,27 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return buffer.getFloatVolatileReverse(bufferPosition);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("getFloatVolatileReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "getFloatVolatileReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     @Override
     public void putFloat(final long index, final float value) {
         putInt(index, Float.floatToIntBits(value));
     }
+
     @Override
     public void putFloatReverse(final long index, final float value) {
         final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
         putInt(index, bits);
     }
+
     /**
-     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public void putFloatVolatile(final long index, final float value) {
@@ -1128,16 +1119,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putFloatVolatile(bufferPosition, value);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("putFloatVolatile: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putFloatVolatile: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of putFloatVolatile(long, x) for this segmented composite: the value bytes are
-     * swapped by the segment and written in a single volatile access of it. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Little-endian twin of putFloatVolatile(long, x) for this segmented composite: the value bytes are swapped by the
+     * segment and written in a single volatile access of it. Atomic volatile wide access is only available where the
+     * value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public void putFloatVolatileReverse(final long index, final float value) {
@@ -1149,24 +1141,27 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putFloatVolatileReverse(bufferPosition, value);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("putFloatVolatileReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putFloatVolatileReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     @Override
     public double getDouble(final long index) {
         return Double.longBitsToDouble(getLong(index));
     }
+
     @Override
     public double getDoubleReverse(final long index) {
         final long bits = getLong(index);
         return Double.longBitsToDouble(Long.reverseBytes(bits));
     }
+
     /**
-     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Reads the value at the given index with volatile semantics. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public double getDoubleVolatile(final long index) {
@@ -1178,16 +1173,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return buffer.getDoubleVolatile(bufferPosition);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("getDoubleVolatile: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "getDoubleVolatile: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of getDoubleVolatile(long) for this segmented composite: the swap is a value level
-     * step on the single volatile access of the segment that owns the position. Atomic volatile wide access
-     * is only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Little-endian twin of getDoubleVolatile(long) for this segmented composite: the swap is a value level step on the
+     * single volatile access of the segment that owns the position. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public double getDoubleVolatileReverse(final long index) {
@@ -1199,24 +1195,27 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             return buffer.getDoubleVolatileReverse(bufferPosition);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("getDoubleVolatileReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "getDoubleVolatileReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     @Override
     public void putDouble(final long index, final double value) {
         putLong(index, Double.doubleToLongBits(value));
     }
+
     @Override
     public void putDoubleReverse(final long index, final double value) {
         final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
         putLong(index, bits);
     }
+
     /**
-     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Writes the value at the given index with volatile semantics. Atomic volatile wide access is only available where
+     * the value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public void putDoubleVolatile(final long index, final double value) {
@@ -1228,16 +1227,17 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putDoubleVolatile(bufferPosition, value);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("putDoubleVolatile: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putDoubleVolatile: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
+
     /**
-     * Little-endian twin of putDoubleVolatile(long, x) for this segmented composite: the value bytes are
-     * swapped by the segment and written in a single volatile access of it. Atomic volatile wide access is
-     * only available where the value fits completely inside a single segment of this list;
-     * positions that split across segments throw an {@link UnsupportedOperationException} naming
-     * the method and index, because cross-part volatile wide access is not atomic-supported.
+     * Little-endian twin of putDoubleVolatile(long, x) for this segmented composite: the value bytes are swapped by the
+     * segment and written in a single volatile access of it. Atomic volatile wide access is only available where the
+     * value fits completely inside a single segment of this list; positions that split across segments throw an
+     * {@link UnsupportedOperationException} naming the method and index, because cross-part volatile wide access is not
+     * atomic-supported.
      */
     @Override
     public void putDoubleVolatileReverse(final long index, final double value) {
@@ -1249,8 +1249,8 @@ public class SegmentedMemoryBuffer implements IMemoryBuffer {
             buffer.putDoubleVolatileReverse(bufferPosition, value);
         } else {
             //value splits across segments: cross-part volatile wide access is not atomic-supported
-            throw new UnsupportedOperationException("putDoubleVolatileReverse: index="
-                    + index + " splits across segments (not atomic-supported)");
+            throw new UnsupportedOperationException(
+                    "putDoubleVolatileReverse: index=" + index + " splits across segments (not atomic-supported)");
         }
     }
 

@@ -8,8 +8,8 @@ import de.invesdwin.util.error.FastNoSuchElementException;
 public interface IDoubleLargeQueue {
 
     /**
-     * Unlike an object there is no null for a double, so NaN is used to signal that there is nothing to
-     * poll or peek (adding NaN on purpose will make it indistinguishable from a missing value).
+     * Unlike an object there is no null for a double, so NaN is used to signal that there is nothing to poll or peek
+     * (adding NaN on purpose will make it indistinguishable from a missing value).
      */
     double MISSING_VALUE = Double.NaN;
 

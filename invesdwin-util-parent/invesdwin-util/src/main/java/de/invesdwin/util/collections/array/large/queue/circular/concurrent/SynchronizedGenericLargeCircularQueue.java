@@ -6,13 +6,12 @@ import de.invesdwin.util.collections.array.large.queue.IGenericLargeCircularQueu
 import de.invesdwin.util.error.FastNoSuchElementException;
 
 /**
- * Serializes all {@link IGenericLargeCircularQueue} operations with a monitor ({@code synchronized}); clamped reads take the lock once for the
- * whole operation. The disabled factory returns the raw unlocked implementation instead, so headless
- * backtests pay no locking at all.
- * Monitor instead of ILock (Edwin): better stack traces under contention (the owning thread is
- * visible without lock-tracing), no extra lock object; these wrappers are LEAF locks (they never
- * acquire a second lock inside a method) so they can never take part in a lock cycle - cycle
- * detection stays available where nesting exists, on the engine-side series locks via Locks.
+ * Serializes all {@link IGenericLargeCircularQueue} operations with a monitor ({@code synchronized}); clamped reads
+ * take the lock once for the whole operation. The disabled factory returns the raw unlocked implementation instead, so
+ * headless backtests pay no locking at all. Monitor instead of ILock (Edwin): better stack traces under contention (the
+ * owning thread is visible without lock-tracing), no extra lock object; these wrappers are LEAF locks (they never
+ * acquire a second lock inside a method) so they can never take part in a lock cycle - cycle detection stays available
+ * where nesting exists, on the engine-side series locks via Locks.
  */
 @ThreadSafe
 public class SynchronizedGenericLargeCircularQueue<E> implements IGenericLargeCircularQueue<E> {

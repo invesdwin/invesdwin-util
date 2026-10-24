@@ -10,7 +10,7 @@ import de.invesdwin.util.time.date.holiday.IHolidayManager;
 public class EurexFuturesHolidayManager implements IHolidayManager {
 
     public static final EurexFuturesHolidayManager INSTANCE = new EurexFuturesHolidayManager();
-    
+
     private final IHolidayManager weekend = WeekendHolidayManager.INSTANCE;
     private final IHolidayManager holidays = HolidayManagers.EUREX;
 

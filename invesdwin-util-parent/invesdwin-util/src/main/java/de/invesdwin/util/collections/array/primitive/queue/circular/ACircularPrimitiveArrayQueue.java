@@ -6,13 +6,13 @@ import de.invesdwin.util.error.FastIndexOutOfBoundsException;
 
 /**
  * Type-free cursor parts shared by all {@code Circular*PrimitiveArrayQueue} implementations - the int-indexed
- * counterpart of {@code ACircularLargeArrayQueue} (see its javadoc for the rationale of the conditional subtract and
- * of keeping queues capacity-agnostic).
+ * counterpart of {@code ACircularLargeArrayQueue} (see its javadoc for the rationale of the conditional subtract and of
+ * keeping queues capacity-agnostic).
  *
  * <p>
- * The forward sum {@code startArrayIndex + index} is computed as a {@code long} before the conditional subtract:
- * with int-backed indexes near {@link Integer#MAX_VALUE} the raw int sum can overflow, which would break the
- * "sum &lt; 2 * capacity" proof the large (long-indexed) variant relies on.
+ * The forward sum {@code startArrayIndex + index} is computed as a {@code long} before the conditional subtract: with
+ * int-backed indexes near {@link Integer#MAX_VALUE} the raw int sum can overflow, which would break the "sum &lt; 2 *
+ * capacity" proof the large (long-indexed) variant relies on.
  */
 @NotThreadSafe
 public abstract class ACircularPrimitiveArrayQueue {
@@ -29,9 +29,9 @@ public abstract class ACircularPrimitiveArrayQueue {
     }
 
     /**
-     * Validates that the given capacity is usable; invoked by the base constructor itself
-     * (identity or throw - subclasses may also call it BEFORE their own array allocation,
-     * but must never NORMALIZE here: they size their backing array from their own parameter).
+     * Validates that the given capacity is usable; invoked by the base constructor itself (identity or throw -
+     * subclasses may also call it BEFORE their own array allocation, but must never NORMALIZE here: they size their
+     * backing array from their own parameter).
      */
     protected static int checkCapacity(final int capacity) {
         if (capacity <= 0) {
@@ -150,8 +150,8 @@ public abstract class ACircularPrimitiveArrayQueue {
     }
 
     /**
-     * Same as {@link #arrayIndexReverse(int)} but without the bounds check. No overflow possible: the difference of
-     * two values in {@code [0, capacity)} cannot exceed the int range, and adding capacity back stays below it.
+     * Same as {@link #arrayIndexReverse(int)} but without the bounds check. No overflow possible: the difference of two
+     * values in {@code [0, capacity)} cannot exceed the int range, and adding capacity back stays below it.
      */
     protected final int arrayIndexReverseUnchecked(final int index) {
         final int idx = endArrayIndex - index;
@@ -189,8 +189,8 @@ public abstract class ACircularPrimitiveArrayQueue {
      * Type-free part of an evicting add: rolls over and reports which slot currently holds the value that gets
      * overwritten by the caller's write.
      *
-     * @return {@link #endArrayIndex} (the slot holding the evicted value) if a real eviction happened, otherwise -1;
-     *         an untouched slot is never reported as evicted
+     * @return {@link #endArrayIndex} (the slot holding the evicted value) if a real eviction happened, otherwise -1; an
+     *         untouched slot is never reported as evicted
      */
     protected final int evictAddSlot() {
         //an untouched slot is never read, so only a real rollover reports an evicted element

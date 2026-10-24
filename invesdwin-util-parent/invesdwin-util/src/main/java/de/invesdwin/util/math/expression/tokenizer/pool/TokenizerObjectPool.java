@@ -10,8 +10,7 @@ public final class TokenizerObjectPool extends AAgronaObjectPool<Tokenizer> {
 
     public static final TokenizerObjectPool INSTANCE = new TokenizerObjectPool();
 
-    private TokenizerObjectPool() {
-    }
+    private TokenizerObjectPool() {}
 
     @Override
     protected Tokenizer newObject() {

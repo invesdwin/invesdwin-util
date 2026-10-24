@@ -18,8 +18,7 @@ import de.invesdwin.util.math.decimal.ADecimal;
 @Immutable
 public final class CheckedCastRoaringBitmaps {
 
-    private CheckedCastRoaringBitmaps() {
-    }
+    private CheckedCastRoaringBitmaps() {}
 
     //CHECKSTYLE:OFF
     public static RoaringBitmap checkedCastVector(final Object value) {

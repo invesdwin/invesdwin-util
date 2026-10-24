@@ -8,9 +8,9 @@ import de.invesdwin.util.collections.array.primitive.queue.circular.CircularLong
 import de.invesdwin.util.math.Integers;
 
 /**
- * Large variant of {@link CircularLongPrimitiveArrayQueue} using long based indexes and sizes, thus not
- * being limited to an {@link Integer#MAX_VALUE} sized queue. Values are stored in a {@link ILongLargeArray}
- * which switches to segmented heap arrays for capacities exceeding the maximum array size of the JVM.
+ * Large variant of {@link CircularLongPrimitiveArrayQueue} using long based indexes and sizes, thus not being limited
+ * to an {@link Integer#MAX_VALUE} sized queue. Values are stored in a {@link ILongLargeArray} which switches to
+ * segmented heap arrays for capacities exceeding the maximum array size of the JVM.
  */
 @NotThreadSafe
 public class CircularLongLargeArrayQueue extends ACircularLargeArrayQueue implements ILongLargeCircularQueue {

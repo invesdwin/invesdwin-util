@@ -6,8 +6,8 @@ import de.invesdwin.util.collections.array.large.queue.IDoubleLargeQueue;
 import de.invesdwin.util.collections.array.primitive.queue.IDoublePrimitiveQueue;
 
 /**
- * Adapter for using a {@link IDoublePrimitiveQueue} where a {@link IDoubleLargeQueue} is expected, the int
- * based size is widened to a long, so nothing can overflow.
+ * Adapter for using a {@link IDoublePrimitiveQueue} where a {@link IDoubleLargeQueue} is expected, the int based size
+ * is widened to a long, so nothing can overflow.
  */
 @NotThreadSafe
 public class DoublePrimitiveAsLargeQueue implements IDoubleLargeQueue {

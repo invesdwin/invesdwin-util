@@ -17,8 +17,7 @@ import de.invesdwin.util.math.decimal.ADecimal;
 @Immutable
 public final class CheckedCastCharactersObj {
 
-    private CheckedCastCharactersObj() {
-    }
+    private CheckedCastCharactersObj() {}
 
     public static Character checkedCastObj(final Object value) {
         if (value == null) {

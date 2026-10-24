@@ -38,8 +38,7 @@ public class InputStreamHttpResponseConsumer {
     private FileOutputStream fileOut;
     private File file;
 
-    public InputStreamHttpResponseConsumer() {
-    }
+    public InputStreamHttpResponseConsumer() {}
 
     /**
      * Set a non null value here to enable a write cache when the size exceeds 512KB. This helps to reduce the load on

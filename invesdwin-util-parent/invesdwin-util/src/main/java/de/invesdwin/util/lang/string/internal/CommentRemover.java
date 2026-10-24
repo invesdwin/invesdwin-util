@@ -12,8 +12,7 @@ import de.invesdwin.util.error.UnknownArgumentException;
 @Immutable
 public final class CommentRemover {
 
-    private CommentRemover() {
-    }
+    private CommentRemover() {}
 
     public static String removeComments(final String code) {
         State state = State.outsideComment;

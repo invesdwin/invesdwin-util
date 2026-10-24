@@ -17,22 +17,22 @@ import de.invesdwin.util.collections.factory.large.ILargeLockCollectionFactory;
 /**
  * Int-indexed view of {@link ILockCollectionFactory} for the primitive array world (bitsets and circular queues).
  * Always reached via {@code lockCollectionFactory.primitive()} - {@link ILockCollectionFactory} stays the single
- * starting point, so int-indexed allocations can never be mixed with the long-indexed {@link ILargeLockCollectionFactory}
- * ones whose cursors do not fit into an int.
+ * starting point, so int-indexed allocations can never be mixed with the long-indexed
+ * {@link ILargeLockCollectionFactory} ones whose cursors do not fit into an int.
  */
 public interface IPrimitiveLockCollectionFactory {
 
     /**
-     * A java bitset below the roaring threshold (about twice as fast), a roaring bitmap above it to stay within
-     * memory limits.
+     * A java bitset below the roaring threshold (about twice as fast), a roaring bitmap above it to stay within memory
+     * limits.
      */
     IPrimitiveBitSet newBitSet(int initialSize);
 
     /**
      * Int-indexed circular queues with rollover and clamped positional reads mirroring the large variants; the
-     * thread-safe factory returns locked wrappers, the disabled one raw unlocked instances. The backing-store
-     * overloads let the caller provide the storage (e.g. a wrapped primitive or off heap array) which becomes the
-     * queue's capacity.
+     * thread-safe factory returns locked wrappers, the disabled one raw unlocked instances. The backing-store overloads
+     * let the caller provide the storage (e.g. a wrapped primitive or off heap array) which becomes the queue's
+     * capacity.
      */
     IDoublePrimitiveCircularQueue newCircularDoubleQueue(int capacity);
 

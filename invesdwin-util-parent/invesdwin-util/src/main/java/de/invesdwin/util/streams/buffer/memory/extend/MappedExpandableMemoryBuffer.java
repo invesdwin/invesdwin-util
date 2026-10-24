@@ -365,65 +365,6 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public char getChar(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -433,6 +374,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getChar(index);
         }
     }
+
     @Override
     public char getCharReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -442,6 +384,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getChar(index);
         }
     }
+
     @Override
     public char getCharVolatile(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -451,6 +394,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getCharVolatile(index);
         }
     }
+
     @Override
     public char getCharVolatileReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -460,6 +404,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getCharVolatile(index);
         }
     }
+
     @Override
     public void putChar(final long index, final char value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -469,6 +414,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putChar(index, value);
         }
     }
+
     @Override
     public void putCharReverse(final long index, final char value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -478,6 +424,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putChar(index, value);
         }
     }
+
     @Override
     public void putCharVolatile(final long index, final char value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -487,6 +434,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putCharVolatile(index, value);
         }
     }
+
     @Override
     public void putCharVolatileReverse(final long index, final char value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -496,6 +444,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putCharVolatile(index, value);
         }
     }
+
     @Override
     public short getShort(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -505,6 +454,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getShort(index);
         }
     }
+
     @Override
     public short getShortReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -514,6 +464,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getShort(index);
         }
     }
+
     @Override
     public short getShortVolatile(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -523,6 +474,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getShortVolatile(index);
         }
     }
+
     @Override
     public short getShortVolatileReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -532,6 +484,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getShortVolatile(index);
         }
     }
+
     @Override
     public void putShort(final long index, final short value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -541,6 +494,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putShort(index, value);
         }
     }
+
     @Override
     public void putShortReverse(final long index, final short value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -550,6 +504,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putShort(index, value);
         }
     }
+
     @Override
     public void putShortVolatile(final long index, final short value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -559,6 +514,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putShortVolatile(index, value);
         }
     }
+
     @Override
     public void putShortVolatileReverse(final long index, final short value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -568,6 +524,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putShortVolatile(index, value);
         }
     }
+
     @Override
     public int getInt(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -577,6 +534,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getInt(index);
         }
     }
+
     @Override
     public int getIntReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -586,6 +544,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getInt(index);
         }
     }
+
     @Override
     public int getIntVolatile(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -595,6 +554,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getIntVolatile(index);
         }
     }
+
     @Override
     public int getIntVolatileReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -604,6 +564,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getIntVolatile(index);
         }
     }
+
     @Override
     public int getIntAcquire(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -613,6 +574,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getIntAcquire(index);
         }
     }
+
     @Override
     public int getIntAcquireReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -622,6 +584,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getIntAcquire(index);
         }
     }
+
     @Override
     public void putInt(final long index, final int value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -631,6 +594,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putInt(index, value);
         }
     }
+
     @Override
     public void putIntReverse(final long index, final int value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -640,6 +604,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putInt(index, value);
         }
     }
+
     @Override
     public void putIntVolatile(final long index, final int value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -649,6 +614,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putIntVolatile(index, value);
         }
     }
+
     @Override
     public void putIntVolatileReverse(final long index, final int value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -658,6 +624,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putIntVolatile(index, value);
         }
     }
+
     @Override
     public void putIntRelease(final long index, final int value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -667,6 +634,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putIntRelease(index, value);
         }
     }
+
     @Override
     public void putIntReleaseReverse(final long index, final int value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -676,6 +644,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putIntRelease(index, value);
         }
     }
+
     @Override
     public void putIntOrdered(final long index, final int value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -685,6 +654,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putIntOrdered(index, value);
         }
     }
+
     @Override
     public void putIntOrderedReverse(final long index, final int value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -694,6 +664,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putIntOrdered(index, value);
         }
     }
+
     @Override
     public long getLong(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -703,6 +674,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getLong(index);
         }
     }
+
     @Override
     public long getLongReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -712,6 +684,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getLong(index);
         }
     }
+
     @Override
     public long getLongVolatile(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -721,6 +694,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getLongVolatile(index);
         }
     }
+
     @Override
     public long getLongVolatileReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -730,6 +704,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getLongVolatile(index);
         }
     }
+
     @Override
     public long getLongAcquire(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -739,6 +714,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getLongAcquire(index);
         }
     }
+
     @Override
     public long getLongAcquireReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -748,6 +724,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getLongAcquire(index);
         }
     }
+
     @Override
     public void putLong(final long index, final long value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -757,6 +734,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putLong(index, value);
         }
     }
+
     @Override
     public void putLongReverse(final long index, final long value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -766,6 +744,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putLong(index, value);
         }
     }
+
     @Override
     public void putLongVolatile(final long index, final long value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -775,6 +754,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putLongVolatile(index, value);
         }
     }
+
     @Override
     public void putLongVolatileReverse(final long index, final long value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -784,6 +764,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putLongVolatile(index, value);
         }
     }
+
     @Override
     public void putLongRelease(final long index, final long value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -793,6 +774,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putLongRelease(index, value);
         }
     }
+
     @Override
     public void putLongReleaseReverse(final long index, final long value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -802,6 +784,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putLongRelease(index, value);
         }
     }
+
     @Override
     public void putLongOrdered(final long index, final long value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -811,6 +794,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putLongOrdered(index, value);
         }
     }
+
     @Override
     public void putLongOrderedReverse(final long index, final long value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -820,6 +804,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putLongOrdered(index, value);
         }
     }
+
     @Override
     public float getFloat(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -829,6 +814,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getFloat(index);
         }
     }
+
     @Override
     public float getFloatReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -838,6 +824,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getFloat(index);
         }
     }
+
     @Override
     public float getFloatVolatile(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -847,6 +834,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getFloatVolatile(index);
         }
     }
+
     @Override
     public float getFloatVolatileReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -856,6 +844,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getFloatVolatile(index);
         }
     }
+
     @Override
     public void putFloat(final long index, final float value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -865,6 +854,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putFloat(index, value);
         }
     }
+
     @Override
     public void putFloatReverse(final long index, final float value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -874,6 +864,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putFloat(index, value);
         }
     }
+
     @Override
     public void putFloatVolatile(final long index, final float value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -883,6 +874,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putFloatVolatile(index, value);
         }
     }
+
     @Override
     public void putFloatVolatileReverse(final long index, final float value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -892,6 +884,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putFloatVolatile(index, value);
         }
     }
+
     @Override
     public double getDouble(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -901,6 +894,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getDouble(index);
         }
     }
+
     @Override
     public double getDoubleReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -910,6 +904,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getDouble(index);
         }
     }
+
     @Override
     public double getDoubleVolatile(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -919,6 +914,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getDoubleVolatile(index);
         }
     }
+
     @Override
     public double getDoubleVolatileReverse(final long index) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -928,6 +924,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             return super.getDoubleVolatile(index);
         }
     }
+
     @Override
     public void putDouble(final long index, final double value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -937,6 +934,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putDouble(index, value);
         }
     }
+
     @Override
     public void putDoubleReverse(final long index, final double value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
@@ -946,6 +944,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putDouble(index, value);
         }
     }
+
     @Override
     public void putDoubleVolatile(final long index, final double value) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
@@ -955,6 +954,7 @@ public class MappedExpandableMemoryBuffer extends MappedExpandableMemoryBufferBa
             super.putDoubleVolatile(index, value);
         }
     }
+
     @Override
     public void putDoubleVolatileReverse(final long index, final double value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {

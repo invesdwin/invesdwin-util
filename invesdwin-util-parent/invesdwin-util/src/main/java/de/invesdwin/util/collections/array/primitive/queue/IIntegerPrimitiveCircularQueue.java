@@ -6,17 +6,17 @@ import de.invesdwin.util.collections.array.primitive.accessor.IIntegerPrimitiveA
  * Circular window semantics on top of {@link IIntegerPrimitiveQueue} (the int-indexed mirror of
  * {@code IIntegerLargeCircularQueue}): bounded capacity with rollover, positional reads from both ends and clamped
  * variants. Unlike the plain queue, reading is a total function with {@link #getOrMissing(int)}/
- * {@link #getReverseOrMissing(int)}: any out-of-range index returns {@link #MISSING_VALUE} instead of throwing,
- * which lets window based consumers probe past the ring edges cheaply. The clamped reads cover positional staleness
- * only; deciding whether reading beyond a watermark is allowed at all stays the consumer's policy.
+ * {@link #getReverseOrMissing(int)}: any out-of-range index returns {@link #MISSING_VALUE} instead of throwing, which
+ * lets window based consumers probe past the ring edges cheaply. The clamped reads cover positional staleness only;
+ * deciding whether reading beyond a watermark is allowed at all stays the consumer's policy.
  *
  * <p>
  * The queues stay capacity-agnostic (any capacity &gt; 0, no power-of-two rule): absolute-slot/ring protocols are
  * layered on top by their consumers.
  *
  * <p>
- * Class only (not part of this interface, present on the concrete implementations): offerPrepend, prepend,
- * toArray, toString ranges, pretendClear.
+ * Class only (not part of this interface, present on the concrete implementations): offerPrepend, prepend, toArray,
+ * toString ranges, pretendClear.
  */
 public interface IIntegerPrimitiveCircularQueue extends IIntegerPrimitiveQueue, IIntegerPrimitiveArrayAccessor {
 
@@ -62,8 +62,8 @@ public interface IIntegerPrimitiveCircularQueue extends IIntegerPrimitiveQueue, 
     boolean isInRangeReverse(int index);
 
     /**
-     * Copies up to {@code length} values forward starting at {@code srcIndex} into {@code dst} at
-     * {@code dstOffset}; positions outside {@code [srcIndex, srcIndex+length)} that are out of range are filled with
+     * Copies up to {@code length} values forward starting at {@code srcIndex} into {@code dst} at {@code dstOffset};
+     * positions outside {@code [srcIndex, srcIndex+length)} that are out of range are filled with
      * {@link #MISSING_VALUE} (clamped, never throwing for range). Forward direction only.
      *
      * @return the number of real values copied (the rest are {@link #MISSING_VALUE} fills)
@@ -88,8 +88,8 @@ public interface IIntegerPrimitiveCircularQueue extends IIntegerPrimitiveQueue, 
     void circularPrepend(int value);
 
     /**
-     * Adds an element to the array, if capacity is exceeded, the first element is replaced by the rollover and
-     * returned (e.g. to clean up the instance). Returns {@link #MISSING_VALUE} if nothing was evicted.
+     * Adds an element to the array, if capacity is exceeded, the first element is replaced by the rollover and returned
+     * (e.g. to clean up the instance). Returns {@link #MISSING_VALUE} if nothing was evicted.
      */
     int evictAdd(int value);
 

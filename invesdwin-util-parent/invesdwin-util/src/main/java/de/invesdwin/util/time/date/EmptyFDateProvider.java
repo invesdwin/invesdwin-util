@@ -7,8 +7,7 @@ public final class EmptyFDateProvider implements IFDateProvider {
 
     public static final EmptyFDateProvider INSTANCE = new EmptyFDateProvider();
 
-    private EmptyFDateProvider() {
-    }
+    private EmptyFDateProvider() {}
 
     @Override
     public FDate asFDate() {

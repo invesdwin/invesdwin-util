@@ -92,8 +92,7 @@ public final class DisabledPrimitiveLockCollectionFactory implements IPrimitiveL
     }
 
     @Override
-    public <E> IGenericPrimitiveCircularQueue<E> newCircularGenericQueue(
-            final IGenericPrimitiveArray<E> backingStore) {
+    public <E> IGenericPrimitiveCircularQueue<E> newCircularGenericQueue(final IGenericPrimitiveArray<E> backingStore) {
         return new CircularGenericPrimitiveArrayQueue<E>(backingStore);
     }
 

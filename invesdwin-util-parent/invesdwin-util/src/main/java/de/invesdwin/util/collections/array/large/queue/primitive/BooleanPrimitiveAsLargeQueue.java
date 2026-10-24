@@ -6,8 +6,8 @@ import de.invesdwin.util.collections.array.large.queue.IBooleanLargeQueue;
 import de.invesdwin.util.collections.array.primitive.queue.IBooleanPrimitiveQueue;
 
 /**
- * Adapter for using a {@link IBooleanPrimitiveQueue} where a {@link IBooleanLargeQueue} is expected, the int
- * based size is widened to a long, so nothing can overflow.
+ * Adapter for using a {@link IBooleanPrimitiveQueue} where a {@link IBooleanLargeQueue} is expected, the int based size
+ * is widened to a long, so nothing can overflow.
  */
 @NotThreadSafe
 public class BooleanPrimitiveAsLargeQueue implements IBooleanLargeQueue {

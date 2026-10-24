@@ -24,7 +24,6 @@ public class ExpressionVisitorSupport extends AExpressionVisitor {
     }
 
     @Override
-    protected void visitOther(final IExpression expression) {
-    }
+    protected void visitOther(final IExpression expression) {}
 
 }

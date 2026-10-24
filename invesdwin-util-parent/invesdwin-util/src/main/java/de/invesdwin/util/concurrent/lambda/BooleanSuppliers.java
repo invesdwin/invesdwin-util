@@ -11,8 +11,7 @@ import de.invesdwin.util.streams.buffer.bytes.IByteBuffer;
 @Immutable
 public final class BooleanSuppliers {
 
-    private BooleanSuppliers() {
-    }
+    private BooleanSuppliers() {}
 
     public static void putBooleanSupplier(final IByteBuffer buffer, final int index, final BooleanSupplier value) {
         if (value == null) {
