@@ -16,7 +16,9 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.concurrent.Executors;
+import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.UUIDs;
+import de.invesdwin.util.lang.string.Charsets;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -159,4 +161,24 @@ public final class HeartbeatFileChannelLockRegistry {
             DIR_TO_PREFIXES.clear();
         }
     }
+
+    /**
+     * Reads the claim marker written into the update lock file at tryLock time (with the same heartbeat file fallback
+     * used for Windows mandatory locks) and checks whether it was written by this JVM. The HEARTBEAT_OWNER string is
+     * unique per JVM (PID@host plus random UUID), so a match proves that some still open HeartbeatFileChannelLock
+     * instance of this JVM holds this lock file, i.e. the beating lock is a local ghost and not a remote process
+     * working on the update.
+     */
+    public static boolean isLockClaimedByThisJvm(final File lockPath) {
+        final String lockOwner = Files.readFileToStringNoThrow(lockPath, Charsets.defaultCharset());
+        if (lockOwner != null) {
+            return HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(lockOwner);
+        }
+        // Windows lock fallback: if the main file is unreadable due to a mandatory OS lock, check the heartbeat file.
+        final File heartbeatPath = Files.setExtensionNormalizeFileName(lockPath,
+                HeartbeatFileChannelLockRegistry.HEARTBEAT_EXTENSION);
+        final String heartbeatOwner = Files.readFileToStringNoThrow(heartbeatPath, Charsets.defaultCharset());
+        return HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(heartbeatOwner);
+    }
+
 }

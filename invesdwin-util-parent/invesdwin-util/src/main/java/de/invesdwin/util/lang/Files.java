@@ -810,4 +810,12 @@ public final class Files extends AFilesStaticFacade {
         }
         return isEmpty;
     }
+
+    public static String readStringNoThrow(final Path path) {
+        try {
+            return Files.readString(path);
+        } catch (final Exception e) {
+            return null;
+        }
+    }
 }
