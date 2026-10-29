@@ -425,4 +425,36 @@ public final class Longs extends ALongsStaticFacade {
         //CHECKSTYLE:ON
     }
 
+    /**
+     * @param value
+     *            candidate size
+     * @return true if value is a power of two (positive, single set bit)
+     */
+    public static boolean isPowerOfTwo(final long value) {
+        return value > 0 && (value & (value - 1)) == 0;
+    }
+
+    /**
+     * Smallest power of two greater than or equal to value, SATURATING: values above 2^62 return Long.MAX_VALUE
+     * instead of overflowing (no such power of two fits a long, so callers see the ceiling and their own bounds
+     * guards decide what to do; a silent wrap to a negative or tiny value is the failure mode this avoids).
+     *
+     * @param value
+     *            requested size
+     * @return ceil power of two of value, saturating at Long.MAX_VALUE
+     */
+    public static long ceilPow2(final long value) {
+        if (value <= 1) {
+            return 1;
+        }
+        final long highest = Long.highestOneBit(value);
+        if (highest == value) {
+            return value;
+        }
+        if (highest > (Long.MAX_VALUE >> 1)) {
+            return Long.MAX_VALUE;
+        }
+        return highest << 1;
+    }
+
 }
