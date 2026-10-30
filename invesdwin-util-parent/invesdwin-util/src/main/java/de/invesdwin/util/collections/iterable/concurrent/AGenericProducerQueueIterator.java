@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 
+
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
@@ -22,6 +23,11 @@ import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.lang.string.description.TextDescription;
+import de.invesdwin.util.log.ILog;
+import de.invesdwin.util.log.adaptor.Log4j2DelegateLog;
+import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.millis.FDateMillis;
+import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
 public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterator<E> {
@@ -59,12 +65,27 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
                     final boolean added = queue.offer(element);
                     if (!added && queue.remainingCapacity() == 0) {
                         if (utilizationDebugEnabled) {
-                            LOGGER.info(TextDescription.format("%s: queue is full", finalizer.name));
+                            LOG.info(TextDescription.format("%s: queue is full", finalizer.name));
                         }
                         drainedLock.lock();
                         try {
                             //wait till queue is drained again, start work immediately when a bit of space is free again
+                            int lastQueueSize = Integer.MAX_VALUE;
+                            long stallDeadlineMillis = FDateMillis.nowMillis() + producerStallTimeout.millisValue();
                             while (!isInnerClosed() && queue.size() >= queueSize) {
+                                final int currentQueueSize = queue.size();
+                                if (currentQueueSize < lastQueueSize) {
+                                    //consumer is draining (maybe just slowly): keep the stall deadline fresh
+                                    lastQueueSize = currentQueueSize;
+                                    stallDeadlineMillis = FDateMillis.nowMillis() + producerStallTimeout.millisValue();
+                                } else if (FDateMillis.nowMillis() >= stallDeadlineMillis) {
+                                    //queue has not shrunk for the stall timeout: the consumer is parked behind some lock/future - abort the producer instead of deadlock-waiting forever; the resulting update failure is expected to be retried by the caller from a clean state
+                                    throw new ProducerStalledException("Producer [" + finalizer.name
+                                            + "] could not deliver into its queue (" + currentQueueSize + "/"
+                                            + queueSize + ") because the consumer made no draining progress in "
+                                            + producerStallTimeout
+                                            + " - assuming a parked consumer and aborting instead of holding the chain forever");
+                                }
                                 drainedCondition.await(1, TimeUnit.MILLISECONDS);
                             }
                         } finally {
@@ -84,8 +105,10 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     }
 
     public static final int DEFAULT_QUEUE_SIZE = 10000;
-    private static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager
-            .getLogger(AGenericProducerQueueIterator.class);
+    //how long the queue may stay full WITHOUT any draining progress before the producer aborts itself (a parked consumer would otherwise deadlock the whole producer-consumer-updater chain forever); a slow-but-draining consumer resets the deadline continuously
+    private static volatile Duration producerStallTimeout = new Duration(10,
+            FTimeUnit.MINUTES);
+    private static final ILog LOG = new Log4j2DelegateLog(AGenericProducerQueueIterator.class);
 
     private final BlockingQueue<E> queue;
     private final GenericProducerQueueIteratorFinalizer finalizer;
@@ -120,6 +143,14 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     protected boolean isShutdownExecutor() {
         return DEFAULT_SHUTDOWN_EXECUTOR;
     };
+
+    public static Duration getProducerStallTimeout() {
+        return producerStallTimeout;
+    }
+
+    public static void setProducerStallTimeout(final Duration timeout) {
+        producerStallTimeout = timeout;
+    }
 
     protected ExecutorService newExecutor(final String name) {
         return newDefaultExecutor(name);
@@ -191,7 +222,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
             boolean firstPoll = true;
             while (hasNext()) {
                 if (!firstPoll && utilizationDebugEnabled) {
-                    LOGGER.info(TextDescription.format("%s: queue is empty", finalizer.name));
+                    LOG.info(TextDescription.format("%s: queue is empty", finalizer.name));
                 }
                 firstPoll = false;
                 final E element = queue.poll(1, TimeUnit.MILLISECONDS);
