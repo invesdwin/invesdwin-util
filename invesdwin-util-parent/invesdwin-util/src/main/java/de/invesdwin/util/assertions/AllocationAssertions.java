@@ -19,9 +19,14 @@ import org.junit.jupiter.api.Assumptions;
  * comment "optional dependency for Assertions"), so the skip contract travels with it and no new dependency appears.
  *
  * <p>
+ * {@link #assertAllocationBounded(String, long, int, IAllocationProbe)} is the bounded companion: the same
+ * instrumentation and the same barriers with a declared ceiling for the measured region instead of the zero
+ * ceiling — it is what gates an operation that legitimately allocates a bounded amount can use.
+ *
+ * <p>
  * On a successful gate run this prints the literal {@code ALLOC-GATE executed} — nightly runs grep for it, so an
  * {@code assumeTrue} skip on a non-HotSpot VM can never look like a pass. The literal is NEVER
- * printed on the skip path.
+ * printed on the skip path, and NEVER printed when an asserted ceiling is breached.
  *
  * <p>
  * Anti-elimination: {@link IAllocationProbe} RETURNS the read's value and this harness consumes the accumulation
@@ -124,6 +129,88 @@ public final class AllocationAssertions {
                 "alloc-gate '" + name + "': raw bytes allocated over " + iterations + " iterations must be zero");
         //nightly grep target — printed ONLY on a successful gate run.
         System.out.println("ALLOC-GATE executed " + name + " iterations=" + iterations); //SUPPRESS CHECKSTYLE single line
+    }
+
+    /**
+     * Asserts zero-delta allocation over {@link #DEFAULT_ITERATIONS} with a declared ceiling instead of the zero
+     * ceiling — see {@link #assertAllocationBounded(String, long, int, IAllocationProbe)}.
+     */
+    public static void assertAllocationBounded(final String name, final long boundBytes,
+            final IAllocationProbe probe) {
+        assertAllocationBounded(name, boundBytes, DEFAULT_ITERATIONS, probe);
+    }
+
+    /**
+     * Bounded companion of {@link #assertZeroAllocation(String, int, IAllocationProbe)}: the RAW allocated-bytes
+     * delta of {@code probe.run()} over {@code iterations} calls must stay at or below {@code boundBytes} — the
+     * ceiling is for the WHOLE measured region, not per call — instead of being pinned to exactly zero. The
+     * measured region, the warm-up rule, the hoisted-op rule, the skip contract on a VM without the
+     * thread-allocation instrumentation and the anti-elimination barrier (the probe's returned values are
+     * accumulated, the accumulation is stored through a volatile sink and a zero measured sum fails the gate)
+     * are the same as in the zero-alloc harness; only the ceiling differs.
+     *
+     * <p>
+     * The delta assert runs BEFORE the {@code ALLOC-GATE executed} literal is printed, so a breached bound never
+     * reaches the nightly grep line, and the probe must return a value derived from the operation under test — a
+     * probe over an operation whose result is discarded lets the measured arm be dead-code-eliminated, which would
+     * print a passing literal for a bound that was never actually exercised.
+     *
+     * @param name
+     *            gate name — it is what the {@code ALLOC-GATE executed} grep line reports
+     * @param boundBytes
+     *            ceiling for the raw allocated-bytes delta over the whole measured region
+     * @param iterations
+     *            number of {@code probe.run()} calls inside the measured region
+     * @param probe
+     *            the operation under the gate, constructed before the call (hoisted op) and returning a consumed
+     *            result
+     */
+    public static void assertAllocationBounded(final String name, final long boundBytes, final int iterations,
+            final IAllocationProbe probe) {
+        final com.sun.management.ThreadMXBean allocBean = allocatedBytesBeanOrNull();
+        //HotSpot-only guard: a skip stays visible (no ALLOC-GATE literal emitted), and the nightly
+        //grep of "ALLOC-GATE executed" is the mitigation for silently dropped coverage.
+        Assumptions.assumeTrue(allocBean != null,
+                "no com.sun.management.ThreadMXBean thread-allocation instrumentation on this VM"
+                        + " - alloc gate '" + name + "' SKIPPED (not passed); nightly grep catches lost coverage");
+        final long threadId = Thread.currentThread().getId();
+        //hoisted op: probe instance, bean lookup and threadId all prepared above;
+        //below, the measured region is the bean reads and probe.run() calls only.
+        long accumulated = 0L;
+        for (int i = 0; i < WARMUP_ITERATIONS; i++) {
+            accumulated += probe.run();
+        }
+        //anti-elimination barrier on the warm-up accumulation too: a volatile store C2 cannot drop
+        consumedSink = accumulated;
+        allocBean.getThreadAllocatedBytes(threadId);
+        final long before = allocBean.getThreadAllocatedBytes(threadId);
+        final long measuredStart = accumulated;
+        for (int i = 0; i < iterations; i++) {
+            accumulated += probe.run();
+        }
+        final long after = allocBean.getThreadAllocatedBytes(threadId);
+        final long measuredSum = accumulated - measuredStart;
+        //anti-elimination barrier: the store keeps the accumulation (and with it the probe calls
+        //feeding it) alive in the optimized loop — a discarded, unasserted sink let the whole
+        //measured region be dead-code-eliminated while still reporting delta==0
+        consumedSink = accumulated;
+        final long deltaBytes = after - before;
+        //expected-magnitude consumption check BEFORE the bound assert and BEFORE the nightly
+        //literal: zero sum over the measured region means the probe returned nothing to consume —
+        //either the loop was optimized away or the probe is malformed; either way this run proves
+        //nothing and must fail loudly, not print the gate literal
+        Assertions.checkTrue(measuredSum != 0L,
+                "alloc-gate '" + name + "': probe accumulation over the " + iterations
+                        + " measured iterations is zero — the measured region may have been eliminated by the JIT"
+                        + " or the probe returns no value derived from the read under test (anti-elimination barrier)");
+        Assertions.checkTrue(deltaBytes >= 0L && deltaBytes <= boundBytes,
+                "alloc-gate '" + name + "': raw bytes allocated over " + iterations + " iterations must stay within"
+                        + " [0, " + boundBytes + "] B, was " + deltaBytes + " B");
+        //nightly grep target — printed ONLY on a successful gate run, never on a breach or a skip.
+        //CS:OFF Regexp
+        System.out.println("ALLOC-GATE executed " + name + " delta=" + deltaBytes + " bound=" + boundBytes
+                + " iterations=" + iterations);
+        //CS:ON Regexp
     }
 
     private static com.sun.management.ThreadMXBean allocatedBytesBeanOrNull() {
