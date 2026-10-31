@@ -320,10 +320,12 @@ public final class WaitForGraph {
 
     /**
      * True when a detected cycle closes inside the current thread's own demand tree: the closure contains this
-     * thread, the submitter chain of every task it serves, every thread currently joining those tasks, and the owners
-     * of resources those threads already wait for. A heartbeat pin held anywhere inside that closure guards exactly the
-     * published-complete store version the tree is consuming, so adopting it (skipping the update for this attempt)
-     * is tree-consistent; cycles reaching outside the closure are foreign and must be refused outright.
+     * thread, the submitter chain of every task it serves, and every thread currently joining those tasks - i.e. only
+     * ANCESTOR-side members. Pins held inside that closure guard already-published, complete store versions the tree
+     * is consuming, so adopting them (skipping the update for this attempt) is tree-consistent. Pins held by
+     * DESCENDANT tasks (update tasks this tree submitted and is joining) are deliberately NOT in the closure: their
+     * stores can be mid-wipe/partial, so such cycles are classified foreign and resolved by the deterministic victim
+     * ordering (shouldFallThroughAsCycleVictim) instead of adoption.
      */
     public static boolean isCycleOwnedByOwnDemandTree(final String key) {
         if (!wouldCloseCycle(key)) {
@@ -347,19 +349,6 @@ public final class WaitForGraph {
                                 .newArrayList(state.joiners)) {
                             if (chain.add(joiner)) {
                                 grew = true;
-                            }
-                        }
-                    }
-                }
-                final Set<String> waits = WAIT_ON.get(member);
-                if (waits != null) {
-                    for (final String waitKey : ILockCollectionFactory.getInstance(false).newArrayList(waits)) {
-                        final KeyState waitState = RESOURCES.get(waitKey);
-                        if (waitState != null) {
-                            for (final Thread owner : ownersOf(waitState)) {
-                                if (chain.add(owner)) {
-                                    grew = true;
-                                }
                             }
                         }
                     }
