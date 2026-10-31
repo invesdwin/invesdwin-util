@@ -213,48 +213,45 @@ public final class WaitForGraph {
         final Thread self = Thread.currentThread();
         final Set<String> visitedKeys = ILockCollectionFactory.getInstance(false).newSet();
         final Set<Thread> visitedThreads = ILockCollectionFactory.getInstance(false).newSet();
-        return checkOwnerReach(PIN_OWNER.get(key), self, visitedKeys, visitedThreads, 1)
-                || checkOwnerReach(LOCK_OWNER.get(key), self, visitedKeys, visitedThreads, 1)
-                || checkOwnerReach(TASK_RUNNING.get(key), self, visitedKeys, visitedThreads, 1)
-                || checkOwnerReach(QUEUE_CONSUMER.get(key), self, visitedKeys, visitedThreads, 1);
+        return pinBackEdgeExists(key, self, visitedKeys, visitedThreads, 0);
     }
 
-    private static boolean walkForSelfPin(final String key, final Thread self, final Set<String> visitedKeys,
+    /**
+     * Hard edge = only PIN ownership (an open update result cannot close while its holder waits): lock, task and
+     * queue positions are transient - their holders complete and drain on their own - so they are expanded to search
+     * for a pin back-edge but never terminate the search themselves. Without this restriction, legitimate long
+     * remote pulls would be refused at every join and retry-churn the whole suite.
+     */
+    private static boolean pinBackEdgeExists(final String key, final Thread self, final Set<String> visitedKeys,
             final Set<Thread> visitedThreads, final int depth) {
         if (depth > 32 || !visitedKeys.add(key)) {
             return false;
         }
-        //self-edges at depth 0 are the checker's own service registrations, not a deadlock: expand, do not terminate
-        final boolean found = checkOwnerReach(PIN_OWNER.get(key), self, visitedKeys, visitedThreads, depth)
-                || checkOwnerReach(LOCK_OWNER.get(key), self, visitedKeys, visitedThreads, depth)
-                || checkOwnerReach(TASK_RUNNING.get(key), self, visitedKeys, visitedThreads, depth)
-                || checkOwnerReach(QUEUE_CONSUMER.get(key), self, visitedKeys, visitedThreads, depth);
-        visitedKeys.remove(key);
-        return found;
-    }
-
-    private static boolean checkOwnerReach(final Thread owner, final Thread self, final Set<String> visitedKeys,
-            final Set<Thread> visitedThreads, final int depth) {
-        if (owner == null) {
-            return false;
-        }
-        if (owner == self) {
-            return true;
-        }
-        if (!visitedThreads.add(owner)) {
-            return false;
-        }
-        boolean found = false;
-        final Set<String> waits = WAIT_ON.get(owner);
-        if (waits != null) {
-            for (final String otherKey : ILockCollectionFactory.getInstance(false).newArrayList(waits)) {
-                if (walkForSelfPin(otherKey, self, visitedKeys, visitedThreads, depth + 1)) {
-                    found = true;
+        final Thread pin = PIN_OWNER.get(key);
+        boolean found = pin == self;
+        if (!found) {
+            for (final Thread owner : ownersOf(key)) {
+                if (owner == self || owner == null) {
+                    continue;
+                }
+                if (!visitedThreads.add(owner)) {
+                    continue;
+                }
+                final Set<String> waits = WAIT_ON.get(owner);
+                if (waits != null) {
+                    for (final String otherKey : ILockCollectionFactory.getInstance(false).newArrayList(waits)) {
+                        if (pinBackEdgeExists(otherKey, self, visitedKeys, visitedThreads, depth + 1)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                if (found) {
                     break;
                 }
             }
         }
-        visitedThreads.remove(owner);
+        visitedKeys.remove(key);
         return found;
     }
 
