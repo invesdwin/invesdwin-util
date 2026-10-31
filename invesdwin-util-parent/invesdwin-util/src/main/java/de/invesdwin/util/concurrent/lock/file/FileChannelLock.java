@@ -53,6 +53,8 @@ public class FileChannelLock implements Closeable, ILock {
 
     @GuardedBy("this")
     private final FileChannelLockFinalizer finalizer;
+    //set on successful acquisition, cleared on release; read by the demand-cycle detection across threads (hence volatile)
+    private volatile Thread lockAcquirerThread;
 
     public FileChannelLock(final File file) {
         this.finalizer = new FileChannelLockFinalizer(file, file.toPath(), isDeleteFileAfterUnlock(),
@@ -114,7 +116,7 @@ public class FileChannelLock implements Closeable, ILock {
             }
             if (finalizer.threadLockEnabled) {
                 if (finalizer.threadLock == null) {
-                    finalizer.threadLock = FileChannelThreadLock.FILE_LOCK
+                    finalizer.threadLock = FileChannelThreadLock
                             .get(finalizer.path.toAbsolutePath().toString());
                 }
                 if (!finalizer.threadLock.tryLock()) {
@@ -187,6 +189,7 @@ public class FileChannelLock implements Closeable, ILock {
 
     private boolean tryLockSuccess() {
         finalizer.locked = true;
+        this.lockAcquirerThread = Thread.currentThread();
         finalizer.register(this);
         if (finalizer.heartbeatEnabled) {
             HeartbeatFileChannelLockRegistry.register(this);
@@ -298,10 +301,20 @@ public class FileChannelLock implements Closeable, ILock {
 
     @Override
     public synchronized void unlock() {
+        this.lockAcquirerThread = null;
         if (finalizer.heartbeatEnabled) {
             HeartbeatFileChannelLockRegistry.remove(this);
         }
         finalizer.close();
+    }
+
+    /**
+     * The thread that acquired this lock (null when not held or after release). Used by the updater demand-cycle
+     * detection to resolve which thread a wait-for chain would close back onto; not a security boundary, only a
+     * diagnostic aid within this JVM.
+     */
+    public Thread getLockAcquirerThread() {
+        return lockAcquirerThread;
     }
 
     protected boolean isDeleteFileAfterUnlock() {
