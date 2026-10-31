@@ -39,12 +39,12 @@ public final class WaitForGraph {
 
     private static final class KeyState {
         //null means 'no owner for this edge'; joiners set empty means 'nobody waiting on completion'
-        volatile Thread pinOwner;
-        volatile Thread lockOwner;
-        volatile Thread taskThread;
-        volatile Thread taskSubmitter;
-        volatile Thread queueConsumer;
-        final Set<Thread> joiners = ILockCollectionFactory.getInstance(true).newConcurrentSet();
+        private volatile Thread pinOwner;
+        private volatile Thread lockOwner;
+        private volatile Thread taskThread;
+        private volatile Thread taskSubmitter;
+        private volatile Thread queueConsumer;
+        private final Set<Thread> joiners = ILockCollectionFactory.getInstance(true).newConcurrentSet();
 
         boolean isEmpty() {
             return pinOwner == null && lockOwner == null && taskThread == null && queueConsumer == null
@@ -52,7 +52,7 @@ public final class WaitForGraph {
         }
     }
 
-    private interface KeyMutator {
+    private interface IKeyMutator {
         void apply(KeyState state);
     }
 
@@ -60,7 +60,7 @@ public final class WaitForGraph {
      * Atomic per-key mutation; deletes the entry when the state became empty (prevents accumulation of stale keys
      * over the lifetime of a process).
      */
-    private static void mutate(final String key, final boolean createIfAbsent, final KeyMutator mutator) {
+    private static void mutate(final String key, final boolean createIfAbsent, final IKeyMutator mutator) {
         RESOURCES.compute(key, (k, state) -> {
             if (state == null) {
                 if (!createIfAbsent) {

@@ -116,7 +116,7 @@ public class FileChannelLock implements Closeable, ILock {
             }
             if (finalizer.threadLockEnabled) {
                 if (finalizer.threadLock == null) {
-                    finalizer.threadLock = FileChannelThreadLock.FILE_LOCK
+                    finalizer.threadLock = FileChannelThreadLock
                             .get(finalizer.path.toAbsolutePath().toString());
                 }
                 if (!finalizer.threadLock.tryLock()) {
