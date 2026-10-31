@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -18,24 +19,62 @@ import de.invesdwin.util.collections.factory.ILockCollectionFactory;
  *
  * Keys are opaque identity strings chosen by the callers (for example 'table|key' or 'queue:name@id'); cross-process
  * waits are treated as cycle-free leaves by construction (this graph only knows this JVM's owners).
+ *
+ * Memory: one entry per active resource (a single KeyState value object holding all owner edges - created on first
+ * use, removed as soon as the last edge is released) and one entry per thread currently waiting (entries are dropped
+ * on the last endWait of that thread, and dead threads are pruned periodically on mutation). Nothing accumulates for
+ * resources or threads that are gone.
  */
 @ThreadSafe
 public final class WaitForGraph {
 
+    private static final Map<String, KeyState> RESOURCES = ILockCollectionFactory.getInstance(true)
+            .newConcurrentMap();
     private static final Map<Thread, Set<String>> WAIT_ON = ILockCollectionFactory.getInstance(true)
             .newConcurrentMap();
-    private static final Map<String, Thread> PIN_OWNER = ILockCollectionFactory.getInstance(true).newConcurrentMap();
-    private static final Map<String, Thread> LOCK_OWNER = ILockCollectionFactory.getInstance(true).newConcurrentMap();
-    private static final Map<String, Thread> TASK_RUNNING = ILockCollectionFactory.getInstance(true)
-            .newConcurrentMap();
-    private static final Map<String, Thread> TASK_SUBMITTER = ILockCollectionFactory.getInstance(true)
-            .newConcurrentMap();
-    private static final Map<String, Set<Thread>> JOIN_WAITER = ILockCollectionFactory.getInstance(true).newConcurrentMap();
-    //bounded-queue edges: a producer blocked on a full queue only makes progress when the queue's consumer drains it
-    private static final Map<String, Thread> QUEUE_CONSUMER = ILockCollectionFactory.getInstance(true)
-            .newConcurrentMap();
+    private static final AtomicLong MUTATIONS = new AtomicLong();
+    private static final int PRUNE_INTERVAL = 256;
 
     private WaitForGraph() {}
+
+    private static final class KeyState {
+        //null means 'no owner for this edge'; joiners set empty means 'nobody waiting on completion'
+        volatile Thread pinOwner;
+        volatile Thread lockOwner;
+        volatile Thread taskThread;
+        volatile Thread taskSubmitter;
+        volatile Thread queueConsumer;
+        final Set<Thread> joiners = ILockCollectionFactory.getInstance(true).newConcurrentSet();
+
+        boolean isEmpty() {
+            return pinOwner == null && lockOwner == null && taskThread == null && queueConsumer == null
+                    && joiners.isEmpty();
+        }
+    }
+
+    private interface KeyMutator {
+        void apply(KeyState state);
+    }
+
+    /**
+     * Atomic per-key mutation; deletes the entry when the state became empty (prevents accumulation of stale keys
+     * over the lifetime of a process).
+     */
+    private static void mutate(final String key, final boolean createIfAbsent, final KeyMutator mutator) {
+        RESOURCES.compute(key, (k, state) -> {
+            if (state == null) {
+                if (!createIfAbsent) {
+                    return null;
+                }
+                state = new KeyState();
+            }
+            mutator.apply(state);
+            return state.isEmpty() ? null : state;
+        });
+        if (MUTATIONS.incrementAndGet() % PRUNE_INTERVAL == 0) {
+            WAIT_ON.entrySet().removeIf(e -> e.getKey().isAlive() ? e.getValue().isEmpty() : true);
+        }
+    }
 
     public static String newKey(final String tableName, final String keyStr) {
         return String.valueOf(tableName) + "|" + String.valueOf(keyStr);
@@ -47,100 +86,74 @@ public final class WaitForGraph {
     }
 
     public static void endWait(final String key) {
-        final Set<String> waits = WAIT_ON.get(Thread.currentThread());
+        final Thread self = Thread.currentThread();
+        final Set<String> waits = WAIT_ON.get(self);
         if (waits != null) {
             waits.remove(key);
             if (waits.isEmpty()) {
-                WAIT_ON.remove(Thread.currentThread(), waits);
+                WAIT_ON.remove(self, waits);
             }
         }
     }
 
     public static void beginJoinWait(final String key) {
-        JOIN_WAITER.computeIfAbsent(key,
-                k -> ILockCollectionFactory.getInstance(true).newConcurrentSet()).add(Thread.currentThread());
+        mutate(key, true, state -> state.joiners.add(Thread.currentThread()));
         beginWait(key);
     }
 
     public static void endJoinWait(final String key) {
-        final Set<Thread> joiners = JOIN_WAITER.get(key);
-        if (joiners != null) {
-            joiners.remove(Thread.currentThread());
-            if (joiners.isEmpty()) {
-                JOIN_WAITER.remove(key, joiners);
-            }
-        }
+        mutate(key, false, state -> state.joiners.remove(Thread.currentThread()));
         endWait(key);
     }
 
-    /**
-     * True when the wait on the given key is performed BY the task serving that key itself (the task pinned the key
-     * at acquisition and its nested work demands the same key again): the wait edge is the task's own registration,
-     * not a foreign cycle - the task adopts the in-progress state and the joiner keeps waiting for the task normally.
-     */
-    public static boolean isSelfServedKey(final String key) {
-        return Thread.currentThread().equals(TASK_RUNNING.get(key))
-                || Thread.currentThread().equals(PIN_OWNER.get(key));
-    }
-
-    /**
-     * True when the current thread joined (but did not submit) the running task for the key: a pure joiner may
-     * continue on the last published store state instead of unwinding (the task's submitter still drives it), while
-     * the submitter itself must unwind to release the pins the task chains back onto.
-     */
-    public static boolean isPureJoinerOf(final String key) {
-        final Set<Thread> joiners = JOIN_WAITER.get(key);
-        if (joiners == null || !joiners.contains(Thread.currentThread())) {
-            return false;
-        }
-        final String serviceKey = serviceKeyOf(Thread.currentThread());
-        final Thread submitter = serviceKey != null ? TASK_SUBMITTER.get(serviceKey) : null;
-        final Thread task = TASK_RUNNING.get(key);
-        return task != null && task != Thread.currentThread() && submitter != Thread.currentThread();
-    }
-
     public static void lockAcquired(final String key) {
-        LOCK_OWNER.put(key, Thread.currentThread());
+        mutate(key, true, state -> state.lockOwner = Thread.currentThread());
     }
 
     public static void lockReleased(final String key) {
-        LOCK_OWNER.remove(key, Thread.currentThread());
+        mutate(key, false, state -> state.lockOwner = null);
     }
 
     public static void taskStarted(final String key, final Thread submitter) {
-        TASK_RUNNING.put(key, Thread.currentThread());
-        TASK_SUBMITTER.put(key, submitter);
+        mutate(key, true, state -> {
+            state.taskThread = Thread.currentThread();
+            state.taskSubmitter = submitter;
+        });
     }
 
     public static void taskFinished(final String key) {
-        TASK_RUNNING.remove(key, Thread.currentThread());
-        TASK_SUBMITTER.remove(key);
+        mutate(key, false, state -> {
+            state.taskThread = null;
+            state.taskSubmitter = null;
+        });
     }
 
     public static void pinAcquired(final String key) {
-        PIN_OWNER.put(key, Thread.currentThread());
+        mutate(key, true, state -> state.pinOwner = Thread.currentThread());
     }
 
     /**
      * Releases a pin; may be called from another thread (warning-finalizer path), hence the explicit owner.
      */
     public static void pinReleased(final String key, final Thread owner) {
-        if (owner != null) {
-            PIN_OWNER.remove(key, owner);
-        }
+        mutate(key, false, state -> {
+            if (owner != null && owner.equals(state.pinOwner)) {
+                state.pinOwner = null;
+            }
+        });
     }
 
     public static void registerQueueConsumer(final String queueKey) {
-        QUEUE_CONSUMER.put(queueKey, Thread.currentThread());
+        mutate(queueKey, true, state -> state.queueConsumer = Thread.currentThread());
     }
 
     public static void unregisterQueueConsumer(final String queueKey) {
-        QUEUE_CONSUMER.remove(queueKey, Thread.currentThread());
+        mutate(queueKey, false, state -> state.queueConsumer = null);
     }
 
     public static String serviceKeyOf(final Thread taskThread) {
-        for (final Map.Entry<String, Thread> entry : TASK_RUNNING.entrySet()) {
-            if (entry.getValue() == taskThread) {
+        for (final Map.Entry<String, KeyState> entry : RESOURCES.entrySet()) {
+            if (taskThread.equals(entry.getValue().taskThread)) {
                 return entry.getKey();
             }
         }
@@ -158,23 +171,29 @@ public final class WaitForGraph {
         //root expansion: the target key's owners are evaluated WITHOUT marking the target key itself visited, since
         //the genuine back-edge IS the target key; the checker's own registrations as task/pin/lock owner of the target
         //are not back-edges at root (a thread cannot deadlock on resources it itself serves - locks would be reentrant)
-        return walkThread(PIN_OWNER.get(key), self, visitedKeys, visitedThreads, 0, true)
-                || walkThread(LOCK_OWNER.get(key), self, visitedKeys, visitedThreads, 0, true)
-                || walkThread(TASK_RUNNING.get(key), self, visitedKeys, visitedThreads, 0, true)
-                || walkThread(QUEUE_CONSUMER.get(key), self, visitedKeys, visitedThreads, 0, true);
+        final KeyState state = RESOURCES.get(key);
+        if (state == null) {
+            return false;
+        }
+        return walkThread(state.pinOwner, self, visitedKeys, visitedThreads, 0, true)
+                || walkThread(state.lockOwner, self, visitedKeys, visitedThreads, 0, true)
+                || walkThread(state.taskThread, self, visitedKeys, visitedThreads, 0, true)
+                || walkThread(state.queueConsumer, self, visitedKeys, visitedThreads, 0, true);
     }
 
     private static boolean walkKey(final String key, final Thread self, final Set<String> visitedKeys,
-            final Set<Thread> visitedThreads, final int depth, final boolean root) {
+            final Set<Thread> visitedThreads, final int depth) {
         if (depth > 32 || !visitedKeys.add(key)) {
             return false;
         }
-        //backtracking DFS (unmark on unwind): the visited sets prune per-path, so the genuine back-edge to the
-        //checker through the target key's owners is not swallowed by the first expansion of that same key
-        final boolean found = walkThread(PIN_OWNER.get(key), self, visitedKeys, visitedThreads, depth, root)
-                || walkThread(LOCK_OWNER.get(key), self, visitedKeys, visitedThreads, depth, root)
-                || walkThread(TASK_RUNNING.get(key), self, visitedKeys, visitedThreads, depth, root)
-                || walkThread(QUEUE_CONSUMER.get(key), self, visitedKeys, visitedThreads, depth, root);
+        final KeyState state = RESOURCES.get(key);
+        boolean found = false;
+        if (state != null) {
+            found = walkThread(state.pinOwner, self, visitedKeys, visitedThreads, depth, false)
+                    || walkThread(state.lockOwner, self, visitedKeys, visitedThreads, depth, false)
+                    || walkThread(state.taskThread, self, visitedKeys, visitedThreads, depth, false)
+                    || walkThread(state.queueConsumer, self, visitedKeys, visitedThreads, depth, false);
+        }
         visitedKeys.remove(key);
         return found;
     }
@@ -194,7 +213,7 @@ public final class WaitForGraph {
         final Set<String> waits = WAIT_ON.get(owner);
         if (waits != null) {
             for (final String otherKey : ILockCollectionFactory.getInstance(false).newArrayList(waits)) {
-                if (walkKey(otherKey, self, visitedKeys, visitedThreads, depth + 1, false)) {
+                if (walkKey(otherKey, self, visitedKeys, visitedThreads, depth + 1)) {
                     found = true;
                     break;
                 }
@@ -204,10 +223,21 @@ public final class WaitForGraph {
         return found;
     }
 
+    public static boolean isSelfServedKey(final String key) {
+        final KeyState state = RESOURCES.get(key);
+        if (state == null) {
+            return false;
+        }
+        final Thread self = Thread.currentThread();
+        return self.equals(state.taskThread) || self.equals(state.pinOwner);
+    }
+
     /**
-     * True when the task serving the given key (directly or transitively) must progress through a resource that this
-     * thread itself holds or waits behind in a way that would deadlock our own completion: abandon such a join
-     * retryably, unwinding lets the task proceed.
+     * True when the task serving the given key chains (directly or transitively) back onto a heartbeat PIN held by
+     * the current thread: joining it would deadlock our own open update results closed. Only pin edges are hard:
+     * lock, task and queue positions are transient (their holders complete and drain on their own), so they are
+     * expanded to search for a pin back-edge but never terminate the search themselves. Without this restriction
+     * legitimate long remote pulls would be refused at every join and retry-churn the whole suite.
      */
     public static boolean joinWouldDeadlockOwnPins(final String key) {
         final Thread self = Thread.currentThread();
@@ -216,38 +246,32 @@ public final class WaitForGraph {
         return pinBackEdgeExists(key, self, visitedKeys, visitedThreads, 0);
     }
 
-    /**
-     * Hard edge = only PIN ownership (an open update result cannot close while its holder waits): lock, task and
-     * queue positions are transient - their holders complete and drain on their own - so they are expanded to search
-     * for a pin back-edge but never terminate the search themselves. Without this restriction, legitimate long
-     * remote pulls would be refused at every join and retry-churn the whole suite.
-     */
     private static boolean pinBackEdgeExists(final String key, final Thread self, final Set<String> visitedKeys,
             final Set<Thread> visitedThreads, final int depth) {
         if (depth > 32 || !visitedKeys.add(key)) {
             return false;
         }
-        final Thread pin = PIN_OWNER.get(key);
-        boolean found = pin == self;
-        if (!found) {
-            for (final Thread owner : ownersOf(key)) {
-                if (owner == self || owner == null) {
-                    continue;
-                }
-                if (!visitedThreads.add(owner)) {
-                    continue;
-                }
-                final Set<String> waits = WAIT_ON.get(owner);
-                if (waits != null) {
-                    for (final String otherKey : ILockCollectionFactory.getInstance(false).newArrayList(waits)) {
-                        if (pinBackEdgeExists(otherKey, self, visitedKeys, visitedThreads, depth + 1)) {
-                            found = true;
-                            break;
+        final KeyState state = RESOURCES.get(key);
+        boolean found = false;
+        if (state != null) {
+            found = state.pinOwner == self;
+            if (!found) {
+                for (final Thread owner : ownersOf(state)) {
+                    if (owner == self || owner == null || !visitedThreads.add(owner)) {
+                        continue;
+                    }
+                    final Set<String> waits = WAIT_ON.get(owner);
+                    if (waits != null) {
+                        for (final String otherKey : ILockCollectionFactory.getInstance(false).newArrayList(waits)) {
+                            if (pinBackEdgeExists(otherKey, self, visitedKeys, visitedThreads, depth + 1)) {
+                                found = true;
+                                break;
+                            }
                         }
                     }
-                }
-                if (found) {
-                    break;
+                    if (found) {
+                        break;
+                    }
                 }
             }
         }
@@ -275,13 +299,13 @@ public final class WaitForGraph {
             for (final Thread member : ILockCollectionFactory.getInstance(false).newArrayList(chain)) {
                 final String serviceKey = serviceKeyOf(member);
                 if (serviceKey != null) {
-                    final Thread submitter = TASK_SUBMITTER.get(serviceKey);
-                    if (submitter != null && chain.add(submitter)) {
-                        grew = true;
-                    }
-                    final Set<Thread> joiners = JOIN_WAITER.get(serviceKey);
-                    if (joiners != null) {
-                        for (final Thread joiner : ILockCollectionFactory.getInstance(false).newArrayList(joiners)) {
+                    final KeyState state = RESOURCES.get(serviceKey);
+                    if (state != null) {
+                        if (state.taskSubmitter != null && chain.add(state.taskSubmitter)) {
+                            grew = true;
+                        }
+                        for (final Thread joiner : ILockCollectionFactory.getInstance(false)
+                                .newArrayList(state.joiners)) {
                             if (chain.add(joiner)) {
                                 grew = true;
                             }
@@ -291,33 +315,32 @@ public final class WaitForGraph {
                 final Set<String> waits = WAIT_ON.get(member);
                 if (waits != null) {
                     for (final String waitKey : ILockCollectionFactory.getInstance(false).newArrayList(waits)) {
-                        for (final Thread owner : ownersOf(waitKey)) {
-                            if (chain.add(owner)) {
-                                grew = true;
+                        final KeyState waitState = RESOURCES.get(waitKey);
+                        if (waitState != null) {
+                            for (final Thread owner : ownersOf(waitState)) {
+                                if (chain.add(owner)) {
+                                    grew = true;
+                                }
                             }
                         }
                     }
                 }
             }
         }
-        //the cycle is inside our own demand tree. Adopting (skipping this nested update) is only sound when the pinned
-        //version guards the very resource our tree is consuming: either a pin held by a tree member (a completed store
-        //version being iterated), or the target key is itself the task we are serving - nested self-demand on our own
-        //in-progress key can never be satisfied before we finish, so the current version is the consistent one
-        return containsPinOwnerAmong(chain) || isOwnServiceKey(key);
+        for (final Map.Entry<String, KeyState> entry : RESOURCES.entrySet()) {
+            if (entry.getValue().pinOwner != null && chain.contains(entry.getValue().pinOwner)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private static boolean isOwnServiceKey(final String key) {
-        final Thread self = Thread.currentThread();
-        return self.equals(TASK_RUNNING.get(key)) || self.equals(LOCK_OWNER.get(key));
-    }
-
-    private static List<Thread> ownersOf(final String key) {
+    private static List<Thread> ownersOf(final KeyState state) {
         final List<Thread> owners = new ArrayList<>(4);
-        addOwner(owners, PIN_OWNER.get(key));
-        addOwner(owners, LOCK_OWNER.get(key));
-        addOwner(owners, TASK_RUNNING.get(key));
-        addOwner(owners, QUEUE_CONSUMER.get(key));
+        addOwner(owners, state.pinOwner);
+        addOwner(owners, state.lockOwner);
+        addOwner(owners, state.taskThread);
+        addOwner(owners, state.queueConsumer);
         return owners;
     }
 
@@ -325,17 +348,6 @@ public final class WaitForGraph {
         if (owner != null) {
             owners.add(owner);
         }
-    }
-
-    private static boolean containsPinOwnerAmong(final Set<Thread> chain) {
-        for (final Thread candidate : chain) {
-            for (final Map.Entry<String, Thread> entry : PIN_OWNER.entrySet()) {
-                if (entry.getValue() == candidate) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     public static String describeCycle(final String key) {
@@ -359,10 +371,14 @@ public final class WaitForGraph {
         if (!visitedKeys.add(key)) {
             return;
         }
-        describeThread("pin", PIN_OWNER.get(key), self, visitedKeys, visitedThreads, sb);
-        describeThread("lock", LOCK_OWNER.get(key), self, visitedKeys, visitedThreads, sb);
-        describeThread("task", TASK_RUNNING.get(key), self, visitedKeys, visitedThreads, sb);
-        describeThread("queue", QUEUE_CONSUMER.get(key), self, visitedKeys, visitedThreads, sb);
+        final KeyState state = RESOURCES.get(key);
+        if (state == null) {
+            return;
+        }
+        describeThread("pin", state.pinOwner, self, visitedKeys, visitedThreads, sb);
+        describeThread("lock", state.lockOwner, self, visitedKeys, visitedThreads, sb);
+        describeThread("task", state.taskThread, self, visitedKeys, visitedThreads, sb);
+        describeThread("queue", state.queueConsumer, self, visitedKeys, visitedThreads, sb);
     }
 
     private static void describeThread(final String role, final Thread owner, final Thread self,
