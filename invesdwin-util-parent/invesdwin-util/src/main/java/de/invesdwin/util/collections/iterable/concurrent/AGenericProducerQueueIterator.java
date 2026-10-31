@@ -18,6 +18,7 @@ import de.invesdwin.util.collections.iterable.ACloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
+import de.invesdwin.util.concurrent.graph.WaitForGraph;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.error.FastNoSuchElementException;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
@@ -67,6 +68,8 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
                         if (utilizationDebugEnabled) {
                             LOG.info(TextDescription.format("%s: queue is full", finalizer.name));
                         }
+                        //register the producer-side queue wait in the wait-for graph: this thread needs the consumer to drain; the graph can now see cycles that pass through this queue edge (a parked consumer would otherwise stall the producer forever)
+                        WaitForGraph.beginWait(graphQueueKey);
                         drainedLock.lock();
                         try {
                             //wait till queue is drained again, start work immediately when a bit of space is free again
@@ -90,6 +93,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
                             }
                         } finally {
                             drainedLock.unlock();
+                            WaitForGraph.endWait(graphQueueKey);
                         }
                     }
                     if (added) {
@@ -110,6 +114,8 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
             FTimeUnit.MINUTES);
     private static final ILog LOG = new Log4j2DelegateLog(AGenericProducerQueueIterator.class);
 
+    //unique identity of this queue in the wait-for graph (producer waits and consumer drain edges)
+    private final String graphQueueKey;
     private final BlockingQueue<E> queue;
     private final GenericProducerQueueIteratorFinalizer finalizer;
 
@@ -130,6 +136,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
 
     public AGenericProducerQueueIterator(final String name, final int queueSize) {
         super(new TextDescription(name));
+        this.graphQueueKey = "queue:" + name + "@" + Integer.toHexString(System.identityHashCode(this));
         final String truncatedName = Strings.truncate(name, Threads.SAFE_THREAD_NAME_LENGTH);
         this.finalizer = new GenericProducerQueueIteratorFinalizer(name, newExecutor(truncatedName),
                 isShutdownExecutor());
@@ -218,6 +225,8 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     }
 
     private E readNext() {
+        //the thread calling readNext is the queue's consumer (drain edge target in the wait-for graph)
+        WaitForGraph.registerQueueConsumer(graphQueueKey);
         try {
             boolean firstPoll = true;
             while (hasNext()) {
