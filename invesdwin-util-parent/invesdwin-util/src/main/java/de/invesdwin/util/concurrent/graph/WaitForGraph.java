@@ -164,46 +164,88 @@ public final class WaitForGraph {
      * True when the current thread blocking on the given key would close a wait-for cycle within this JVM.
      */
     public static boolean wouldCloseCycle(final String key) {
+        return wouldCloseCyclePath(key, null);
+    }
+
+    /**
+     * Deterministic tie-break for detected cycles: among the keys whose wait edges form the detected cycle, the
+     * participant wanting the lexicographically greatest key is the designated victim (it aborts/falls through), all
+     * others may wait. This breaks the symmetric mutual-rebuild livelock (E wiped and needs X; X wiped and needs E):
+     * exactly one side yields, the other completes, both converge in a stable serial order regardless of thread
+     * timing. Returns true when the current thread's wait on the given key closes a cycle AND this edge is the
+     * designated victim edge.
+     */
+    public static boolean shouldFallThroughAsCycleVictim(final String key) {
+        final java.util.List<String> cyclePath = new ArrayList<>();
+        if (!wouldCloseCyclePath(key, cyclePath)) {
+            return false;
+        }
+        String max = key;
+        for (final String cycleKey : cyclePath) {
+            if (cycleKey.compareTo(max) > 0) {
+                max = cycleKey;
+            }
+        }
+        return max.equals(key);
+    }
+
+    private static boolean wouldCloseCyclePath(final String key, final java.util.List<String> cyclePathOut) {
         final Thread self = Thread.currentThread();
         //Thread has no value-equality, so plain hash sets are exactly identity sets here
         final Set<String> visitedKeys = ILockCollectionFactory.getInstance(false).newSet();
         final Set<Thread> visitedThreads = ILockCollectionFactory.getInstance(false).newSet();
-        //root expansion: the target key's owners are evaluated WITHOUT marking the target key itself visited, since
-        //the genuine back-edge IS the target key; the checker's own registrations as task/pin/lock owner of the target
-        //are not back-edges at root (a thread cannot deadlock on resources it itself serves - locks would be reentrant)
+        final java.util.List<String> path = new ArrayList<>();
         final KeyState state = RESOURCES.get(key);
         if (state == null) {
             return false;
         }
-        return walkThread(state.pinOwner, self, visitedKeys, visitedThreads, 0, true)
-                || walkThread(state.lockOwner, self, visitedKeys, visitedThreads, 0, true)
-                || walkThread(state.taskThread, self, visitedKeys, visitedThreads, 0, true)
-                || walkThread(state.queueConsumer, self, visitedKeys, visitedThreads, 0, true);
+        //root expansion without marking the root visited: the genuine back-edge IS the target key; the checker's own
+        //registrations at the target are not back-edges (a thread cannot deadlock on what it itself serves)
+        return walkThreadPath(state.pinOwner, self, visitedKeys, visitedThreads, 0, true, key, path, cyclePathOut)
+                || walkThreadPath(state.lockOwner, self, visitedKeys, visitedThreads, 0, true, key, path,
+                        cyclePathOut)
+                || walkThreadPath(state.taskThread, self, visitedKeys, visitedThreads, 0, true, key, path,
+                        cyclePathOut)
+                || walkThreadPath(state.queueConsumer, self, visitedKeys, visitedThreads, 0, true, key, path,
+                        cyclePathOut);
     }
 
-    private static boolean walkKey(final String key, final Thread self, final Set<String> visitedKeys,
-            final Set<Thread> visitedThreads, final int depth) {
+    private static boolean walkKeyPath(final String key, final Thread self, final Set<String> visitedKeys,
+            final Set<Thread> visitedThreads, final int depth, final java.util.List<String> path,
+            final java.util.List<String> cyclePathOut) {
         if (depth > 32 || !visitedKeys.add(key)) {
             return false;
         }
+        path.add(key);
         final KeyState state = RESOURCES.get(key);
         boolean found = false;
         if (state != null) {
-            found = walkThread(state.pinOwner, self, visitedKeys, visitedThreads, depth, false)
-                    || walkThread(state.lockOwner, self, visitedKeys, visitedThreads, depth, false)
-                    || walkThread(state.taskThread, self, visitedKeys, visitedThreads, depth, false)
-                    || walkThread(state.queueConsumer, self, visitedKeys, visitedThreads, depth, false);
+            found = walkThreadPath(state.pinOwner, self, visitedKeys, visitedThreads, depth, false, key, path,
+                            cyclePathOut)
+                    || walkThreadPath(state.lockOwner, self, visitedKeys, visitedThreads, depth, false, key, path,
+                            cyclePathOut)
+                    || walkThreadPath(state.taskThread, self, visitedKeys, visitedThreads, depth, false, key, path,
+                            cyclePathOut)
+                    || walkThreadPath(state.queueConsumer, self, visitedKeys, visitedThreads, depth, false, key, path,
+                            cyclePathOut);
+        }
+        if (!found) {
+            path.remove(path.size() - 1);
         }
         visitedKeys.remove(key);
         return found;
     }
 
-    private static boolean walkThread(final Thread owner, final Thread self, final Set<String> visitedKeys,
-            final Set<Thread> visitedThreads, final int depth, final boolean root) {
+    private static boolean walkThreadPath(final Thread owner, final Thread self, final Set<String> visitedKeys,
+            final Set<Thread> visitedThreads, final int depth, final boolean root, final String currentKey,
+            final java.util.List<String> path, final java.util.List<String> cyclePathOut) {
         if (owner == null) {
             return false;
         }
         if (owner == self && !root) {
+            if (cyclePathOut != null) {
+                cyclePathOut.addAll(path);
+            }
             return true;
         }
         if (!visitedThreads.add(owner)) {
@@ -213,7 +255,7 @@ public final class WaitForGraph {
         final Set<String> waits = WAIT_ON.get(owner);
         if (waits != null) {
             for (final String otherKey : ILockCollectionFactory.getInstance(false).newArrayList(waits)) {
-                if (walkKey(otherKey, self, visitedKeys, visitedThreads, depth + 1)) {
+                if (walkKeyPath(otherKey, self, visitedKeys, visitedThreads, depth + 1, path, cyclePathOut)) {
                     found = true;
                     break;
                 }
@@ -223,6 +265,10 @@ public final class WaitForGraph {
         return found;
     }
 
+    /**
+     * True when the current thread is the task/pin holder serving the given key: a nested demand for the key being
+     * rebuilt by this very task can never be satisfied before it finishes - the caller adopts the in-progress state.
+     */
     public static boolean isSelfServedKey(final String key) {
         final KeyState state = RESOURCES.get(key);
         if (state == null) {
@@ -232,13 +278,6 @@ public final class WaitForGraph {
         return self.equals(state.taskThread) || self.equals(state.pinOwner);
     }
 
-    /**
-     * True when the task serving the given key chains (directly or transitively) back onto a heartbeat PIN held by
-     * the current thread: joining it would deadlock our own open update results closed. Only pin edges are hard:
-     * lock, task and queue positions are transient (their holders complete and drain on their own), so they are
-     * expanded to search for a pin back-edge but never terminate the search themselves. Without this restriction
-     * legitimate long remote pulls would be refused at every join and retry-churn the whole suite.
-     */
     public static boolean joinWouldDeadlockOwnPins(final String key) {
         final Thread self = Thread.currentThread();
         final Set<String> visitedKeys = ILockCollectionFactory.getInstance(false).newSet();
