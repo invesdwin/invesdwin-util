@@ -51,6 +51,15 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public class FileChannelLock implements Closeable, ILock {
 
+    //counts close() calls that had to skip the name-keyed thread-lock unlock because they ran on a
+    //non-owner thread (warning-finalizer safety net etc.) - the acquiring thread keeps the lock; diagnostics for
+    //stuck-update forensics (see cp trackRemoteUpdate refusal dump)
+    private static final java.util.concurrent.atomic.AtomicLong FOREIGN_THREAD_UNLOCK_SKIPS = new java.util.concurrent.atomic.AtomicLong();
+
+    private volatile String lastTryLockFailureReason;
+
+
+
     @GuardedBy("this")
     private final FileChannelLockFinalizer finalizer;
     //set on successful acquisition, cleared on release; read by the demand-cycle detection across threads (hence volatile)
@@ -116,10 +125,17 @@ public class FileChannelLock implements Closeable, ILock {
             }
             if (finalizer.threadLockEnabled) {
                 if (finalizer.threadLock == null) {
-                    finalizer.threadLock = FileChannelThreadLock
-                            .get(finalizer.path.toAbsolutePath().toString());
+                    //per-instance thread lock, NOT the name-keyed JVM pool: a pool instance abandoned by its owner
+                    //thread without close() (throwing safety-net paths) stayed locked forever on an idle pool thread
+                    //and silently blocked every later update of that key across ALL instances (forensics smoke-46:
+                    //name lock held, no live registry entry). Cross-instance local exclusion is enforced one layer
+                    //down by the OS file lock (OverlappingFileLockException path) and the claim-steal logic, which
+                    //are instance independent and recoverable.
+                    finalizer.threadLock = de.invesdwin.util.concurrent.lock.Locks
+                            .newReentrantLock(finalizer.path.toAbsolutePath().toString());
                 }
                 if (!finalizer.threadLock.tryLock()) {
+                    lastTryLockFailureReason = "THREAD_LOCK_HELD_BY_OTHER_THREAD";
                     return false;
                 }
             }
@@ -143,11 +159,13 @@ public class FileChannelLock implements Closeable, ILock {
                 finalizer.fileLock = finalizer.channel.tryLock();
                 if (finalizer.fileLock == null) {
                     // Another local process holds the OS lock
+                    lastTryLockFailureReason = "OS_LOCK_HELD_BY_OTHER_PROCESS";
                     unlock();
                     return false;
                 }
             } catch (final OverlappingFileLockException e) {
                 // Another local thread holds the OS lock
+                lastTryLockFailureReason = "OVERLAPPING_FILE_LOCK_BY_OTHER_THREAD";
                 unlock();
                 return false;
             } catch (final IOException e) {
@@ -163,11 +181,13 @@ public class FileChannelLock implements Closeable, ILock {
                 // The logical lock is the absolute source of truth across a shared filesystem.
                 // If we didn't successfully create or steal the logical file, we MUST fail.
                 if (!moveSucceeded) {
+                    lastTryLockFailureReason = "CLAIM_MOVE_FAILED";
                     unlock();
                     return false;
                 }
 
                 if (!touchHeartbeatUnchecked()) {
+                    lastTryLockFailureReason = "HEARTBEAT_TOUCH_FAILED";
                     unlock();
                     return false;
                 }
@@ -182,6 +202,7 @@ public class FileChannelLock implements Closeable, ILock {
 
             return tryLockSuccess();
         } catch (final IOException e) {
+            lastTryLockFailureReason = "IO_"+e.getClass().getSimpleName();
             unlock();
             throw new IllegalStateException("Unable to lock file: " + finalizer.file, e);
         }
@@ -235,7 +256,11 @@ public class FileChannelLock implements Closeable, ILock {
                 Files.writeString(tempPath, lockContent);
                 Files.move(tempPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
                 final String verifyContent = finalizer.readOwnerFallback(targetPath);
-                return HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(verifyContent);
+                final boolean won = HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(verifyContent);
+                if (!won) {
+                    lastTryLockFailureReason = "GHOST_STEAL_VERIFY_FAILED";
+                }
+                return won;
             }
 
             if (finalizer.heartbeatEnabled) {
@@ -328,6 +353,14 @@ public class FileChannelLock implements Closeable, ILock {
         return lockAcquirerThread;
     }
 
+    public static long getForeignThreadUnlockSkips() {
+        return FOREIGN_THREAD_UNLOCK_SKIPS.get();
+    }
+
+    public String getLastTryLockFailureReason() {
+        return lastTryLockFailureReason;
+    }
+
     protected boolean isDeleteFileAfterUnlock() {
         return true;
     }
@@ -410,7 +443,16 @@ public class FileChannelLock implements Closeable, ILock {
             }
             final ILock threadLockCopy = threadLock;
             if (threadLockCopy != null) {
-                threadLockCopy.unlock();
+                if (threadLockCopy.isHeldByCurrentThread()) {
+                    threadLockCopy.unlock();
+                } else {
+                    //closing from a non-owner thread (warning-finalizer safety net, joiner-side cleanup): an
+                    //IllegalMonitorStateException here used to abort close BEFORE the remaining cleanup and leave
+                    //the name-keyed thread lock held by the original (now idle) pool thread forever - every later
+                    //update of that key then failed tryLock silently (forensics smoke-46: name lock held, no live
+                    //registry instance). Leave the thread lock to its owner thread; everything else still unwinds.
+                    FOREIGN_THREAD_UNLOCK_SKIPS.incrementAndGet();
+                }
                 threadLock = null;
             }
             if (locked) {
