@@ -307,8 +307,17 @@ public class FileChannelLock implements Closeable, ILock {
             if (Files.exists(heartbeatPath)) {
                 final String currentOwner = Files.readString(heartbeatPath).trim();
                 if (!HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(currentOwner)) {
-                    finalizer.close();
-                    return false;
+                    //A foreign owner string only means another JVM wrote it - the same staleness rule as the
+                    //claim steal decides: an un-beating (timeout-old) heartbeat is crash residue from a dead JVM
+                    //and MUST be taken over by the new claim winner; refusing it turned every killed/crashed fork
+                    //into a permanent per-key block (the winner stole the claim, then this touch self-aborted and
+                    //deleted its own claim file - endless steal/touch livelock, HEARTBEAT_TOUCH_FAILED forensics)
+                    final long hbAge = FDateMillis.nowMillis() - Files.getLastModifiedTime(heartbeatPath).toMillis();
+                    if (!HeartbeatFileChannelLockRegistry.HEARTBEAT_TIMEOUT.isLessThanMillis(hbAge)) {
+                        finalizer.close();
+                        return false;
+                    }
+                    Files.writeString(heartbeatPath, HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER);
                 }
             }
 
