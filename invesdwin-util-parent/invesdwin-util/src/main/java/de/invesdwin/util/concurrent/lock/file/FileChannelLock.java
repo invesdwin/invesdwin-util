@@ -224,7 +224,18 @@ public class FileChannelLock implements Closeable, ILock {
             final String currentOwner = finalizer.readOwnerFallback(targetPath);
 
             if (HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(currentOwner)) {
-                return true;
+                //the claim names THIS JVM - but the owner string is per JVM, not per lock instance: a stale claim
+                //left by an abandoned/crashed local instance must NOT make a fresh tryLock believe it holds the
+                //lock (that converted killed-fork leftovers into a permanent self-block, smoke-41/43: claim=true,
+                //registry empty). Only a live, still-locked local instance counts as 'already ours'; a local ghost
+                //is stolen immediately (safe: nothing in this JVM owns it).
+                if (HeartbeatFileChannelLockRegistry.hasLiveLocalInstance(targetPath.toFile())) {
+                    return true;
+                }
+                Files.writeString(tempPath, lockContent);
+                Files.move(tempPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                final String verifyContent = finalizer.readOwnerFallback(targetPath);
+                return HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(verifyContent);
             }
 
             if (finalizer.heartbeatEnabled) {
