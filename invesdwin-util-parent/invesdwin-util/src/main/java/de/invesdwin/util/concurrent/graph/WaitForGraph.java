@@ -269,6 +269,21 @@ public final class WaitForGraph {
      * True when the current thread is the task/pin holder serving the given key: a nested demand for the key being
      * rebuilt by this very task can never be satisfied before it finishes - the caller adopts the in-progress state.
      */
+    /**
+     * True when the current thread is the live HEARTBEAT PIN OWNER of the key: the genuine re-entrant case (the pin
+     * holder's own pass demands the key it is serving). Distinct from isSelfServedKey, whose taskThread term also
+     * matches a NEW attempt that registered as task while the PREVIOUS attempt's pin still drains - waiting for that
+     * foreign pin is correct, treating it as self-served is not (observed: null updatedTo reaching a consumer's null
+     * guard, smoke-36).
+     */
+    public static boolean isOwnPinHeldKey(final String key) {
+        final KeyState state = RESOURCES.get(key);
+        if (state == null) {
+            return false;
+        }
+        return Thread.currentThread() == state.pinOwner;
+    }
+
     public static boolean isSelfServedKey(final String key) {
         final KeyState state = RESOURCES.get(key);
         if (state == null) {
@@ -376,6 +391,29 @@ public final class WaitForGraph {
         if (owner != null) {
             owners.add(owner);
         }
+    }
+
+    /**
+     * Full graph state for stuck diagnostics: every registered key with pin/lock/task/queue owners (thread name +
+     * id) and every WAIT_ON edge. Cheap point-in-time snapshot for logging at abort points only.
+     */
+    public static String describeAll() {
+        final StringBuilder out = new StringBuilder("\nwait-for graph full state:\n");
+        for (final Map.Entry<String, KeyState> entry : RESOURCES.entrySet()) {
+            final KeyState state = entry.getValue();
+            out.append("  key[").append(entry.getKey()).append("] pin=").append(threadOf(state.pinOwner))
+                    .append(" lock=").append(threadOf(state.lockOwner)).append(" task=").append(threadOf(state.taskThread))
+                    .append(" queue=").append(threadOf(state.queueConsumer)).append("\n");
+        }
+        for (final Map.Entry<Thread, Set<String>> entry : WAIT_ON.entrySet()) {
+            out.append("  waits ").append(threadOf(entry.getKey())).append(" -> ").append(entry.getValue())
+                    .append("\n");
+        }
+        return out.toString();
+    }
+
+    private static String threadOf(final Thread thread) {
+        return thread == null ? "-" : thread.getName() + "#" + thread.getId();
     }
 
     public static String describeCycle(final String key) {
