@@ -408,6 +408,11 @@ public final class WaitForGraph {
         for (final Map.Entry<Thread, Set<String>> entry : WAIT_ON.entrySet()) {
             out.append("  waits ").append(threadOf(entry.getKey())).append(" -> ").append(entry.getValue())
                     .append("\n");
+        
+            final StackTraceElement[] stack = entry.getKey().getStackTrace();
+            for (int f = 0; f < stack.length && f < 16; f++) {
+                out.append("      | ").append(stack[f].toString()).append("\n");
+            }
         }
         return out.toString();
     }
