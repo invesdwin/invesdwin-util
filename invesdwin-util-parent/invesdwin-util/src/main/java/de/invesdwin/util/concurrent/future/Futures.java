@@ -51,7 +51,7 @@ public final class Futures extends AFuturesStaticFacade {
                 }
             }
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -76,7 +76,7 @@ public final class Futures extends AFuturesStaticFacade {
                 }
             }
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -106,7 +106,7 @@ public final class Futures extends AFuturesStaticFacade {
                 }
             }
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -150,7 +150,7 @@ public final class Futures extends AFuturesStaticFacade {
         try {
             return future.get(timeout, unit);
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -167,7 +167,7 @@ public final class Futures extends AFuturesStaticFacade {
         try {
             return future.get(timeout, unit);
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -189,7 +189,7 @@ public final class Futures extends AFuturesStaticFacade {
         try {
             return future.get(timeout, unit);
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -416,6 +416,16 @@ public final class Futures extends AFuturesStaticFacade {
             //the original throwable is rethrown as-is, so keep the interrupt visible to the caller
             Thread.currentThread().interrupt();
         }
+    }
+
+    /**
+     * Await-one paths have the same contract as the await-multiple ones: a single awaited future is cancelled best
+     * effort and then joined (waited until done) before the throwable is rethrown, so that the caller never proceeds
+     * while the cancelled task body is still unwinding (FutureTask.cancel(true) marks the future done before its run
+     * method has returned).
+     */
+    private static void cancelAndJoin(final Future<?> future, final Throwable original) {
+        cancelAndJoin(Arrays.asList(future), original);
     }
 
     private static void addSuppressed(final Throwable original, final Throwable suppressed) {

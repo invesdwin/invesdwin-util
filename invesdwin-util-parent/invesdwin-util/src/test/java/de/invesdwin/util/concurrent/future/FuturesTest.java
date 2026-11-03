@@ -26,13 +26,15 @@ public class FuturesTest {
     //CHECKSTYLE:ON
 
     /**
-     * Simulated teardown work a cancelled task body still has to finish after cancel(true) interrupted it; the
-     * await-multiple contract requires the master to wait for that teardown before rethrowing.
+     * Simulated teardown work a cancelled task body still has to finish after cancel(true) interrupted it; both the
+     * await-multiple and the await-one contract require the master to wait for that teardown before returning or
+     * rethrowing.
      */
     private static final long TEARDOWN_MILLIS = 750;
     private static final long START_WAIT_SECONDS = 30;
     private static final long MASTER_JOIN_MILLIS = 30000;
     private static final long TERMINATION_SECONDS = 30;
+    private static final long AWAIT_TIMEOUT_SECONDS = 30;
 
     @Test
     public void testWaitNoInterruptJoinsSiblingsOnTaskFailure() throws Exception {
@@ -115,6 +117,94 @@ public class FuturesTest {
             executor.shutdownNow();
             executor.awaitTermination(TERMINATION_SECONDS, TimeUnit.SECONDS);
         }
+    }
+
+    /**
+     * Await-one contract: the single-future get/wait paths (submitAndWaitNoInterrupt(Runnable) style) cancel the
+     * awaited future when the master is interrupted, but cancel(true) alone leaves the body still unwinding while the
+     * caller proceeds. Cancel must be followed by a join, so the future is done when the caller returns or throws.
+     * Red at HEAD: isDone() is still false at that point because the body had not finished tearing down.
+     */
+    @Test
+    public void testGetNoInterruptJoinsCancelledBodyOnMasterInterrupt() throws Exception {
+        assertAwaitOneJoinsCancelledBodyOnMasterInterrupt("getNoInterrupt", future -> Futures.waitNoInterrupt(future));
+    }
+
+    @Test
+    public void testGetRethrowingNoInterruptJoinsCancelledBodyOnMasterInterrupt() throws Exception {
+        assertAwaitOneJoinsCancelledBodyOnMasterInterrupt("getRethrowingNoInterrupt",
+                future -> Futures.waitRethrowingNoInterrupt(future));
+    }
+
+    @Test
+    public void testGetPropagatingNoInterruptJoinsCancelledBodyOnMasterInterrupt() throws Exception {
+        assertAwaitOneJoinsCancelledBodyOnMasterInterrupt("getPropagatingNoInterrupt",
+                future -> Futures.waitPropagatingNoInterrupt(future));
+    }
+
+    @Test
+    public void testGetTimeoutNoInterruptJoinsCancelledBodyOnMasterInterrupt() throws Exception {
+        assertAwaitOneJoinsCancelledBodyOnMasterInterrupt("getNoInterruptTimeout",
+                future -> Futures.waitNoInterrupt(future, AWAIT_TIMEOUT_SECONDS, TimeUnit.SECONDS));
+    }
+
+    @Test
+    public void testGetRethrowingTimeoutNoInterruptJoinsCancelledBodyOnMasterInterrupt() throws Exception {
+        assertAwaitOneJoinsCancelledBodyOnMasterInterrupt("getRethrowingNoInterruptTimeout",
+                future -> Futures.waitRethrowingNoInterrupt(future, AWAIT_TIMEOUT_SECONDS, TimeUnit.SECONDS));
+    }
+
+    @Test
+    public void testGetPropagatingTimeoutNoInterruptJoinsCancelledBodyOnMasterInterrupt() throws Exception {
+        assertAwaitOneJoinsCancelledBodyOnMasterInterrupt("getPropagatingNoInterruptTimeout",
+                future -> Futures.waitPropagatingNoInterrupt(future, AWAIT_TIMEOUT_SECONDS, TimeUnit.SECONDS));
+    }
+
+    private void assertAwaitOneJoinsCancelledBodyOnMasterInterrupt(final String method, final IAwaitOne awaitOne)
+            throws Exception {
+        final WrappedExecutorService executor = Executors.newCachedThreadPool("FuturesTest-" + method);
+        try {
+            final CountDownLatch started = new CountDownLatch(1);
+            final AtomicInteger interruptedTasks = new AtomicInteger();
+            final TeardownTrackingFuture future = submitTracked(executor,
+                    blockUntilInterrupted(started, interruptedTasks));
+            Assertions.assertThat(started.await(START_WAIT_SECONDS, TimeUnit.SECONDS)).describedAs(
+                    "the awaited task must be running").isTrue();
+            final AtomicReference<Throwable> masterThrown = new AtomicReference<>();
+            final AtomicReference<Boolean> cancelledAtThrow = new AtomicReference<>();
+            final AtomicReference<Boolean> doneAtThrow = new AtomicReference<>();
+            final Thread master = new Thread(() -> {
+                try {
+                    awaitOne.await(future);
+                } catch (final Throwable t) {
+                    masterThrown.set(t);
+                    cancelledAtThrow.set(future.isCancelled());
+                    doneAtThrow.set(future.isDone());
+                }
+            }, "FuturesTest-master-" + method);
+            master.setDaemon(true);
+            master.start();
+            master.interrupt();
+            master.join(MASTER_JOIN_MILLIS);
+            Assertions.assertThat(master.isAlive()).describedAs(
+                    "the interrupted master must have propagated from " + method).isFalse();
+            Assertions.assertThat(masterThrown.get()).describedAs(
+                    "the master interrupt must be propagated from " + method).isInstanceOf(InterruptedException.class);
+            Assertions.assertThat(cancelledAtThrow.get()).describedAs(
+                    "the awaited future must have been cancelled by " + method).isTrue();
+            Assertions.assertThat(doneAtThrow.get()).describedAs(
+                    "the cancelled future must be joined (done) by the time " + method
+                            + " returns to its caller, so that no awaited task outlives the master").isTrue();
+            Assertions.assertThat(interruptedTasks.get()).describedAs(
+                    "the task body must have received the cancel interrupt").isEqualTo(1);
+        } finally {
+            executor.shutdownNow();
+            executor.awaitTermination(TERMINATION_SECONDS, TimeUnit.SECONDS);
+        }
+    }
+
+    private interface IAwaitOne {
+        void await(Future<?> future) throws Exception;
     }
 
     private static Runnable blockUntilInterrupted(final CountDownLatch started, final AtomicInteger interruptedTasks) {
