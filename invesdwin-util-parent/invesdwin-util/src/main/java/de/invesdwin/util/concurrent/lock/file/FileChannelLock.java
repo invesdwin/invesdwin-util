@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileTime;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -54,7 +55,7 @@ public class FileChannelLock implements Closeable, ILock {
     //counts close() calls that had to skip the name-keyed thread-lock unlock because they ran on a
     //non-owner thread (warning-finalizer safety net etc.) - the acquiring thread keeps the lock; diagnostics for
     //stuck-update forensics (see cp trackRemoteUpdate refusal dump)
-    private static final java.util.concurrent.atomic.AtomicLong FOREIGN_THREAD_UNLOCK_SKIPS = new java.util.concurrent.atomic.AtomicLong();
+    private static final AtomicLong FOREIGN_THREAD_UNLOCK_SKIPS = new AtomicLong();
 
     private volatile String lastTryLockFailureReason;
 
