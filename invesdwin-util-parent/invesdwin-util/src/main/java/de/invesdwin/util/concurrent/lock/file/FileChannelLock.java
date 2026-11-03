@@ -11,7 +11,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileTime;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -52,14 +51,7 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public class FileChannelLock implements Closeable, ILock {
 
-    //counts close() calls that had to skip the name-keyed thread-lock unlock because they ran on a
-    //non-owner thread (warning-finalizer safety net etc.) - the acquiring thread keeps the lock; diagnostics for
-    //stuck-update forensics (see cp trackRemoteUpdate refusal dump)
-    private static final AtomicLong FOREIGN_THREAD_UNLOCK_SKIPS = new AtomicLong();
-
     private volatile String lastTryLockFailureReason;
-
-
 
     @GuardedBy("this")
     private final FileChannelLockFinalizer finalizer;
@@ -363,10 +355,6 @@ public class FileChannelLock implements Closeable, ILock {
         return lockAcquirerThread;
     }
 
-    public static long getForeignThreadUnlockSkips() {
-        return FOREIGN_THREAD_UNLOCK_SKIPS.get();
-    }
-
     public String getLastTryLockFailureReason() {
         return lastTryLockFailureReason;
     }
@@ -455,14 +443,12 @@ public class FileChannelLock implements Closeable, ILock {
             if (threadLockCopy != null) {
                 if (threadLockCopy.isHeldByCurrentThread()) {
                     threadLockCopy.unlock();
-                } else {
-                    //closing from a non-owner thread (warning-finalizer safety net, joiner-side cleanup): an
-                    //IllegalMonitorStateException here used to abort close BEFORE the remaining cleanup and leave
-                    //the name-keyed thread lock held by the original (now idle) pool thread forever - every later
-                    //update of that key then failed tryLock silently (forensics smoke-46: name lock held, no live
-                    //registry instance). Leave the thread lock to its owner thread; everything else still unwinds.
-                    FOREIGN_THREAD_UNLOCK_SKIPS.incrementAndGet();
                 }
+                //closing from a non-owner thread (warning-finalizer safety net, joiner-side cleanup): an
+                //IllegalMonitorStateException here used to abort close BEFORE the remaining cleanup and leave
+                //the name-keyed thread lock held by the original (now idle) pool thread forever - every later
+                //update of that key then failed tryLock silently (forensics smoke-46: name lock held, no live
+                //registry instance). Leave the thread lock to its owner thread; everything else still unwinds.
                 threadLock = null;
             }
             if (locked) {
