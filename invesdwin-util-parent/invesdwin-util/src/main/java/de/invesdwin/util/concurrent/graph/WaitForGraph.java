@@ -61,12 +61,15 @@ public final class WaitForGraph {
      * over the lifetime of a process).
      */
     private static void mutate(final String key, final boolean createIfAbsent, final IKeyMutator mutator) {
-        RESOURCES.compute(key, (k, state) -> {
-            if (state == null) {
+        RESOURCES.compute(key, (k, existingState) -> {
+            final KeyState state;
+            if (existingState == null) {
                 if (!createIfAbsent) {
                     return null;
                 }
                 state = new KeyState();
+            } else {
+                state = existingState;
             }
             mutator.apply(state);
             return state.isEmpty() ? null : state;
