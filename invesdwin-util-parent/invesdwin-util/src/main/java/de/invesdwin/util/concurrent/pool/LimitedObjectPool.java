@@ -42,7 +42,8 @@ public class LimitedObjectPool<E> implements IObjectPool<E> {
         try {
             final long waitingSinceNanos = FDateNanos.elapsedNanos();
             while (true) {
-                if (leasedWait.awaitFulfill(waitingSinceNanos)) {
+                //bound the wait by the configured timeout instead of the one year spin wait default
+                if (leasedWait.awaitFulfill(waitingSinceNanos, timeout)) {
                     //make sure that maximum size can not be exceeded by parallel leasing
                     synchronized (this) {
                         if (leasedWait.isConditionFulfilled()) {
@@ -51,10 +52,8 @@ public class LimitedObjectPool<E> implements IObjectPool<E> {
                         }
                     }
                 } else {
-                    final long curNanos = FDateNanos.elapsedNanos();
-                    if (timeout.isGreaterThanNanos(curNanos - waitingSinceNanos)) {
-                        throw new TimeoutException("Timeout exceeded: " + timeout);
-                    }
+                    //the timeout elapsed without the condition being fulfilled: fail fast
+                    throw new TimeoutException("Timeout exceeded: " + timeout);
                 }
             }
         } catch (final Exception e) {

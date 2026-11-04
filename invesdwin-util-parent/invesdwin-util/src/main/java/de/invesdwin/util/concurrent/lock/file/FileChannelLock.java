@@ -51,6 +51,8 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public class FileChannelLock implements Closeable, ILock {
 
+    private volatile String lastTryLockFailureReason;
+
     @GuardedBy("this")
     private final FileChannelLockFinalizer finalizer;
     //set on successful acquisition, cleared on release; read by the demand-cycle detection across threads (hence volatile)
@@ -116,10 +118,16 @@ public class FileChannelLock implements Closeable, ILock {
             }
             if (finalizer.threadLockEnabled) {
                 if (finalizer.threadLock == null) {
-                    finalizer.threadLock = FileChannelThreadLock
-                            .get(finalizer.path.toAbsolutePath().toString());
+                    //per-instance thread lock, NOT the name-keyed JVM pool: a pool instance abandoned by its owner
+                    //thread without close() (throwing safety-net paths) stayed locked forever on an idle pool thread
+                    //and silently blocked every later update of that key across ALL instances (forensics smoke-46:
+                    //name lock held, no live registry entry). Cross-instance local exclusion is enforced one layer
+                    //down by the OS file lock (OverlappingFileLockException path) and the claim-steal logic, which
+                    //are instance independent and recoverable.
+                    finalizer.threadLock = Locks.newReentrantLock(finalizer.path.toAbsolutePath().toString());
                 }
                 if (!finalizer.threadLock.tryLock()) {
+                    lastTryLockFailureReason = "THREAD_LOCK_HELD_BY_OTHER_THREAD";
                     return false;
                 }
             }
@@ -143,11 +151,13 @@ public class FileChannelLock implements Closeable, ILock {
                 finalizer.fileLock = finalizer.channel.tryLock();
                 if (finalizer.fileLock == null) {
                     // Another local process holds the OS lock
+                    lastTryLockFailureReason = "OS_LOCK_HELD_BY_OTHER_PROCESS";
                     unlock();
                     return false;
                 }
             } catch (final OverlappingFileLockException e) {
                 // Another local thread holds the OS lock
+                lastTryLockFailureReason = "OVERLAPPING_FILE_LOCK_BY_OTHER_THREAD";
                 unlock();
                 return false;
             } catch (final IOException e) {
@@ -163,11 +173,13 @@ public class FileChannelLock implements Closeable, ILock {
                 // The logical lock is the absolute source of truth across a shared filesystem.
                 // If we didn't successfully create or steal the logical file, we MUST fail.
                 if (!moveSucceeded) {
+                    lastTryLockFailureReason = "CLAIM_MOVE_FAILED";
                     unlock();
                     return false;
                 }
 
                 if (!touchHeartbeatUnchecked()) {
+                    lastTryLockFailureReason = "HEARTBEAT_TOUCH_FAILED";
                     unlock();
                     return false;
                 }
@@ -182,6 +194,7 @@ public class FileChannelLock implements Closeable, ILock {
 
             return tryLockSuccess();
         } catch (final IOException e) {
+            lastTryLockFailureReason = "IO_"+e.getClass().getSimpleName();
             unlock();
             throw new IllegalStateException("Unable to lock file: " + finalizer.file, e);
         }
@@ -224,7 +237,22 @@ public class FileChannelLock implements Closeable, ILock {
             final String currentOwner = finalizer.readOwnerFallback(targetPath);
 
             if (HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(currentOwner)) {
-                return true;
+                //the claim names THIS JVM - but the owner string is per JVM, not per lock instance: a stale claim
+                //left by an abandoned/crashed local instance must NOT make a fresh tryLock believe it holds the
+                //lock (that converted killed-fork leftovers into a permanent self-block, smoke-41/43: claim=true,
+                //registry empty). Only a live, still-locked local instance counts as 'already ours'; a local ghost
+                //is stolen immediately (safe: nothing in this JVM owns it).
+                if (HeartbeatFileChannelLockRegistry.hasLiveLocalInstance(targetPath.toFile())) {
+                    return true;
+                }
+                Files.writeString(tempPath, lockContent);
+                Files.move(tempPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                final String verifyContent = finalizer.readOwnerFallback(targetPath);
+                final boolean won = HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(verifyContent);
+                if (!won) {
+                    lastTryLockFailureReason = "GHOST_STEAL_VERIFY_FAILED";
+                }
+                return won;
             }
 
             if (finalizer.heartbeatEnabled) {
@@ -271,8 +299,17 @@ public class FileChannelLock implements Closeable, ILock {
             if (Files.exists(heartbeatPath)) {
                 final String currentOwner = Files.readString(heartbeatPath).trim();
                 if (!HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(currentOwner)) {
-                    finalizer.close();
-                    return false;
+                    //A foreign owner string only means another JVM wrote it - the same staleness rule as the
+                    //claim steal decides: an un-beating (timeout-old) heartbeat is crash residue from a dead JVM
+                    //and MUST be taken over by the new claim winner; refusing it turned every killed/crashed fork
+                    //into a permanent per-key block (the winner stole the claim, then this touch self-aborted and
+                    //deleted its own claim file - endless steal/touch livelock, HEARTBEAT_TOUCH_FAILED forensics)
+                    final long hbAge = FDateMillis.nowMillis() - Files.getLastModifiedTime(heartbeatPath).toMillis();
+                    if (!HeartbeatFileChannelLockRegistry.HEARTBEAT_TIMEOUT.isLessThanMillis(hbAge)) {
+                        finalizer.close();
+                        return false;
+                    }
+                    Files.writeString(heartbeatPath, HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER);
                 }
             }
 
@@ -315,6 +352,10 @@ public class FileChannelLock implements Closeable, ILock {
      */
     public Thread getLockAcquirerThread() {
         return lockAcquirerThread;
+    }
+
+    public String getLastTryLockFailureReason() {
+        return lastTryLockFailureReason;
     }
 
     protected boolean isDeleteFileAfterUnlock() {
@@ -399,7 +440,14 @@ public class FileChannelLock implements Closeable, ILock {
             }
             final ILock threadLockCopy = threadLock;
             if (threadLockCopy != null) {
-                threadLockCopy.unlock();
+                if (threadLockCopy.isHeldByCurrentThread()) {
+                    threadLockCopy.unlock();
+                }
+                //closing from a non-owner thread (warning-finalizer safety net, joiner-side cleanup): an
+                //IllegalMonitorStateException here used to abort close BEFORE the remaining cleanup and leave
+                //the name-keyed thread lock held by the original (now idle) pool thread forever - every later
+                //update of that key then failed tryLock silently (forensics smoke-46: name lock held, no live
+                //registry instance). Leave the thread lock to its owner thread; everything else still unwinds.
                 threadLock = null;
             }
             if (locked) {

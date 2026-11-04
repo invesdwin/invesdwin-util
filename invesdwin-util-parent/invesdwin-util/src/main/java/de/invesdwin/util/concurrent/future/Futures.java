@@ -32,6 +32,8 @@ public final class Futures extends AFuturesStaticFacade {
     @SuppressWarnings("rawtypes")
     public static final FutureTask[] FUTURETASK_EMPTY_ARRAY = new FutureTask[0];
 
+    private static final long CANCEL_JOIN_CHECK_MILLIS = 100L;
+
     private Futures() {}
 
     //////////// GET ////////////
@@ -49,7 +51,7 @@ public final class Futures extends AFuturesStaticFacade {
                 }
             }
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -74,7 +76,7 @@ public final class Futures extends AFuturesStaticFacade {
                 }
             }
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -104,7 +106,7 @@ public final class Futures extends AFuturesStaticFacade {
                 }
             }
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -148,7 +150,7 @@ public final class Futures extends AFuturesStaticFacade {
         try {
             return future.get(timeout, unit);
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -165,7 +167,7 @@ public final class Futures extends AFuturesStaticFacade {
         try {
             return future.get(timeout, unit);
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -187,7 +189,7 @@ public final class Futures extends AFuturesStaticFacade {
         try {
             return future.get(timeout, unit);
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -298,7 +300,7 @@ public final class Futures extends AFuturesStaticFacade {
             }
             return results;
         } catch (final Throwable e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
             throw e;
         }
     }
@@ -311,7 +313,7 @@ public final class Futures extends AFuturesStaticFacade {
             }
             return results;
         } catch (final Throwable e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
             throw e;
         }
     }
@@ -324,10 +326,10 @@ public final class Futures extends AFuturesStaticFacade {
             }
             return results;
         } catch (final InterruptedException e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
             throw e;
         } catch (final Throwable e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
             throw Throwables.propagate(e);
         }
     }
@@ -373,6 +375,57 @@ public final class Futures extends AFuturesStaticFacade {
         if (!future.isDone() && !future.isCancelled()) {
             future.cancel(true);
         }
+    }
+
+    /**
+     * Await-multiple loops must not abandon siblings: on an exceptional exit all unfinished futures are cancelled
+     * best effort and then joined (waited until done) before the original throwable is rethrown, so that when this
+     * class returns or throws no awaited task can outlive the master. Join errors are attached as suppressed
+     * exceptions to the original throwable; an interrupt arriving while joining is preserved (re-armed or propagated
+     * with the original) and never swallowed.
+     */
+    private static void cancelAndJoin(final Iterable<? extends Future<?>> futures, final Throwable original) {
+        for (final Future<?> future : futures) {
+            try {
+                cancel(future);
+            } catch (final Throwable t) {
+                Throwables.addSuppressed(original, t);
+            }
+        }
+        boolean joinInterrupted = false;
+        for (final Future<?> future : futures) {
+            boolean done = false;
+            while (!done) {
+                try {
+                    done = future.isDone();
+                } catch (final Throwable t) {
+                    //best effort join, a future that cannot answer isDone() must not deadlock the master
+                    Throwables.addSuppressed(original, t);
+                    break;
+                }
+                if (!done) {
+                    try {
+                        Thread.sleep(CANCEL_JOIN_CHECK_MILLIS);
+                    } catch (final InterruptedException e) {
+                        joinInterrupted = true;
+                    }
+                }
+            }
+        }
+        if (joinInterrupted && !(original instanceof InterruptedException)) {
+            //the original throwable is rethrown as-is, so keep the interrupt visible to the caller
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Await-one paths have the same contract as the await-multiple ones: a single awaited future is cancelled best
+     * effort and then joined (waited until done) before the throwable is rethrown, so that the caller never proceeds
+     * while the cancelled task body is still unwinding (FutureTask.cancel(true) marks the future done before its run
+     * method has returned).
+     */
+    private static void cancelAndJoin(final Future<?> future, final Throwable original) {
+        cancelAndJoin(Arrays.asList(future), original);
     }
 
     //////////// SUBMIT AND GET
@@ -588,7 +641,10 @@ public final class Futures extends AFuturesStaticFacade {
                 wait(future);
             }
         } catch (final InterruptedException e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
+            throw e;
+        } catch (final Throwable e) {
+            cancelAndJoin(futures, e);
             throw e;
         }
     }
@@ -599,7 +655,10 @@ public final class Futures extends AFuturesStaticFacade {
                 waitRethrowing(future);
             }
         } catch (final InterruptedException e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
+            throw e;
+        } catch (final Throwable e) {
+            cancelAndJoin(futures, e);
             throw e;
         }
     }
@@ -611,8 +670,11 @@ public final class Futures extends AFuturesStaticFacade {
                 waitPropagating(future);
             }
         } catch (final InterruptedException e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
             throw e;
+        } catch (final Throwable e) {
+            cancelAndJoin(futures, e);
+            throw Throwables.propagate(e);
         }
     }
 
@@ -622,7 +684,10 @@ public final class Futures extends AFuturesStaticFacade {
                 wait(future);
             }
         } catch (final InterruptedException e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
+            throw Throwables.propagate(e);
+        } catch (final Throwable e) {
+            cancelAndJoin(futures, e);
             throw Throwables.propagate(e);
         }
     }
@@ -634,8 +699,11 @@ public final class Futures extends AFuturesStaticFacade {
                 waitRethrowing(future);
             }
         } catch (final InterruptedException e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
             throw Throwables.propagate(e);
+        } catch (final Throwable e) {
+            cancelAndJoin(futures, e);
+            throw e;
         }
     }
 
@@ -645,7 +713,10 @@ public final class Futures extends AFuturesStaticFacade {
                 waitPropagating(future);
             }
         } catch (final InterruptedException e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
+            throw Throwables.propagate(e);
+        } catch (final Throwable e) {
+            cancelAndJoin(futures, e);
             throw Throwables.propagate(e);
         }
     }
@@ -792,9 +863,7 @@ public final class Futures extends AFuturesStaticFacade {
                         try {
                             Assertions.checkNull(Futures.get(future));
                         } catch (final Throwable t) {
-                            for (final Future<?> f : futures) {
-                                f.cancel(true);
-                            }
+                            cancelAndJoin(futures, t);
                             throw Throwables.propagate(t);
                         }
                     }
@@ -820,9 +889,7 @@ public final class Futures extends AFuturesStaticFacade {
                         try {
                             Assertions.checkNull(Futures.getRethrowing(future));
                         } catch (final Throwable t) {
-                            for (final Future<?> f : futures) {
-                                f.cancel(true);
-                            }
+                            cancelAndJoin(futures, t);
                             throw t;
                         }
                     }
@@ -848,9 +915,7 @@ public final class Futures extends AFuturesStaticFacade {
                         try {
                             Assertions.checkNull(Futures.getPropagating(future));
                         } catch (final Throwable t) {
-                            for (final Future<?> f : futures) {
-                                f.cancel(true);
-                            }
+                            cancelAndJoin(futures, t);
                             throw Throwables.propagate(t);
                         }
                     }

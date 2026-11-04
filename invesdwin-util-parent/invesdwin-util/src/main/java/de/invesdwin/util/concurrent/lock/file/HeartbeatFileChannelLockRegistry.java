@@ -68,6 +68,59 @@ public final class HeartbeatFileChannelLockRegistry {
         startHeartbeatExecutorIfNeeded();
     }
 
+    /**
+     * Diagnostic: the locally registered lock instance for the given file plus its acquirer thread identity, state
+     * and current stack (if alive) - identifies zombie heartbeat holders in the owning JVM.
+     */
+    public static String describeLocalClaim(final File lockPath) {
+        FileChannelLock lock = null;
+        final String wanted = lockPath.getAbsolutePath();
+        for (final Map.Entry<File, WeakReference<FileChannelLock>> entry : REGISTRY.entrySet()) {
+            if (wanted.equals(entry.getKey().getAbsolutePath())) {
+                lock = entry.getValue().get();
+                break;
+            }
+        }
+        if (lock == null) {
+            return "<no live registry entry>";
+        }
+        final StringBuilder out = new StringBuilder("acquirer=[");
+        final Thread acquirer = lock.getLockAcquirerThread();
+        if (acquirer == null) {
+            out.append("null]");
+        } else {
+            out.append(acquirer.getName()).append("#").append(acquirer.getId()).append(" state=")
+                    .append(acquirer.getState()).append("]\n");
+            final StackTraceElement[] stack = acquirer.getStackTrace();
+            for (int i = 0; i < stack.length && i < 20; i++) {
+                out.append("      * ").append(stack[i]).append("\n");
+            }
+        }
+        return out.toString();
+    }
+
+    /**
+     * True when a still-locked HeartbeatFileChannelLock instance of this JVM is registered for the given lock file
+     * with a live acquirer thread - the honest 'we already own it' test behind the owner-string match.
+     */
+    public static boolean hasLiveLocalInstance(final File lockFile) {
+        //compare by absolute path (map keys are constructed File objects; path equality is the identity here)
+        final String wanted = lockFile.getAbsolutePath();
+        for (final Map.Entry<File, WeakReference<FileChannelLock>> entry : REGISTRY.entrySet()) {
+            if (wanted.equals(entry.getKey().getAbsolutePath())) {
+                final FileChannelLock lock = entry.getValue().get();
+                if (lock == null) {
+                    continue;
+                }
+                final Thread acquirer = lock.getLockAcquirerThread();
+                if (lock.isLocked() && acquirer != null && acquirer.isAlive()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public static void remove(final FileChannelLock lock) {
         REGISTRY.remove(lock.getFile());
         stopHeartbeatExecutorIfNeeded();
