@@ -389,7 +389,7 @@ public final class Futures extends AFuturesStaticFacade {
             try {
                 cancel(future);
             } catch (final Throwable t) {
-                addSuppressed(original, t);
+                Throwables.addSuppressed(original, t);
             }
         }
         boolean joinInterrupted = false;
@@ -400,7 +400,7 @@ public final class Futures extends AFuturesStaticFacade {
                     done = future.isDone();
                 } catch (final Throwable t) {
                     //best effort join, a future that cannot answer isDone() must not deadlock the master
-                    addSuppressed(original, t);
+                    Throwables.addSuppressed(original, t);
                     break;
                 }
                 if (!done) {
@@ -426,12 +426,6 @@ public final class Futures extends AFuturesStaticFacade {
      */
     private static void cancelAndJoin(final Future<?> future, final Throwable original) {
         cancelAndJoin(Arrays.asList(future), original);
-    }
-
-    private static void addSuppressed(final Throwable original, final Throwable suppressed) {
-        if (suppressed != null && suppressed != original) {
-            original.addSuppressed(suppressed);
-        }
     }
 
     //////////// SUBMIT AND GET

@@ -256,6 +256,17 @@ public final class Throwables extends AThrowablesStaticFacade {
         throw (RuntimeException) t;
     }
 
+    /**
+     * Adds the suppressed throwable to the original one as a suppressed exception. A null suppressed throwable is
+     * ignored and the original throwable is never suppressed by itself, so the original throwable stays the one that
+     * carries the whole failure information.
+     */
+    public static void addSuppressed(final Throwable original, final Throwable suppressed) {
+        if (suppressed != null && suppressed != original) {
+            original.addSuppressed(suppressed);
+        }
+    }
+
     public static IndexOutOfBoundsException newIndexOutOfBoundsException(final int index) {
         return FastIndexOutOfBoundsException.getInstance("Index out of range: %s", index);
     }
