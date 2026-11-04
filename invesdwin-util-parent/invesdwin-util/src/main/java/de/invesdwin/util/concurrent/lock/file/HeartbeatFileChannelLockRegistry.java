@@ -103,10 +103,10 @@ public final class HeartbeatFileChannelLockRegistry {
      * True when a still-locked HeartbeatFileChannelLock instance of this JVM is registered for the given lock file
      * with a live acquirer thread - the honest 'we already own it' test behind the owner-string match.
      */
-    public static boolean hasLiveLocalInstance(final java.io.File lockFile) {
+    public static boolean hasLiveLocalInstance(final File lockFile) {
         //compare by absolute path (map keys are constructed File objects; path equality is the identity here)
         final String wanted = lockFile.getAbsolutePath();
-        for (final java.util.Map.Entry<java.io.File, java.lang.ref.WeakReference<FileChannelLock>> entry : REGISTRY.entrySet()) {
+        for (final Map.Entry<File, WeakReference<FileChannelLock>> entry : REGISTRY.entrySet()) {
             if (wanted.equals(entry.getKey().getAbsolutePath())) {
                 final FileChannelLock lock = entry.getValue().get();
                 if (lock == null) {

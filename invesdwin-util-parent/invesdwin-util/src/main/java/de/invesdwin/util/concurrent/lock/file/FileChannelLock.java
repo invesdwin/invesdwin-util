@@ -124,8 +124,7 @@ public class FileChannelLock implements Closeable, ILock {
                     //name lock held, no live registry entry). Cross-instance local exclusion is enforced one layer
                     //down by the OS file lock (OverlappingFileLockException path) and the claim-steal logic, which
                     //are instance independent and recoverable.
-                    finalizer.threadLock = de.invesdwin.util.concurrent.lock.Locks
-                            .newReentrantLock(finalizer.path.toAbsolutePath().toString());
+                    finalizer.threadLock = Locks.newReentrantLock(finalizer.path.toAbsolutePath().toString());
                 }
                 if (!finalizer.threadLock.tryLock()) {
                     lastTryLockFailureReason = "THREAD_LOCK_HELD_BY_OTHER_THREAD";
