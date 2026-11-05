@@ -18,6 +18,17 @@ import de.invesdwin.util.time.duration.Duration;
  *
  * It never sleeps and never decides by itself - it only answers whether an attempt is due and remembers the one that
  * was made, all on caller-supplied epoch milliseconds, which is what keeps it testable offline.
+ * <p>
+ * Deliberately not the spring-retry backoff that the ctx-integration retry integration wraps (BackOffPolicies,
+ * ExceptionCauseBackOffPolicy): a spring-retry BackOffPolicy is push-based - backOff(BackOffContext) hands the
+ * interval it computed to a Sleeper and returns void, and the BackOffContext its start(RetryContext) builds carries no
+ * next-duration accessor (it is a bare marker interface, and the exponential context that does compute the interval is
+ * package private to that policy), so there is no duration sequence a caller may drive without parking a thread. The
+ * doubling state it keeps is bound to one RetryContext, that is to one in-place retry run, whereas an outage episode
+ * here is spread over separately scheduled checks. Layering rules out the opposite move as well: ctx-integration
+ * depends on util, so a gate living here cannot borrow a spring-retry policy without pulling retry orchestration into
+ * the bottom layer that every module depends on - and a policy that spends its interval sleeping has no answer for the
+ * epoch milliseconds these gates are driven on.
  */
 @ThreadSafe
 public final class ExponentialBackoff {
