@@ -59,7 +59,9 @@ public class TimedFDate implements IHistoricalValue<TimedFDate>, Comparable<Obje
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(TimedFDate.class, time, value);
+        // equals is value-only (also cross-type against the raw FDate), so the hash must be
+        // value-only too — folding time or the class token in here breaks equal-but-different-hash.
+        return Objects.hashCode(value);
     }
 
     @Override
