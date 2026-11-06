@@ -57,7 +57,8 @@ public class TimeoutReentrantReadWriteLock implements IReentrantReadWriteLock {
 
     @Override
     public int getReadLockCount() {
-        return delegate.getReadHoldCount();
+        //cross-thread count of held read locks (JDK semantics); getReadHoldCount() is the per-thread one
+        return delegate.getReadLockCount();
     }
 
     @Override
