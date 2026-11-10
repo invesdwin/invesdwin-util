@@ -28,6 +28,18 @@ import de.invesdwin.util.concurrent.lock.file.FileChannelLock;
  * and a hard stop would break work unrelated to the contended stores. {@link #setExclusive(boolean)} turns it into a
  * failed session; {@link #setLockFile(File)} moves the lock for a run that deliberately uses its own stores. The
  * listener reads both from system properties, which is the only place they can be set from a command line.
+ *
+ * <p>
+ * One lock file per maven module, named after its artifactId, under a {@code locks} subfolder of the project's own log
+ * directory (the listener hands that directory to {@link #setLockDir(File)}); without one it falls back to
+ * {@code ~/.invesdwin/locks}. Not the cache directory: a suite run deletes cache contents, and {@link FileChannelLock}
+ * unlinks its own file on unlock, so a lock file removed under a running holder silently un-guards the run - the log
+ * directory is not part of that cleanup.
+ *
+ * <p>
+ * Naming the file after the module means a collision log names the contended suite family; the cost is that two
+ * different modules do not see each other's lock, so {@link #LOCK_FILE_PROPERTY} is how a run is pointed at another
+ * module's file when two families must be serialised against each other.
  */
 @ThreadSafe
 public final class SuiteRunLock {
@@ -38,10 +50,11 @@ public final class SuiteRunLock {
     //CHECKSTYLE:OFF SystemProperties - a launcher session listener runs before the context exists, so the
     //context-backed SystemProperties cannot be used here; these reads are the whole surface.
     //NOT java.io.tmpdir: the platform configurer rewrites it per run (…/invesdwin_temp_<user>/<session>@<host>/),
-    //which would make the lock per-run and the guard useless. user.home is stable, and .invesdwin is the same
-    //machine-wide root the shared stores live under - which is exactly what the guard is about.
-    private static final String DEFAULT_LOCK_FILE = System.getProperty("user.home") + File.separator + ".invesdwin"
-            + File.separator + "invesdwin-suite.lock";
+    //which would make the lock per-run and the guard useless. This base is only the fallback: normally the listener
+    //hands in the project's own log directory, which sits with the checkout the run belongs to.
+    private static final String FALLBACK_LOCK_BASE = System.getProperty("user.home") + File.separator + ".invesdwin";
+    private static final String LOCK_SUBDIR = "locks";
+    private static final String LOCK_FILE_SUFFIX = ".lock";
     private static final boolean DEFAULT_EXCLUSIVE = Boolean.parseBoolean(
             System.getProperty(EXCLUSIVE_PROPERTY, "false"));
     //CHECKSTYLE:ON
@@ -50,7 +63,9 @@ public final class SuiteRunLock {
     private static final Map<File, FileChannelLock> HELD = ILockCollectionFactory.getInstance(false)
             .newConcurrentMap();
     @GuardedBy("SuiteRunLock.class")
-    private static File lockFile = new File(DEFAULT_LOCK_FILE);
+    private static File lockDir;
+    @GuardedBy("SuiteRunLock.class")
+    private static File lockFileOverride;
     @GuardedBy("SuiteRunLock.class")
     private static boolean exclusive = DEFAULT_EXCLUSIVE;
     @GuardedBy("SuiteRunLock.class")
@@ -58,12 +73,31 @@ public final class SuiteRunLock {
 
     private SuiteRunLock() {}
 
-    public static synchronized File defaultLockFile() {
-        return lockFile;
+    /**
+     * The base directory for the module locks - a suite module's listener hands in its project log directory. Locks
+     * always land in a {@code locks} subfolder of whatever base is given, so they never sit mixed in with the files the
+     * run writes there itself.
+     */
+    public static synchronized void setLockDir(final File dir) {
+        lockDir = dir;
+    }
+
+    /**
+     * The lock for one maven module: {@code <lockDir>/locks/<artifactId>.lock}, named after the module whose suite run
+     * takes it, so a collision log says which suite family is contended instead of pointing at one shared name. A run
+     * only ever takes the lock of the module it is running; {@link #LOCK_FILE_PROPERTY} is how a run that must see (or
+     * avoid) another module's lock is pointed at that file.
+     */
+    public static synchronized File lockFileForModule(final String artifactId) {
+        if (lockFileOverride != null) {
+            return lockFileOverride;
+        }
+        final File base = lockDir != null ? lockDir : new File(FALLBACK_LOCK_BASE);
+        return new File(new File(base, LOCK_SUBDIR), artifactId + LOCK_FILE_SUFFIX);
     }
 
     public static synchronized void setLockFile(final File file) {
-        lockFile = file;
+        lockFileOverride = file;
     }
 
     public static synchronized boolean isExclusive() {
@@ -84,6 +118,11 @@ public final class SuiteRunLock {
         if (HELD.containsKey(file)) {
             //this JVM already holds this file (a nested launcher session in one process is not a second run)
             return true;
+        }
+        final File parentDir = file.getParentFile();
+        if (parentDir != null && !parentDir.isDirectory()) {
+            //the locks subfolder appears the first time a suite run needs it
+            parentDir.mkdirs();
         }
         final FileChannelLock lock = new FileChannelLock(file);
         if (lock.tryLock()) {
@@ -132,7 +171,7 @@ public final class SuiteRunLock {
         //CHECKSTYLE:OFF SystemProperties - see the note on the field block above.
         final String file = System.getProperty(LOCK_FILE_PROPERTY);
         if (file != null && !file.isEmpty()) {
-            lockFile = Paths.get(file).toFile();
+            lockFileOverride = Paths.get(file).toFile();
         }
         exclusive = Boolean.parseBoolean(System.getProperty(EXCLUSIVE_PROPERTY, Boolean.toString(exclusive)));
         //CHECKSTYLE:ON
