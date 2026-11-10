@@ -2,12 +2,9 @@ package de.invesdwin.util.test;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.Map;
 
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.concurrent.lock.file.FileChannelLock;
 
 /**
@@ -24,25 +21,30 @@ import de.invesdwin.util.concurrent.lock.file.FileChannelLock;
  * one that covers IDE and hand-run launches.
  *
  * <p>
- * The posture is loud, not fatal: a collision is reported, because agents and developers do run suites side by side
- * and a hard stop would break work unrelated to the contended stores. {@link #setExclusive(boolean)} turns it into a
- * failed session; {@link #setLockFile(File)} moves the lock for a run that deliberately uses its own stores. The
- * listener reads both from system properties, which is the only place they can be set from a command line.
+ * One object owns exactly one lock file, and there is no static state: the launcher instantiates one listener per
+ * launcher session, so this object lives exactly as long as the lock has to be held, and two sessions in one JVM get
+ * two objects that really do contend - {@link FileChannelLock} names that case instead of letting a second holder
+ * through, which a process-wide registry of held files would have hidden.
+ *
+ * <p>
+ * The posture is loud, not fatal: a refusal is reported, because agents and developers do run suites side by side and
+ * a hard stop would break work unrelated to the contended stores. {@link #EXCLUSIVE_PROPERTY} turns a refusal into a
+ * failed session; {@link #LOCK_FILE_PROPERTY} moves the lock for a run that deliberately uses its own stores. Both are
+ * read once at construction, which is the only place they can come from on a command line.
  *
  * <p>
  * One lock file per maven module, named after its artifactId, under a {@code locks} subfolder of the project's own log
- * directory (the listener hands that directory to {@link #setLockDir(File)}); without one it falls back to
- * {@code ~/.invesdwin/locks}. Not the cache directory: a suite run deletes cache contents, and {@link FileChannelLock}
- * unlinks its own file on unlock, so a lock file removed under a running holder silently un-guards the run - the log
- * directory is not part of that cleanup.
+ * directory (the listener hands that directory in); without one it falls back to {@code ~/.invesdwin/locks}. Not the
+ * cache directory: a suite run deletes cache contents, and {@link FileChannelLock} unlinks its own file on unlock, so a
+ * lock file removed under a running holder silently un-guards the run - the log directory is not part of that cleanup.
  *
  * <p>
  * Naming the file after the module means a collision log names the contended suite family; the cost is that two
  * different modules do not see each other's lock, so {@link #LOCK_FILE_PROPERTY} is how a run is pointed at another
  * module's file when two families must be serialised against each other.
  */
-@ThreadSafe
-public final class SuiteRunLock {
+@NotThreadSafe
+public final class SuiteRunLock implements AutoCloseable {
 
     public static final String EXCLUSIVE_PROPERTY = "invesdwin.suite.exclusive";
     public static final String LOCK_FILE_PROPERTY = "invesdwin.suite.lockFile";
@@ -55,126 +57,111 @@ public final class SuiteRunLock {
     private static final String FALLBACK_LOCK_BASE = System.getProperty("user.home") + File.separator + ".invesdwin";
     private static final String LOCK_SUBDIR = "locks";
     private static final String LOCK_FILE_SUFFIX = ".lock";
-    private static final boolean DEFAULT_EXCLUSIVE = Boolean.parseBoolean(
-            System.getProperty(EXCLUSIVE_PROPERTY, "false"));
     //CHECKSTYLE:ON
 
-    @GuardedBy("SuiteRunLock.class")
-    private static final Map<File, FileChannelLock> HELD = ILockCollectionFactory.getInstance(false)
-            .newConcurrentMap();
-    @GuardedBy("SuiteRunLock.class")
-    private static File lockDir;
-    @GuardedBy("SuiteRunLock.class")
-    private static File lockFileOverride;
-    @GuardedBy("SuiteRunLock.class")
-    private static boolean exclusive = DEFAULT_EXCLUSIVE;
-    @GuardedBy("SuiteRunLock.class")
-    private static String lastFailureReason;
-
-    private SuiteRunLock() {}
+    private final File lockFile;
+    private final boolean exclusive;
+    private FileChannelLock held;
+    private String failureReason;
 
     /**
-     * The base directory for the module locks - a suite module's listener hands in its project log directory. Locks
-     * always land in a {@code locks} subfolder of whatever base is given, so they never sit mixed in with the files the
-     * run writes there itself.
+     * The lock of one maven module: {@code <logDir>/locks/<artifactId>.lock}, or {@link #LOCK_FILE_PROPERTY} when that
+     * is set - which is also how a run gets pointed at another module's file.
+     *
+     * @param logDir the project's own log directory; null falls back to the machine-wide base above.
      */
-    public static synchronized void setLockDir(final File dir) {
-        lockDir = dir;
+    public SuiteRunLock(final String artifactId, final File logDir) {
+        this(newLockFile(artifactId, logDir));
     }
 
     /**
-     * The lock for one maven module: {@code <lockDir>/locks/<artifactId>.lock}, named after the module whose suite run
-     * takes it, so a collision log says which suite family is contended instead of pointing at one shared name. A run
-     * only ever takes the lock of the module it is running; {@link #LOCK_FILE_PROPERTY} is how a run that must see (or
-     * avoid) another module's lock is pointed at that file.
+     * One explicit lock file, bypassing the module naming: what {@link #LOCK_FILE_PROPERTY} resolves to, and what a
+     * test drives directly.
      */
-    public static synchronized File lockFileForModule(final String artifactId) {
-        if (lockFileOverride != null) {
-            return lockFileOverride;
-        }
-        final File base = lockDir != null ? lockDir : new File(FALLBACK_LOCK_BASE);
-        return new File(new File(base, LOCK_SUBDIR), artifactId + LOCK_FILE_SUFFIX);
+    public SuiteRunLock(final File lockFile) {
+        this.lockFile = lockFile;
+        //CHECKSTYLE:OFF SystemProperties - see the note on the constant block above.
+        this.exclusive = Boolean.parseBoolean(System.getProperty(EXCLUSIVE_PROPERTY, "false"));
+        //CHECKSTYLE:ON
     }
 
-    public static synchronized void setLockFile(final File file) {
-        lockFileOverride = file;
+    public File getLockFile() {
+        return lockFile;
     }
 
-    public static synchronized boolean isExclusive() {
+    public boolean isExclusive() {
         return exclusive;
     }
 
-    public static synchronized void setExclusive(final boolean value) {
-        exclusive = value;
-    }
-
     /**
-     * Takes the suite lock for {@code file}; true when this run may proceed on it - it holds the lock, already held it
-     * in this JVM, or the file cannot be locked at all (a guard that cannot take its lock must not break the suite it
-     * guards). False only for a real collision, which {@link #getLastFailureReason()} then describes.
+     * Takes the lock; true when this run may proceed on it - it holds it, or this object re-acquires what it already
+     * holds. False for every refusal (another process, another thread, an io failure), which
+     * {@link #getFailureReason()} then names.
      */
-    public static synchronized boolean tryAcquire(final File file) {
-        lastFailureReason = null;
-        if (HELD.containsKey(file)) {
-            //this JVM already holds this file (a nested launcher session in one process is not a second run)
+    public boolean tryAcquire() {
+        if (held != null) {
             return true;
         }
-        final File parentDir = file.getParentFile();
+        final File parentDir = lockFile.getParentFile();
         if (parentDir != null && !parentDir.isDirectory()) {
             //the locks subfolder appears the first time a suite run needs it
             parentDir.mkdirs();
         }
-        final FileChannelLock lock = new FileChannelLock(file);
+        final FileChannelLock lock = new FileChannelLock(lockFile);
         if (lock.tryLock()) {
-            HELD.put(file, lock);
+            held = lock;
+            failureReason = null;
             return true;
         }
-        final String reason = lock.getLastTryLockFailureReason();
+        failureReason = lock.getLastTryLockFailureReason();
         lock.close();
-        lastFailureReason = reason;
         return false;
     }
 
     /**
-     * Why the last {@link #tryAcquire(File)} failed, using {@link FileChannelLock}'s own vocabulary
-     * (OS_LOCK_HELD_BY_OTHER_PROCESS, OVERLAPPING_FILE_LOCK_BY_OTHER_THREAD, IO_…); null when it did not fail.
+     * Why the last {@link #tryAcquire()} was refused, using {@link FileChannelLock}'s own vocabulary
+     * (OS_LOCK_HELD_BY_OTHER_PROCESS, OVERLAPPING_FILE_LOCK_BY_OTHER_THREAD, IO_…); null when it was not refused.
      */
-    public static synchronized String getLastFailureReason() {
-        return lastFailureReason;
+    public String getFailureReason() {
+        return failureReason;
+    }
+
+    public boolean isHeld() {
+        return held != null;
     }
 
     /**
-     * Releases every lock this JVM took (the launcher session closing).
+     * A refusal as it should be logged or thrown, so each module's listener has its own copy of neither the wording
+     * nor the opt-out hint.
      */
-    public static synchronized void release() {
-        for (final FileChannelLock lock : HELD.values()) {
-            lock.close();
-        }
-        HELD.clear();
-    }
-
-    public static synchronized void release(final File file) {
-        final FileChannelLock lock = HELD.remove(file);
-        if (lock != null) {
-            lock.close();
-        }
-    }
-
-    public static synchronized boolean isHeld(final File file) {
-        return HELD.containsKey(file);
+    public String newRefusalMessage() {
+        return "another suite run holds the suite lock [" + lockFile + "] (" + failureReason + "); the suite runs share"
+                + " store directories and reference files, so overlapping runs produce unrelated-looking failures"
+                + " across them (missing run reports, truncated cold reads, mutated reference membership). Run them"
+                + " serially, or use -D" + LOCK_FILE_PROPERTY + "=PATH for a run with its own stores.";
     }
 
     /**
-     * Reads the command-line configuration once; kept separate from class loading so a test can drive it directly.
+     * Releases the lock (the launcher session closing); harmless when nothing was taken. {@link FileChannelLock}
+     * unlinks its own file on unlock, so the path exists exactly while a run holds it.
      */
-    public static synchronized void configureFromSystemProperties() {
-        //CHECKSTYLE:OFF SystemProperties - see the note on the field block above.
-        final String file = System.getProperty(LOCK_FILE_PROPERTY);
-        if (file != null && !file.isEmpty()) {
-            lockFileOverride = Paths.get(file).toFile();
+    @Override
+    public void close() {
+        if (held != null) {
+            held.close();
+            held = null;
         }
-        exclusive = Boolean.parseBoolean(System.getProperty(EXCLUSIVE_PROPERTY, Boolean.toString(exclusive)));
+    }
+
+    private static File newLockFile(final String artifactId, final File logDir) {
+        //CHECKSTYLE:OFF SystemProperties - see the note on the constant block above.
+        final String override = System.getProperty(LOCK_FILE_PROPERTY);
+        if (override != null && !override.isEmpty()) {
+            return Paths.get(override).toFile();
+        }
         //CHECKSTYLE:ON
+        final File base = logDir != null ? logDir : new File(FALLBACK_LOCK_BASE);
+        return new File(new File(base, LOCK_SUBDIR), artifactId + LOCK_FILE_SUFFIX);
     }
 
 }
