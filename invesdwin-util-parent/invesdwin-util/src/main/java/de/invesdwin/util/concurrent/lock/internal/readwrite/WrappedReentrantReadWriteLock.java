@@ -51,7 +51,10 @@ public class WrappedReentrantReadWriteLock implements IReentrantReadWriteLock {
 
     @Override
     public int getReadLockCount() {
-        return delegate.getReadHoldCount();
+        //JDK semantics: the number of read locks held for this lock ACROSS THREADS - not the current thread's hold
+        //count (that is getReadHoldCount()); answering the per-thread count here makes every cross-thread reader query
+        //lie, e.g. a writer asking who holds the read side of a table
+        return delegate.getReadLockCount();
     }
 
     @Override

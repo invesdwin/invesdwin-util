@@ -53,6 +53,13 @@ public final class Files extends AFilesStaticFacade {
     public static final File[] EMPTY_ARRAY = new File[0];
     public static final int DEFAULT_MAX_REFERENCE_LENGTH = (int) ByteSizeScale.BYTES.convert(10,
             ByteSizeScale.MEGABYTES);
+    /**
+     * Suffix of the file in which {@link #checkReference} records the side that differed, named after the reference it
+     * differs from. The comparison message is truncated by the test platform, so a reference chunk bigger than that
+     * would otherwise never reach any artifact. It is never read back and is deliberately left unversioned: an
+     * appearing file where the difference is belongs to the pending local changes.
+     */
+    public static final String REFERENCE_ACTUAL_SUFFIX = "_actual";
 
     public static final char[] NORMALIZE_FILENAME_SEARCH = { ':', '@', '*', '?', '<', '>', '=', '\'', '|', '/', '\\',
             '"' };
@@ -534,7 +541,7 @@ public final class Files extends AFilesStaticFacade {
             final File referenceSource, final int maxReferenceLength) {
         try {
             checkReference(createReferenceFile, referenceFile,
-                    new FastBufferedInputStream(new FileInputStream(referenceFile)), maxReferenceLength);
+                    new FastBufferedInputStream(new FileInputStream(referenceSource)), maxReferenceLength);
         } catch (final FileNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -562,6 +569,12 @@ public final class Files extends AFilesStaticFacade {
                             Assertions.checkEquals(existingRef, ref);
                         } catch (final IOException e) {
                             throw new RuntimeException(e);
+                        } catch (final AssertionError e) {
+                            final File actualReferenceFile = getReferenceActualFile(referenceFile, i);
+                            Files.writeStringToFileIfDifferent(actualReferenceFile, ref);
+                            //the path first: the platform truncates the message, and it truncates from the end
+                            throw new AssertionError("[" + actualReferenceFile + "] now holds the side that differed"
+                                    + " from [" + indexedReferenceFile + "]: " + e.getMessage(), e);
                         }
                     }
                     i++;
@@ -580,7 +593,36 @@ public final class Files extends AFilesStaticFacade {
                     }
                     i++;
                 }
+                deleteReferenceActualFiles(referenceFile);
             }
+        }
+    }
+
+    /**
+     * The file the side that differed from {@code referenceFile} is recorded in; chunk 0 of a reference is
+     * {@code referenceFile} itself, later chunks carry an index, so this mirrors that naming.
+     */
+    public static File getReferenceActualFile(final File referenceFile, final int index) {
+        if (index == 0) {
+            return Files.prefixExtension(referenceFile, REFERENCE_ACTUAL_SUFFIX);
+        }
+        return Files.prefixExtension(referenceFile, REFERENCE_ACTUAL_SUFFIX + "_" + index);
+    }
+
+    /**
+     * Removes the recorded differences of {@code referenceFile}, which an update run makes stale: the reference it
+     * differed from has just been rewritten.
+     */
+    public static void deleteReferenceActualFiles(final File referenceFile) {
+        Files.deleteQuietly(getReferenceActualFile(referenceFile, 0));
+        int i = 1;
+        while (true) {
+            final File actualReferenceFile = getReferenceActualFile(referenceFile, i);
+            if (!actualReferenceFile.exists()) {
+                break;
+            }
+            Files.deleteQuietly(actualReferenceFile);
+            i++;
         }
     }
 
@@ -617,6 +659,7 @@ public final class Files extends AFilesStaticFacade {
                     break;
                 }
             }
+            deleteReferenceActualFiles(referenceFile);
         }
     }
 
