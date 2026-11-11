@@ -293,6 +293,58 @@ public final class Reflections extends AReflectionsStaticFacade {
     }
 
     /**
+     * The field {@code name} as declared on {@code type} or on any of its superclasses - {@link Class#getDeclaredField}
+     * only ever sees the exact class, and the field a caller wants is usually inherited. Null if nowhere declared.
+     */
+    public static Field findDeclaredField(final Class<?> type, final String name) {
+        for (Class<?> inClass = type; inClass != null && inClass != Object.class; inClass = inClass.getSuperclass()) {
+            try {
+                return inClass.getDeclaredField(name);
+            } catch (final SecurityException e) {
+                return null;
+            } catch (final NoSuchFieldException e) {
+                //keep walking up
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Reads the field {@code name} of {@code target}, wherever it is declared in the hierarchy.
+     */
+    public static Object getFieldValue(final Object target, final String name) {
+        final Field field = getRequiredDeclaredField(target.getClass(), name);
+        field.setAccessible(true);
+        try {
+            return field.get(target);
+        } catch (final IllegalAccessException e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
+    /**
+     * Writes the field {@code name} of {@code target}, wherever it is declared in the hierarchy.
+     */
+    public static void setFieldValue(final Object target, final String name, final Object value) {
+        final Field field = getRequiredDeclaredField(target.getClass(), name);
+        field.setAccessible(true);
+        try {
+            field.set(target, value);
+        } catch (final IllegalAccessException e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
+    private static Field getRequiredDeclaredField(final Class<?> type, final String name) {
+        final Field field = findDeclaredField(type, name);
+        if (field == null) {
+            throw new IllegalArgumentException("No field '" + name + "' declared in [" + type.getName()
+                    + "] or any of its superclasses");
+        }
+        return field;
+    }
+
+    /**
      * https://stackoverflow.com/a/62434122
      */
     @SuppressWarnings({ "unchecked" })
