@@ -140,6 +140,11 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
     }
 
     @Override
+    public int getQueueLength() {
+        return delegate.getQueueLength();
+    }
+
+    @Override
     public String toString() {
         return Objects.toStringHelper(this).addValue(delegate).toString();
     }

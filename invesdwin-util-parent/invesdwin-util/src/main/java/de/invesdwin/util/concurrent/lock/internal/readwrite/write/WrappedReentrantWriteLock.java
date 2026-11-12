@@ -79,6 +79,12 @@ public class WrappedReentrantWriteLock implements IReentrantWriteLock {
     }
 
     @Override
+    public int getQueueLength() {
+        //the JDK write-lock view has no queue of its own - the pair owns it
+        return parent.getQueueLength();
+    }
+
+    @Override
     public String toString() {
         return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
     }

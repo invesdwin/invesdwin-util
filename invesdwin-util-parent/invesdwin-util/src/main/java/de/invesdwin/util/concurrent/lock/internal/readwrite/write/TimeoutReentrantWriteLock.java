@@ -74,6 +74,11 @@ public class TimeoutReentrantWriteLock implements IReentrantWriteLock {
     }
 
     @Override
+    public int getQueueLength() {
+        return delegate.getQueueLength();
+    }
+
+    @Override
     public String toString() {
         return Objects.toStringHelper(this).addValue(delegate).addValue(lockWaitTimeout).toString();
     }

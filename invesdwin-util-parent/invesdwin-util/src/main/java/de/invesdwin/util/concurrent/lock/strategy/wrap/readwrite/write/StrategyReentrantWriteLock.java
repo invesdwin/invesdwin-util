@@ -68,6 +68,11 @@ public final class StrategyReentrantWriteLock implements IReentrantWriteLock {
     }
 
     @Override
+    public int getQueueLength() {
+        return delegate.getQueueLength();
+    }
+
+    @Override
     public boolean isHeldByCurrentThread() {
         return delegate.isHeldByCurrentThread();
     }

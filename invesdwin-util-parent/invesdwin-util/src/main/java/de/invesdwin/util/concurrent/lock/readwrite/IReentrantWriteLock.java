@@ -7,6 +7,12 @@ public interface IReentrantWriteLock extends ILock {
 
     int getHoldCount();
 
+    /**
+     * The wait queue of the read-write pair this view belongs to: a read-write lock has one queue shared by both
+     * views, so the number is always the pair's.
+     */
+    int getQueueLength();
+
     @Override
     IReentrantWriteLock withStrategy(ILockingStrategy strategy);
 
