@@ -5,7 +5,6 @@ import java.util.concurrent.locks.Condition;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.IQueuedLock;
 import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
@@ -69,6 +68,16 @@ public final class StrategyReentrantReadLock implements IQueuedLock {
     }
 
     @Override
+    public boolean hasQueuedThreads() {
+        return delegate.hasQueuedThreads();
+    }
+
+    @Override
+    public boolean hasQueuedThread(final Thread thread) {
+        return delegate.hasQueuedThread(thread);
+    }
+
+    @Override
     public boolean isHeldByCurrentThread() {
         return delegate.isHeldByCurrentThread();
     }
@@ -85,7 +94,7 @@ public final class StrategyReentrantReadLock implements IQueuedLock {
 
     //CHECKSTYLE:OFF
     @Override
-    public ILock withStrategy(final ILockingStrategy strategy) {
+    public StrategyReentrantReadLock withStrategy(final ILockingStrategy strategy) {
         //CHECKSTYLE:ON
         return new StrategyReentrantReadLock(strategy, delegate);
     }

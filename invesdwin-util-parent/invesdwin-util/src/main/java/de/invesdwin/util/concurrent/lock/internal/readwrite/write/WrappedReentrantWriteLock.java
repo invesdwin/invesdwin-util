@@ -85,6 +85,16 @@ public class WrappedReentrantWriteLock implements IReentrantWriteLock {
     }
 
     @Override
+    public boolean hasQueuedThreads() {
+        return parent.hasQueuedThreads();
+    }
+
+    @Override
+    public boolean hasQueuedThread(final Thread thread) {
+        return parent.hasQueuedThread(thread);
+    }
+
+    @Override
     public String toString() {
         return Objects.toStringHelper(this).addValue(name).addValue(delegate).toString();
     }

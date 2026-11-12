@@ -5,7 +5,6 @@ import java.util.concurrent.locks.Condition;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.IQueuedLock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.strategy.DisabledLockingStrategy;
@@ -63,9 +62,19 @@ public class DisabledLock implements IQueuedLock {
         return 0;
     }
 
+    @Override
+    public boolean hasQueuedThreads() {
+        return false;
+    }
+
+    @Override
+    public boolean hasQueuedThread(final Thread thread) {
+        return false;
+    }
+
     //CHECKSTYLE:OFF
     @Override
-    public ILock withStrategy(final ILockingStrategy strategy) {
+    public IQueuedLock withStrategy(final ILockingStrategy strategy) {
         //CHECKSTYLE:ON
         return this;
     }

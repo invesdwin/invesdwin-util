@@ -10,10 +10,6 @@ public interface IReentrantLock extends IQueuedLock {
 
     boolean isFair();
 
-    boolean hasQueuedThreads();
-
-    boolean hasQueuedThread(Thread thread);
-
     boolean hasWaiters(Condition condition);
 
     int getWaitQueueLength(Condition condition);

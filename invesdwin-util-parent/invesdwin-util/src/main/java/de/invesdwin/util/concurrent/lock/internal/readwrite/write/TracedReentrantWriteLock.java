@@ -145,6 +145,16 @@ public class TracedReentrantWriteLock implements IReentrantWriteLock {
     }
 
     @Override
+    public boolean hasQueuedThreads() {
+        return delegate.hasQueuedThreads();
+    }
+
+    @Override
+    public boolean hasQueuedThread(final Thread thread) {
+        return delegate.hasQueuedThread(thread);
+    }
+
+    @Override
     public String toString() {
         return Objects.toStringHelper(this).addValue(delegate).toString();
     }
