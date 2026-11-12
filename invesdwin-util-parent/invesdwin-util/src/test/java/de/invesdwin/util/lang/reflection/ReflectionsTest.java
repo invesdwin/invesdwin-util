@@ -15,9 +15,9 @@ public class ReflectionsTest {
     }
 
     /**
-     * The point of the field helpers: a private field of a superclass is not reachable through
-     * {@code getDeclaredField} on the class the caller holds, and reading it needs setAccessible - which every caller
-     * would otherwise have to remember.
+     * The point of the field helpers: a private field of a superclass is not reachable through {@code getDeclaredField}
+     * on the class the caller holds, and reading it needs setAccessible - which every caller would otherwise have to
+     * remember.
      */
     @Test
     public void testFieldHelpersReachAnInheritedPrivateField() {
@@ -38,13 +38,14 @@ public class ReflectionsTest {
 
     private static class Base {
 
-        private String inherited = "initial";
+        private final String inherited = "initial";
 
         String readInherited() {
             return inherited;
         }
     }
 
-    private static class Subclass extends Base {}
+    private static final class Subclass extends Base {
+    }
 
 }
