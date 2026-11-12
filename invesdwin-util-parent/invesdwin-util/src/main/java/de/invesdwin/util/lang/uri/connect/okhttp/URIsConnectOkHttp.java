@@ -396,19 +396,20 @@ public final class URIsConnectOkHttp implements IURIsConnect {
                 consumer.releaseResources();
                 return result;
             } else {
-                final int respCode = response.code();
+                final int responseCode = response.code();
                 final String urlString = call.request().url().toString();
-                if (respCode == HttpURLConnection.HTTP_NOT_FOUND || respCode == HttpURLConnection.HTTP_GONE) {
+                if (responseCode == HttpURLConnection.HTTP_NOT_FOUND || responseCode == HttpURLConnection.HTTP_GONE) {
                     throw new FileNotFoundException(urlString);
                 } else {
-                    if (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                    if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR
+                            || responseCode == HttpURLConnection.HTTP_UNAVAILABLE) {
                         final String errorStr = response.body().string();
-                        throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
+                        throw new IOException("Server returned HTTP" + " response code: " + responseCode + " for URL: "
                                 + urlString + " error response:" + "\n*****************************" + errorStr
                                 + "*****************************");
                     } else {
                         throw new IOException(
-                                "Server returned HTTP" + " response code: " + respCode + " for URL: " + urlString);
+                                "Server returned HTTP" + " response code: " + responseCode + " for URL: " + urlString);
                     }
                 }
             }
@@ -421,19 +422,20 @@ public final class URIsConnectOkHttp implements IURIsConnect {
             if (response.isSuccessful()) {
                 return true;
             } else {
-                final int respCode = response.code();
+                final int responseCode = response.code();
                 final String urlString = call.request().url().toString();
-                if (respCode == HttpURLConnection.HTTP_NOT_FOUND || respCode == HttpURLConnection.HTTP_GONE) {
+                if (responseCode == HttpURLConnection.HTTP_NOT_FOUND || responseCode == HttpURLConnection.HTTP_GONE) {
                     throw new FileNotFoundException(urlString);
                 } else {
-                    if (respCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                    if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR
+                            || responseCode == HttpURLConnection.HTTP_UNAVAILABLE) {
                         final String errorStr = response.body().string();
-                        throw new IOException("Server returned HTTP" + " response code: " + respCode + " for URL: "
+                        throw new IOException("Server returned HTTP" + " response code: " + responseCode + " for URL: "
                                 + urlString + " error response:" + "\n*****************************" + errorStr
                                 + "*****************************");
                     } else {
                         throw new IOException(
-                                "Server returned HTTP" + " response code: " + respCode + " for URL: " + urlString);
+                                "Server returned HTTP" + " response code: " + responseCode + " for URL: " + urlString);
                     }
                 }
             }

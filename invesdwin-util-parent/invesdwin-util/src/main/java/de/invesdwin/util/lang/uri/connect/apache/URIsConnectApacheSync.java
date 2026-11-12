@@ -414,7 +414,8 @@ public final class URIsConnectApacheSync implements IURIsConnect {
                 if (responseCode == HttpURLConnection.HTTP_NOT_FOUND || responseCode == HttpURLConnection.HTTP_GONE) {
                     throw new FileNotFoundException(uri.toString());
                 } else {
-                    if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                    if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR
+                            || responseCode == HttpURLConnection.HTTP_UNAVAILABLE) {
                         final String errorStr = IOUtils.toString(response.getEntity().getContent(),
                                 Charset.defaultCharset());
                         throw new IOException("Server returned HTTP response code [" + responseCode + "] for URL ["
@@ -441,7 +442,8 @@ public final class URIsConnectApacheSync implements IURIsConnect {
                 if (responseCode == HttpURLConnection.HTTP_NOT_FOUND || responseCode == HttpURLConnection.HTTP_GONE) {
                     throw new FileNotFoundException(uri.toString());
                 } else {
-                    if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                    if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR
+                            || responseCode == HttpURLConnection.HTTP_UNAVAILABLE) {
                         final String errorStr = IOUtils.toString(response.getEntity().getContent(),
                                 Charset.defaultCharset());
                         throw new IOException("Server returned HTTP response code [" + responseCode + "] for URL ["
