@@ -4,7 +4,7 @@ import java.util.concurrent.locks.Condition;
 
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 
-public interface IReentrantLock extends ILock {
+public interface IReentrantLock extends IQueuedLock {
 
     int getHoldCount();
 
@@ -13,8 +13,6 @@ public interface IReentrantLock extends ILock {
     boolean hasQueuedThreads();
 
     boolean hasQueuedThread(Thread thread);
-
-    int getQueueLength();
 
     boolean hasWaiters(Condition condition);
 

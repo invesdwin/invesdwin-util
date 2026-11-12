@@ -6,13 +6,14 @@ import java.util.concurrent.locks.Condition;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.IQueuedLock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.strategy.DisabledLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 
 @Immutable
-public class LockedDisabledLock implements ILock {
+public class LockedDisabledLock implements IQueuedLock {
 
     public static final LockedDisabledLock INSTANCE = new LockedDisabledLock();
 
@@ -55,6 +56,11 @@ public class LockedDisabledLock implements ILock {
     @Override
     public String getName() {
         return null;
+    }
+
+    @Override
+    public int getQueueLength() {
+        return 0;
     }
 
     //CHECKSTYLE:OFF
