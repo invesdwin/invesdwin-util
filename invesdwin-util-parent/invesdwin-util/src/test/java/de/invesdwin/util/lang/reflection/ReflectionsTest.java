@@ -38,9 +38,14 @@ public class ReflectionsTest {
 
     private static class Base {
 
-        private final String inherited = "initial";
+        /**
+         * Not a String: a final String initialised with a literal is a constant variable (JLS 15.28), so javac inlines
+         * it at the read site and no reflective write can ever be observed there - reproduced on JDK 17.0.20.1 with
+         * setAccessible(true) and Field.set: no exception, readInherited() still "initial".
+         */
+        private final Object inherited = "initial";
 
-        String readInherited() {
+        Object readInherited() {
             return inherited;
         }
     }
