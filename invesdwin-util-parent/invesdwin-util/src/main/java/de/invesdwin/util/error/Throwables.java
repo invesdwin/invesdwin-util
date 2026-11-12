@@ -132,6 +132,19 @@ public final class Throwables extends AThrowablesStaticFacade {
         return ExceptionUtils.getStackTrace(t);
     }
 
+    /**
+     * The cause-chain messages (see {@link #concatMessages(Throwable)}), plus the full stack trace when
+     * DEBUG_STACK_TRACE_ENABLED is on. The report paths that deliberately answer a verdict with one line (the
+     * retry-later http response and the retry-later / retry-disabled source reports) call this, so the operator's
+     * debug switch gets the detail back without a rebuild.
+     */
+    public static String getMessagesAndStackTraceIfDebugEnabled(final Throwable t) {
+        if (!isDebugStackTraceEnabled()) {
+            return concatMessages(t);
+        }
+        return concatMessages(t) + "\n" + getFullStackTrace(t);
+    }
+
     @SafeVarargs
     public static Throwable ignoreType(final Throwable e, final Class<? extends Throwable>... ignoredTypes) {
         Throwable validCause = e;
