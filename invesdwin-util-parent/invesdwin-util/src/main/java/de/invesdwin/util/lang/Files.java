@@ -20,7 +20,6 @@ import java.util.concurrent.TimeoutException;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -507,16 +506,14 @@ public final class Files extends AFilesStaticFacade {
     }
 
     /**
-     * Overwrites the destFile if it already exists.
+     * Overwrites the destFile if it already exists, publishing it with a single rename (see moveAtomic). The commons-io
+     * route this used could not replace an existing name at all, so the wrapper deleted it and retried - which leaves
+     * the published name missing for every reader in between, and it is exactly the shape the trading live-calculated
+     * sources publish their interval files with (Files.moveFile(tempFile, intervalFile) in the iqfeed, fxcm,
+     * interactivebrokers and live-server trees).
      */
-    public static void moveFile(final java.io.File srcFile, final java.io.File destFile) throws java.io.IOException {
-        try {
-            org.apache.commons.io.FileUtils.moveFile(srcFile, destFile);
-        } catch (final FileExistsException e) {
-            //delete and retry
-            deleteQuietly(destFile);
-            org.apache.commons.io.FileUtils.moveFile(srcFile, destFile);
-        }
+    public static void moveFile(final File srcFile, final File destFile) throws IOException {
+        moveAtomic(srcFile.toPath(), destFile.toPath());
     }
 
     private static int executeCommand(final String... command)
