@@ -4,8 +4,8 @@ import java.util.concurrent.locks.Condition;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.concurrent.lock.ILock;
-import de.invesdwin.util.concurrent.lock.internal.readwrite.read.TimeoutReadLock;
+import de.invesdwin.util.concurrent.lock.IQueuedLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.read.TimeoutReentrantReadLock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.write.TimeoutReentrantWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
@@ -19,7 +19,7 @@ public class TimeoutReentrantReadWriteLock implements IReentrantReadWriteLock {
     private final IReentrantReadWriteLock delegate;
     private final Duration lockWaitTimeout;
     private final boolean onlyWriteLock;
-    private final ILock readLock;
+    private final IQueuedLock readLock;
     private final TimeoutReentrantWriteLock writeLock;
 
     public TimeoutReentrantReadWriteLock(final IReentrantReadWriteLock delegate, final Duration lockWaitTimeout,
@@ -30,7 +30,7 @@ public class TimeoutReentrantReadWriteLock implements IReentrantReadWriteLock {
         if (onlyWriteLock) {
             this.readLock = delegate.readLock();
         } else {
-            this.readLock = new TimeoutReadLock(delegate.readLock(), lockWaitTimeout);
+            this.readLock = new TimeoutReentrantReadLock(delegate.readLock(), lockWaitTimeout);
         }
         this.writeLock = new TimeoutReentrantWriteLock(delegate.writeLock(), lockWaitTimeout);
     }
@@ -41,7 +41,7 @@ public class TimeoutReentrantReadWriteLock implements IReentrantReadWriteLock {
     }
 
     @Override
-    public ILock readLock() {
+    public IQueuedLock readLock() {
         return readLock;
     }
 
