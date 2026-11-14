@@ -5,7 +5,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.concurrent.lock.internal.readwrite.read.WrappedReadLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.read.WrappedReentrantReadLock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.write.WrappedReentrantWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
@@ -19,13 +19,13 @@ public class WrappedReentrantReadWriteLock implements IReentrantReadWriteLock {
 
     private final String name;
     private final ReentrantReadWriteLock delegate;
-    private final WrappedReadLock readLock;
+    private final WrappedReentrantReadLock readLock;
     private final WrappedReentrantWriteLock writeLock;
 
     public WrappedReentrantReadWriteLock(final String name, final ReentrantReadWriteLock delegate) {
         this.name = name;
         this.delegate = delegate;
-        this.readLock = new WrappedReadLock(name + "_readLock", this, delegate.readLock());
+        this.readLock = new WrappedReentrantReadLock(name + "_readLock", this, delegate.readLock());
         this.writeLock = new WrappedReentrantWriteLock(name + "_writeLock", delegate, delegate.writeLock());
     }
 
@@ -35,7 +35,7 @@ public class WrappedReentrantReadWriteLock implements IReentrantReadWriteLock {
     }
 
     @Override
-    public WrappedReadLock readLock() {
+    public WrappedReentrantReadLock readLock() {
         return readLock;
     }
 

@@ -4,12 +4,12 @@ import java.util.concurrent.locks.Condition;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.IQueuedLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantWriteLock;
 import de.invesdwin.util.concurrent.lock.strategy.DefaultLockingStrategy;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
-import de.invesdwin.util.concurrent.lock.strategy.wrap.StrategyLock;
+import de.invesdwin.util.concurrent.lock.strategy.wrap.readwrite.read.StrategyReentrantReadLock;
 import de.invesdwin.util.concurrent.lock.strategy.wrap.readwrite.write.StrategyReentrantWriteLock;
 import de.invesdwin.util.concurrent.lock.trace.ILockTrace;
 import de.invesdwin.util.lang.Objects;
@@ -19,13 +19,13 @@ public final class StrategyReentrantReadWriteLock implements IReentrantReadWrite
 
     private final ILockingStrategy strategy;
     private final IReentrantReadWriteLock delegate;
-    private final ILock readLock;
+    private final IQueuedLock readLock;
     private final IReentrantWriteLock writeLock;
 
     private StrategyReentrantReadWriteLock(final ILockingStrategy strategy, final IReentrantReadWriteLock delegate) {
         this.strategy = strategy;
         this.delegate = delegate;
-        this.readLock = StrategyLock.maybeWrap(strategy, delegate.readLock());
+        this.readLock = StrategyReentrantReadLock.maybeWrap(strategy, delegate.readLock());
         this.writeLock = StrategyReentrantWriteLock.maybeWrap(strategy, delegate.writeLock());
     }
 
@@ -44,7 +44,7 @@ public final class StrategyReentrantReadWriteLock implements IReentrantReadWrite
     }
 
     @Override
-    public ILock readLock() {
+    public IQueuedLock readLock() {
         return readLock;
     }
 

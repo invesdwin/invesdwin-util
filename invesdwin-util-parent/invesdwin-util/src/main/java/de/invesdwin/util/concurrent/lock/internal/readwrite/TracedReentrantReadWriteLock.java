@@ -4,7 +4,7 @@ import java.util.concurrent.locks.Condition;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.concurrent.lock.internal.readwrite.read.TracedReadLock;
+import de.invesdwin.util.concurrent.lock.internal.readwrite.read.TracedReentrantReadLock;
 import de.invesdwin.util.concurrent.lock.internal.readwrite.write.TracedReentrantWriteLock;
 import de.invesdwin.util.concurrent.lock.readwrite.IReentrantReadWriteLock;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
@@ -15,12 +15,12 @@ import de.invesdwin.util.lang.Objects;
 public class TracedReentrantReadWriteLock implements IReentrantReadWriteLock {
 
     private final IReentrantReadWriteLock delegate;
-    private final TracedReadLock readLock;
+    private final TracedReentrantReadLock readLock;
     private final TracedReentrantWriteLock writeLock;
 
     public TracedReentrantReadWriteLock(final ILockTrace lockTrace, final IReentrantReadWriteLock delegate) {
         this.delegate = delegate;
-        this.readLock = new TracedReadLock(lockTrace, this, delegate.readLock());
+        this.readLock = new TracedReentrantReadLock(lockTrace, this, delegate.readLock());
         this.writeLock = new TracedReentrantWriteLock(lockTrace, readLock.getName(), delegate, delegate.writeLock());
     }
 
@@ -30,7 +30,7 @@ public class TracedReentrantReadWriteLock implements IReentrantReadWriteLock {
     }
 
     @Override
-    public TracedReadLock readLock() {
+    public TracedReentrantReadLock readLock() {
         return readLock;
     }
 

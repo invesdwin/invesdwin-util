@@ -3,6 +3,7 @@ package de.invesdwin.util.concurrent.lock.disabled.locked;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.IQueuedLock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.concurrent.lock.readwrite.IReadWriteLock;
 import de.invesdwin.util.concurrent.lock.strategy.DisabledLockingStrategy;
@@ -32,7 +33,7 @@ public class LockedDisabledReadWriteLock implements IReadWriteLock {
     }
 
     @Override
-    public ILock readLock() {
+    public IQueuedLock readLock() {
         return LockedDisabledLock.INSTANCE;
     }
 

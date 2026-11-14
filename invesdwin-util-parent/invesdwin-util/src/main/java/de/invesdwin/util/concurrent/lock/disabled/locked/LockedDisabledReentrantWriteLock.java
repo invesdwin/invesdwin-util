@@ -17,6 +17,11 @@ public class LockedDisabledReentrantWriteLock extends LockedDisabledLock impleme
         return 0;
     }
 
+    @Override
+    public int getQueueLength() {
+        return 0;
+    }
+
     //CHECKSTYLE:OFF
     @Override
     public IReentrantWriteLock withStrategy(final ILockingStrategy strategy) {
