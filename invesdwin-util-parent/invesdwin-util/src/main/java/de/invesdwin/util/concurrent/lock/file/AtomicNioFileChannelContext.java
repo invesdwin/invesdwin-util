@@ -2,7 +2,6 @@ package de.invesdwin.util.concurrent.lock.file;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -116,7 +115,7 @@ public class AtomicNioFileChannelContext implements Cloneable {
                     .resolveSibling(Files.setExtensionNormalizePath(markerPath.getFileName().toString(), tmpSuffix));
             Files.createDirectories(tempMarkerPath.getParent());
             Files.writeString(tempMarkerPath, now.toString());
-            Files.move(tempMarkerPath, markerPath, StandardCopyOption.REPLACE_EXISTING);
+            Files.moveAtomic(tempMarkerPath, markerPath);
 
             directoryCleanupTime.set(now.millisValue());
             cleanupStaleTempFiles();
