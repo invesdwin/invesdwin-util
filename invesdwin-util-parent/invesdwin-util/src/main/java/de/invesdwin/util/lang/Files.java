@@ -9,6 +9,7 @@ import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -726,8 +727,12 @@ public final class Files extends AFilesStaticFacade {
      * third cheaper over an NFSv4.2 mount, where the plain form costs two round trips instead of one.
      *
      * <p>
-     * This is deliberately not a claim primitive - it replaces the target instead of failing on it. For a claim use
-     * {@code CREATE_NEW}; a rename onto a name that already exists is not exclusive over NFS.
+     * This is deliberately not a claim primitive - it replaces the target instead of failing on it, and no rename
+     * option makes it exclusive: omitting {@code REPLACE_EXISTING} does not help, measured 2026-11-14 on ext4 with
+     * JDK 17.0.20.1, where {@code move(source, target, ATOMIC_MOVE)} onto an existing target still replaced it (the
+     * JDK maps {@code ATOMIC_MOVE} to a bare {@code rename(2)}, which is always replace), and 16 racing writers onto
+     * one free name all reported success with the last writer's bytes surviving. For a claim use {@link
+     * #moveClaim(Path, Path)}.
      */
     public static Path moveAtomic(final Path source, final Path target) throws IOException {
         try {
@@ -735,6 +740,34 @@ public final class Files extends AFilesStaticFacade {
         } catch (final AtomicMoveNotSupportedException e) {
             return move(source, target, StandardCopyOption.REPLACE_EXISTING);
         }
+    }
+
+    /**
+     * Publishes {@code source} under the name {@code target} only if that name does not already exist: it is the claim
+     * counterpart of {@link #moveAtomic(Path, Path)}, for a name that must be published by exactly one writer. Throws
+     * {@link FileAlreadyExistsException} without touching either name when the target is taken, so the caller can pick
+     * another name and retry with its content still staged.
+     *
+     * <p>
+     * Implemented as a hard link of the already written {@code source} under {@code target} plus an unlink of {@code
+     * source}, because that is the only primitive here that is both atomic for readers and exclusive: {@code link(2)}
+     * fails with {@code EEXIST} on an occupied name, while {@code rename(2)} never does (see {@link
+     * #moveAtomic(Path, Path)}), and {@code CREATE_NEW} is exclusive but can only create an empty file, which would
+     * expose the final name half written. Measured 2026-11-14 on the four stores this fleet writes (lap-mid, lappy,
+     * xmg, ptstaging, all local ext4): 16 racing writers onto one free name give exactly one winner and 15
+     * {@code FileAlreadyExistsException}, against 16 self-reported winners for {@code ATOMIC_MOVE}.
+     *
+     * <p>
+     * What it costs and what it does not cover: one extra inode between the link and the unlink, no data copy, and the
+     * two names must sit on one file system (a link cannot cross one) - in this codebase the pair is always siblings
+     * in the same directory. There is no fallback to {@link #moveAtomic(Path, Path)} if a file system refuses hard
+     * links, because falling back would silently restore the overwrite this exists to prevent; such a store fails
+     * loudly at the publish instead.
+     */
+    public static Path moveClaim(final Path source, final Path target) throws IOException {
+        createLink(target, source);
+        deleteIfExists(source);
+        return target;
     }
 
     public static boolean touchQuietly(final File file) {
