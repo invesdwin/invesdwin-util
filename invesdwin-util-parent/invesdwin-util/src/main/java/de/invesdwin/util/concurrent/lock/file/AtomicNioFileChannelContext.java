@@ -46,11 +46,32 @@ public class AtomicNioFileChannelContext implements Cloneable {
     private final String tmpCleanupMarkerFilename = newTmpCleanupMarkerFilename();
     private final Duration tmpCleanupInterval = newTmpCleanupInterval();
     private final Duration tmpCleanupTimeout = newTmpCleanupTimeout();
+    /**
+     * The publish mode this context hands to its channels: false publishes by replace (an upload onto the same name
+     * overwrites it, which is what a cache entry or a properties file wants), true publishes by claim (the target name
+     * must not exist yet - see {@link Files#moveClaim(Path, Path)}).
+     * It lives on the context rather than on the channel because every withSubDirectory / withFilename /
+     * withBaseServerUri factory clones the context into the derived channel, so a per-channel flag would be silently
+     * dropped by exactly those calls.
+     */
+    private final boolean claimPublish;
 
     @GuardedBy("this")
     private Path directoryPath;
     @GuardedBy("this")
     private AtomicLong directoryCleanupTime;
+
+    public AtomicNioFileChannelContext() {
+        this(false);
+    }
+
+    public AtomicNioFileChannelContext(final boolean claimPublish) {
+        this.claimPublish = claimPublish;
+    }
+
+    public boolean isClaimPublish() {
+        return claimPublish;
+    }
 
     protected String newTmpSuffix() {
         return TMP_SUFFIX;
