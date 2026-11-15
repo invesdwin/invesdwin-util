@@ -753,8 +753,8 @@ public final class Files extends AFilesStaticFacade {
      * source}, because that is the only primitive here that is both atomic for readers and exclusive: {@code link(2)}
      * fails with {@code EEXIST} on an occupied name, while {@code rename(2)} never does (see {@link
      * #moveAtomic(Path, Path)}), and {@code CREATE_NEW} is exclusive but can only create an empty file, which would
-     * expose the final name half written. Measured 2026-11-14 on the four stores this fleet writes (lap-mid, lappy,
-     * xmg, ptstaging, all local ext4): 16 racing writers onto one free name give exactly one winner and 15
+     * expose the final name half written. Measured 2026-11-14 on four stores this fleet writes, each on local
+     * ext4: 16 racing writers onto one free name give exactly one winner and 15
      * {@code FileAlreadyExistsException}, against 16 self-reported winners for {@code ATOMIC_MOVE}.
      *
      * <p>
