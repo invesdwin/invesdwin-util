@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.lang.Files;
 
 /**
  * The registry entry of a lock file belongs to the instance that acquired it, and only that instance may take it away.
@@ -95,6 +96,46 @@ public class HeartbeatFileChannelLockIdentityTest {
                 .as("and the released instance must leave nothing registered behind")
                 .isFalse();
     }
+
+    /**
+     * The other evictor: the periodic heartbeat sweep removes an entry whenever a beat fails, and
+     * FileChannelLock.touchHeartbeatUnchecked() answers false for ANY IOException - including for an instance that
+     * still holds the lock. Running the real sweep against a holder whose heartbeat file cannot be written must
+     * leave the registration in place, because that registration is what keeps a second instance of this JVM from
+     * replacing the holder's own claim.
+     */
+    @Test
+    public void testTheHeartbeatSweepKeepsTheEntryOfALockedInstance() throws Exception {
+        final File directory = new File(tempDir, "sweep");
+        Files.forceMkdir(directory);
+        final File lockFile = new File(directory, "swept.lock");
+        final Holder holder = startHolder(lockFile);
+        try {
+            Assertions.assertThat(holder.locked.get()).as("the holder must have the lock").isTrue();
+
+            //Break only the beat: replace the heartbeat file with a DIRECTORY of the same name, so writing it (or
+            //reading the owner out of it) throws IOException while the claim file stays exactly as the holder left it.
+            //Deleting the claim instead would be a different - and legitimate - situation: a fresh acquisition.
+            final File heartbeatFile = new File(directory, "swept.heartbeat");
+            Assertions.assertThat(heartbeatFile).as("the holder must have written its heartbeat").exists();
+            Files.deleteNative(heartbeatFile);
+            Assertions.assertThat(heartbeatFile.mkdir())
+                    .as("the test must be able to plant the un-writable path")
+                    .isTrue();
+
+            HeartbeatFileChannelLockRegistry.updateHeartbeats();
+
+            Assertions.assertThat(HeartbeatFileChannelLockRegistry.hasLiveLocalInstance(lockFile))
+                    .as("a failed beat must not evict the entry of an instance that still holds the lock")
+                    .isTrue();
+            Assertions.assertThat(new HeartbeatFileChannelLock(lockFile).tryLock())
+                    .as("and while that entry stands, no second instance of this JVM may take the lock")
+                    .isFalse();
+        } finally {
+            holder.release();
+        }
+    }
+
 
     @NotThreadSafe
     private static final class Holder {
