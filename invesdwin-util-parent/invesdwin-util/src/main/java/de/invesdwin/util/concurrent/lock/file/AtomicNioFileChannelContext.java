@@ -27,8 +27,13 @@ import de.invesdwin.util.time.duration.Duration;
 public class AtomicNioFileChannelContext implements Cloneable {
 
     public static final String TMP_EXTENSION = ".tmp";
-    public static final String TMP_SUFFIX = "_" + Files.normalizePath(HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER)
-            + TMP_EXTENSION;
+    /**
+     * Distinguishes the staging file of one JVM from that of another; it is NOT unique per writer - see
+     * {@link #newTempPath(Path)}.
+     */
+    public static final String TMP_SUFFIX_BASE = "_"
+            + Files.normalizePath(HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER);
+    public static final String TMP_SUFFIX = TMP_SUFFIX_BASE + TMP_EXTENSION;
     public static final String CLEANUP_MARKER_EXTENSION = ".cleanup";
 
     public static final Duration TMP_CLEANUP_INTERVAL = Duration.ONE_DAY;
@@ -41,7 +46,14 @@ public class AtomicNioFileChannelContext implements Cloneable {
         Assertions.assertThat(TMP_SUFFIX.length()).isLessThanOrEqualTo(Files.MAX_FILE_NAME_LENGTH);
     }
 
+    /**
+     * Makes one JVM's staging names unique per open upload: two writers that share a target otherwise share one temp
+     * file, and the first publisher renames it away under the target lock, so the second renames a name that is gone.
+     */
+    private static final AtomicLong TMP_WRITER_SEQUENCE = new AtomicLong();
+
     private final String tmpExtension = newTmpExtension();
+    private final String tmpSuffixBase = newTmpSuffixBase();
     private final String tmpSuffix = newTmpSuffix();
     private final String tmpCleanupMarkerFilename = newTmpCleanupMarkerFilename();
     private final Duration tmpCleanupInterval = newTmpCleanupInterval();
@@ -73,8 +85,27 @@ public class AtomicNioFileChannelContext implements Cloneable {
         return claimPublish;
     }
 
+    /**
+     * The staging file one upload writes into before {@link #isClaimPublish()} decides how it is moved onto
+     * <code>targetPath</code>. Every part of the name is load-bearing: the JVM's heartbeat owner keeps two processes
+     * apart, and the per-open sequence keeps two threads of ONE JVM apart - with only the owner in the name, both
+     * writers open the same file and the publisher that closes first renames it away, so the other one's publish fails
+     * with NoSuchFileException on a name it no longer owns (measured 2026-11-15 in a parallel suite writing the shared
+     * live-calculated segment store). The name still ends in {@link #TMP_EXTENSION}, so
+     * {@link #cleanupStaleTempFiles()} reaps a leftover from a killed writer exactly as before.
+     */
+    public Path newTempPath(final Path targetPath) {
+        final String writerSuffix = tmpSuffixBase + "_" + TMP_WRITER_SEQUENCE.incrementAndGet() + tmpExtension;
+        return targetPath.resolveSibling(
+                Files.setExtensionNormalizePath(targetPath.getFileName().toString(), writerSuffix));
+    }
+
+    protected String newTmpSuffixBase() {
+        return TMP_SUFFIX_BASE;
+    }
+
     protected String newTmpSuffix() {
-        return TMP_SUFFIX;
+        return tmpSuffixBase + tmpExtension;
     }
 
     protected String newTmpExtension() {
