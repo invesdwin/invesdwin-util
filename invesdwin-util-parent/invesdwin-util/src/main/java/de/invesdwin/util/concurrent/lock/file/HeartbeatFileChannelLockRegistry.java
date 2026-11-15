@@ -122,7 +122,31 @@ public final class HeartbeatFileChannelLockRegistry {
     }
 
     public static void remove(final FileChannelLock lock) {
-        REGISTRY.remove(lock.getFile());
+        //Only the instance that owns this registration may take it away. Every failed tryLock() runs unlock() as its
+        //cleanup, so a loser that wants the same path would otherwise evict the entry of the instance that really
+        //holds the lock; hasLiveLocalInstance() is the honest "we already own it" test behind the claim owner-string
+        //match, and with the entry gone FileChannelLock.tryStealOrVerifyLock() replaces the holder's own claim with
+        //REPLACE_EXISTING - after that the holder's OS lock sits on an unlinked inode and a second thread of the SAME
+        //JVM holds the same "exclusive" file lock (measured 2026-11-15: that is how two writers reached one
+        //live-calculated segment file in the umbrella suite).
+        final String wanted = lock.getFile().getAbsolutePath();
+        File key = null;
+        FileChannelLock holder = null;
+        for (final Map.Entry<File, WeakReference<FileChannelLock>> entry : REGISTRY.entrySet()) {
+            if (wanted.equals(entry.getKey().getAbsolutePath())) {
+                key = entry.getKey();
+                holder = entry.getValue().get();
+                break;
+            }
+        }
+        if (key == null) {
+            return;
+        }
+        if (holder == null || holder == lock) {
+            //a collected (null) holder is a corpse of this path's registration and must go, exactly as before
+            REGISTRY.remove(key);
+        }
+        //size-guarded internally, so an unlock that changed nothing cannot shut the heartbeat loop down
         stopHeartbeatExecutorIfNeeded();
     }
 
@@ -147,7 +171,9 @@ public final class HeartbeatFileChannelLockRegistry {
         }
     }
 
-    private static void updateHeartbeats() {
+    //package-visible, not private: the sweep's eviction rule is the other half of the identity guard below, and a
+    //test must be able to run the real sweep instead of re-deriving it
+    static void updateHeartbeats() {
         try {
             final Iterator<Entry<File, WeakReference<FileChannelLock>>> iterator = REGISTRY.entrySet().iterator();
             while (iterator.hasNext()) {
@@ -162,7 +188,14 @@ public final class HeartbeatFileChannelLockRegistry {
                         if (parent != null) {
                             addDirToPrefix(file, parent);
                         }
-                    } else {
+                    } else if (!lock.isLocked()) {
+                        //A failed beat on an instance that STILL holds the lock is a transient I/O condition
+                        //(touchHeartbeatUnchecked() answers false for any IOException), and evicting it here would
+                        //remove the very registration that stops tryStealOrVerifyLock() from replacing this JVM's own
+                        //claim - a second thread of the same JVM could then take the same lock. That is the same
+                        //damage remove() guards against, reached through the sweep rather than through unlock().
+                        //A lock that has given up (touchHeartbeat() closes itself when the heartbeat is foreign and
+                        //stale, :309) reports isLocked() false and is reaped here, as before.
                         iterator.remove();
                     }
                 } else {
