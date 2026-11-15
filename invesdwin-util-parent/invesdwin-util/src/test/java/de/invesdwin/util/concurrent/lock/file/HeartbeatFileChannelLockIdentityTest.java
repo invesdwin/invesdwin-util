@@ -18,9 +18,8 @@ import de.invesdwin.util.lang.Files;
  * path evicts the entry of the instance that actually holds the lock - and hasLiveLocalInstance() is the honest "we
  * already own it" test behind the claim owner-string match in FileChannelLock.tryStealOrVerifyLock(). With the entry
  * gone, the next attempt replaces the holder's own claim file (REPLACE_EXISTING), the holder's OS lock ends up on an
- * unlinked inode, and two threads of ONE JVM hold the same "exclusive" file lock. Measured 2026-11-15 in the umbrella
- * PerformanceTraderTestSuite run on subes-lap-mid, where that let two threads stage the same live-calculated segment
- * file at once.
+ * unlinked inode, and two threads of ONE JVM hold the same "exclusive" file lock. Measured 2026-11-15 in a bounded-run
+ * backtest suite on a dev box, where that let two threads stage the same live-calculated segment file at once.
  */
 @NotThreadSafe
 public class HeartbeatFileChannelLockIdentityTest {
