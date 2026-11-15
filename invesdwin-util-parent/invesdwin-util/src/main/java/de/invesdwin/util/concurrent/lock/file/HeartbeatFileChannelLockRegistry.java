@@ -145,8 +145,9 @@ public final class HeartbeatFileChannelLockRegistry {
         if (holder == null || holder == lock) {
             //a collected (null) holder is a corpse of this path's registration and must go, exactly as before
             REGISTRY.remove(key);
-            stopHeartbeatExecutorIfNeeded();
         }
+        //size-guarded internally, so an unlock that changed nothing cannot shut the heartbeat loop down
+        stopHeartbeatExecutorIfNeeded();
     }
 
     private static void startHeartbeatExecutorIfNeeded() {
