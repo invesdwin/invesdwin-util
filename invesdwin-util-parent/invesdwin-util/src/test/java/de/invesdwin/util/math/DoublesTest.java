@@ -243,6 +243,19 @@ public class DoublesTest {
         checkSameBits(Doubles.scaleByPowerOfTenNearReference(1e20, Double.NaN), 1D, "value=1e20,reference=NaN");
     }
 
+    @Test
+    public void testScaleByPowerOfTenNearReferenceWithInfiniteReferenceRunsEveryLadderStep() {
+        //abs(infinity - v) never gets worse, so no step is refused and all 20 are taken: the answer is
+        //abs(value) * 10^20 signed by the reference, which is how an overflowing analytic gradient reaches the
+        //gene-bound clamp instead of the consumer's non-finite refusal
+        checkSameBits(Doubles.scaleByPowerOfTenNearReference(1D, Double.POSITIVE_INFINITY), 1e20,
+                "value=1,reference=Infinity");
+        checkSameBits(Doubles.scaleByPowerOfTenNearReference(1D, Double.NEGATIVE_INFINITY), -1e20,
+                "value=1,reference=-Infinity");
+        checkSameBits(Doubles.scaleByPowerOfTenNearReference(-3D, Double.POSITIVE_INFINITY), 3e20,
+                "value=-3,reference=Infinity");
+    }
+
     /**
      * Compares bit identity rather than value: -0.0 and 0.0 compare equal but differ in their sign bit, and a one ulp
      * change in a ladder step would pass unnoticed otherwise.
