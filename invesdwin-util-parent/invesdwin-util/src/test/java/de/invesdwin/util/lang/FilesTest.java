@@ -2,6 +2,7 @@ package de.invesdwin.util.lang;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.NoSuchFileException;
@@ -15,10 +16,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.opentest4j.AssertionFailedError;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.streams.StringInputStream;
 
 @NotThreadSafe
 public class FilesTest {
@@ -49,12 +53,76 @@ public class FilesTest {
             Files.checkReference(false, referenceFile, producedFile);
             Assertions.fail("the reference difference must fail the check");
         } catch (final AssertionError e) {
+            //the comparison editor of the test runner only opens for a failure that carries both values, so the
+            //type has to reach the caller instead of being wrapped in a plain AssertionError
+            Assertions.assertThat(e).isInstanceOf(AssertionFailedError.class);
+            final AssertionFailedError comparisonFailure = (AssertionFailedError) e;
+            Assertions.assertThat(comparisonFailure.getExpected().getValue()).isEqualTo("one two");
+            Assertions.assertThat(comparisonFailure.getActual().getValue()).isEqualTo("one three");
             //the platform truncates the message from its end, so the recorded file has to be named at its start
             Assertions.assertThat(e.getMessage())
                     .startsWith("[" + Files.getReferenceActualFile(referenceFile, 0).getAbsolutePath() + "]");
             Assertions.assertThat(
                     Files.readFileToString(Files.getReferenceActualFile(referenceFile, 0), Charset.defaultCharset()))
                     .isEqualTo("one three");
+        }
+    }
+
+    @Test
+    public void testCheckReferenceRecordsNothingWhenTheReferenceMatches() throws Exception {
+        final File referenceFile = new File(tempDir, "same.csv");
+        final File producedFile = new File(tempDir, "produced/same.csv");
+        Files.writeStringToFileIfDifferent(referenceFile, "one two");
+        Files.writeStringToFileIfDifferent(producedFile, "one two");
+        Files.checkReference(false, referenceFile, producedFile);
+        //the recorded sibling is a difference report: a matching run must not leave one behind
+        Assertions.assertThat(Files.getReferenceActualFile(referenceFile, 0)).doesNotExist();
+    }
+
+    @Test
+    public void testCheckReferenceRecordsTheDifferingChunkOfAReference() throws Exception {
+        final File referenceFile = new File(tempDir, "chunked.csv");
+        Files.writeStringToFileIfDifferent(referenceFile, "0123");
+        Files.writeStringToFileIfDifferent(Files.prefixExtension(referenceFile, "_1"), "4567");
+        Files.writeStringToFileIfDifferent(Files.prefixExtension(referenceFile, "_2"), "89");
+        try {
+            //four characters per chunk: only the last of the three chunks differs
+            Files.checkReference(false, referenceFile, new StringInputStream("01234567XY"), 4);
+            Assertions.fail("a differing chunk must fail the check");
+        } catch (final AssertionError e) {
+            final File differingReferenceFile = Files.prefixExtension(referenceFile, "_2");
+            final File actualReferenceFile = Files.getReferenceActualFile(referenceFile, 2);
+            Assertions.assertThat(e.getMessage())
+                    .startsWith("[" + actualReferenceFile.getAbsolutePath() + "]");
+            Assertions.assertThat(e.getMessage()).contains("[" + differingReferenceFile.getAbsolutePath() + "]");
+            Assertions.assertThat(Files.readFileToString(actualReferenceFile, Charset.defaultCharset()))
+                    .as("the recorded side belongs to the chunk index that differed")
+                    .isEqualTo("XY");
+            Assertions.assertThat(Files.getReferenceActualFile(referenceFile, 0)).doesNotExist();
+            Assertions.assertThat(Files.getReferenceActualFile(referenceFile, 1)).doesNotExist();
+        }
+    }
+
+    @Test
+    public void testCheckReferenceKeepsThePathWhenTheMessageIsTruncated() throws Exception {
+        final File referenceFile = new File(tempDir, "long.csv");
+        final File producedFile = new File(tempDir, "produced/long.csv");
+        //far past the comparison-failure message limit: the two values cannot survive the cut, the path must
+        final String commonHead = "A".repeat(3000);
+        Files.writeStringToFileIfDifferent(referenceFile, commonHead + "REF_TAIL");
+        Files.writeStringToFileIfDifferent(producedFile, commonHead + "PROD_TAIL");
+        try {
+            Files.checkReference(false, referenceFile, producedFile);
+            Assertions.fail("the reference difference must fail the check");
+        } catch (final AssertionError e) {
+            Assertions.assertThat(e.getMessage())
+                    .startsWith("[" + Files.getReferenceActualFile(referenceFile, 0).getAbsolutePath() + "]");
+            Assertions.assertThat(e.getMessage().length())
+                    .as("the values are cut, so the message cannot be read past the limit")
+                    .isLessThanOrEqualTo(Assertions.COMPARISON_FAILURE_MESSAGE_LIMIT);
+            Assertions.assertThat(
+                    Files.readFileToString(Files.getReferenceActualFile(referenceFile, 0), Charset.defaultCharset()))
+                    .isEqualTo(commonHead + "PROD_TAIL");
         }
     }
 
@@ -75,6 +143,45 @@ public class FilesTest {
         Files.checkReference(true, referenceFile, producedFile);
         Assertions.assertThat(Files.readFileToString(referenceFile, Charset.defaultCharset())).isEqualTo("one three");
         Assertions.assertThat(actualFile).doesNotExist();
+    }
+
+    @Test
+    public void testWriteReferenceRemovesTheChunkNoLongerWritten() throws Exception {
+        final File referenceFile = new File(tempDir, "shrink.csv");
+        //three chunks become two: readReference concatenates every chunk it finds, so a leftover third chunk
+        //appends the tail of the previous reference to the new one
+        Files.writeStringToFileIfDifferent(referenceFile, "0123");
+        Files.writeStringToFileIfDifferent(Files.prefixExtension(referenceFile, "_1"), "4567");
+        Files.writeStringToFileIfDifferent(Files.prefixExtension(referenceFile, "_2"), "89");
+        Files.writeReference(referenceFile, new StringInputStream("01234567"), 4);
+        Assertions.assertThat(Files.prefixExtension(referenceFile, "_2"))
+                .as("the chunk the rewritten reference no longer has")
+                .doesNotExist();
+        Assertions.assertThat(Files.prefixExtension(referenceFile, "_1")).exists();
+        try (InputStream reference = Files.readReference(referenceFile)) {
+            Assertions.assertThat(IOUtils.toString(reference, Charset.defaultCharset())).isEqualTo("0123\n4567");
+        }
+    }
+
+    @Test
+    public void testCreateReferenceClearsTheRecordOfALaterChunk() throws Exception {
+        final File referenceFile = new File(tempDir, "gap.csv");
+        Files.writeStringToFileIfDifferent(referenceFile, "0123");
+        Files.writeStringToFileIfDifferent(Files.prefixExtension(referenceFile, "_1"), "4567");
+        Files.writeStringToFileIfDifferent(Files.prefixExtension(referenceFile, "_2"), "89");
+        try {
+            Files.checkReference(false, referenceFile, new StringInputStream("01234567XY"), 4);
+            Assertions.fail("the differing last chunk must fail the check");
+        } catch (final AssertionError e) {
+            //expected
+        }
+        //only chunk 2 differed, so its record is sparse: chunk indices 0 and 1 have none
+        Assertions.assertThat(Files.getReferenceActualFile(referenceFile, 2)).exists();
+        Files.checkReference(true, referenceFile, new StringInputStream("01234567"), 4);
+        Assertions.assertThat(Files.getReferenceActualFile(referenceFile, 2))
+                .as("the create run rewrote the reference, so its record is stale")
+                .doesNotExist();
+        Assertions.assertThat(Files.prefixExtension(referenceFile, "_2")).doesNotExist();
     }
 
     @Test

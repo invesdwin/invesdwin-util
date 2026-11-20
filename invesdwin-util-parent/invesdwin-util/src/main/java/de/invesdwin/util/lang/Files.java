@@ -587,27 +587,24 @@ public final class Files extends AFilesStaticFacade {
             try {
                 while (true) {
                     final String ref = references.next();
-                    final File indexedReferenceFile;
-                    if (i == 0) {
-                        indexedReferenceFile = referenceFile;
-                    } else {
-                        indexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
-                    }
+                    final File indexedReferenceFile = getReferenceChunkFile(referenceFile, i);
                     if (createReferenceFile) {
                         Files.writeStringToFileIfDifferent(indexedReferenceFile, ref);
                     } else {
                         try {
                             final String existingRef = Files.readFileToString(indexedReferenceFile,
                                     Charset.defaultCharset());
-                            Assertions.checkEquals(existingRef, ref);
+                            if (!Objects.equals(existingRef, ref)) {
+                                //recorded before the failure is raised, so that it is there to be opened from it
+                                final File actualReferenceFile = getReferenceActualFile(referenceFile, i);
+                                Files.writeStringToFileIfDifferent(actualReferenceFile, ref);
+                                //the path first: the platform truncates the message, and it truncates from the end
+                                Assertions.checkEquals(existingRef, ref,
+                                        "[" + actualReferenceFile + "] now holds the side that differed from ["
+                                                + indexedReferenceFile + "]");
+                            }
                         } catch (final IOException e) {
                             throw new RuntimeException(e);
-                        } catch (final AssertionError e) {
-                            final File actualReferenceFile = getReferenceActualFile(referenceFile, i);
-                            Files.writeStringToFileIfDifferent(actualReferenceFile, ref);
-                            //the path first: the platform truncates the message, and it truncates from the end
-                            throw new AssertionError("[" + actualReferenceFile + "] now holds the side that differed"
-                                    + " from [" + indexedReferenceFile + "]: " + e.getMessage(), e);
                         }
                     }
                     i++;
@@ -616,6 +613,8 @@ public final class Files extends AFilesStaticFacade {
                 //end reached
             }
             if (createReferenceFile) {
+                //the recorded differences go first: they are sparse, so the chunk set is what bounds their sweep
+                deleteReferenceActualFiles(referenceFile);
                 //delete any existing reference files that are not needed anymore
                 while (true) {
                     final File obsoleteIndexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
@@ -626,9 +625,20 @@ public final class Files extends AFilesStaticFacade {
                     }
                     i++;
                 }
-                deleteReferenceActualFiles(referenceFile);
             }
         }
+    }
+
+    /**
+     * The file holding chunk {@code index} of a reference: chunk 0 is {@code referenceFile} itself, later chunks carry
+     * their index in the stem. The obsolete-chunk cleanup does not use this: it names one past the last written chunk,
+     * where index 0 would name the reference file itself.
+     */
+    public static File getReferenceChunkFile(final File referenceFile, final int index) {
+        if (index == 0) {
+            return referenceFile;
+        }
+        return Files.prefixExtension(referenceFile, "_" + index);
     }
 
     /**
@@ -644,17 +654,14 @@ public final class Files extends AFilesStaticFacade {
 
     /**
      * Removes the recorded differences of {@code referenceFile}, which an update run makes stale: the reference it
-     * differed from has just been rewritten.
+     * differed from has just been rewritten. Recorded files exist only for the chunks that differed, so they are
+     * sparse and cannot bound their own sweep; the reference chunks are contiguous, so the first missing chunk names
+     * the end. Call this while the chunks are still there.
      */
     public static void deleteReferenceActualFiles(final File referenceFile) {
-        Files.deleteQuietly(getReferenceActualFile(referenceFile, 0));
-        int i = 1;
-        while (true) {
-            final File actualReferenceFile = getReferenceActualFile(referenceFile, i);
-            if (!actualReferenceFile.exists()) {
-                break;
-            }
-            Files.deleteQuietly(actualReferenceFile);
+        int i = 0;
+        while (getReferenceChunkFile(referenceFile, i).exists()) {
+            Files.deleteQuietly(getReferenceActualFile(referenceFile, i));
             i++;
         }
     }
@@ -670,29 +677,25 @@ public final class Files extends AFilesStaticFacade {
             try {
                 while (true) {
                     final String ref = references.next();
-                    final File indexedReferenceFile;
-                    if (i == 0) {
-                        indexedReferenceFile = referenceFile;
-                    } else {
-                        indexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
-                    }
+                    final File indexedReferenceFile = getReferenceChunkFile(referenceFile, i);
                     Files.writeStringToFileIfDifferent(indexedReferenceFile, ref);
                     i++;
                 }
             } catch (final NoSuchElementException e) {
                 //end reached
             }
+            //first: the recorded differences are sparse, so they are bounded by the chunk set below
+            deleteReferenceActualFiles(referenceFile);
             //delete any existing reference files that are not needed anymore
             while (true) {
-                i++;
                 final File obsoleteIndexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
                 if (obsoleteIndexedReferenceFile.exists()) {
                     Files.deleteQuietly(obsoleteIndexedReferenceFile);
                 } else {
                     break;
                 }
+                i++;
             }
-            deleteReferenceActualFiles(referenceFile);
         }
     }
 
@@ -700,12 +703,7 @@ public final class Files extends AFilesStaticFacade {
         int i = 0;
         final List<InputStream> inputStreams = new ArrayList<>();
         while (true) {
-            final File indexedReferenceFile;
-            if (i == 0) {
-                indexedReferenceFile = referenceFile;
-            } else {
-                indexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
-            }
+            final File indexedReferenceFile = getReferenceChunkFile(referenceFile, i);
             i++;
             if (indexedReferenceFile.exists()) {
                 final InputStream indexedReference;
