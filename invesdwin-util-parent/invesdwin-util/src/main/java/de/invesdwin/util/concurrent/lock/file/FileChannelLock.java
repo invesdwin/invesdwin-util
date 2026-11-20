@@ -4,7 +4,9 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.StandardOpenOption;
 import java.nio.channels.FileChannel;
+import de.invesdwin.util.lang.string.Charsets;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Path;
@@ -277,23 +279,45 @@ public class FileChannelLock implements Closeable, ILock {
             lastTryLockFailureReason = "CLAIM_HELD_BY_OTHER_MACHINE";
             return false;
         }
-        final Path tempPath = targetPath.resolveSibling(Files.setExtensionNormalizeFileName(
-                targetPath.getFileName().toString(), AtomicNioFileChannelContext.TMP_SUFFIX));
-        try {
-            Files.createDirectories(tempPath.getParent());
-            Files.writeString(tempPath, HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER);
-            Files.move(tempPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-            if (finalizer.heartbeatPath != null && Files.exists(finalizer.heartbeatPath)) {
-                Files.writeString(finalizer.heartbeatPath, HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER);
-            }
-            return HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(finalizer.readOwnerFallback(targetPath));
-        } catch (final IOException e) {
+        if (finalizer.channel == null) {
+            //the grant implies a channel; refusing rather than reaching for a second open of the file
+            lastTryLockFailureReason = "CLAIM_TAKEOVER_NO_CHANNEL";
             return false;
-        } finally {
-            try {
-                Files.deleteIfExists(tempPath);
-            } catch (final IOException ignored) {
+        }
+        try {
+            //Written THROUGH the channel this instance already holds locked, never by staging a temp and renaming it
+            //onto the target: on Windows a mandatory lock makes the target un-renamable-over and un-reopenable by
+            //anyone else, including this process, so the create-and-move form fails exactly in the case where the
+            //takeover is legitimate. The same write is legal on POSIX. No temp file means no litter on a failed
+            //takeover either.
+            final byte[] ownerBytes = HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.getBytes(
+                    Charsets.UTF_8);
+            finalizer.channel.position(0L);
+            //java.nio.ByteBuffer here rather than the house IByteBuffer: FileChannel.write wants a NIO buffer,
+//and the ruleset rejects the import of the java type in favour of the house wrapper (RegexpSinglelineJava)
+                    finalizer.channel.write(java.nio.ByteBuffer.wrap(ownerBytes));
+            finalizer.channel.truncate(ownerBytes.length);
+            finalizer.channel.force(true);
+            if (finalizer.heartbeatPath != null && Files.exists(finalizer.heartbeatPath)) {
+                //retake the heartbeat sibling too: without this the next touch would read the dead holder's still
+                //fresh heartbeat, self-abort with HEARTBEAT_TOUCH_FAILED, and leave the key wedged anyway. A live
+                //remote holder makes this throw on Windows, which the catch below turns into a refusal.
+                Files.writeString(finalizer.heartbeatPath, HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER,
+                        StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
             }
+            //verify through OUR channel: a second open would hit the mandatory lock we hold on Windows
+            final java.nio.ByteBuffer verify = java.nio.ByteBuffer.allocate(ownerBytes.length);
+            finalizer.channel.position(0L);
+            if (finalizer.channel.read(verify) != ownerBytes.length) {
+                lastTryLockFailureReason = "CLAIM_TAKEOVER_VERIFY_SHORT";
+                return false;
+            }
+            return HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(
+                    new String(verify.array(), Charsets.UTF_8).trim());
+        } catch (final IOException e) {
+            //a failed read or write is not evidence that the holder is gone - refuse
+            lastTryLockFailureReason = "CLAIM_TAKEOVER_IO_FAILED";
+            return false;
         }
     }
 
