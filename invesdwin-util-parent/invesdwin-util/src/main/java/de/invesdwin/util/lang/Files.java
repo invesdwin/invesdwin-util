@@ -599,15 +599,17 @@ public final class Files extends AFilesStaticFacade {
                         try {
                             final String existingRef = Files.readFileToString(indexedReferenceFile,
                                     Charset.defaultCharset());
-                            Assertions.checkEquals(existingRef, ref);
+                            if (!Objects.equals(existingRef, ref)) {
+                                //recorded before the failure is raised, so that it is there to be opened from it
+                                final File actualReferenceFile = getReferenceActualFile(referenceFile, i);
+                                Files.writeStringToFileIfDifferent(actualReferenceFile, ref);
+                                //the path first: the platform truncates the message, and it truncates from the end
+                                Assertions.checkEquals(existingRef, ref,
+                                        "[" + actualReferenceFile + "] now holds the side that differed from ["
+                                                + indexedReferenceFile + "]");
+                            }
                         } catch (final IOException e) {
                             throw new RuntimeException(e);
-                        } catch (final AssertionError e) {
-                            final File actualReferenceFile = getReferenceActualFile(referenceFile, i);
-                            Files.writeStringToFileIfDifferent(actualReferenceFile, ref);
-                            //the path first: the platform truncates the message, and it truncates from the end
-                            throw new AssertionError("[" + actualReferenceFile + "] now holds the side that differed"
-                                    + " from [" + indexedReferenceFile + "]: " + e.getMessage(), e);
                         }
                     }
                     i++;
