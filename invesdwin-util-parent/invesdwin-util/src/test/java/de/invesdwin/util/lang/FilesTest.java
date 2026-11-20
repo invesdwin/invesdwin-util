@@ -2,6 +2,7 @@ package de.invesdwin.util.lang;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.NoSuchFileException;
@@ -15,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.opentest4j.AssertionFailedError;
@@ -141,6 +143,45 @@ public class FilesTest {
         Files.checkReference(true, referenceFile, producedFile);
         Assertions.assertThat(Files.readFileToString(referenceFile, Charset.defaultCharset())).isEqualTo("one three");
         Assertions.assertThat(actualFile).doesNotExist();
+    }
+
+    @Test
+    public void testWriteReferenceRemovesTheChunkNoLongerWritten() throws Exception {
+        final File referenceFile = new File(tempDir, "shrink.csv");
+        //three chunks become two: readReference concatenates every chunk it finds, so a leftover third chunk
+        //appends the tail of the previous reference to the new one
+        Files.writeStringToFileIfDifferent(referenceFile, "0123");
+        Files.writeStringToFileIfDifferent(Files.prefixExtension(referenceFile, "_1"), "4567");
+        Files.writeStringToFileIfDifferent(Files.prefixExtension(referenceFile, "_2"), "89");
+        Files.writeReference(referenceFile, new StringInputStream("01234567"), 4);
+        Assertions.assertThat(Files.prefixExtension(referenceFile, "_2"))
+                .as("the chunk the rewritten reference no longer has")
+                .doesNotExist();
+        Assertions.assertThat(Files.prefixExtension(referenceFile, "_1")).exists();
+        try (InputStream reference = Files.readReference(referenceFile)) {
+            Assertions.assertThat(IOUtils.toString(reference, Charset.defaultCharset())).isEqualTo("0123\n4567");
+        }
+    }
+
+    @Test
+    public void testCreateReferenceClearsTheRecordOfALaterChunk() throws Exception {
+        final File referenceFile = new File(tempDir, "gap.csv");
+        Files.writeStringToFileIfDifferent(referenceFile, "0123");
+        Files.writeStringToFileIfDifferent(Files.prefixExtension(referenceFile, "_1"), "4567");
+        Files.writeStringToFileIfDifferent(Files.prefixExtension(referenceFile, "_2"), "89");
+        try {
+            Files.checkReference(false, referenceFile, new StringInputStream("01234567XY"), 4);
+            Assertions.fail("the differing last chunk must fail the check");
+        } catch (final AssertionError e) {
+            //expected
+        }
+        //only chunk 2 differed, so its record is sparse: chunk indices 0 and 1 have none
+        Assertions.assertThat(Files.getReferenceActualFile(referenceFile, 2)).exists();
+        Files.checkReference(true, referenceFile, new StringInputStream("01234567"), 4);
+        Assertions.assertThat(Files.getReferenceActualFile(referenceFile, 2))
+                .as("the create run rewrote the reference, so its record is stale")
+                .doesNotExist();
+        Assertions.assertThat(Files.prefixExtension(referenceFile, "_2")).doesNotExist();
     }
 
     @Test
