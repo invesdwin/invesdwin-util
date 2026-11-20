@@ -177,9 +177,7 @@ public class FileChannelLock implements Closeable, ILock {
                     moveSucceeded = claimUnderOsLock(targetPath);
                 }
                 if (!moveSucceeded) {
-                    lastTryLockFailureReason = "CLAIM_MOVE_FAILED";
-                    unlock();
-                    return false;
+                    return refuseClaim();
                 }
 
                 if (!touchHeartbeatUnchecked()) {
@@ -255,9 +253,28 @@ public class FileChannelLock implements Closeable, ILock {
      * Residual, stated rather than hidden: on a shared filesystem with unreliable locking, a free LOCAL lock proves
      * nothing about a REMOTE holder - that case keeps relying on the mtime rule, unchanged.
      */
+    /**
+     * Taking over the claim (and its heartbeat sibling) of a holder that this machine's OS reports as gone.
+     * <p>
+     * Two conditions, and the second is what keeps this honest on shared storage:
+     * <ol>
+     * <li>the OS granted this instance the file lock - direct evidence that no live process ON THIS HOST owns the
+     * file, which the claim's mtime rule cannot see; and</li>
+     * <li>the leftover claim names THIS machine. A claim from another machine is never taken over early: remote file
+     * locking can be unreliable, absent, or scoped to one client, so for that case the heartbeat timeout stays the
+     * only authority and nothing about the old behaviour changes.</li>
+     * </ol>
+     * The heartbeat file is retaken along with the claim, because otherwise the next touch would read the dead
+     * holder's still-fresh heartbeat, self-abort with HEARTBEAT_TOUCH_FAILED, and leave the key wedged anyway.
+     */
     private boolean claimUnderOsLock(final Path targetPath) {
         if (finalizer.fileLock == null) {
-            //no OS grant, so the claim's own staleness rule is the only evidence available - do not weaken it
+            //no OS grant, so there is no local evidence at all - the mtime rule stays the authority
+            return false;
+        }
+        if (!HeartbeatFileChannelLockRegistry.isClaimOwnedByThisMachine(readExistingOwner(targetPath))) {
+            //another machine's claim, or an owner that cannot be read as a host: do not preempt on local evidence
+            lastTryLockFailureReason = "CLAIM_HELD_BY_OTHER_MACHINE";
             return false;
         }
         final Path tempPath = targetPath.resolveSibling(Files.setExtensionNormalizeFileName(
@@ -266,6 +283,9 @@ public class FileChannelLock implements Closeable, ILock {
             Files.createDirectories(tempPath.getParent());
             Files.writeString(tempPath, HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER);
             Files.move(tempPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+            if (finalizer.heartbeatPath != null && Files.exists(finalizer.heartbeatPath)) {
+                Files.writeString(finalizer.heartbeatPath, HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER);
+            }
             return HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(finalizer.readOwnerFallback(targetPath));
         } catch (final IOException e) {
             return false;
@@ -274,6 +294,28 @@ public class FileChannelLock implements Closeable, ILock {
                 Files.deleteIfExists(tempPath);
             } catch (final IOException ignored) {
             }
+        }
+    }
+
+    /**
+     * No claim, no lock: release everything this attempt took and record why. A more specific reason set by the
+     * takeover decision (a claim owned by another MACHINE) is kept rather than overwritten, because that distinction
+     * is exactly what an operator needs when a key refuses to move.
+     */
+    private boolean refuseClaim() {
+        if (!"CLAIM_HELD_BY_OTHER_MACHINE".equals(lastTryLockFailureReason)) {
+            lastTryLockFailureReason = "CLAIM_MOVE_FAILED";
+        }
+        unlock();
+        return false;
+    }
+
+    /** The owner a leftover states: the claim first, its heartbeat sibling when the claim cannot be read. */
+    private String readExistingOwner(final Path targetPath) {
+        try {
+            return finalizer.readOwnerFallback(targetPath);
+        } catch (final IOException e) {
+            return null;
         }
     }
 

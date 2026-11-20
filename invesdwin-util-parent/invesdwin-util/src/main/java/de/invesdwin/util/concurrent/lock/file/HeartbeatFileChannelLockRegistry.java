@@ -255,6 +255,38 @@ public final class HeartbeatFileChannelLockRegistry {
      * instance of this JVM holds this lock file, i.e. the beating lock is a local ghost and not a remote process
      * working on the update.
      */
+    /**
+     * Does the given owner string name a claim made by THIS machine (by any JVM on it, including one that has died)?
+     * <p>
+     * The owner shape is {@code <pid>@<host>_<uuid>}. The OS file lock can only be authoritative about processes on
+     * this host, so this is the boundary of the killed-holder takeover: a claim left by ANOTHER machine keeps relying
+     * on the heartbeat timeout, because remote file locking may be unreliable or machine-scoped and must not be
+     * second-guessed by a local lock table.
+     */
+    public static boolean isClaimOwnedByThisMachine(final String owner) {
+        final String otherHost = hostOfOwner(owner);
+        final String ownHost = hostOfOwner(HEARTBEAT_OWNER);
+        return otherHost != null && ownHost != null && otherHost.equals(ownHost);
+    }
+
+    /** The host part of an owner string, or null when it is not in owner form. */
+    private static String hostOfOwner(final String owner) {
+        if (owner == null) {
+            return null;
+        }
+        final String trimmed = owner.trim();
+        final int at = trimmed.indexOf('@');
+        if (at < 0 || at == trimmed.length() - 1) {
+            return null;
+        }
+        //the join to the UUID is the LAST underscore: a UUID carries no underscores, a hostname may
+        final int join = trimmed.lastIndexOf('_');
+        if (join <= at) {
+            return trimmed.substring(at + 1);
+        }
+        return trimmed.substring(at + 1, join);
+    }
+
     public static boolean isLockClaimedByThisJvm(final File lockPath) {
         final String lockOwner = Files.readFileToStringNoThrow(lockPath, Charsets.defaultCharset());
         if (lockOwner != null) {

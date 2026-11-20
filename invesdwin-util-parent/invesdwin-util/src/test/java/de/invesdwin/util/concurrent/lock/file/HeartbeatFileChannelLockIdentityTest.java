@@ -155,7 +155,7 @@ public class HeartbeatFileChannelLockIdentityTest {
     public void testAFreshLeftoverClaimOfADeadHolderIsStolenUnderTheOsLock() throws Exception {
         final File lockFile = new File(tempDir, "killed-holder.lock");
         //the state a dead process leaves: claim present, mtime NOW, owner some other JVM
-        java.nio.file.Files.writeString(lockFile.toPath(), "99999@some-other-jvm");
+        java.nio.file.Files.writeString(lockFile.toPath(), aDeadHolderOnThisMachine());
         Assertions.assertThat(lockFile.lastModified())
                 .as("the leftover claim must look fresh, that is the whole point")
                 .isGreaterThan(FDateMillis.nowMillis() - 60000L);
@@ -179,6 +179,41 @@ public class HeartbeatFileChannelLockIdentityTest {
         Assertions.assertThat(new HeartbeatFileChannelLock(lockFile).tryLock())
                 .as("and after the holder released, the next acquirer takes it as a matter of course")
                 .isTrue();
+    }
+
+    /**
+     * The boundary of the takeover, and the reason it is host-scoped: a leftover claim from ANOTHER machine, fresh
+     * by mtime and with a fresh heartbeat, must keep being refused. On shared storage a granted LOCAL file lock is
+     * not evidence about a remote holder - remote locking can be unreliable, absent, or scoped per client - so there
+     * the heartbeat timeout remains the only authority. This cell is what stops the takeover from becoming a way to
+     * preempt a live writer on another node.
+     */
+    @Test
+    public void testAFreshClaimOfAnotherMachineIsNeverPreemptedByALocalOsGrant() throws Exception {
+        final File lockFile = new File(tempDir, "remote-holder.lock");
+        java.nio.file.Files.writeString(lockFile.toPath(), "4242@some-other-host_"
+                + java.util.UUID.randomUUID());
+        final File heartbeatFile = new File(tempDir, "remote-holder.heartbeat");
+        java.nio.file.Files.writeString(heartbeatFile.toPath(), "4242@some-other-host_"
+                + java.util.UUID.randomUUID());
+
+        final HeartbeatFileChannelLock acquirer = new HeartbeatFileChannelLock(lockFile);
+        try {
+            Assertions.assertThat(acquirer.tryLock())
+                    .as("a remote machine's fresh claim must survive a local OS grant")
+                    .isFalse();
+            Assertions.assertThat(acquirer.getLastTryLockFailureReason())
+                    .as("and the refusal must name the host boundary as the reason, not an accident")
+                    .isEqualTo("CLAIM_HELD_BY_OTHER_MACHINE");
+        } finally {
+            acquirer.close();
+        }
+    }
+
+    /** The owner string of a JVM on THIS machine that is no longer alive. */
+    private static String aDeadHolderOnThisMachine() {
+        final String own = HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER;
+        return "99999" + own.substring(own.indexOf('@'));
     }
 
     @NotThreadSafe
