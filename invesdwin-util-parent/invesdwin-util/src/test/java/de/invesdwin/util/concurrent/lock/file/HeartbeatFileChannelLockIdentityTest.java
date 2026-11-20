@@ -11,6 +11,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Files;
+import de.invesdwin.util.time.date.millis.FDateMillis;
 
 /**
  * The registry entry of a lock file belongs to the instance that acquired it, and only that instance may take it away.
@@ -135,6 +136,50 @@ public class HeartbeatFileChannelLockIdentityTest {
         }
     }
 
+
+    /**
+     * The killed-holder state, modelled directly: a claim file that is PRESENT, freshly touched, and owned by someone
+     * else - which is exactly what a `kill -9`, an OOM kill or a surefire fork timeout leaves behind, because the OS
+     * reclaims the file lock when the process dies but nothing removes the claim.
+     * <p>
+     * The mtime rule in tryStealOrVerifyLock cannot tell that from a live writer's claim, so before this fix the key
+     * stayed unclaimable for the full HEARTBEAT_TIMEOUT (two minutes) after every killed holder - measured downstream
+     * as the timeseriesdb update lock refusing every later attempt of the same key while the file lock was
+     * demonstrably free, which is one of the shapes behind a parallel suite parking on retry exhaustion.
+     * <p>
+     * The rule this pins: when the OS itself grants us the file lock, the claim's mtime is no longer evidence of
+     * anything - a live owner would have blocked the grant - so the claim is taken by replace-and-verify. The safety
+     * half of that is the cell above: a LIVE holder still blocks the acquirer, because the OS grant fails there.
+     */
+    @Test
+    public void testAFreshLeftoverClaimOfADeadHolderIsStolenUnderTheOsLock() throws Exception {
+        final File lockFile = new File(tempDir, "killed-holder.lock");
+        //the state a dead process leaves: claim present, mtime NOW, owner some other JVM
+        java.nio.file.Files.writeString(lockFile.toPath(), "99999@some-other-jvm");
+        Assertions.assertThat(lockFile.lastModified())
+                .as("the leftover claim must look fresh, that is the whole point")
+                .isGreaterThan(FDateMillis.nowMillis() - 60000L);
+        Assertions.assertThat(HeartbeatFileChannelLockRegistry.hasLiveLocalInstance(lockFile))
+                .as("and this JVM must have no live instance owning it")
+                .isFalse();
+
+        final HeartbeatFileChannelLock acquirer = new HeartbeatFileChannelLock(lockFile);
+        try {
+            Assertions.assertThat(acquirer.tryLock())
+                    .as("with the OS lock free, a fresh leftover claim must not wedge the key: "
+                            + acquirer.getLastTryLockFailureReason())
+                    .isTrue();
+            Assertions.assertThat(Files.readFileToString(lockFile).trim())
+                    .as("the stolen claim must now name this JVM")
+                    .isEqualTo(HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER);
+        } finally {
+            acquirer.close();
+        }
+
+        Assertions.assertThat(new HeartbeatFileChannelLock(lockFile).tryLock())
+                .as("and after the holder released, the next acquirer takes it as a matter of course")
+                .isTrue();
+    }
 
     @NotThreadSafe
     private static final class Holder {

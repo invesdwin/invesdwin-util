@@ -172,6 +172,10 @@ public class FileChannelLock implements Closeable, ILock {
             if (finalizer.heartbeatEnabled) {
                 // The logical lock is the absolute source of truth across a shared filesystem.
                 // If we didn't successfully create or steal the logical file, we MUST fail.
+                //A leftover claim of a DEAD holder is not evidence of a live writer: see claimUnderOsLock().
+                if (!moveSucceeded) {
+                    moveSucceeded = claimUnderOsLock(targetPath);
+                }
                 if (!moveSucceeded) {
                     lastTryLockFailureReason = "CLAIM_MOVE_FAILED";
                     unlock();
@@ -230,6 +234,47 @@ public class FileChannelLock implements Closeable, ILock {
             }
         }
         return moveSucceeded;
+    }
+
+    /**
+     * Publishing the claim while this instance holds the OS lock on the same file: replace and verify, rather than
+     * the create-only move that refuses when a leftover claim file already sits there. Only ever called with
+     * {@code finalizer.fileLock != null}, i.e. when the OS itself has just told us nobody alive owns this file.
+     */
+    /**
+     * Taking the claim when, and only when, this instance already holds the OS file lock.
+     * <p>
+     * The mtime rule in tryStealOrVerifyLock cannot tell a fresh claim of a LIVE writer from the leftover of a killed
+     * one - a kill -9, an OOM kill, a surefire fork timeout or a stopped hung test all leave the claim file present,
+     * recently touched and owned by another JVM, while the OS has quietly reclaimed its file lock. Before this, every
+     * later acquirer refused that key for the full HEARTBEAT_TIMEOUT (two minutes), which is one of the shapes behind
+     * a parallel suite parking on retry exhaustion; the timeseriesdb cross-process cell measured it (reason
+     * CLAIM_MOVE_FAILED with the file lock demonstrably free). An OS grant is direct evidence that no live process on
+     * this host owns the file, so the claim is then published by replace-and-verify.
+     * <p>
+     * Residual, stated rather than hidden: on a shared filesystem with unreliable locking, a free LOCAL lock proves
+     * nothing about a REMOTE holder - that case keeps relying on the mtime rule, unchanged.
+     */
+    private boolean claimUnderOsLock(final Path targetPath) {
+        if (finalizer.fileLock == null) {
+            //no OS grant, so the claim's own staleness rule is the only evidence available - do not weaken it
+            return false;
+        }
+        final Path tempPath = targetPath.resolveSibling(Files.setExtensionNormalizeFileName(
+                targetPath.getFileName().toString(), AtomicNioFileChannelContext.TMP_SUFFIX));
+        try {
+            Files.createDirectories(tempPath.getParent());
+            Files.writeString(tempPath, HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER);
+            Files.move(tempPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+            return HeartbeatFileChannelLockRegistry.HEARTBEAT_OWNER.equals(finalizer.readOwnerFallback(targetPath));
+        } catch (final IOException e) {
+            return false;
+        } finally {
+            try {
+                Files.deleteIfExists(tempPath);
+            } catch (final IOException ignored) {
+            }
+        }
     }
 
     private boolean tryStealOrVerifyLock(final Path targetPath, final Path tempPath, final String lockContent) {
