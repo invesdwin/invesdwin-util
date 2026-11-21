@@ -3,6 +3,7 @@ package de.invesdwin.util.swing;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
@@ -50,6 +51,9 @@ public final class Components {
 
     private static final long COMPONENT_MINSIZE_FIELD_OFFSET;
     private static final long COMPONENT_MINSIZESET_FIELD_OFFSET;
+
+    private static final String ABBREVIATION_MARKER = "...";
+    private static final int MIN_ABBREVIATED_CHARS = ABBREVIATION_MARKER.length() + 2;
 
     static {
         final Field minSizeField = Reflections.findField(Component.class, "minSize");
@@ -397,6 +401,46 @@ public final class Components {
         if (component.getSelectionEnd() != selectionEnd) {
             component.setSelectionEnd(selectionEnd);
         }
+    }
+
+    /**
+     * Abbreviates only what is displayed - the text is never changed in place, so the
+     * caller can keep the full string (tooltip, log, model). The middle is cut
+     * (leading part + marker + trailing part) so a meaningful suffix like
+     * " (N%) | ETA: ..." stays visible. A maxWidth of 0 means the layout is not known
+     * yet and returns the text unchanged.
+     */
+    public static String abbreviateToFit(final JComponent component, final String text, final int maxWidth) {
+        if (maxWidth <= 0) {
+            return text;
+        }
+        final FontMetrics fontMetrics = component.getFontMetrics(component.getFont());
+        if (fontMetrics.stringWidth(text) <= maxWidth) {
+            return text;
+        }
+        //largest char count whose abbreviated form fits - every candidate is measured
+        //as the exact string that will be returned, so no monotonicity is assumed
+        int low = MIN_ABBREVIATED_CHARS;
+        int high = text.length() - 1;
+        while (low < high) {
+            final int mid = (low + high + 1) / 2;
+            if (fontMetrics.stringWidth(abbreviateMiddle(text, mid)) <= maxWidth) {
+                low = mid;
+            } else {
+                high = mid - 1;
+            }
+        }
+        return abbreviateMiddle(text, low);
+    }
+
+    private static String abbreviateMiddle(final String text, final int maxChars) {
+        if (text.length() <= maxChars) {
+            return text;
+        }
+        final int content = maxChars - ABBREVIATION_MARKER.length();
+        final int prefix = (content + 1) / 2;
+        final int suffix = content - prefix;
+        return text.substring(0, prefix) + ABBREVIATION_MARKER + text.substring(text.length() - suffix);
     }
 
 }
