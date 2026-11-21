@@ -1,6 +1,7 @@
 package de.invesdwin.util.concurrent.graph;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -100,6 +101,120 @@ class WaitForGraphTest {
         done.await(5, java.util.concurrent.TimeUnit.SECONDS);
         Assertions.checkFalse(cycle[0], "a foreign pin without a path back to the task is not a cycle");
         pool.shutdownNow();
+    }
+
+    /**
+     * The queue's two edges, taken together. Topology (the precalculated / pts fork-dump shape): the consumer thread C
+     * holds a store key's write lock and polls its queue for the next element, while the producer thread P - the task
+     * that would deliver that element - is blocked demanding the same store key. C's wait edge on the queue and the
+     * queue's producer identity are BOTH needed for the cycle to close: with only one of them, each side waits and the
+     * cycle checks at ALazyDataUpdater/ATimeSeriesUpdater answer "no cycle" forever.
+     */
+    @Test
+    void queueEdgesCloseTheCycleBetweenAConsumerAndItsProducer() throws InterruptedException {
+        final String storeKey = WaitForGraph.newKey("TimeSeriesDB_pre", "E");
+        final String queueKey = "queue:pre@" + Integer.toHexString(System.identityHashCode(storeKey));
+        final WrappedExecutorService pool = Executors.newFixedThreadPool("WaitForGraphTest", 1);
+        try {
+            //consumer side: this thread holds the store key and waits on the queue
+            WaitForGraph.lockAcquired(storeKey);
+            WaitForGraph.registerQueueConsumer(queueKey);
+            WaitForGraph.beginWait(queueKey);
+
+            final CountDownLatch checked = new CountDownLatch(1);
+            final boolean[] producerSawCycle = new boolean[1];
+            pool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    WaitForGraph.registerQueueProducer(queueKey);
+                    producerSawCycle[0] = WaitForGraph.wouldCloseCycle(storeKey);
+                    checked.countDown();
+                }
+            });
+            Assertions.checkTrue(checked.await(5, TimeUnit.SECONDS), "the producer check must complete");
+            Assertions.checkTrue(producerSawCycle[0],
+                    "the producer demanding the key held by its own consumer must see the cycle; graph: "
+                            + WaitForGraph.describeCycle(storeKey));
+            Assertions.checkTrue(WaitForGraph.wouldCloseCycle(queueKey),
+                    "and the same cycle must be visible from the consumer's side of the queue");
+        } finally {
+            WaitForGraph.endWait(queueKey);
+            WaitForGraph.lockReleased(storeKey);
+            pool.shutdownNow();
+        }
+    }
+
+    /**
+     * The consumer edge on its own must NOT report a cycle - the producer identity is what closes it. Pinned so a
+     * half-applied fix (one edge registered, the other forgotten) cannot pass the cell above by accident.
+     */
+    @Test
+    void aConsumerQueueEdgeWithoutAProducerIdentityIsNotACycle() throws InterruptedException {
+        final String storeKey = WaitForGraph.newKey("TimeSeriesDB_half", "H");
+        final String queueKey = "queue:half@" + Integer.toHexString(System.identityHashCode(storeKey));
+        final WrappedExecutorService pool = Executors.newFixedThreadPool("WaitForGraphTest", 1);
+        try {
+            WaitForGraph.lockAcquired(storeKey);
+            WaitForGraph.registerQueueConsumer(queueKey);
+            WaitForGraph.beginWait(queueKey);
+
+            final CountDownLatch checked = new CountDownLatch(1);
+            final boolean[] sawCycle = new boolean[1];
+            pool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    //no registerQueueProducer here on purpose
+                    sawCycle[0] = WaitForGraph.wouldCloseCycle(storeKey);
+                    checked.countDown();
+                }
+            });
+            Assertions.checkTrue(checked.await(5, TimeUnit.SECONDS), "the check must complete");
+            Assertions.checkFalse(sawCycle[0],
+                    "without the queue's producer edge the walk cannot return to the requesting thread");
+        } finally {
+            WaitForGraph.endWait(queueKey);
+            WaitForGraph.lockReleased(storeKey);
+            pool.shutdownNow();
+        }
+    }
+
+    /**
+     * No false positive: a queue whose producer waits on a key held by an unrelated, non-waiting thread is not a cycle,
+     * so the new edges must not start refusing healthy waits.
+     */
+    @Test
+    void aProducerWaitingOnAnUnrelatedHolderIsNotReportedAsACycle() throws InterruptedException {
+        final String storeKey = WaitForGraph.newKey("TimeSeriesDB_unrelated", "U");
+        final String queueKey = "queue:unrelated@" + Integer.toHexString(System.identityHashCode(storeKey));
+        final CountDownLatch holderInside = new CountDownLatch(1);
+        final CountDownLatch releaseHolder = new CountDownLatch(1);
+        final Thread holder = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                WaitForGraph.lockAcquired(storeKey);
+                holderInside.countDown();
+                try {
+                    releaseHolder.await(5, TimeUnit.SECONDS);
+                } catch (final InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                WaitForGraph.lockReleased(storeKey);
+            }
+        }, "unrelated-lock-holder");
+        holder.start();
+        Assertions.checkTrue(holderInside.await(5, TimeUnit.SECONDS), "precondition: an unrelated thread holds the key");
+        try {
+            //a consumer waiting on its queue, and a producer that wants a key held by someone with no waits of its own
+            WaitForGraph.registerQueueConsumer(queueKey);
+            WaitForGraph.beginWait(queueKey);
+            WaitForGraph.registerQueueProducer(queueKey);
+            Assertions.checkFalse(WaitForGraph.wouldCloseCycle(storeKey),
+                    "the queue's edges must not turn a healthy wait for an unrelated holder into a cycle");
+        } finally {
+            WaitForGraph.endWait(queueKey);
+            releaseHolder.countDown();
+            holder.join(5000L);
+        }
     }
 
 }
