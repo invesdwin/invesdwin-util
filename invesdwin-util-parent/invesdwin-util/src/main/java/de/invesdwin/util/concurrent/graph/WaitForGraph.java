@@ -44,11 +44,14 @@ public final class WaitForGraph {
         private volatile Thread taskThread;
         private volatile Thread taskSubmitter;
         private volatile Thread queueConsumer;
+        //the thread that FEEDS this queue: without this edge the graph cannot close a cycle that runs through an
+        //EMPTY queue (a consumer parked on the queue while its producer waits for a lock that consumer holds)
+        private volatile Thread queueProducer;
         private final Set<Thread> joiners = ILockCollectionFactory.getInstance(true).newConcurrentSet();
 
         boolean isEmpty() {
             return pinOwner == null && lockOwner == null && taskThread == null && queueConsumer == null
-                    && joiners.isEmpty();
+                    && queueProducer == null && joiners.isEmpty();
         }
     }
 
@@ -154,6 +157,20 @@ public final class WaitForGraph {
         mutate(queueKey, false, state -> state.queueConsumer = null);
     }
 
+    /**
+     * The thread that delivers into this queue. Pairs with {@link #registerQueueConsumer(String)}: the consumer's wait
+     * edge on an empty queue only becomes traversable if the queue also names who will feed it, which is the edge that
+     * closes the cycle in the precalculated shape (updater holds the store write lock and polls for the next element,
+     * while the task producing that element is blocked demanding the same lock).
+     */
+    public static void registerQueueProducer(final String queueKey) {
+        mutate(queueKey, true, state -> state.queueProducer = Thread.currentThread());
+    }
+
+    public static void unregisterQueueProducer(final String queueKey) {
+        mutate(queueKey, false, state -> state.queueProducer = null);
+    }
+
     public static String serviceKeyOf(final Thread taskThread) {
         for (final Map.Entry<String, KeyState> entry : RESOURCES.entrySet()) {
             if (taskThread.equals(entry.getValue().taskThread)) {
@@ -210,6 +227,8 @@ public final class WaitForGraph {
                 || walkThreadPath(state.taskThread, self, visitedKeys, visitedThreads, 0, true, key, path,
                         cyclePathOut)
                 || walkThreadPath(state.queueConsumer, self, visitedKeys, visitedThreads, 0, true, key, path,
+                        cyclePathOut)
+                || walkThreadPath(state.queueProducer, self, visitedKeys, visitedThreads, 0, true, key, path,
                         cyclePathOut);
     }
 
@@ -230,6 +249,8 @@ public final class WaitForGraph {
                     || walkThreadPath(state.taskThread, self, visitedKeys, visitedThreads, depth, false, key, path,
                             cyclePathOut)
                     || walkThreadPath(state.queueConsumer, self, visitedKeys, visitedThreads, depth, false, key, path,
+                            cyclePathOut)
+                    || walkThreadPath(state.queueProducer, self, visitedKeys, visitedThreads, depth, false, key, path,
                             cyclePathOut);
         }
         if (!found) {
@@ -382,11 +403,12 @@ public final class WaitForGraph {
     }
 
     private static List<Thread> ownersOf(final KeyState state) {
-        final List<Thread> owners = new ArrayList<>(4);
+        final List<Thread> owners = new ArrayList<>(6);
         addOwner(owners, state.pinOwner);
         addOwner(owners, state.lockOwner);
         addOwner(owners, state.taskThread);
         addOwner(owners, state.queueConsumer);
+        addOwner(owners, state.queueProducer);
         return owners;
     }
 
@@ -406,7 +428,8 @@ public final class WaitForGraph {
             final KeyState state = entry.getValue();
             out.append("  key[").append(entry.getKey()).append("] pin=").append(threadOf(state.pinOwner))
                     .append(" lock=").append(threadOf(state.lockOwner)).append(" task=").append(threadOf(state.taskThread))
-                    .append(" queue=").append(threadOf(state.queueConsumer)).append("\n");
+                    .append(" queue=").append(threadOf(state.queueConsumer))
+                    .append(" producer=").append(threadOf(state.queueProducer)).append("\n");
         }
         for (final Map.Entry<Thread, Set<String>> entry : WAIT_ON.entrySet()) {
             out.append("  waits ").append(threadOf(entry.getKey())).append(" -> ").append(entry.getValue())
@@ -453,6 +476,7 @@ public final class WaitForGraph {
         describeThread("lock", state.lockOwner, self, visitedKeys, visitedThreads, sb);
         describeThread("task", state.taskThread, self, visitedKeys, visitedThreads, sb);
         describeThread("queue", state.queueConsumer, self, visitedKeys, visitedThreads, sb);
+        describeThread("producer", state.queueProducer, self, visitedKeys, visitedThreads, sb);
     }
 
     private static void describeThread(final String role, final Thread owner, final Thread self,

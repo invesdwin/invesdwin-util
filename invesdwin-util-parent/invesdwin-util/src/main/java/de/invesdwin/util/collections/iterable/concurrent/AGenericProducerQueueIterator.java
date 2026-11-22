@@ -39,6 +39,9 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
 
         @Override
         public void run() {
+            //this thread FEEDS the queue. The graph needs that as an edge: a consumer parked on an empty queue is only
+            //traversable back to the producer that is supposed to serve it if the queue says who that producer is
+            WaitForGraph.registerQueueProducer(graphQueueKey);
             try {
                 final Consumer<E> consumer = new Consumer<E>() {
                     @Override
@@ -56,6 +59,7 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
                 //closing does not prevent queue from getting drained completely
                 finalizer.close();
                 internalCloseProducer();
+                WaitForGraph.unregisterQueueProducer(graphQueueKey);
             }
         }
 
@@ -227,6 +231,12 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
     private E readNext() {
         //the thread calling readNext is the queue's consumer (drain edge target in the wait-for graph)
         WaitForGraph.registerQueueConsumer(graphQueueKey);
+        //and this is the consumer's WAIT edge on that queue. Before it, the graph only knew the producer-side wait (the
+        //queue being full). A thread holding a store's write lock while polling for the next element, with the task
+        //that would deliver it blocked demanding that same lock, was therefore invisible to the cycle check at
+        //ALazyDataUpdater/ATimeSeriesUpdater - both sides waited, nothing was ever reported as cyclic, and the run died
+        //at the runner's fork timeout with a dump nobody had asked for
+        WaitForGraph.beginWait(graphQueueKey);
         try {
             boolean firstPoll = true;
             while (hasNext()) {
@@ -248,6 +258,8 @@ public abstract class AGenericProducerQueueIterator<E> extends ACloseableIterato
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             return null;
+        } finally {
+            WaitForGraph.endWait(graphQueueKey);
         }
         return null;
     }
