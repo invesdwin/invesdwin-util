@@ -19,6 +19,7 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.concurrent.future.internal.AFuturesStaticFacade;
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.time.date.millis.FDateMillis;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FTimeUnit;
@@ -28,6 +29,12 @@ import de.invesdwin.util.time.duration.Duration;
 @StaticFacadeDefinition(name = "de.invesdwin.util.concurrent.future.internal.AFuturesStaticFacade", targets = {
         com.google.common.util.concurrent.Futures.class })
 public final class Futures extends AFuturesStaticFacade {
+
+    /**
+     * Default bound for a collecting batch join, sized from the measured normal (a 24-unit reference matrix completes in
+     * about 5 minutes at 05:0x CET) against the surefire fork ceiling of 30 minutes in invesdwin-bom.
+     */
+    public static final Duration BATCH_JOIN_DEADLINE_DEFAULT = new Duration(15, FTimeUnit.MINUTES);
 
     @SuppressWarnings("rawtypes")
     public static final FutureTask[] FUTURETASK_EMPTY_ARRAY = new FutureTask[0];
@@ -724,34 +731,67 @@ public final class Futures extends AFuturesStaticFacade {
     //////////// WAIT ALL, COLLECTING FAILURES
 
     /**
-     * Awaits every future and reports all failures together instead of only the first one, cancelling nothing: a task that
-     * has not started yet still gets to run.
+     * Awaits every future of a batch and reports all failures together instead of only the first one, bounded by
+     * {@link #BATCH_JOIN_DEADLINE_DEFAULT}; the contract is on
+     * {@link #waitAllCollectingFailures(Iterable, Object, Duration)}.
+     */
+    public static <T> void waitAllCollectingFailures(final Iterable<? extends Future<? extends T>> futures,
+            final Object batchLabel) {
+        waitAllCollectingFailures(futures, batchLabel, BATCH_JOIN_DEADLINE_DEFAULT);
+    }
+
+    /**
+     * Awaits every future of a batch and reports all failures together instead of only the first one.
      * <p>
      * The aggregate {@code wait*} families above share one policy — on the first failure {@link #cancelAndJoin} cancels and
      * joins the rest. That is right for interchangeable tasks and wrong for a caller whose answer includes HOW MANY units
-     * failed. Measured on a 24-unit reference matrix: joining one unit per column with
+     * failed. Measured on a 24-unit reference matrix: joining the columns with
      * {@link #waitPropagatingNoInterrupt(Iterable)} reported 24 of 24 units completed when nothing threw and 18 to 22 once a
-     * single unit raised a supply refusal — the difference is units that never ran at all, so the run could not say how wide
-     * the failure was and left their result artifacts missing.
+     * single unit raised a supply refusal — the gap is units that never ran, so the run could not say how wide the failure
+     * was and left their result artifacts missing. Measured across the suites that use this form: every batch there holds 2,
+     * 4 or 24 units, so the cancelled siblings are real units rather than an empty list.
      * <p>
      * One failure is rethrown unchanged, so a caller catching by type still sees the task's own exception. Two or more give
      * one aggregate whose message counts them ("N of M") and lists each failure, with every failure attached as a suppressed
      * cause so each stack stays visible.
      * <p>
-     * A FAILED task cancels nothing: a sibling that is still running when the join reaches it is awaited to completion, and
-     * one that has not started yet still runs. A master INTERRUPT is the deliberate exception — the awaited-one contract
-     * cancels and joins each remaining future instead of blocking on it (see {@link #cancelAndJoin}), so this method always
-     * terminates and no task body is left unwinding behind the caller. Every interruption is still collected, and the
-     * interrupt flag is left armed for the caller.
+     * A FAILED task cancels nothing: a sibling still running when the join reaches it is awaited to completion, and one not
+     * started yet still runs. That is the point — and it is also what the old eager policy guarded against by accident,
+     * since {@code cancel(true)} interrupted a stuck body. Hence the deadline: a future that has not completed within the
+     * remaining budget is cancelled and then joined (a cancel must be followed by a join, so no body is left unwinding
+     * behind the caller) and reported as a named non-completion. A lone non-completion still becomes the aggregate — "did
+     * not finish in time" is a different claim from "failed", and a caller catching by type must not be handed the latter.
+     * The budget is for the batch, not per future, so a future awaited late in a slow batch gets the remaining slice; size
+     * it above the measured normal and below the surefire fork timeout, because a fork that dies on
+     * {@code forkedProcessTimeoutInSeconds} reports no tally at all. A master INTERRUPT behaves the same way: each remaining
+     * future is cancelled-and-joined, every interruption is collected, and the flag is left armed.
      */
     public static <T> void waitAllCollectingFailures(final Iterable<? extends Future<? extends T>> futures,
-            final Object batchLabel) {
+            final Object batchLabel, final Duration deadline) {
         final List<Throwable> failures = new ArrayList<>();
         int total = 0;
+        int incomplete = 0;
+        final long endMillis = FDateMillis.nowMillis() + deadline.millisValue();
         for (final Future<? extends T> future : futures) {
             total++;
+            final long remainingMillis = endMillis - FDateMillis.nowMillis();
             try {
-                waitPropagating(future);
+                if (future.isDone()) {
+                    //a future that already finished costs nothing, deadline or not: its outcome is the answer
+                    waitPropagating(future);
+                } else if (remainingMillis <= 0) {
+                    throw new TimeoutException("the batch deadline of " + deadline
+                            + " passed while this future was still running");
+                } else {
+                    waitPropagating(future, new Duration(remainingMillis, FTimeUnit.MILLISECONDS));
+                }
+            } catch (final TimeoutException e) {
+                incomplete++;
+                //a future that will not finish must not hold the report hostage: cancel it, join the body, and name it
+                final RuntimeException notCompleted = new RuntimeException("future " + total + " of " + batchLabel
+                        + " was still running when the batch deadline of " + deadline + " passed", e);
+                cancelAndJoin(future, notCompleted);
+                failures.add(notCompleted);
             } catch (final Throwable t) {
                 //the number of failures is part of the answer, so one failure must not end the join
                 failures.add(t);
@@ -764,11 +804,11 @@ public final class Futures extends AFuturesStaticFacade {
         if (failures.isEmpty()) {
             return;
         }
-        if (failures.size() == 1) {
+        if (failures.size() == 1 && incomplete == 0) {
             throw Throwables.propagate(failures.get(0));
         }
         final StringBuilder builder = new StringBuilder(batchLabel + ": " + failures.size() + " of " + total
-                + " futures failed");
+                + " futures failed" + (incomplete > 0 ? " (" + incomplete + " did not complete within " + deadline + ")" : ""));
         for (final Throwable failure : failures) {
             builder.append("\n  - ").append(Throwables.getMessagesAndStackTraceIfDebugEnabled(failure));
         }
