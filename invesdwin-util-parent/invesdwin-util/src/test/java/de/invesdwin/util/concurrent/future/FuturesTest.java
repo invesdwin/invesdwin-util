@@ -19,6 +19,9 @@ import org.junit.jupiter.api.Test;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
+import de.invesdwin.util.time.date.millis.FDateMillis;
+import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.duration.Duration;
 
 // CHECKSTYLE:OFF
 @NotThreadSafe
@@ -197,6 +200,272 @@ public class FuturesTest {
                             + " returns to its caller, so that no awaited task outlives the master").isTrue();
             Assertions.assertThat(interruptedTasks.get()).describedAs(
                     "the task body must have received the cancel interrupt").isEqualTo(1);
+        } finally {
+            executor.shutdownNow();
+            executor.awaitTermination(TERMINATION_SECONDS, TimeUnit.SECONDS);
+        }
+    }
+
+    /**
+     * The collecting join's whole point: every failure is reported and no sibling is cancelled. The aggregate
+     * {@code wait*} families cancel-and-join on the first failure, which turns one unit's verdict into a batch-wide abort —
+     * measured on a 24-unit reference matrix, where a joining call reported 18-22 units completed instead of 24 because the
+     * surviving units never ran.
+     */
+    @Test
+    public void testWaitAllCollectingFailuresReportsEveryFailureAndCancelsNoSibling() throws Exception {
+        final WrappedExecutorService executor = Executors.newCachedThreadPool("FuturesTest-collect");
+        try {
+            final RuntimeException first = new RuntimeException("FuturesTest-collect-1");
+            final RuntimeException second = new RuntimeException("FuturesTest-collect-2");
+            final CountDownLatch slowStarted = new CountDownLatch(1);
+            final AtomicBoolean slowFinished = new AtomicBoolean();
+            final List<Future<?>> futures = new ArrayList<>();
+            futures.add(submitTracked(executor, () -> {
+                throw first;
+            }));
+            futures.add(submitTracked(executor, () -> {
+                throw second;
+            }));
+            futures.add(submitTracked(executor, () -> {
+                slowStarted.countDown();
+                try {
+                    TimeUnit.MILLISECONDS.sleep(200);
+                } catch (final InterruptedException e) {
+                    //the join must not interrupt this body; if it ever does, slowFinished stays false and the cell fails
+                    return;
+                }
+                slowFinished.set(true);
+            }));
+            Assertions.assertThat(slowStarted.await(START_WAIT_SECONDS, TimeUnit.SECONDS)).describedAs(
+                    "the slow sibling must be running while the two failures are collected").isTrue();
+            Throwable caught = null;
+            try {
+                Futures.waitAllCollectingFailures(futures, "reference matrix");
+            } catch (final Throwable t) {
+                caught = t;
+            }
+            Assertions.assertThat(caught).describedAs("a batch with failures must not pass").isNotNull();
+            Assertions.assertThat(caught.getMessage()).describedAs(
+                    "the aggregate names the batch and counts the failures: " + caught.getMessage()).contains(
+                            "reference matrix").contains("2 of 3");
+            Assertions.assertThat(caught.getSuppressed()).describedAs(
+                    "every failure stays attached so each stack is visible").hasSize(2);
+            Assertions.assertThat(slowFinished.get()).describedAs(
+                    "the running sibling must be allowed to finish instead of being cancelled").isTrue();
+            for (final Future<?> future : futures) {
+                Assertions.assertThat(future.isCancelled()).describedAs(
+                        "the collecting join must never cancel").isFalse();
+            }
+        } finally {
+            executor.shutdownNow();
+            executor.awaitTermination(TERMINATION_SECONDS, TimeUnit.SECONDS);
+        }
+    }
+
+    /**
+     * One failure is rethrown as the task's own exception, not wrapped: callers that catch by type keep working, so the
+     * collecting join changes what happens to the siblings and nothing else.
+     */
+    @Test
+    public void testWaitAllCollectingFailuresRethrowsASingleFailureUnchanged() throws Exception {
+        final WrappedExecutorService executor = Executors.newCachedThreadPool("FuturesTest-single");
+        try {
+            final RuntimeException marker = new RuntimeException("FuturesTest-single-marker");
+            final List<Future<?>> futures = new ArrayList<>();
+            futures.add(submitTracked(executor, () -> {
+                throw marker;
+            }));
+            futures.add(submitTracked(executor, () -> {
+                //a healthy unit
+            }));
+            Throwable caught = null;
+            try {
+                Futures.waitAllCollectingFailures(futures, "reference matrix");
+            } catch (final Throwable t) {
+                caught = t;
+            }
+            Assertions.assertThat(caught).describedAs("the failure must be reported").isNotNull();
+            Assertions.assertThat(caught).describedAs(
+                    "a single failure is the task's own throwable, not an aggregate wrapper").isSameAs(marker);
+            Assertions.assertThat(caught.getSuppressed()).describedAs("nothing to aggregate").isEmpty();
+        } finally {
+            executor.shutdownNow();
+            executor.awaitTermination(TERMINATION_SECONDS, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
+    public void testWaitAllCollectingFailuresOfAnEmptyBatchReturnsNormally() {
+        Futures.waitAllCollectingFailures(new ArrayList<Future<?>>(), "reference matrix");
+    }
+
+    /**
+     * A master interrupt is the one case where this join does unwind its siblings: the awaited-one contract cancels and
+     * joins each remaining future rather than blocking on it, so the collecting join always terminates and leaves no task
+     * body unwinding behind the caller. The interrupt is still reported per future (collected into the aggregate) and the
+     * flag is left armed — contrast with the task-failure cell above, where nothing is cancelled.
+     */
+    @Test
+    public void testWaitAllCollectingFailuresJoinsSiblingsOnMasterInterrupt() throws Exception {
+        final WrappedExecutorService executor = Executors.newCachedThreadPool("FuturesTest-collect-interrupt");
+        try {
+            final CountDownLatch started = new CountDownLatch(3);
+            final AtomicInteger interruptedTasks = new AtomicInteger();
+            final List<Future<?>> futures = new ArrayList<>();
+            futures.add(submitTracked(executor, blockUntilInterrupted(started, interruptedTasks)));
+            futures.add(submitTracked(executor, blockUntilInterrupted(started, interruptedTasks)));
+            futures.add(submitTracked(executor, blockUntilInterrupted(started, interruptedTasks)));
+            final AtomicReference<Throwable> masterThrown = new AtomicReference<>();
+            final AtomicBoolean interruptStillArmed = new AtomicBoolean();
+            final Thread master = new Thread(() -> {
+                try {
+                    Futures.waitAllCollectingFailures(futures, "reference matrix");
+                } catch (final Throwable t) {
+                    masterThrown.set(t);
+                    interruptStillArmed.set(Thread.currentThread().isInterrupted());
+                }
+            }, "FuturesTest-collect-master");
+            master.setDaemon(true);
+            master.start();
+            Assertions.assertThat(started.await(START_WAIT_SECONDS, TimeUnit.SECONDS)).describedAs(
+                    "all three tasks must be running").isTrue();
+            master.interrupt();
+            master.join(MASTER_JOIN_MILLIS);
+            Assertions.assertThat(master.isAlive()).describedAs(
+                    "the interrupted master must not block on the siblings it does not cancel").isFalse();
+            Assertions.assertThat(masterThrown.get()).describedAs("the batch must be reported").isInstanceOf(
+                    RuntimeException.class);
+            Assertions.assertThat(masterThrown.get().getMessage()).describedAs(
+                    "the aggregate counts every interrupted join: " + masterThrown.get().getMessage()).contains(
+                            "3 of 3");
+            Assertions.assertThat(interruptStillArmed.get()).describedAs(
+                    "the master's interrupt flag must still be set when the aggregate is thrown").isTrue();
+            Assertions.assertThat(interruptedTasks.get()).describedAs(
+                    "on a master interrupt the awaited-one contract cancels-and-joins every remaining sibling").isEqualTo(3);
+            boolean allDoneAtThrow = true;
+            for (final Future<?> future : futures) {
+                allDoneAtThrow &= future.isDone();
+            }
+            Assertions.assertThat(allDoneAtThrow).describedAs(
+                    "every sibling must be joined (done) when the aggregate is thrown, not left running").isTrue();
+        } finally {
+            executor.shutdownNow();
+            executor.awaitTermination(TERMINATION_SECONDS, TimeUnit.SECONDS);
+        }
+    }
+
+    /**
+     * A healthy batch has no time bound at all: a slow unit cannot be told apart from a stuck one until something has
+     * already failed, and no budget can be picked for a run nobody has measured. This is the "good case takes as long as
+     * it takes" contract.
+     */
+    @Test
+    public void testWaitAllCollectingFailuresNeverCutsASlowHealthyBatchShort() throws Exception {
+        final WrappedExecutorService executor = Executors.newCachedThreadPool("FuturesTest-healthy-slow");
+        try {
+            final AtomicInteger interruptedTasks = new AtomicInteger();
+            final CountDownLatch slowStarted = new CountDownLatch(1);
+            final AtomicBoolean slowFinished = new AtomicBoolean();
+            final List<Future<?>> futures = new ArrayList<>();
+            futures.add(submitTracked(executor, () -> {
+                //a unit that finishes immediately, so the batch's own elapsed time stays tiny
+                slowStarted.countDown();
+            }));
+            futures.add(submitTracked(executor, () -> {
+                try {
+                    slowStarted.await(START_WAIT_SECONDS, TimeUnit.SECONDS);
+                    TimeUnit.MILLISECONDS.sleep(2000);
+                    slowFinished.set(true);
+                } catch (final InterruptedException e) {
+                    interruptedTasks.incrementAndGet();
+                }
+            }));
+            //a grace far shorter than the slow unit needs: it must be irrelevant, because nothing has failed. This is the
+            //only shape that pins "a healthy batch is never cut short" — with the public 2-arg form the grace is the
+            //fleet's 5 minutes and any bound at all would look the same.
+            Futures.waitAllCollectingFailures(futures, "reference matrix",
+                    new Duration(50, FTimeUnit.MILLISECONDS));
+            Assertions.assertThat(slowFinished.get()).describedAs(
+                    "nothing failed, so the slow unit must be awaited however long it takes").isTrue();
+            Assertions.assertThat(interruptedTasks.get()).describedAs("no unit may be interrupted").isEqualTo(0);
+        } finally {
+            executor.shutdownNow();
+            executor.awaitTermination(TERMINATION_SECONDS, TimeUnit.SECONDS);
+        }
+    }
+
+    /**
+     * Once something HAS failed, a unit that never returns costs the report instead of the whole fork: it is cancelled,
+     * its body joined, and counted as "still running after the first failure" rather than reported as a failure of its
+     * own. The grace is the batch's own elapsed time, so it scales with the batch instead of inventing a number.
+     */
+    @Test
+    public void testWaitAllCollectingFailuresCancelsASiblingThatOverrunsThePostFailureGrace() throws Exception {
+        final WrappedExecutorService executor = Executors.newCachedThreadPool("FuturesTest-grace");
+        try {
+            final RuntimeException marker = new RuntimeException("FuturesTest-grace-marker");
+            final AtomicInteger interruptedTasks = new AtomicInteger();
+            final List<Future<?>> futures = new ArrayList<>();
+            futures.add(submitTracked(executor, () -> {
+                throw marker;
+            }));
+            futures.add(submitTracked(executor, blockUntilInterrupted(new CountDownLatch(1), interruptedTasks)));
+            Throwable caught = null;
+            final long begin = FDateMillis.nowMillis();
+            try {
+                //the package-private form, so the post-failure path is testable without sitting out the fleet's 5 minutes
+                Futures.waitAllCollectingFailures(futures, "reference matrix",
+                        new Duration(500, FTimeUnit.MILLISECONDS));
+            } catch (final Throwable t) {
+                caught = t;
+            }
+            final long elapsed = FDateMillis.nowMillis() - begin;
+            Assertions.assertThat(caught).describedAs("the batch must be reported").isNotNull();
+            Assertions.assertThat(caught.getMessage()).describedAs(
+                    "the report counts the failure and names the cancelled unit: " + caught.getMessage()).contains(
+                            "2 of 2 futures failed").contains("post-failure grace");
+            Assertions.assertThat(elapsed).describedAs(
+                    "the join must not wait out the unit that will never finish (elapsed " + elapsed + " ms)")
+                    .isLessThan(10000L);
+            Assertions.assertThat(interruptedTasks.get()).describedAs(
+                    "the overrunning unit must be cancelled and its body joined").isEqualTo(1);
+        } finally {
+            executor.shutdownNow();
+            executor.awaitTermination(TERMINATION_SECONDS, TimeUnit.SECONDS);
+        }
+    }
+
+    /**
+     * A lone failure whose siblings all complete is still rethrown as the task's own exception — the post-failure grace
+     * must not turn a healthy sibling into a reported cancellation.
+     */
+    @Test
+    public void testWaitAllCollectingFailuresRethrowsOneFailureWhenTheSiblingsFinish() throws Exception {
+        final WrappedExecutorService executor = Executors.newCachedThreadPool("FuturesTest-one-fail");
+        try {
+            final RuntimeException marker = new RuntimeException("FuturesTest-one-fail-marker");
+            final AtomicInteger interruptedTasks = new AtomicInteger();
+            final List<Future<?>> futures = new ArrayList<>();
+            futures.add(submitTracked(executor, () -> {
+                throw marker;
+            }));
+            futures.add(submitTracked(executor, () -> {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(150);
+                } catch (final InterruptedException e) {
+                    interruptedTasks.incrementAndGet();
+                }
+            }));
+            Throwable caught = null;
+            try {
+                Futures.waitAllCollectingFailures(futures, "reference matrix");
+            } catch (final Throwable t) {
+                caught = t;
+            }
+            Assertions.assertThat(caught).describedAs("the failure must be reported").isSameAs(marker);
+            Assertions.assertThat(interruptedTasks.get()).describedAs(
+                    "a sibling that finishes inside its grace is left alone").isEqualTo(0);
         } finally {
             executor.shutdownNow();
             executor.awaitTermination(TERMINATION_SECONDS, TimeUnit.SECONDS);
