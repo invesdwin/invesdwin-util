@@ -721,6 +721,64 @@ public final class Futures extends AFuturesStaticFacade {
         }
     }
 
+    //////////// WAIT ALL, COLLECTING FAILURES
+
+    /**
+     * Awaits every future and reports all failures together instead of only the first one, cancelling nothing: a task that
+     * has not started yet still gets to run.
+     * <p>
+     * The aggregate {@code wait*} families above share one policy — on the first failure {@link #cancelAndJoin} cancels and
+     * joins the rest. That is right for interchangeable tasks and wrong for a caller whose answer includes HOW MANY units
+     * failed. Measured on a 24-unit reference matrix: joining one unit per column with
+     * {@link #waitPropagatingNoInterrupt(Iterable)} reported 24 of 24 units completed when nothing threw and 18 to 22 once a
+     * single unit raised a supply refusal — the difference is units that never ran at all, so the run could not say how wide
+     * the failure was and left their result artifacts missing.
+     * <p>
+     * One failure is rethrown unchanged, so a caller catching by type still sees the task's own exception. Two or more give
+     * one aggregate whose message counts them ("N of M") and lists each failure, with every failure attached as a suppressed
+     * cause so each stack stays visible.
+     * <p>
+     * A FAILED task cancels nothing: a sibling that is still running when the join reaches it is awaited to completion, and
+     * one that has not started yet still runs. A master INTERRUPT is the deliberate exception — the awaited-one contract
+     * cancels and joins each remaining future instead of blocking on it (see {@link #cancelAndJoin}), so this method always
+     * terminates and no task body is left unwinding behind the caller. Every interruption is still collected, and the
+     * interrupt flag is left armed for the caller.
+     */
+    public static <T> void waitAllCollectingFailures(final Iterable<? extends Future<? extends T>> futures,
+            final Object batchLabel) {
+        final List<Throwable> failures = new ArrayList<>();
+        int total = 0;
+        for (final Future<? extends T> future : futures) {
+            total++;
+            try {
+                waitPropagating(future);
+            } catch (final Throwable t) {
+                //the number of failures is part of the answer, so one failure must not end the join
+                failures.add(t);
+                if (Throwables.getCauseByType(t, InterruptedException.class) != null) {
+                    //keep the interrupt armed: without it the next get() would block again and the join could not finish
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+        if (failures.isEmpty()) {
+            return;
+        }
+        if (failures.size() == 1) {
+            throw Throwables.propagate(failures.get(0));
+        }
+        final StringBuilder builder = new StringBuilder(batchLabel + ": " + failures.size() + " of " + total
+                + " futures failed");
+        for (final Throwable failure : failures) {
+            builder.append("\n  - ").append(Throwables.getMessagesAndStackTraceIfDebugEnabled(failure));
+        }
+        final RuntimeException aggregate = new RuntimeException(builder.toString());
+        for (final Throwable failure : failures) {
+            Throwables.addSuppressed(aggregate, failure);
+        }
+        throw aggregate;
+    }
+
     //////////// SUBMIT AND WAIT
 
     public static void submitAndWait(final ExecutorService executor, final Runnable task) throws InterruptedException {
