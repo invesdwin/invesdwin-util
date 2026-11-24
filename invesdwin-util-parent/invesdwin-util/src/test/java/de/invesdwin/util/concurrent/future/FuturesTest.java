@@ -356,82 +356,39 @@ public class FuturesTest {
     }
 
     /**
-     * The bound is what keeps the collecting join from becoming a hang: a future that will not finish is cancelled, its
-     * body joined, and it is named in the report. The old eager policy escaped the same situation only by accident — it
-     * interrupted every sibling — and a fork that dies on `forkedProcessTimeoutInSeconds` reports no tally at all.
+     * A healthy batch has no time bound at all: a slow unit cannot be told apart from a stuck one until something has
+     * already failed, and no budget can be picked for a run nobody has measured. This is the "good case takes as long as
+     * it takes" contract.
      */
     @Test
-    public void testBoundedWaitAllCollectingFailuresCancelsAndJoinsAFutureThatWillNotFinish() throws Exception {
-        final WrappedExecutorService executor = Executors.newCachedThreadPool("FuturesTest-deadline");
+    public void testWaitAllCollectingFailuresNeverCutsASlowHealthyBatchShort() throws Exception {
+        final WrappedExecutorService executor = Executors.newCachedThreadPool("FuturesTest-healthy-slow");
         try {
-            final CountDownLatch started = new CountDownLatch(3);
             final AtomicInteger interruptedTasks = new AtomicInteger();
-            final List<Future<?>> futures = new ArrayList<>();
-            futures.add(submitTracked(executor, blockUntilInterrupted(started, interruptedTasks)));
-            futures.add(submitTracked(executor, () -> {
-                started.countDown();
-                //a healthy unit
-            }));
-            futures.add(submitTracked(executor, () -> {
-                started.countDown();
-                //a second healthy unit
-            }));
-            Assertions.assertThat(started.await(START_WAIT_SECONDS, TimeUnit.SECONDS)).describedAs(
-                    "all three units must be submitted before the deadline is judged").isTrue();
-            Throwable caught = null;
-            final long begin = FDateMillis.nowMillis();
-            try {
-                Futures.waitAllCollectingFailures(futures, "reference matrix", new Duration(500, FTimeUnit.MILLISECONDS));
-            } catch (final Throwable t) {
-                caught = t;
-            }
-            final long elapsed = FDateMillis.nowMillis() - begin;
-            Assertions.assertThat(caught).describedAs("the batch must be reported").isNotNull();
-            Assertions.assertThat(caught.getMessage()).describedAs(
-                    "the report names the unit that did not finish: " + caught.getMessage()).contains("was still running")
-                    .contains("1 of 3");
-            Assertions.assertThat(elapsed).describedAs(
-                    "the join must return at the deadline, not wait for the 30 s body (elapsed " + elapsed + " ms)")
-                    .isLessThan(5000L);
-            Assertions.assertThat(interruptedTasks.get()).describedAs(
-                    "the unfinished body must have been cancelled and joined").isEqualTo(1);
-            Assertions.assertThat(futures.get(1).isDone() && futures.get(2).isDone()).describedAs(
-                    "the healthy units are still awaited to completion").isTrue();
-        } finally {
-            executor.shutdownNow();
-            executor.awaitTermination(TERMINATION_SECONDS, TimeUnit.SECONDS);
-        }
-    }
-
-    @Test
-    public void testBoundedWaitAllCollectingFailuresCancelsNothingWhenTheBatchFitsTheDeadline() throws Exception {
-        final WrappedExecutorService executor = Executors.newCachedThreadPool("FuturesTest-deadline-fits");
-        try {
-            final RuntimeException marker = new RuntimeException("FuturesTest-deadline-marker");
-            final CountDownLatch started = new CountDownLatch(1);
-            final AtomicInteger interruptedTasks = new AtomicInteger();
+            final CountDownLatch slowStarted = new CountDownLatch(1);
+            final AtomicBoolean slowFinished = new AtomicBoolean();
             final List<Future<?>> futures = new ArrayList<>();
             futures.add(submitTracked(executor, () -> {
-                throw marker;
+                //a unit that finishes immediately, so the batch's own elapsed time stays tiny
+                slowStarted.countDown();
             }));
             futures.add(submitTracked(executor, () -> {
-                started.countDown();
                 try {
-                    TimeUnit.MILLISECONDS.sleep(200);
+                    slowStarted.await(START_WAIT_SECONDS, TimeUnit.SECONDS);
+                    TimeUnit.MILLISECONDS.sleep(2000);
+                    slowFinished.set(true);
                 } catch (final InterruptedException e) {
                     interruptedTasks.incrementAndGet();
                 }
             }));
-            Assertions.assertThat(started.await(START_WAIT_SECONDS, TimeUnit.SECONDS)).isTrue();
-            Throwable caught = null;
-            try {
-                Futures.waitAllCollectingFailures(futures, "reference matrix", new Duration(30, FTimeUnit.SECONDS));
-            } catch (final Throwable t) {
-                caught = t;
-            }
-            Assertions.assertThat(caught).describedAs("the failure must be reported").isSameAs(marker);
-            Assertions.assertThat(interruptedTasks.get()).describedAs(
-                    "a batch inside its deadline cancels nothing — the sibling ran to completion").isEqualTo(0);
+            //a grace far shorter than the slow unit needs: it must be irrelevant, because nothing has failed. This is the
+            //only shape that pins "a healthy batch is never cut short" — with the public 2-arg form the grace is the
+            //fleet's 5 minutes and any bound at all would look the same.
+            Futures.waitAllCollectingFailures(futures, "reference matrix",
+                    new Duration(50, FTimeUnit.MILLISECONDS));
+            Assertions.assertThat(slowFinished.get()).describedAs(
+                    "nothing failed, so the slow unit must be awaited however long it takes").isTrue();
+            Assertions.assertThat(interruptedTasks.get()).describedAs("no unit may be interrupted").isEqualTo(0);
         } finally {
             executor.shutdownNow();
             executor.awaitTermination(TERMINATION_SECONDS, TimeUnit.SECONDS);
@@ -439,30 +396,76 @@ public class FuturesTest {
     }
 
     /**
-     * A non-completion is never passed through as if it were the task's own exception: even alone it becomes the named
-     * aggregate, because "this unit did not finish in time" is a different claim from "this unit failed", and a caller
-     * catching by type must not be handed the latter.
+     * Once something HAS failed, a unit that never returns costs the report instead of the whole fork: it is cancelled,
+     * its body joined, and counted as "still running after the first failure" rather than reported as a failure of its
+     * own. The grace is the batch's own elapsed time, so it scales with the batch instead of inventing a number.
      */
     @Test
-    public void testBoundedWaitAllCollectingFailuresNamesASingleNonCompletionAsAnAggregate() throws Exception {
-        final WrappedExecutorService executor = Executors.newCachedThreadPool("FuturesTest-deadline-one");
+    public void testWaitAllCollectingFailuresCancelsASiblingThatOverrunsThePostFailureGrace() throws Exception {
+        final WrappedExecutorService executor = Executors.newCachedThreadPool("FuturesTest-grace");
         try {
-            final CountDownLatch started = new CountDownLatch(1);
+            final RuntimeException marker = new RuntimeException("FuturesTest-grace-marker");
             final AtomicInteger interruptedTasks = new AtomicInteger();
             final List<Future<?>> futures = new ArrayList<>();
-            futures.add(submitTracked(executor, blockUntilInterrupted(started, interruptedTasks)));
-            Assertions.assertThat(started.await(START_WAIT_SECONDS, TimeUnit.SECONDS)).isTrue();
+            futures.add(submitTracked(executor, () -> {
+                throw marker;
+            }));
+            futures.add(submitTracked(executor, blockUntilInterrupted(new CountDownLatch(1), interruptedTasks)));
             Throwable caught = null;
+            final long begin = FDateMillis.nowMillis();
             try {
-                Futures.waitAllCollectingFailures(futures, "reference matrix", new Duration(300, FTimeUnit.MILLISECONDS));
+                //the package-private form, so the post-failure path is testable without sitting out the fleet's 5 minutes
+                Futures.waitAllCollectingFailures(futures, "reference matrix",
+                        new Duration(500, FTimeUnit.MILLISECONDS));
             } catch (final Throwable t) {
                 caught = t;
             }
-            Assertions.assertThat(caught).describedAs("the non-completion must be reported").isNotNull();
+            final long elapsed = FDateMillis.nowMillis() - begin;
+            Assertions.assertThat(caught).describedAs("the batch must be reported").isNotNull();
             Assertions.assertThat(caught.getMessage()).describedAs(
-                    "a lone non-completion is still an aggregate, not a bare rethrow: " + caught.getMessage()).contains(
-                            "1 of 1 futures failed").contains("was still running when the batch deadline");
-            Assertions.assertThat(caught.getSuppressed()).describedAs("the cause chain stays attached").hasSize(1);
+                    "the report counts the failure and names the cancelled unit: " + caught.getMessage()).contains(
+                            "2 of 2 futures failed").contains("post-failure grace");
+            Assertions.assertThat(elapsed).describedAs(
+                    "the join must not wait out the unit that will never finish (elapsed " + elapsed + " ms)")
+                    .isLessThan(10000L);
+            Assertions.assertThat(interruptedTasks.get()).describedAs(
+                    "the overrunning unit must be cancelled and its body joined").isEqualTo(1);
+        } finally {
+            executor.shutdownNow();
+            executor.awaitTermination(TERMINATION_SECONDS, TimeUnit.SECONDS);
+        }
+    }
+
+    /**
+     * A lone failure whose siblings all complete is still rethrown as the task's own exception — the post-failure grace
+     * must not turn a healthy sibling into a reported cancellation.
+     */
+    @Test
+    public void testWaitAllCollectingFailuresRethrowsOneFailureWhenTheSiblingsFinish() throws Exception {
+        final WrappedExecutorService executor = Executors.newCachedThreadPool("FuturesTest-one-fail");
+        try {
+            final RuntimeException marker = new RuntimeException("FuturesTest-one-fail-marker");
+            final AtomicInteger interruptedTasks = new AtomicInteger();
+            final List<Future<?>> futures = new ArrayList<>();
+            futures.add(submitTracked(executor, () -> {
+                throw marker;
+            }));
+            futures.add(submitTracked(executor, () -> {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(150);
+                } catch (final InterruptedException e) {
+                    interruptedTasks.incrementAndGet();
+                }
+            }));
+            Throwable caught = null;
+            try {
+                Futures.waitAllCollectingFailures(futures, "reference matrix");
+            } catch (final Throwable t) {
+                caught = t;
+            }
+            Assertions.assertThat(caught).describedAs("the failure must be reported").isSameAs(marker);
+            Assertions.assertThat(interruptedTasks.get()).describedAs(
+                    "a sibling that finishes inside its grace is left alone").isEqualTo(0);
         } finally {
             executor.shutdownNow();
             executor.awaitTermination(TERMINATION_SECONDS, TimeUnit.SECONDS);
