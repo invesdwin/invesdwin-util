@@ -37,9 +37,25 @@ import de.invesdwin.util.swing.text.Hotkey;
 import de.invesdwin.util.swing.text.KeyGrabberTextField;
 import de.invesdwin.util.swing.text.ToolTipFormatter;
 import de.invesdwin.util.time.date.millis.FDateMillis;
+import de.invesdwin.util.time.date.millis.FDateNanos;
+import de.invesdwin.util.time.duration.Duration;
 
 @Immutable
 public final class Components {
+
+    /**
+     * The ToolTipManager re-posts a tooltip on every mouseMoved it receives with changed
+     * text: {@code hideTipWindow()} plus a fresh {@code createToolTip()} and HTML layout,
+     * or - while the tip has not appeared yet - an {@code enterTimer.restart()}, which
+     * starts the initial delay from scratch. A label whose text changes several times a
+     * second (the status bar task line, the heap indicator) therefore blinks or never
+     * shows at all, since a repost faster than the initial delay unschedules it again.
+     * The text itself is still set on every change, only the repost into the visible
+     * tooltip is throttled, so a hovering user reads a stable tooltip that refreshes at
+     * most this often.
+     */
+    public static final Duration TOOLTIP_UPDATE_INTERVAL = Duration.ONE_SECOND;
+    static final String CLIENTPROP_LAST_TOOLTIP_UPDATE_NANOS = "LAST_TOOLTIP_UPDATE_NANOS";
 
     private static ToolTipFormatter defaultToolTipFormatter = new ToolTipFormatter();
     private static MouseMotionListener lazyTooltipManagerMotionListener = new ADelegateMouseMotionListener() {
@@ -155,7 +171,23 @@ public final class Components {
     }
 
     public static void updateToolTip(final JComponent component) {
+        if (!isToolTipUpdateDue(component, FDateNanos.elapsedNanos())) {
+            return;
+        }
         triggerMouseMovedWithWindowActive(component, lazyTooltipManagerMotionListener);
+    }
+
+    /**
+     * Leading edge of {@link #TOOLTIP_UPDATE_INTERVAL}: the first repost after the
+     * interval records the moment and is due, every one inside the interval is not.
+     */
+    static boolean isToolTipUpdateDue(final JComponent component, final long nowNanos) {
+        final Object lastNanos = component.getClientProperty(CLIENTPROP_LAST_TOOLTIP_UPDATE_NANOS);
+        if (lastNanos instanceof Long && !TOOLTIP_UPDATE_INTERVAL.isLessThanNanos(nowNanos - (Long) lastNanos)) {
+            return false;
+        }
+        component.putClientProperty(CLIENTPROP_LAST_TOOLTIP_UPDATE_NANOS, nowNanos);
+        return true;
     }
 
     /**

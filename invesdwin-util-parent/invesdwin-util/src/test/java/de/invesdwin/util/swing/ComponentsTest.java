@@ -6,6 +6,7 @@ import javax.swing.JLabel;
 import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.time.date.FTimeUnit;
 
 /**
  * Pins Components.abbreviateToFit: the text must never change when it fits, and when it
@@ -36,6 +37,10 @@ public class ComponentsTest {
             + " | defaultCalculationEnabled:true]_snapshotCache (23%) | ETA: PT14M47S";
 
     private static final String TRAILING_PROGRESS = "(23%) | ETA: PT14M47S";
+
+    //the repost throttle is probed with synthetic clocks, so it wants the interval in nanos
+    private static final long TOOLTIP_INTERVAL_NANOS = Components.TOOLTIP_UPDATE_INTERVAL
+            .longValue(FTimeUnit.NANOSECONDS);
 
     @Test
     public void testTextThatFitsIsNotChanged() {
@@ -85,6 +90,59 @@ public class ComponentsTest {
             final String abbreviated = Components.abbreviateToFit(LABEL, LONG_TEXT, width);
             Assertions.assertThat(abbreviated).describedAs("width " + width).isNotEmpty();
         }
+    }
+
+    /**
+     * Pins the repost throttle of a shown tooltip: the status bar task line and the heap
+     * indicator change their tooltip text several times a second while a suite runs, and
+     * the ToolTipManager re-posts a tooltip on every mouseMoved it gets with changed text
+     * (hide plus a fresh JToolTip and HTML layout) or restarts its own initial delay while
+     * the tooltip has not appeared yet. Reposts faster than that delay are what make the
+     * tooltip blink or never show.
+     */
+    @Test
+    public void testFirstToolTipUpdateIsDueAndRepeatsInsideTheIntervalAreNot() {
+        final JLabel label = new JLabel();
+        Assertions.assertThat(Components.isToolTipUpdateDue(label, 0L)).describedAs("first change").isTrue();
+        Assertions.assertThat(Components.isToolTipUpdateDue(label, TOOLTIP_INTERVAL_NANOS - 1))
+                .describedAs("just inside the interval")
+                .isFalse();
+        Assertions.assertThat(Components.isToolTipUpdateDue(label, TOOLTIP_INTERVAL_NANOS))
+                .describedAs("exactly the interval")
+                .isFalse();
+        Assertions.assertThat(Components.isToolTipUpdateDue(label, TOOLTIP_INTERVAL_NANOS + 1))
+                .describedAs("just past the interval")
+                .isTrue();
+        //the due one took a new slot, so the window starts over from there
+        Assertions.assertThat(Components.isToolTipUpdateDue(label, 2 * TOOLTIP_INTERVAL_NANOS))
+                .describedAs("one nanosecond short of the new window")
+                .isFalse();
+    }
+
+    @Test
+    public void testToolTipThrottleSlotsArePerComponent() {
+        //the task line and the heap indicator sit on the same bar and both update
+        //continuously - one must not consume the other's repost
+        final JLabel taskLabel = new JLabel();
+        final JLabel heapLabel = new JLabel();
+        Assertions.assertThat(Components.isToolTipUpdateDue(taskLabel, 0L)).isTrue();
+        Assertions.assertThat(Components.isToolTipUpdateDue(heapLabel, 1L)).isTrue();
+    }
+
+    @Test
+    public void testThrottledToolTipStillCarriesTheLatestText() {
+        //the gate may only hold back the repost: the text has to land on the component, or
+        //the tooltip would freeze at whatever it first showed
+        final JLabel label = new JLabel();
+        Components.setToolTipText(label, "Loading chart data (57%): 12/21 | ETA: PT24S", true);
+        Components.setToolTipText(label, "Loading chart data (61%): 13/21 | ETA: PT23S", true);
+        Assertions.assertThat(label.getToolTipText())
+                .isEqualTo("<html>Loading chart data (61%): 13/21 | ETA: PT23S");
+        //a slot on the component proves setToolTipText goes through the gate at all - a
+        //call that reposted without asking would leave the property unset
+        Assertions.assertThat(label.getClientProperty(Components.CLIENTPROP_LAST_TOOLTIP_UPDATE_NANOS))
+                .describedAs("the gate is wired into the tooltip update path")
+                .isInstanceOf(Long.class);
     }
 
 }
