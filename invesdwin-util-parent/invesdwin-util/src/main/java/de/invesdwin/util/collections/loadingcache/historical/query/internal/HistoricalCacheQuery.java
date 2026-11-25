@@ -396,7 +396,7 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
             @Override
             public ICloseableIterator<IHistoricalEntry<V>> iterator() {
                 return new ICloseableIterator<IHistoricalEntry<V>>() {
-                    private final IHistoricalCacheQueryWithFuture<V> future = setFutureEnabled();
+                    private final IHistoricalCacheQueryWithFuture<V> future = newFutureEnabledQuery();
                     private IHistoricalEntry<V> nextEntry;
                     private FDate nextEntryKey;
 
@@ -735,6 +735,27 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     public void copyQuerySettings(final IHistoricalCacheQuery copyFrom) {
         this.assertValue = copyFrom.getAssertValue();
         this.elementFilter = copyFrom.getElementFilter();
+    }
+
+    /**
+     * A future-enabled view of this query that leaves this instance untouched. The cached range walk must be able to
+     * look past the window end, hence the WITH_FUTURE mode; going through setFutureEnabled() wrote that mode onto the
+     * caller's own object instead, so any query that had been put into the null-future mode threw on its first range
+     * read, and a query used for range reads could never be switched to the null mode afterwards.
+     */
+    protected HistoricalCacheQueryWithFuture<V> newFutureEnabledQuery() {
+        final HistoricalCacheQueryWithFuture<V> query = newFutureQuery();
+        query.maybeArmFutureMode();
+        return query;
+    }
+
+    /**
+     * The future mode of an instance that a caller does not own - the only place this is used is
+     * {@link #newFutureEnabledQuery()}, where the object was just built as a copy. The public
+     * {@link #setFutureEnabled()} keeps its mutual-exclusion guard for genuine caller misuse.
+     */
+    protected void maybeArmFutureMode() {
+        this.assertValue = HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE;
     }
 
     protected HistoricalCacheQueryWithFuture<V> newFutureQuery() {

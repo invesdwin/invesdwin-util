@@ -17,6 +17,7 @@ import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.APushingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
+import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.random.PseudoRandomGenerator;
 import de.invesdwin.util.time.date.FDate;
@@ -370,6 +371,66 @@ public abstract class ABaseHistoricalCacheTest {
         entities.add(newEntity);
         final FDate correctValue = cache.query().getValue(newEntity);
         Assertions.assertThat(correctValue).isEqualTo(newEntity);
+    }
+
+    /**
+     * A query armed with the null-future mode must still serve a range read.
+     * <p>
+     * {@code getEntries(from,to)} falls through to {@code getEntriesCached} for every cache without a real range query
+     * interceptor - which is the default, {@code AHistoricalCache.newRangeQueryInterceptor()} answers
+     * {@code DisabledHistoricalCacheRangeQueryInterceptor.getInstance()} - and that iterator needs values past the
+     * window end. It used to obtain them by calling {@code setFutureEnabled()} on itself, so the mode landed on the
+     * caller's object and the next null-mode use of that object threw
+     * "Either withFuture() or withFutureNull() can be used, but not both!". Nothing about the caller's intent changed;
+     * only the object's state did, and no caller can see it.
+     */
+    @Test
+    public final void testNullFutureModeQueryServesLoadingRange() {
+        final List<FDate> keys = new ArrayList<FDate>(entities);
+        final IHistoricalCacheQuery<FDate> nullModeQuery = cache.query().setFutureNullEnabled();
+        final List<FDate> loaded = asList(nullModeQuery.getValues(keys.get(0), keys.get(2)));
+        Assertions.assertThat(loaded)
+                .as("a null-mode query must be able to serve a loading range read at all")
+                .isEqualTo(asList(cache.query().getValues(keys.get(0), keys.get(2))));
+    }
+
+    @Test
+    public final void testNullFutureModeQueryServesCachedRange() {
+        final List<FDate> keys = new ArrayList<FDate>(entities);
+        final IHistoricalCacheQuery<FDate> nullModeQuery = cache.query().setFutureNullEnabled();
+        final List<FDate> cached = asList(nullModeQuery.getValuesCached(keys.get(0), keys.get(2)));
+        Assertions.assertThat(cached)
+                .as("a null-mode query must be able to serve a cached range read, and the range walk itself must not"
+                        + " change the values it yields")
+                .isEqualTo(asList(cache.query().getValuesCached(keys.get(0), keys.get(2))));
+    }
+
+    @Test
+    public final void testNullFutureModePointReadThenRangeReadOnOneQuery() {
+        final List<FDate> keys = new ArrayList<FDate>(entities);
+        final IHistoricalCacheQuery<FDate> nullModeQuery = cache.query().setFutureNullEnabled();
+        Assertions.assertThat(nullModeQuery.getValue(keys.get(1))).isEqualTo(keys.get(1));
+        final List<FDate> loaded = asList(nullModeQuery.getValues(keys.get(0), keys.get(2)));
+        Assertions.assertThat(loaded)
+                .as("one null-mode query used for a point read and then a range read must serve both - the range path"
+                        + " re-armed the same object with the future mode")
+                .isEqualTo(asList(cache.query().getValues(keys.get(0), keys.get(2))));
+    }
+
+    /**
+     * The other direction of the same leak: a range read must not arm the caller's query, or the caller can never
+     * switch to the null mode afterwards.
+     */
+    @Test
+    public final void testRangeReadLeavesTheCallersModeAlone() {
+        final List<FDate> keys = new ArrayList<FDate>(entities);
+        final IHistoricalCacheQuery<FDate> query = cache.query();
+        asList(query.getValuesCached(keys.get(0), keys.get(2)));
+        asList(query.getValues(keys.get(0), keys.get(2)));
+        Assertions.assertThat(asList(query.setFutureNullEnabled().getValues(keys.get(0), keys.get(2))))
+                .as("a query used for range reads must still accept the null mode - reading a range is not a"
+                        + " statement about what the caller wants next")
+                .isEqualTo(asList(cache.query().getValues(keys.get(0), keys.get(2))));
     }
 
     @Test
