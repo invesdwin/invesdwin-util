@@ -24,6 +24,7 @@ import de.invesdwin.util.collections.loadingcache.historical.key.APushingHistori
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.math.random.PseudoRandomGenerator;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDateBuilder;
@@ -501,6 +502,39 @@ public abstract class ABaseHistoricalCacheTest {
                 .isGreaterThan(0);
     }
 
+    /**
+     * Which setting actually empties a cached range read - measured after two candidate explanations failed.
+     * <p>
+     * Retention is not it: an {@code AHistoricalCache} with {@code getInitialMaximumSize() == 0} still answers a cached
+     * range read, because that walk resolves through {@code newLoadValue()} plus the key calculators rather than
+     * scanning a populated map. What does empty it is the cache's own supplier answering null - and the same query then
+     * succeeds through the range interceptor, which composes over a different supplier entirely. That is the production
+     * shape of the trading composed cache's disagreement: not the watermark clamp, not retention, not timing, but two
+     * read paths backed by two suppliers.
+     */
+    @Test
+    public final void testCachedRangeReadFollowsTheCacheSupplierNotTheRetentionSetting() {
+        final TestNoRetainBaseCache base = new TestNoRetainBaseCache();
+        Assertions.assertThat(base.query().getValue(entities.get(2)))
+                .as("a point read computes through newLoadValue - nothing is retained, so nothing can be stale")
+                .isNotNull();
+        Assertions.assertThat(asList(base.query().getValuesCached(entities.get(1), entities.get(3))))
+                .as("retention OFF does not empty the cached range read on the AHistoricalCache base")
+                .hasSize(3);
+
+        final TestNoSupplierBaseCache noSupplier = new TestNoSupplierBaseCache();
+        Assertions.assertThat(noSupplier.query().getValue(entities.get(2)))
+                .as("the point read is null - the supplier knows nothing")
+                .isNull();
+        Assertions.assertThat(asList(noSupplier.query().getValuesCached(entities.get(1), entities.get(3))))
+                .as("and the cached range read is empty for the same reason")
+                .isEmpty();
+        Assertions.assertThat(asList(noSupplier.query().getValues(entities.get(1), entities.get(3))))
+                .as("while the range interceptor over the same window answers values - the disagreement, reproduced"
+                        + " offline with neither the clamp nor retention involved")
+                .hasSize(3);
+    }
+
     @Test
     public final void testNewEntityIncomingPushingAdjustKeyProvider() {
         final APushingHistoricalCacheAdjustKeyProvider adjustKeyProvider = new APushingHistoricalCacheAdjustKeyProvider(
@@ -789,10 +823,10 @@ public abstract class ABaseHistoricalCacheTest {
      * provably came through the interceptor rather than through a map fill.
      */
     @NotThreadSafe
-    private final class TestInterceptingCache extends AGapHistoricalCache<FDate> {
+    private class TestInterceptingCache extends AGapHistoricalCache<FDate> {
 
-        private int interceptorHits;
-        private int storeReads;
+        protected int interceptorHits;
+        protected int storeReads;
 
         @Override
         protected IHistoricalCacheRangeQueryInterceptor<FDate> newRangeQueryInterceptor() {
@@ -838,6 +872,112 @@ public abstract class ABaseHistoricalCacheTest {
         @Override
         protected FDate innerCalculatePreviousKey(final FDate key) {
             return key.addDays(-1);
+        }
+    }
+
+    /**
+     * The same shape with retention turned off - {@code getInitialMaximumSize() == 0}, which is what the trading
+     * composed caches declare - and with a store that does hold the entities, so a cached range read cannot be blamed
+     * on a missing store.
+     */
+    @NotThreadSafe
+    private final class TestNoRetainInterceptingCache extends TestInterceptingCache {
+
+        @Override
+        protected Integer getInitialMaximumSize() {
+            return 0;
+        }
+
+        @Override
+        protected Iterable<FDate> readAllValuesAscendingFrom(final FDate key) {
+            storeReads++;
+            final List<FDate> result = new ArrayList<FDate>();
+            for (final FDate entity : entities) {
+                if (!entity.isBeforeNotNullSafe(key)) {
+                    result.add(entity);
+                }
+            }
+            return new BufferingIterator<FDate>(result);
+        }
+
+        @Override
+        protected FDate readLatestValueFor(final FDate key) {
+            storeReads++;
+            FDate previous = null;
+            for (final FDate entity : entities) {
+                if (previous == null || entity.isBeforeNotNullSafe(key)) {
+                    previous = entity;
+                }
+            }
+            return previous;
+        }
+    }
+
+    /**
+     * The lineage the trading composed cache actually has - {@code AHistoricalCache} base, retention off, values
+     * supplied by {@code newLoadValue()} on demand, and a range interceptor as the only bulk supplier.
+     */
+    @NotThreadSafe
+    private class TestNoRetainBaseCache extends AHistoricalCache<FDate> {
+
+        @Override
+        protected Integer getInitialMaximumSize() {
+            return 0;
+        }
+
+        @Override
+        protected IEvaluateGenericFDate<FDate> newLoadValue() {
+            return pKey -> {
+                final FDate key = pKey.asFDate();
+                FDate previous = null;
+                for (final FDate entity : entities) {
+                    if (entity.isAfterNotNullSafe(key)) {
+                        break;
+                    }
+                    previous = entity;
+                }
+                return previous;
+            };
+        }
+
+        @Override
+        protected FDate innerCalculateNextKey(final FDate key) {
+            return key.addYears(1);
+        }
+
+        @Override
+        protected FDate innerCalculatePreviousKey(final FDate key) {
+            return key.addDays(-1);
+        }
+
+        @Override
+        protected IHistoricalCacheRangeQueryInterceptor<FDate> newRangeQueryInterceptor() {
+            return new HistoricalCacheRangeQueryInterceptorSupport<FDate>() {
+
+                @Override
+                public ICloseableIterable<IHistoricalEntry<FDate>> getEntries(final FDate from, final FDate to) {
+                    final List<IHistoricalEntry<FDate>> entries = new ArrayList<IHistoricalEntry<FDate>>();
+                    for (final FDate entity : entities) {
+                        if (!entity.isBeforeNotNullSafe(from) && !entity.isAfterNotNullSafe(to)) {
+                            entries.add(ImmutableHistoricalEntry.of(entity, entity));
+                        }
+                    }
+                    return WrapperCloseableIterable.maybeWrap(entries);
+                }
+            };
+        }
+    }
+
+    /**
+     * Same base, but the cache's own supplier knows nothing - the state a composed cache whose single-key as-of
+     * composition cannot resolve an instant falls into, while its range interceptor still composes the window.
+     */
+    @NotThreadSafe
+    private final class TestNoSupplierBaseCache extends TestNoRetainBaseCache {
+
+        @Override
+        protected IEvaluateGenericFDate<FDate> newLoadValue() {
+            return pKey -> null;
         }
     }
 }
