@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -12,8 +13,12 @@ import org.junit.jupiter.api.Test;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.bean.tuple.Pair;
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.list.Lists;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCacheRangeQueryInterceptorSupport;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.APushingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
@@ -459,6 +464,43 @@ public abstract class ABaseHistoricalCacheTest {
                 .isThrownBy(() -> query.getKey(FDates.MIN_DATE));
     }
 
+    /**
+     * The branch on which a range interceptor and a cached read disagree permanently - pinned because a consumer of it
+     * blames the watermark clamp, which is not what bounds the empty answer here.
+     * <p>
+     * {@code HistoricalCacheQuery.getEntries} consults the range query interceptor and returns before the
+     * {@code getEntriesCached} fall-through whenever the interceptor answers non-null. Nothing on that path writes to
+     * the values map that {@code getEntriesCached} reads through {@code getNextEntryCached}, so for an
+     * interceptor-backed cache the loading view is served by the interceptor while the cached view stays empty for the
+     * life of the cache: not once, not until a push arrives, but structurally. A demand wrapper that reads "cached
+     * empty while loading not empty" as a transient disagreement therefore falls back on every single demand, and a
+     * report line saying the clamp bounds the cached read is misleading for this shape.
+     */
+    @Test
+    public final void testRangeInterceptorNeverFillsTheCachedViewItIsComparedAgainst() {
+        final TestInterceptingCache intercepting = new TestInterceptingCache();
+        Assertions.assertThat(asList(intercepting.query().getValues(entities.get(1), entities.get(3))))
+                .as("the loading read is served by the interceptor")
+                .hasSize(3);
+        Assertions.assertThat(intercepting.interceptorHits)
+                .as("the interceptor really was the supplier")
+                .isGreaterThan(0);
+        for (int i = 0; i < 3; i++) {
+            Assertions.assertThat(asList(intercepting.query().getValues(entities.get(0), entities.get(5))))
+                    .as("repeated loading reads keep going through the interceptor")
+                    .hasSize(entities.size());
+        }
+        Assertions.assertThat(asList(intercepting.query().getValuesCached(entities.get(1), entities.get(3))))
+                .as("the cached view is still empty after those reads: the interceptor path never populates the map"
+                        + " that getEntriesCached consults, so this is not a lag to wait out")
+                .isEmpty();
+        Assertions.assertThat(intercepting.storeReads)
+                .as("the store IS consulted elsewhere in the query (measured: 8 reads for the sequence above) - and"
+                        + " none of it reaches the map, which is the point: the empty cached view is structural, not"
+                        + " a fill that has not happened yet")
+                .isGreaterThan(0);
+    }
+
     @Test
     public final void testNewEntityIncomingPushingAdjustKeyProvider() {
         final APushingHistoricalCacheAdjustKeyProvider adjustKeyProvider = new APushingHistoricalCacheAdjustKeyProvider(
@@ -740,5 +782,62 @@ public abstract class ABaseHistoricalCacheTest {
             return key.addYears(1);
         }
 
+    }
+
+    /**
+     * A cache whose only supplier is a range query interceptor: the store answers nothing, so any value a query receives
+     * provably came through the interceptor rather than through a map fill.
+     */
+    @NotThreadSafe
+    private final class TestInterceptingCache extends AGapHistoricalCache<FDate> {
+
+        private int interceptorHits;
+        private int storeReads;
+
+        @Override
+        protected IHistoricalCacheRangeQueryInterceptor<FDate> newRangeQueryInterceptor() {
+            return new HistoricalCacheRangeQueryInterceptorSupport<FDate>() {
+
+                @Override
+                public ICloseableIterable<IHistoricalEntry<FDate>> getEntries(final FDate from, final FDate to) {
+                    interceptorHits++;
+                    final List<IHistoricalEntry<FDate>> entries = new ArrayList<IHistoricalEntry<FDate>>();
+                    for (final FDate entity : entities) {
+                        if ((from == null || !entity.isBeforeNotNullSafe(from))
+                                && (to == null || !entity.isAfterNotNullSafe(to))) {
+                            entries.add(ImmutableHistoricalEntry.of(entity, entity));
+                        }
+                    }
+                    return WrapperCloseableIterable.maybeWrap(entries);
+                }
+            };
+        }
+
+        @Override
+        protected Iterable<FDate> readAllValuesAscendingFrom(final FDate key) {
+            storeReads++;
+            return new BufferingIterator<FDate>(new ArrayList<FDate>());
+        }
+
+        @Override
+        protected FDate readLatestValueFor(final FDate key) {
+            storeReads++;
+            return null;
+        }
+
+        @Override
+        protected FDate innerExtractKey(final FDate entity) {
+            return entity;
+        }
+
+        @Override
+        protected FDate innerCalculateNextKey(final FDate key) {
+            return key.addYears(1);
+        }
+
+        @Override
+        protected FDate innerCalculatePreviousKey(final FDate key) {
+            return key.addDays(-1);
+        }
     }
 }
