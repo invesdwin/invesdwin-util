@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -12,12 +13,18 @@ import org.junit.jupiter.api.Test;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.bean.tuple.Pair;
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.list.Lists;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.HistoricalCacheRangeQueryInterceptorSupport;
+import de.invesdwin.util.collections.loadingcache.historical.interceptor.IHistoricalCacheRangeQueryInterceptor;
 import de.invesdwin.util.collections.loadingcache.historical.key.APullingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.APushingHistoricalCacheAdjustKeyProvider;
 import de.invesdwin.util.collections.loadingcache.historical.key.IHistoricalCacheAdjustKeyProvider;
+import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.expression.lambda.IEvaluateGenericFDate;
 import de.invesdwin.util.math.random.PseudoRandomGenerator;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDateBuilder;
@@ -372,6 +379,162 @@ public abstract class ABaseHistoricalCacheTest {
         Assertions.assertThat(correctValue).isEqualTo(newEntity);
     }
 
+    /**
+     * A query armed with the null-future mode must still serve a range read.
+     * <p>
+     * {@code getEntries(from,to)} falls through to {@code getEntriesCached} for every cache without a real range query
+     * interceptor - which is the default, {@code AHistoricalCache.newRangeQueryInterceptor()} answers
+     * {@code DisabledHistoricalCacheRangeQueryInterceptor.getInstance()} - and that iterator needs values past the
+     * window end. It used to obtain them by calling {@code setFutureEnabled()} on itself, so the mode landed on the
+     * caller's object and the next null-mode use of that object threw
+     * "Either withFuture() or withFutureNull() can be used, but not both!". Nothing about the caller's intent changed;
+     * only the object's state did, and no caller can see it.
+     */
+    @Test
+    public final void testNullFutureModeQueryServesLoadingRange() {
+        final List<FDate> keys = new ArrayList<FDate>(entities);
+        final IHistoricalCacheQuery<FDate> nullModeQuery = cache.query().setFutureNullEnabled();
+        final List<FDate> loaded = asList(nullModeQuery.getValues(keys.get(0), keys.get(2)));
+        //the size guard is what keeps this from going vacuous if both sides ever come back empty
+        Assertions.assertThat(loaded).as("the window holds three entities").hasSize(3);
+        Assertions.assertThat(loaded)
+                .as("a null-mode query must be able to serve a loading range read at all")
+                .isEqualTo(asList(cache.query().getValues(keys.get(0), keys.get(2))));
+    }
+
+    @Test
+    public final void testNullFutureModeQueryServesCachedRange() {
+        final List<FDate> keys = new ArrayList<FDate>(entities);
+        final IHistoricalCacheQuery<FDate> nullModeQuery = cache.query().setFutureNullEnabled();
+        final List<FDate> cached = asList(nullModeQuery.getValuesCached(keys.get(0), keys.get(2)));
+        Assertions.assertThat(cached)
+                .as("a null-mode query must be able to serve a cached range read, and the range walk itself must not"
+                        + " change the values it yields")
+                .isEqualTo(asList(cache.query().getValuesCached(keys.get(0), keys.get(2))));
+    }
+
+    @Test
+    public final void testNullFutureModePointReadThenRangeReadOnOneQuery() {
+        final List<FDate> keys = new ArrayList<FDate>(entities);
+        final IHistoricalCacheQuery<FDate> nullModeQuery = cache.query().setFutureNullEnabled();
+        Assertions.assertThat(nullModeQuery.getValue(keys.get(1))).isEqualTo(keys.get(1));
+        final List<FDate> loaded = asList(nullModeQuery.getValues(keys.get(0), keys.get(2)));
+        Assertions.assertThat(loaded)
+                .as("one null-mode query used for a point read and then a range read must serve both - the range path"
+                        + " re-armed the same object with the future mode")
+                .isEqualTo(asList(cache.query().getValues(keys.get(0), keys.get(2))));
+    }
+
+    /**
+     * The other direction of the same leak: a range read must not arm the caller's query, or the caller can never
+     * switch to the null mode afterwards.
+     */
+    @Test
+    public final void testRangeReadLeavesTheCallersModeAlone() {
+        final List<FDate> keys = new ArrayList<FDate>(entities);
+        final IHistoricalCacheQuery<FDate> query = cache.query();
+        asList(query.getValuesCached(keys.get(0), keys.get(2)));
+        asList(query.getValues(keys.get(0), keys.get(2)));
+        Assertions.assertThat(asList(query.setFutureNullEnabled().getValues(keys.get(0), keys.get(2))))
+                .as("a query used for range reads must still accept the null mode - reading a range is not a"
+                        + " statement about what the caller wants next")
+                .isEqualTo(asList(cache.query().getValues(keys.get(0), keys.get(2))));
+    }
+
+    /**
+     * The semantics the mode-leak fix newly exposes, pinned rather than asserted in prose.
+     * <p>
+     * Before the fix, a range read armed the caller's own query with {@code ASSERT_VALUE_WITH_FUTURE} on its way
+     * through {@code getEntriesCached}. That is the only reason a later {@code getKey(FDates.MIN_DATE)} on the same
+     * object answered: asking for the first key necessarily resolves to an entry whose key is AFTER the requested
+     * {@code MIN_DATE}, which is precisely what the without-future assertion rejects. With the leak gone, that
+     * sequence behaves as the mode contract says it should - so any consumer that had come to depend on the implicit
+     * arming now sees the exception, and this cell is where that consequence is measured instead of argued.
+     */
+    @Test
+    public final void testRangeReadNoLongerArmsTheDefaultQueryForAMinDateProbe() {
+        final List<FDate> keys = new ArrayList<FDate>(entities);
+        final IHistoricalCacheQuery<FDate> query = cache.query();
+        Assertions.assertThat(asList(query.getValuesCached(keys.get(0), keys.get(2))))
+                .as("the range read itself must still work on an un-armed query")
+                .isNotEmpty();
+        Assertions.assertThatExceptionOfType(IllegalArgumentException.class)
+                .as("a DEFAULT-mode query must not answer a MIN_DATE probe after a range read - the entry it would"
+                        + " return is strictly after the requested key, and the without-future assertion exists to"
+                        + " refuse exactly that; before the fix the range read armed the same object and hid it")
+                .isThrownBy(() -> query.getKey(FDates.MIN_DATE));
+    }
+
+    /**
+     * The branch on which a range interceptor and a cached read disagree permanently - pinned because a consumer of it
+     * blames the watermark clamp, which is not what bounds the empty answer here.
+     * <p>
+     * {@code HistoricalCacheQuery.getEntries} consults the range query interceptor and returns before the
+     * {@code getEntriesCached} fall-through whenever the interceptor answers non-null. Nothing on that path writes to
+     * the values map that {@code getEntriesCached} reads through {@code getNextEntryCached}, so for an
+     * interceptor-backed cache the loading view is served by the interceptor while the cached view stays empty for the
+     * life of the cache: not once, not until a push arrives, but structurally. A demand wrapper that reads "cached
+     * empty while loading not empty" as a transient disagreement therefore falls back on every single demand, and a
+     * report line saying the clamp bounds the cached read is misleading for this shape.
+     */
+    @Test
+    public final void testRangeInterceptorNeverFillsTheCachedViewItIsComparedAgainst() {
+        final TestInterceptingCache intercepting = new TestInterceptingCache();
+        Assertions.assertThat(asList(intercepting.query().getValues(entities.get(1), entities.get(3))))
+                .as("the loading read is served by the interceptor")
+                .hasSize(3);
+        Assertions.assertThat(intercepting.interceptorHits)
+                .as("the interceptor really was the supplier")
+                .isGreaterThan(0);
+        for (int i = 0; i < 3; i++) {
+            Assertions.assertThat(asList(intercepting.query().getValues(entities.get(0), entities.get(5))))
+                    .as("repeated loading reads keep going through the interceptor")
+                    .hasSize(entities.size());
+        }
+        Assertions.assertThat(asList(intercepting.query().getValuesCached(entities.get(1), entities.get(3))))
+                .as("the cached view is still empty after those reads: the interceptor path never populates the map"
+                        + " that getEntriesCached consults, so this is not a lag to wait out")
+                .isEmpty();
+        Assertions.assertThat(intercepting.storeReads)
+                .as("the store IS consulted elsewhere in the query (measured: 8 reads for the sequence above) - and"
+                        + " none of it reaches the map, which is the point: the empty cached view is structural, not"
+                        + " a fill that has not happened yet")
+                .isGreaterThan(0);
+    }
+
+    /**
+     * Which setting actually empties a cached range read - measured after two candidate explanations failed.
+     * <p>
+     * Retention is not it: an {@code AHistoricalCache} with {@code getInitialMaximumSize() == 0} still answers a cached
+     * range read, because that walk resolves through {@code newLoadValue()} plus the key calculators rather than
+     * scanning a populated map. What does empty it is the cache's own supplier answering null - and the same query then
+     * succeeds through the range interceptor, which composes over a different supplier entirely. That is the production
+     * shape of the trading composed cache's disagreement: not the watermark clamp, not retention, not timing, but two
+     * read paths backed by two suppliers.
+     */
+    @Test
+    public final void testCachedRangeReadFollowsTheCacheSupplierNotTheRetentionSetting() {
+        final TestNoRetainBaseCache base = new TestNoRetainBaseCache();
+        Assertions.assertThat(base.query().getValue(entities.get(2)))
+                .as("a point read computes through newLoadValue - nothing is retained, so nothing can be stale")
+                .isNotNull();
+        Assertions.assertThat(asList(base.query().getValuesCached(entities.get(1), entities.get(3))))
+                .as("retention OFF does not empty the cached range read on the AHistoricalCache base")
+                .hasSize(3);
+
+        final TestNoSupplierBaseCache noSupplier = new TestNoSupplierBaseCache();
+        Assertions.assertThat(noSupplier.query().getValue(entities.get(2)))
+                .as("the point read is null - the supplier knows nothing")
+                .isNull();
+        Assertions.assertThat(asList(noSupplier.query().getValuesCached(entities.get(1), entities.get(3))))
+                .as("and the cached range read is empty for the same reason")
+                .isEmpty();
+        Assertions.assertThat(asList(noSupplier.query().getValues(entities.get(1), entities.get(3))))
+                .as("while the range interceptor over the same window answers values - the disagreement, reproduced"
+                        + " offline with neither the clamp nor retention involved")
+                .hasSize(3);
+    }
+
     @Test
     public final void testNewEntityIncomingPushingAdjustKeyProvider() {
         final APushingHistoricalCacheAdjustKeyProvider adjustKeyProvider = new APushingHistoricalCacheAdjustKeyProvider(
@@ -653,5 +816,168 @@ public abstract class ABaseHistoricalCacheTest {
             return key.addYears(1);
         }
 
+    }
+
+    /**
+     * A cache whose only supplier is a range query interceptor: the store answers nothing, so any value a query receives
+     * provably came through the interceptor rather than through a map fill.
+     */
+    @NotThreadSafe
+    private class TestInterceptingCache extends AGapHistoricalCache<FDate> {
+
+        protected int interceptorHits;
+        protected int storeReads;
+
+        @Override
+        protected IHistoricalCacheRangeQueryInterceptor<FDate> newRangeQueryInterceptor() {
+            return new HistoricalCacheRangeQueryInterceptorSupport<FDate>() {
+
+                @Override
+                public ICloseableIterable<IHistoricalEntry<FDate>> getEntries(final FDate from, final FDate to) {
+                    interceptorHits++;
+                    final List<IHistoricalEntry<FDate>> entries = new ArrayList<IHistoricalEntry<FDate>>();
+                    for (final FDate entity : entities) {
+                        if ((from == null || !entity.isBeforeNotNullSafe(from))
+                                && (to == null || !entity.isAfterNotNullSafe(to))) {
+                            entries.add(ImmutableHistoricalEntry.of(entity, entity));
+                        }
+                    }
+                    return WrapperCloseableIterable.maybeWrap(entries);
+                }
+            };
+        }
+
+        @Override
+        protected Iterable<FDate> readAllValuesAscendingFrom(final FDate key) {
+            storeReads++;
+            return new BufferingIterator<FDate>(new ArrayList<FDate>());
+        }
+
+        @Override
+        protected FDate readLatestValueFor(final FDate key) {
+            storeReads++;
+            return null;
+        }
+
+        @Override
+        protected FDate innerExtractKey(final FDate entity) {
+            return entity;
+        }
+
+        @Override
+        protected FDate innerCalculateNextKey(final FDate key) {
+            return key.addYears(1);
+        }
+
+        @Override
+        protected FDate innerCalculatePreviousKey(final FDate key) {
+            return key.addDays(-1);
+        }
+    }
+
+    /**
+     * The same shape with retention turned off - {@code getInitialMaximumSize() == 0}, which is what the trading
+     * composed caches declare - and with a store that does hold the entities, so a cached range read cannot be blamed
+     * on a missing store.
+     */
+    @NotThreadSafe
+    private final class TestNoRetainInterceptingCache extends TestInterceptingCache {
+
+        @Override
+        protected Integer getInitialMaximumSize() {
+            return 0;
+        }
+
+        @Override
+        protected Iterable<FDate> readAllValuesAscendingFrom(final FDate key) {
+            storeReads++;
+            final List<FDate> result = new ArrayList<FDate>();
+            for (final FDate entity : entities) {
+                if (!entity.isBeforeNotNullSafe(key)) {
+                    result.add(entity);
+                }
+            }
+            return new BufferingIterator<FDate>(result);
+        }
+
+        @Override
+        protected FDate readLatestValueFor(final FDate key) {
+            storeReads++;
+            FDate previous = null;
+            for (final FDate entity : entities) {
+                if (previous == null || entity.isBeforeNotNullSafe(key)) {
+                    previous = entity;
+                }
+            }
+            return previous;
+        }
+    }
+
+    /**
+     * The lineage the trading composed cache actually has - {@code AHistoricalCache} base, retention off, values
+     * supplied by {@code newLoadValue()} on demand, and a range interceptor as the only bulk supplier.
+     */
+    @NotThreadSafe
+    private class TestNoRetainBaseCache extends AHistoricalCache<FDate> {
+
+        @Override
+        protected Integer getInitialMaximumSize() {
+            return 0;
+        }
+
+        @Override
+        protected IEvaluateGenericFDate<FDate> newLoadValue() {
+            return pKey -> {
+                final FDate key = pKey.asFDate();
+                FDate previous = null;
+                for (final FDate entity : entities) {
+                    if (entity.isAfterNotNullSafe(key)) {
+                        break;
+                    }
+                    previous = entity;
+                }
+                return previous;
+            };
+        }
+
+        @Override
+        protected FDate innerCalculateNextKey(final FDate key) {
+            return key.addYears(1);
+        }
+
+        @Override
+        protected FDate innerCalculatePreviousKey(final FDate key) {
+            return key.addDays(-1);
+        }
+
+        @Override
+        protected IHistoricalCacheRangeQueryInterceptor<FDate> newRangeQueryInterceptor() {
+            return new HistoricalCacheRangeQueryInterceptorSupport<FDate>() {
+
+                @Override
+                public ICloseableIterable<IHistoricalEntry<FDate>> getEntries(final FDate from, final FDate to) {
+                    final List<IHistoricalEntry<FDate>> entries = new ArrayList<IHistoricalEntry<FDate>>();
+                    for (final FDate entity : entities) {
+                        if (!entity.isBeforeNotNullSafe(from) && !entity.isAfterNotNullSafe(to)) {
+                            entries.add(ImmutableHistoricalEntry.of(entity, entity));
+                        }
+                    }
+                    return WrapperCloseableIterable.maybeWrap(entries);
+                }
+            };
+        }
+    }
+
+    /**
+     * Same base, but the cache's own supplier knows nothing - the state a composed cache whose single-key as-of
+     * composition cannot resolve an instant falls into, while its range interceptor still composes the window.
+     */
+    @NotThreadSafe
+    private final class TestNoSupplierBaseCache extends TestNoRetainBaseCache {
+
+        @Override
+        protected IEvaluateGenericFDate<FDate> newLoadValue() {
+            return pKey -> null;
+        }
     }
 }

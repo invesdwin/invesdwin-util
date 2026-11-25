@@ -269,4 +269,11 @@ public class HistoricalCacheQueryWithFuture<V> extends HistoricalCacheQuery<V>
         return this;
     }
 
+    @Override
+    protected HistoricalCacheQueryWithFuture<V> newFutureEnabledQuery() {
+        //Already future-enabled: setFutureNullEnabled() throws on this type, so there is no other mode to arm and no
+        //copy to build - and this keeps the base implementation from writing onto an instance a caller retains.
+        return this;
+    }
+
 }
