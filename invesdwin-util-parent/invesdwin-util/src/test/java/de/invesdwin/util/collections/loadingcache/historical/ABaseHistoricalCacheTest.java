@@ -435,6 +435,30 @@ public abstract class ABaseHistoricalCacheTest {
                 .isEqualTo(asList(cache.query().getValues(keys.get(0), keys.get(2))));
     }
 
+    /**
+     * The semantics the mode-leak fix newly exposes, pinned rather than asserted in prose.
+     * <p>
+     * Before the fix, a range read armed the caller's own query with {@code ASSERT_VALUE_WITH_FUTURE} on its way
+     * through {@code getEntriesCached}. That is the only reason a later {@code getKey(FDates.MIN_DATE)} on the same
+     * object answered: asking for the first key necessarily resolves to an entry whose key is AFTER the requested
+     * {@code MIN_DATE}, which is precisely what the without-future assertion rejects. With the leak gone, that
+     * sequence behaves as the mode contract says it should - so any consumer that had come to depend on the implicit
+     * arming now sees the exception, and this cell is where that consequence is measured instead of argued.
+     */
+    @Test
+    public final void testRangeReadNoLongerArmsTheDefaultQueryForAMinDateProbe() {
+        final List<FDate> keys = new ArrayList<FDate>(entities);
+        final IHistoricalCacheQuery<FDate> query = cache.query();
+        Assertions.assertThat(asList(query.getValuesCached(keys.get(0), keys.get(2))))
+                .as("the range read itself must still work on an un-armed query")
+                .isNotEmpty();
+        Assertions.assertThatExceptionOfType(IllegalArgumentException.class)
+                .as("a DEFAULT-mode query must not answer a MIN_DATE probe after a range read - the entry it would"
+                        + " return is strictly after the requested key, and the without-future assertion exists to"
+                        + " refuse exactly that; before the fix the range read armed the same object and hid it")
+                .isThrownBy(() -> query.getKey(FDates.MIN_DATE));
+    }
+
     @Test
     public final void testNewEntityIncomingPushingAdjustKeyProvider() {
         final APushingHistoricalCacheAdjustKeyProvider adjustKeyProvider = new APushingHistoricalCacheAdjustKeyProvider(
