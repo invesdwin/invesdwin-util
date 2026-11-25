@@ -389,6 +389,8 @@ public abstract class ABaseHistoricalCacheTest {
         final List<FDate> keys = new ArrayList<FDate>(entities);
         final IHistoricalCacheQuery<FDate> nullModeQuery = cache.query().setFutureNullEnabled();
         final List<FDate> loaded = asList(nullModeQuery.getValues(keys.get(0), keys.get(2)));
+        //the size guard is what keeps this from going vacuous if both sides ever come back empty
+        Assertions.assertThat(loaded).as("the window holds three entities").hasSize(3);
         Assertions.assertThat(loaded)
                 .as("a null-mode query must be able to serve a loading range read at all")
                 .isEqualTo(asList(cache.query().getValues(keys.get(0), keys.get(2))));

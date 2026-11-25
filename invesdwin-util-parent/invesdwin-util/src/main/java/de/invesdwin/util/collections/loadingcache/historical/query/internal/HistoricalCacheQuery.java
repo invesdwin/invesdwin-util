@@ -738,10 +738,13 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     }
 
     /**
-     * A future-enabled view of this query that leaves this instance untouched. The cached range walk must be able to
-     * look past the window end, hence the WITH_FUTURE mode; going through setFutureEnabled() wrote that mode onto the
-     * caller's own object instead, so any query that had been put into the null-future mode threw on its first range
-     * read, and a query used for range reads could never be switched to the null mode afterwards.
+     * A view of this query that is future-enabled without changing this query's mode. The cached range walk must be
+     * able to look past the window end, hence the WITH_FUTURE mode; going through setFutureEnabled() wrote that mode
+     * onto the caller's own object instead, so any query that had been put into the null-future mode threw on its
+     * first range read, and a query used for range reads could never be switched to the null mode afterwards.
+     * <p>
+     * A {@code HistoricalCacheQueryWithFuture} receiver overrides this to return itself: such an instance cannot carry
+     * any other mode ({@code setFutureNullEnabled()} throws there), so there is nothing to arm and no copy needed.
      */
     protected HistoricalCacheQueryWithFuture<V> newFutureEnabledQuery() {
         final HistoricalCacheQueryWithFuture<V> query = newFutureQuery();
@@ -750,9 +753,10 @@ public class HistoricalCacheQuery<V> implements IHistoricalCacheQuery<V> {
     }
 
     /**
-     * The future mode of an instance that a caller does not own - the only place this is used is
-     * {@link #newFutureEnabledQuery()}, where the object was just built as a copy. The public
-     * {@link #setFutureEnabled()} keeps its mutual-exclusion guard for genuine caller misuse.
+     * Sets the future mode on the object the range walk will actually use. Reached only from
+     * {@link #newFutureEnabledQuery()}, where for a base query that object is the copy just built; the with-future
+     * subclass never calls this. The public {@link #setFutureEnabled()} keeps its mutual-exclusion guard for genuine
+     * caller misuse.
      */
     protected void maybeArmFutureMode() {
         this.assertValue = HistoricalCacheAssertValue.ASSERT_VALUE_WITH_FUTURE;
