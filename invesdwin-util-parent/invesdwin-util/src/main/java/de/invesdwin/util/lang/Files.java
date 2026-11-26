@@ -612,9 +612,10 @@ public final class Files extends AFilesStaticFacade {
             } catch (final NoSuchElementException e) {
                 //end reached
             }
+            //The recorded differences are swept whenever a comparison has passed, in either mode: an _actual left by
+            //an earlier failing run sits next to the reference and gets read as current evidence for this one.
+            deleteReferenceActualFiles(referenceFile);
             if (createReferenceFile) {
-                //the recorded differences go first: they are sparse, so the chunk set is what bounds their sweep
-                deleteReferenceActualFiles(referenceFile);
                 //delete any existing reference files that are not needed anymore
                 while (true) {
                     final File obsoleteIndexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);

@@ -69,6 +69,26 @@ public class FilesTest {
     }
 
     @Test
+    public void testCheckReferenceClearsAStaleActualWhenTheReferenceLaterMatches() throws Exception {
+        //The case the fresh-directory test cannot reach: a previous run failed and left its recorded side behind, and
+        //the next run matches. Stale evidence in a reference tree is worse than none - it gets quoted as if it came
+        //from the run being read.
+        final File referenceFile = new File(tempDir, "retry.csv");
+        final File producedFile = new File(tempDir, "produced/retry.csv");
+        Files.writeStringToFileIfDifferent(referenceFile, "one two");
+        Files.writeStringToFileIfDifferent(producedFile, "one three");
+        try {
+            Files.checkReference(false, referenceFile, producedFile);
+            Assertions.fail("the differing side must fail the check first");
+        } catch (final AssertionError e) {
+            Assertions.assertThat(Files.getReferenceActualFile(referenceFile, 0)).exists();
+        }
+        Files.writeStringToFileIfDifferent(producedFile, "one two");
+        Files.checkReference(false, referenceFile, producedFile);
+        Assertions.assertThat(Files.getReferenceActualFile(referenceFile, 0)).doesNotExist();
+    }
+
+    @Test
     public void testCheckReferenceRecordsNothingWhenTheReferenceMatches() throws Exception {
         final File referenceFile = new File(tempDir, "same.csv");
         final File producedFile = new File(tempDir, "produced/same.csv");
