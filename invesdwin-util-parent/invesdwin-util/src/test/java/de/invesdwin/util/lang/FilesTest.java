@@ -69,6 +69,52 @@ public class FilesTest {
     }
 
     @Test
+    public void testCheckReferenceClearsStaleActualsOfChunksThatMatchBeforeOneFails() throws Exception {
+        //The case a sweep after the loop cannot reach: chunk 0 matches, chunk 1 differs and throws. If cleanup only
+        //happens at the end, chunk 0's recorded side from an earlier failing run survives the passing run.
+        final File referenceFile = new File(tempDir, "chunked.csv");
+        //the reference is written in create mode so the chunk files exist as chunks (a single write would put all of
+        //it in chunk 0, and the second chunk would then fail as a missing file rather than as a difference)
+        Files.checkReference(true, referenceFile, new StringInputStream("01234567"), 4);
+        try {
+            //first run: chunk 0 differs - its actual is recorded
+            Files.checkReference(false, referenceFile, new StringInputStream("XXXXYYYY"), 4);
+            Assertions.fail("the differing first chunk must fail the check");
+        } catch (final AssertionError e) {
+            Assertions.assertThat(Files.getReferenceActualFile(referenceFile, 0)).exists();
+        }
+        try {
+            //second run: chunk 0 matches, chunk 1 differs
+            Files.checkReference(false, referenceFile, new StringInputStream("0123YYYY"), 4);
+            Assertions.fail("the differing second chunk must fail the check");
+        } catch (final AssertionError e) {
+            Assertions.assertThat(Files.getReferenceActualFile(referenceFile, 1)).exists();
+            //the chunk that matched in THIS run must not keep the previous run's recorded side
+            Assertions.assertThat(Files.getReferenceActualFile(referenceFile, 0)).doesNotExist();
+        }
+    }
+
+    @Test
+    public void testCheckReferenceClearsAStaleActualWhenTheReferenceLaterMatches() throws Exception {
+        //The case the fresh-directory test cannot reach: a previous run failed and left its recorded side behind, and
+        //the next run matches. Stale evidence in a reference tree is worse than none - it gets quoted as if it came
+        //from the run being read.
+        final File referenceFile = new File(tempDir, "retry.csv");
+        final File producedFile = new File(tempDir, "produced/retry.csv");
+        Files.writeStringToFileIfDifferent(referenceFile, "one two");
+        Files.writeStringToFileIfDifferent(producedFile, "one three");
+        try {
+            Files.checkReference(false, referenceFile, producedFile);
+            Assertions.fail("the differing side must fail the check first");
+        } catch (final AssertionError e) {
+            Assertions.assertThat(Files.getReferenceActualFile(referenceFile, 0)).exists();
+        }
+        Files.writeStringToFileIfDifferent(producedFile, "one two");
+        Files.checkReference(false, referenceFile, producedFile);
+        Assertions.assertThat(Files.getReferenceActualFile(referenceFile, 0)).doesNotExist();
+    }
+
+    @Test
     public void testCheckReferenceRecordsNothingWhenTheReferenceMatches() throws Exception {
         final File referenceFile = new File(tempDir, "same.csv");
         final File producedFile = new File(tempDir, "produced/same.csv");

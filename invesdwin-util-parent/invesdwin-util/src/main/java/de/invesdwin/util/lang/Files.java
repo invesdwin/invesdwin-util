@@ -602,6 +602,11 @@ public final class Files extends AFilesStaticFacade {
                                 Assertions.checkEquals(existingRef, ref,
                                         "[" + actualReferenceFile + "] now holds the side that differed from ["
                                                 + indexedReferenceFile + "]");
+                            } else {
+                                //deleted here rather than after the loop: a later chunk may still fail and throw, and
+                                //then this chunk's recorded side from an earlier run would survive as if it belonged
+                                //to this comparison. What is on disk after a run is exactly the chunks that differ now.
+                                Files.deleteQuietly(getReferenceActualFile(referenceFile, i));
                             }
                         } catch (final IOException e) {
                             throw new RuntimeException(e);
@@ -612,9 +617,10 @@ public final class Files extends AFilesStaticFacade {
             } catch (final NoSuchElementException e) {
                 //end reached
             }
+            //Also swept here, not only per chunk: in create mode the whole set is rewritten, and a reference that now
+            //has fewer chunks than an earlier failing run recorded must not keep those extras either.
+            deleteReferenceActualFiles(referenceFile);
             if (createReferenceFile) {
-                //the recorded differences go first: they are sparse, so the chunk set is what bounds their sweep
-                deleteReferenceActualFiles(referenceFile);
                 //delete any existing reference files that are not needed anymore
                 while (true) {
                     final File obsoleteIndexedReferenceFile = Files.prefixExtension(referenceFile, "_" + i);
