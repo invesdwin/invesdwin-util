@@ -36,7 +36,8 @@ public final class AndSkippingPrimitiveIndexProvider implements ISkippingPrimiti
         return max;
     }
 
-    public static ISkippingPrimitiveIndexProvider of(final Collection<PeekingSkippingPrimitiveIndexProvider> delegates) {
+    public static ISkippingPrimitiveIndexProvider of(
+            final Collection<PeekingSkippingPrimitiveIndexProvider> delegates) {
         if (delegates == null || delegates.isEmpty()) {
             return null;
         } else if (delegates.size() == 1) {

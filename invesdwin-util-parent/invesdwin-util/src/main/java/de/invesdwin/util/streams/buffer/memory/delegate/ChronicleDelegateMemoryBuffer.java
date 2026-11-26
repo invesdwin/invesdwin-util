@@ -162,131 +162,6 @@ public class ChronicleDelegateMemoryBuffer implements ICloseableMemoryBuffer {
     }
 
     @Override
-    public long getLong(final long index) {
-        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final long bits = getDelegate().readLong(index);
-            return Long.reverseBytes(bits);
-        } else {
-            return getDelegate().readLong(index);
-        }
-    }
-
-    @Override
-    public int getInt(final long index) {
-        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final int bits = getDelegate().readInt(index);
-            return Integer.reverseBytes(bits);
-        } else {
-            return getDelegate().readInt(index);
-        }
-    }
-
-    @Override
-    public double getDouble(final long index) {
-        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final long bits = getDelegate().readLong(index);
-            return Double.longBitsToDouble(Long.reverseBytes(bits));
-        } else {
-            return getDelegate().readDouble(index);
-        }
-    }
-
-    @Override
-    public float getFloat(final long index) {
-        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final int bits = getDelegate().readInt(index);
-            return Float.intBitsToFloat(Integer.reverseBytes(bits));
-        } else {
-            return getDelegate().readFloat(index);
-        }
-    }
-
-    @Override
-    public short getShort(final long index) {
-        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final short bits = getDelegate().readShort(index);
-            return Short.reverseBytes(bits);
-        } else {
-            return getDelegate().readShort(index);
-        }
-    }
-
-    @Override
-    public char getChar(final long index) {
-        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final short bits = getDelegate().readShort(index);
-            return (char) Short.reverseBytes(bits);
-        } else {
-            return (char) getDelegate().readShort(index);
-        }
-    }
-
-    @Override
-    public long getLongReverse(final long index) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final long bits = getDelegate().readLong(index);
-            return Long.reverseBytes(bits);
-        } else {
-            return getDelegate().readLong(index);
-        }
-    }
-
-    @Override
-    public int getIntReverse(final long index) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final int bits = getDelegate().readInt(index);
-            return Integer.reverseBytes(bits);
-        } else {
-            return getDelegate().readInt(index);
-        }
-    }
-
-    @Override
-    public double getDoubleReverse(final long index) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final long bits = getDelegate().readLong(index);
-            return Double.longBitsToDouble(Long.reverseBytes(bits));
-        } else {
-            return getDelegate().readDouble(index);
-        }
-    }
-
-    @Override
-    public float getFloatReverse(final long index) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final int bits = getDelegate().readInt(index);
-            return Float.intBitsToFloat(Integer.reverseBytes(bits));
-        } else {
-            return getDelegate().readFloat(index);
-        }
-    }
-
-    @Override
-    public short getShortReverse(final long index) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final short bits = getDelegate().readShort(index);
-            return Short.reverseBytes(bits);
-        } else {
-            return getDelegate().readShort(index);
-        }
-    }
-
-    @Override
-    public char getCharReverse(final long index) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final short bits = getDelegate().readShort(index);
-            return (char) Short.reverseBytes(bits);
-        } else {
-            return (char) getDelegate().readShort(index);
-        }
-    }
-
-    @Override
-    public byte getByte(final long index) {
-        return getDelegate().readByte(index);
-    }
-
-    @Override
     public void getBytes(final long index, final byte[] dst, final int dstIndex, final int length) {
         for (int i = 0; i < length; i++) {
             dst[dstIndex + i] = getDelegate().readByte(index + i);
@@ -341,52 +216,64 @@ public class ChronicleDelegateMemoryBuffer implements ICloseableMemoryBuffer {
     }
 
     @Override
-    public void putLong(final long index, final long value) {
+    public byte getByte(final long index) {
+        return getDelegate().readByte(index);
+    }
+
+    @Override
+    public byte getByteVolatile(final long index) {
+        return getDelegate().readVolatileByte(index);
+    }
+
+    @Override
+    public void putByte(final long index, final byte value) {
+        getDelegate().writeByte(index, value);
+    }
+
+    @Override
+    public void putByteVolatile(final long index, final byte value) {
+        getDelegate().writeVolatileByte(index, value);
+    }
+
+    @Override
+    public char getChar(final long index) {
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final long bits = Long.reverseBytes(value);
-            getDelegate().writeLong(index, bits);
+            final short bits = getDelegate().readShort(index);
+            return (char) Short.reverseBytes(bits);
         } else {
-            getDelegate().writeLong(index, value);
+            return (char) getDelegate().readShort(index);
         }
     }
 
     @Override
-    public void putInt(final long index, final int value) {
-        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final int bits = Integer.reverseBytes(value);
-            getDelegate().writeInt(index, bits);
+    public char getCharReverse(final long index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = getDelegate().readShort(index);
+            return (char) Short.reverseBytes(bits);
         } else {
-            getDelegate().writeInt(index, value);
+            return (char) getDelegate().readShort(index);
         }
     }
 
     @Override
-    public void putDouble(final long index, final double value) {
+    public char getCharVolatile(final long index) {
+        //chronicle Bytes has no volatile char - volatile short carries the same 2-byte atomicity
         if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
-            getDelegate().writeLong(index, bits);
+            final short bits = getDelegate().readVolatileShort(index);
+            return (char) Short.reverseBytes(bits);
         } else {
-            getDelegate().writeDouble(index, value);
+            return (char) getDelegate().readVolatileShort(index);
         }
     }
 
     @Override
-    public void putFloat(final long index, final float value) {
-        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
-            getDelegate().writeInt(index, bits);
+    public char getCharVolatileReverse(final long index) {
+        //chronicle Bytes has no volatile char - volatile short carries the same 2-byte atomicity
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = getDelegate().readVolatileShort(index);
+            return (char) Short.reverseBytes(bits);
         } else {
-            getDelegate().writeFloat(index, value);
-        }
-    }
-
-    @Override
-    public void putShort(final long index, final short value) {
-        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
-            final short bits = Short.reverseBytes(value);
-            getDelegate().writeShort(index, bits);
-        } else {
-            getDelegate().writeShort(index, value);
+            return (char) getDelegate().readVolatileShort(index);
         }
     }
 
@@ -401,42 +288,84 @@ public class ChronicleDelegateMemoryBuffer implements ICloseableMemoryBuffer {
     }
 
     @Override
-    public void putLongReverse(final long index, final long value) {
+    public void putCharReverse(final long index, final char value) {
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final long bits = Long.reverseBytes(value);
-            getDelegate().writeLong(index, bits);
+            final short bits = Short.reverseBytes((short) value);
+            getDelegate().writeShort(index, bits);
         } else {
-            getDelegate().writeLong(index, value);
+            getDelegate().writeShort(index, (short) value);
         }
     }
 
     @Override
-    public void putIntReverse(final long index, final int value) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final int bits = Integer.reverseBytes(value);
-            getDelegate().writeInt(index, bits);
+    public void putCharVolatile(final long index, final char value) {
+        //chronicle Bytes has no volatile char - volatile short carries the same 2-byte atomicity
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = Short.reverseBytes((short) value);
+            getDelegate().writeVolatileShort(index, bits);
         } else {
-            getDelegate().writeInt(index, value);
+            getDelegate().writeVolatileShort(index, (short) value);
         }
     }
 
     @Override
-    public void putDoubleReverse(final long index, final double value) {
+    public void putCharVolatileReverse(final long index, final char value) {
+        //chronicle Bytes has no volatile char - volatile short carries the same 2-byte atomicity
         if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
-            getDelegate().writeLong(index, bits);
+            final short bits = Short.reverseBytes((short) value);
+            getDelegate().writeVolatileShort(index, bits);
         } else {
-            getDelegate().writeDouble(index, value);
+            getDelegate().writeVolatileShort(index, (short) value);
         }
     }
 
     @Override
-    public void putFloatReverse(final long index, final float value) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
-            getDelegate().writeInt(index, bits);
+    public short getShort(final long index) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = getDelegate().readShort(index);
+            return Short.reverseBytes(bits);
         } else {
-            getDelegate().writeFloat(index, value);
+            return getDelegate().readShort(index);
+        }
+    }
+
+    @Override
+    public short getShortReverse(final long index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = getDelegate().readShort(index);
+            return Short.reverseBytes(bits);
+        } else {
+            return getDelegate().readShort(index);
+        }
+    }
+
+    @Override
+    public short getShortVolatile(final long index) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = getDelegate().readVolatileShort(index);
+            return Short.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileShort(index);
+        }
+    }
+
+    @Override
+    public short getShortVolatileReverse(final long index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = getDelegate().readVolatileShort(index);
+            return Short.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileShort(index);
+        }
+    }
+
+    @Override
+    public void putShort(final long index, final short value) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = Short.reverseBytes(value);
+            getDelegate().writeShort(index, bits);
+        } else {
+            getDelegate().writeShort(index, value);
         }
     }
 
@@ -451,18 +380,471 @@ public class ChronicleDelegateMemoryBuffer implements ICloseableMemoryBuffer {
     }
 
     @Override
-    public void putCharReverse(final long index, final char value) {
-        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
-            final short bits = Short.reverseBytes((short) value);
-            getDelegate().writeShort(index, bits);
+    public void putShortVolatile(final long index, final short value) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = Short.reverseBytes(value);
+            getDelegate().writeVolatileShort(index, bits);
         } else {
-            getDelegate().writeShort(index, (short) value);
+            getDelegate().writeVolatileShort(index, value);
         }
     }
 
     @Override
-    public void putByte(final long index, final byte value) {
-        getDelegate().writeByte(index, value);
+    public void putShortVolatileReverse(final long index, final short value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final short bits = Short.reverseBytes(value);
+            getDelegate().writeVolatileShort(index, bits);
+        } else {
+            getDelegate().writeVolatileShort(index, value);
+        }
+    }
+
+    @Override
+    public int getInt(final long index) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getDelegate().readInt(index);
+            return Integer.reverseBytes(bits);
+        } else {
+            return getDelegate().readInt(index);
+        }
+    }
+
+    @Override
+    public int getIntReverse(final long index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getDelegate().readInt(index);
+            return Integer.reverseBytes(bits);
+        } else {
+            return getDelegate().readInt(index);
+        }
+    }
+
+    @Override
+    public int getIntVolatile(final long index) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getDelegate().readVolatileInt(index);
+            return Integer.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileInt(index);
+        }
+    }
+
+    @Override
+    public int getIntVolatileReverse(final long index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getDelegate().readVolatileInt(index);
+            return Integer.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileInt(index);
+        }
+    }
+
+    @Override
+    public int getIntAcquire(final long index) {
+        //chronicle Bytes has no acquire read - the volatile read carries the acquire guarantee
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getDelegate().readVolatileInt(index);
+            return Integer.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileInt(index);
+        }
+    }
+
+    @Override
+    public int getIntAcquireReverse(final long index) {
+        //chronicle Bytes has no acquire read - the volatile read carries the acquire guarantee
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getDelegate().readVolatileInt(index);
+            return Integer.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileInt(index);
+        }
+    }
+
+    @Override
+    public void putInt(final long index, final int value) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            getDelegate().writeInt(index, bits);
+        } else {
+            getDelegate().writeInt(index, value);
+        }
+    }
+
+    @Override
+    public void putIntReverse(final long index, final int value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            getDelegate().writeInt(index, bits);
+        } else {
+            getDelegate().writeInt(index, value);
+        }
+    }
+
+    @Override
+    public void putIntVolatile(final long index, final int value) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            getDelegate().writeVolatileInt(index, bits);
+        } else {
+            getDelegate().writeVolatileInt(index, value);
+        }
+    }
+
+    @Override
+    public void putIntVolatileReverse(final long index, final int value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            getDelegate().writeVolatileInt(index, bits);
+        } else {
+            getDelegate().writeVolatileInt(index, value);
+        }
+    }
+
+    @Override
+    public void putIntRelease(final long index, final int value) {
+        //chronicle writeOrderedInt is its release-ordered store (agrona maps putIntOrdered to putIntRelease)
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            getDelegate().writeOrderedInt(index, bits);
+        } else {
+            getDelegate().writeOrderedInt(index, value);
+        }
+    }
+
+    @Override
+    public void putIntReleaseReverse(final long index, final int value) {
+        //chronicle writeOrderedInt is its release-ordered store (agrona maps putIntOrdered to putIntRelease)
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            getDelegate().writeOrderedInt(index, bits);
+        } else {
+            getDelegate().writeOrderedInt(index, value);
+        }
+    }
+
+    @Override
+    public void putIntOrdered(final long index, final int value) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            getDelegate().writeOrderedInt(index, bits);
+        } else {
+            getDelegate().writeOrderedInt(index, value);
+        }
+    }
+
+    @Override
+    public void putIntOrderedReverse(final long index, final int value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(value);
+            getDelegate().writeOrderedInt(index, bits);
+        } else {
+            getDelegate().writeOrderedInt(index, value);
+        }
+    }
+
+    @Override
+    public long getLong(final long index) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getDelegate().readLong(index);
+            return Long.reverseBytes(bits);
+        } else {
+            return getDelegate().readLong(index);
+        }
+    }
+
+    @Override
+    public long getLongReverse(final long index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getDelegate().readLong(index);
+            return Long.reverseBytes(bits);
+        } else {
+            return getDelegate().readLong(index);
+        }
+    }
+
+    @Override
+    public long getLongVolatile(final long index) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getDelegate().readVolatileLong(index);
+            return Long.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileLong(index);
+        }
+    }
+
+    @Override
+    public long getLongVolatileReverse(final long index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getDelegate().readVolatileLong(index);
+            return Long.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileLong(index);
+        }
+    }
+
+    @Override
+    public long getLongAcquire(final long index) {
+        //chronicle Bytes has no acquire read - the volatile read carries the acquire guarantee
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getDelegate().readVolatileLong(index);
+            return Long.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileLong(index);
+        }
+    }
+
+    @Override
+    public long getLongAcquireReverse(final long index) {
+        //chronicle Bytes has no acquire read - the volatile read carries the acquire guarantee
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getDelegate().readVolatileLong(index);
+            return Long.reverseBytes(bits);
+        } else {
+            return getDelegate().readVolatileLong(index);
+        }
+    }
+
+    @Override
+    public void putLong(final long index, final long value) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            getDelegate().writeLong(index, bits);
+        } else {
+            getDelegate().writeLong(index, value);
+        }
+    }
+
+    @Override
+    public void putLongReverse(final long index, final long value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            getDelegate().writeLong(index, bits);
+        } else {
+            getDelegate().writeLong(index, value);
+        }
+    }
+
+    @Override
+    public void putLongVolatile(final long index, final long value) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            getDelegate().writeVolatileLong(index, bits);
+        } else {
+            getDelegate().writeVolatileLong(index, value);
+        }
+    }
+
+    @Override
+    public void putLongVolatileReverse(final long index, final long value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            getDelegate().writeVolatileLong(index, bits);
+        } else {
+            getDelegate().writeVolatileLong(index, value);
+        }
+    }
+
+    @Override
+    public void putLongRelease(final long index, final long value) {
+        //chronicle writeOrderedLong is its release-ordered store (agrona maps putLongOrdered to putLongRelease)
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            getDelegate().writeOrderedLong(index, bits);
+        } else {
+            getDelegate().writeOrderedLong(index, value);
+        }
+    }
+
+    @Override
+    public void putLongReleaseReverse(final long index, final long value) {
+        //chronicle writeOrderedLong is its release-ordered store (agrona maps putLongOrdered to putLongRelease)
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            getDelegate().writeOrderedLong(index, bits);
+        } else {
+            getDelegate().writeOrderedLong(index, value);
+        }
+    }
+
+    @Override
+    public void putLongOrdered(final long index, final long value) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            getDelegate().writeOrderedLong(index, bits);
+        } else {
+            getDelegate().writeOrderedLong(index, value);
+        }
+    }
+
+    @Override
+    public void putLongOrderedReverse(final long index, final long value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(value);
+            getDelegate().writeOrderedLong(index, bits);
+        } else {
+            getDelegate().writeOrderedLong(index, value);
+        }
+    }
+
+    @Override
+    public float getFloat(final long index) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getDelegate().readInt(index);
+            return Float.intBitsToFloat(Integer.reverseBytes(bits));
+        } else {
+            return getDelegate().readFloat(index);
+        }
+    }
+
+    @Override
+    public float getFloatReverse(final long index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getDelegate().readInt(index);
+            return Float.intBitsToFloat(Integer.reverseBytes(bits));
+        } else {
+            return getDelegate().readFloat(index);
+        }
+    }
+
+    @Override
+    public float getFloatVolatile(final long index) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getDelegate().readVolatileInt(index);
+            return Float.intBitsToFloat(Integer.reverseBytes(bits));
+        } else {
+            return getDelegate().readVolatileFloat(index);
+        }
+    }
+
+    @Override
+    public float getFloatVolatileReverse(final long index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = getDelegate().readVolatileInt(index);
+            return Float.intBitsToFloat(Integer.reverseBytes(bits));
+        } else {
+            return getDelegate().readVolatileFloat(index);
+        }
+    }
+
+    @Override
+    public void putFloat(final long index, final float value) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
+            getDelegate().writeInt(index, bits);
+        } else {
+            getDelegate().writeFloat(index, value);
+        }
+    }
+
+    @Override
+    public void putFloatReverse(final long index, final float value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
+            getDelegate().writeInt(index, bits);
+        } else {
+            getDelegate().writeFloat(index, value);
+        }
+    }
+
+    @Override
+    public void putFloatVolatile(final long index, final float value) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
+            getDelegate().writeVolatileInt(index, bits);
+        } else {
+            getDelegate().writeVolatileFloat(index, value);
+        }
+    }
+
+    @Override
+    public void putFloatVolatileReverse(final long index, final float value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
+            getDelegate().writeVolatileInt(index, bits);
+        } else {
+            getDelegate().writeVolatileFloat(index, value);
+        }
+    }
+
+    @Override
+    public double getDouble(final long index) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getDelegate().readLong(index);
+            return Double.longBitsToDouble(Long.reverseBytes(bits));
+        } else {
+            return getDelegate().readDouble(index);
+        }
+    }
+
+    @Override
+    public double getDoubleReverse(final long index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getDelegate().readLong(index);
+            return Double.longBitsToDouble(Long.reverseBytes(bits));
+        } else {
+            return getDelegate().readDouble(index);
+        }
+    }
+
+    @Override
+    public double getDoubleVolatile(final long index) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getDelegate().readVolatileLong(index);
+            return Double.longBitsToDouble(Long.reverseBytes(bits));
+        } else {
+            return getDelegate().readVolatileDouble(index);
+        }
+    }
+
+    @Override
+    public double getDoubleVolatileReverse(final long index) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = getDelegate().readVolatileLong(index);
+            return Double.longBitsToDouble(Long.reverseBytes(bits));
+        } else {
+            return getDelegate().readVolatileDouble(index);
+        }
+    }
+
+    @Override
+    public void putDouble(final long index, final double value) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
+            getDelegate().writeLong(index, bits);
+        } else {
+            getDelegate().writeDouble(index, value);
+        }
+    }
+
+    @Override
+    public void putDoubleReverse(final long index, final double value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
+            getDelegate().writeLong(index, bits);
+        } else {
+            getDelegate().writeDouble(index, value);
+        }
+    }
+
+    @Override
+    public void putDoubleVolatile(final long index, final double value) {
+        if (ByteBuffers.BIG_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
+            getDelegate().writeVolatileLong(index, bits);
+        } else {
+            getDelegate().writeVolatileDouble(index, value);
+        }
+    }
+
+    @Override
+    public void putDoubleVolatileReverse(final long index, final double value) {
+        if (ByteBuffers.LITTLE_ENDIAN_REVERSAL_NEEDED) {
+            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
+            getDelegate().writeVolatileLong(index, bits);
+        } else {
+            getDelegate().writeVolatileDouble(index, value);
+        }
     }
 
     @Override

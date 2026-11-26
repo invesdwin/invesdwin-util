@@ -17,8 +17,7 @@ import de.invesdwin.util.math.decimal.ADecimal;
 @Immutable
 public final class CheckedCastIntegers {
 
-    private CheckedCastIntegers() {
-    }
+    private CheckedCastIntegers() {}
 
     public static int checkedCast(final Object value) {
         if (value instanceof Number) {

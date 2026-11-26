@@ -10,8 +10,7 @@ public final class Locales {
     public static final Locale ENGLISH = Locale.ENGLISH;
     public static final Locale SPANISH = new Locale("es", "ES");
 
-    private Locales() {
-    }
+    private Locales() {}
 
     public static boolean isSameLanguage(final Locale locale1, final Locale locale2) {
         return isSameLanguage(locale1, locale2.getLanguage());

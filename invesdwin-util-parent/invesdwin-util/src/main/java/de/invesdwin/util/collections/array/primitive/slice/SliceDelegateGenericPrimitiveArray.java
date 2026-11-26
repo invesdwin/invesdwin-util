@@ -15,7 +15,8 @@ public class SliceDelegateGenericPrimitiveArray<E> implements IGenericPrimitiveA
     private final int from;
     private final int length;
 
-    public SliceDelegateGenericPrimitiveArray(final IGenericPrimitiveArray<E> delegate, final int from, final int length) {
+    public SliceDelegateGenericPrimitiveArray(final IGenericPrimitiveArray<E> delegate, final int from,
+            final int length) {
         this.delegate = delegate;
         this.from = from;
         this.length = length;
@@ -72,7 +73,8 @@ public class SliceDelegateGenericPrimitiveArray<E> implements IGenericPrimitiveA
     }
 
     @Override
-    public void getGenerics(final int srcPos, final IGenericPrimitiveArray<E> dest, final int destPos, final int length) {
+    public void getGenerics(final int srcPos, final IGenericPrimitiveArray<E> dest, final int destPos,
+            final int length) {
         delegate.getGenerics(srcPos + from, dest, destPos, length);
     }
 

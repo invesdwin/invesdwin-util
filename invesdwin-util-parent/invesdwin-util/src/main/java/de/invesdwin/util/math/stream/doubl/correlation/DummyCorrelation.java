@@ -9,8 +9,7 @@ public final class DummyCorrelation implements ICorrelation {
 
     public static final DummyCorrelation INSTANCE = new DummyCorrelation();
 
-    private DummyCorrelation() {
-    }
+    private DummyCorrelation() {}
 
     @Override
     public Percent getCorrelation() {

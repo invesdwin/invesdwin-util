@@ -17,8 +17,7 @@ import de.invesdwin.util.math.decimal.ADecimal;
 @Immutable
 public final class CheckedCastBytesObj {
 
-    private CheckedCastBytesObj() {
-    }
+    private CheckedCastBytesObj() {}
 
     public static Byte checkedCastObj(final Object value) {
         if (value == null) {

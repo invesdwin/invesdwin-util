@@ -68,8 +68,13 @@ public interface IMemoryMappedFile extends Closeable {
         }
     }
 
+    /**
+     * Whether one memory mapped segment cannot cover this length on the running platform. Off Windows there is no such
+     * ceiling (MAX_SEGMENT_SIZE is Long.MAX_VALUE), so no length exceeds it; callers rely on that by passing
+     * Long.MAX_VALUE as a platform probe, which only works with a strict comparison.
+     */
     static boolean isSegmentSizeExceeded(final long length) {
-        return length >= MAX_SEGMENT_SIZE;
+        return length > MAX_SEGMENT_SIZE;
     }
 
     static long roundToBlockSize(final long length, final boolean readOnly) {

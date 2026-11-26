@@ -46,8 +46,7 @@ public final class Token implements IPosition {
     private int lineOffset;
     private int indexOffset;
 
-    private Token() {
-    }
+    private Token() {}
 
     public static Token create(final TokenType type, final IPosition pos) {
         final Token result = new Token();

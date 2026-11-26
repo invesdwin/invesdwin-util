@@ -8,8 +8,7 @@ public final class UnsupportedReference<T> implements IMutableReference<T> {
     @SuppressWarnings("rawtypes")
     private static final UnsupportedReference INSTANCE = new UnsupportedReference<>();
 
-    private UnsupportedReference() {
-    }
+    private UnsupportedReference() {}
 
     @Override
     public T get() {

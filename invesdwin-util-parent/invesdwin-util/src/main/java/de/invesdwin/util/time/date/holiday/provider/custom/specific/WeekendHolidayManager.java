@@ -10,8 +10,7 @@ public final class WeekendHolidayManager implements IHolidayManager {
 
     public static final WeekendHolidayManager INSTANCE = new WeekendHolidayManager();
 
-    private WeekendHolidayManager() {
-    }
+    private WeekendHolidayManager() {}
 
     @Override
     public boolean isHoliday(final FDate date) {

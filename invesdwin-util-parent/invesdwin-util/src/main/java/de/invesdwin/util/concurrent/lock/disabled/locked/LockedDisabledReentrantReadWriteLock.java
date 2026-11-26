@@ -9,7 +9,8 @@ import de.invesdwin.util.concurrent.lock.readwrite.IReentrantWriteLock;
 import de.invesdwin.util.concurrent.lock.strategy.ILockingStrategy;
 
 @Immutable
-public class LockedDisabledReentrantReadWriteLock extends LockedDisabledReadWriteLock implements IReentrantReadWriteLock {
+public class LockedDisabledReentrantReadWriteLock extends LockedDisabledReadWriteLock
+        implements IReentrantReadWriteLock {
 
     public static final LockedDisabledReentrantReadWriteLock INSTANCE = new LockedDisabledReentrantReadWriteLock();
 

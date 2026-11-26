@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.clock.FDateClockNanosInternal;
@@ -31,7 +30,6 @@ public class FDateTest {
 
     @BeforeAll
     public static void beforeClass() {
-        Reflections.disableJavaModuleSystemRestrictions();
         FDates.setDefaultClock(FDateClockNanosInternal.INSTANCE);
         final TimeZone newTimeZone = TimeZones.getTimeZone("UTC");
         FDates.setDefaultTimeZone(FTimeZone.valueOf(newTimeZone));

@@ -14,8 +14,7 @@ public final class DoubleStreamError implements IDoubleDoubleStreamAlgorithm {
 
     public static final DoubleStreamError INSTANCE = new DoubleStreamError();
 
-    private DoubleStreamError() {
-    }
+    private DoubleStreamError() {}
 
     @Override
     public double process(final double actual, final double prediction) {

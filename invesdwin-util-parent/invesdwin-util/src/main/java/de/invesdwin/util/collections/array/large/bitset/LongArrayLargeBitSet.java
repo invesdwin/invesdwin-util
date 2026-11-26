@@ -17,7 +17,7 @@ public class LongArrayLargeBitSet implements ILargeBitSet {
 
     public static final Function<LongArrayLargeBitSet, ILargeBitSet> COMPRESSED_COPY_FACTORY = copyFrom -> {
         final long size = copyFrom.size();
-        final ILargeBitSet copy = ILockCollectionFactory.getInstance(false).newLargeBitSet(size);
+        final ILargeBitSet copy = ILockCollectionFactory.getInstance(false).large().newBitSet(size);
         copyFrom.getBooleans(0, copy, 0, size);
         return copy;
     };

@@ -19,8 +19,7 @@ public final class DisabledReference<T> implements IMutableReference<T> {
     }
 
     @Override
-    public void set(final T value) {
-    }
+    public void set(final T value) {}
 
     @SuppressWarnings("unchecked")
     public static <T> DisabledReference<T> getInstance() {

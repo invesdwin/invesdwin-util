@@ -25,8 +25,7 @@ public final class UnsupportedExpression implements IParsedExpression {
 
     public static final UnsupportedExpression INSTANCE = new UnsupportedExpression();
 
-    private UnsupportedExpression() {
-    }
+    private UnsupportedExpression() {}
 
     @Override
     public IEvaluateDoubleFDate newEvaluateDoubleFDate() {

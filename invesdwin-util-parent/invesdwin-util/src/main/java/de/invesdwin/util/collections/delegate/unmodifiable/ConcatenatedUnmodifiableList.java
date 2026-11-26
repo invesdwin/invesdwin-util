@@ -8,7 +8,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.iterable.collection.ListCloseableIterator;
-import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
 public class ConcatenatedUnmodifiableList<E> extends AUnmodifiableList<E> {
@@ -108,7 +107,15 @@ public class ConcatenatedUnmodifiableList<E> extends AUnmodifiableList<E> {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(l1, l2);
+        // equals is JDK List content equality (Collections.elementsEqual), so per the JDK List
+        // contract the hash must be the content sequence hash. The old Objects.hashCode(l1, l2)
+        // fold was partition-sensitive: [1,2]+[] equals [1]+[2] (and any JDK list with the same
+        // content) but hashed differently.
+        int hashCode = 1;
+        for (final E element : this) {
+            hashCode = 31 * hashCode + (element == null ? 0 : element.hashCode());
+        }
+        return hashCode;
     }
 
     @Override

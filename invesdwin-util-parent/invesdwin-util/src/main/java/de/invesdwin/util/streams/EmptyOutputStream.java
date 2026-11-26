@@ -10,8 +10,7 @@ public final class EmptyOutputStream extends OutputStream {
 
     public static final EmptyOutputStream INSTANCE = new EmptyOutputStream();
 
-    private EmptyOutputStream() {
-    }
+    private EmptyOutputStream() {}
 
     @Override
     public void write(final int b) throws IOException {

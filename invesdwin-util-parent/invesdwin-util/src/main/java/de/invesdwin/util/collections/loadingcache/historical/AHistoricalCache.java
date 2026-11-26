@@ -93,7 +93,11 @@ public abstract class AHistoricalCache<V> implements IHistoricalCache<V> {
     private final Set<IHistoricalCacheIncreaseMaximumSizeListener> increaseMaximumSizeListeners = newListenerSet();
 
     private IHistoricalCachePutProvider<V> putProvider = new InnerHistoricalCachePutProvider();
-    private boolean cachingEnabled = newCachingEnabled(getMaximumSize());
+    //must NOT read getMaximumSize() here: the maximumSize field initializer runs after this one (declaration order),
+    //so getMaximumSize() would still be null at this point and newCachingEnabled(null) would always enable caching -
+    //even for caches that start out at DISABLED_MAXIMUM_SIZE (0 means no caching); initialise from the same
+    //getInitialMaximumSize() hook that the maximumSize field below is set from
+    private boolean cachingEnabled = newCachingEnabled(getInitialMaximumSize());
 
     private volatile long lastRefreshMillis = HistoricalCacheRefreshManager.getLastRefresh().millisValue();
     private volatile Integer maximumSize = getInitialMaximumSize();

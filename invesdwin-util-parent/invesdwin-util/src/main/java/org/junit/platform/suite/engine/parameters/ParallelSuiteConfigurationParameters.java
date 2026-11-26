@@ -9,7 +9,7 @@ import java.util.Set;
 import javax.annotation.concurrent.Immutable;
 
 import org.junit.jupiter.api.parallel.ExecutionMode;
-import org.junit.jupiter.engine.config.JupiterConfiguration;
+import org.junit.jupiter.engine.Constants;
 import org.junit.platform.commons.JUnitException;
 import org.junit.platform.engine.ConfigurationParameters;
 import org.junit.platform.engine.support.hierarchical.DefaultParallelExecutionConfigurationStrategy;
@@ -165,11 +165,11 @@ public class ParallelSuiteConfigurationParameters implements ConfigurationParame
                 String.valueOf(Executors.getCpuThreadPoolCount()));
         overrideParamters.put(DefaultParallelExecutionConfigurationStrategy.CONFIG_FIXED_MAX_POOL_SIZE_PROPERTY_NAME,
                 String.valueOf(Executors.getCpuThreadPoolCount()));
-        overrideParamters.put(JupiterConfiguration.PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME,
+        overrideParamters.put(Constants.PARALLEL_EXECUTION_ENABLED_PROPERTY_NAME,
                 String.valueOf(parallelClasses || parallelMethods));
-        overrideParamters.put(JupiterConfiguration.DEFAULT_CLASSES_EXECUTION_MODE_PROPERTY_NAME,
+        overrideParamters.put(Constants.DEFAULT_CLASSES_EXECUTION_MODE_PROPERTY_NAME,
                 String.valueOf(newExecutionMode(parallelClasses)));
-        overrideParamters.put(JupiterConfiguration.DEFAULT_EXECUTION_MODE_PROPERTY_NAME,
+        overrideParamters.put(Constants.DEFAULT_PARALLEL_EXECUTION_MODE,
                 String.valueOf(newExecutionMode(parallelMethods)));
         return LauncherConfigurationParametersAccessor.overrideParamters(parentConfigurationParameters,
                 overrideParamters);

@@ -2,11 +2,7 @@ package de.invesdwin.util.concurrent.lock.file;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
-
 import de.invesdwin.util.concurrent.lock.ILock;
-import de.invesdwin.util.concurrent.lock.Locks;
 
 /**
  * Caffeine is not compatible to Java 8 which otherwise fails HadoopYarn test MpjExpress test. Thus extract this into an
@@ -15,10 +11,10 @@ import de.invesdwin.util.concurrent.lock.Locks;
 @ThreadSafe
 final class FileChannelThreadLock {
 
-    static final LoadingCache<String, ILock> FILE_LOCK = Caffeine.newBuilder()
-            .weakValues()
-            .<String, ILock> build((name) -> Locks.newReentrantLock(name));
-
     private FileChannelThreadLock() {}
+
+    static ILock get(final String name) {
+        return NameKeyedLocks.get(name);
+    }
 
 }

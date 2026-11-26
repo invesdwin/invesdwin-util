@@ -17,8 +17,7 @@ public final class BigIntegers {
     public static final BigInteger DEFAULT_MISSING_VALUE = BigInteger.ZERO;
     public static final IComparator<BigInteger> COMPARATOR = IComparator.getDefaultInstance();
 
-    private BigIntegers() {
-    }
+    private BigIntegers() {}
 
     public static BigInteger valueOf(final ADecimal<?> value) {
         if (value == null) {

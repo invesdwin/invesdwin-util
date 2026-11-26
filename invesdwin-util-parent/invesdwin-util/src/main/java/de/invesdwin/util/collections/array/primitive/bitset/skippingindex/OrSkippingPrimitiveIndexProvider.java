@@ -31,7 +31,8 @@ public final class OrSkippingPrimitiveIndexProvider implements ISkippingPrimitiv
         return min;
     }
 
-    public static ISkippingPrimitiveIndexProvider of(final Collection<PeekingSkippingPrimitiveIndexProvider> delegates) {
+    public static ISkippingPrimitiveIndexProvider of(
+            final Collection<PeekingSkippingPrimitiveIndexProvider> delegates) {
         if (delegates == null || delegates.isEmpty()) {
             return null;
         } else if (delegates.size() == 1) {

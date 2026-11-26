@@ -132,6 +132,19 @@ public final class Throwables extends AThrowablesStaticFacade {
         return ExceptionUtils.getStackTrace(t);
     }
 
+    /**
+     * The cause-chain messages (see {@link #concatMessages(Throwable)}), plus the full stack trace when
+     * DEBUG_STACK_TRACE_ENABLED is on. The report paths that deliberately answer a verdict with one line (the
+     * retry-later http response and the retry-later / retry-disabled source reports) call this, so the operator's
+     * debug switch gets the detail back without a rebuild.
+     */
+    public static String getMessagesAndStackTraceIfDebugEnabled(final Throwable t) {
+        if (!isDebugStackTraceEnabled()) {
+            return concatMessages(t);
+        }
+        return concatMessages(t) + "\n" + getFullStackTrace(t);
+    }
+
     @SafeVarargs
     public static Throwable ignoreType(final Throwable e, final Class<? extends Throwable>... ignoredTypes) {
         Throwable validCause = e;
@@ -254,6 +267,17 @@ public final class Throwables extends AThrowablesStaticFacade {
     public static RuntimeException propagate(final Throwable t) {
         LangUtil.rethrowUnchecked(t);
         throw (RuntimeException) t;
+    }
+
+    /**
+     * Adds the suppressed throwable to the original one as a suppressed exception. A null suppressed throwable is
+     * ignored and the original throwable is never suppressed by itself, so the original throwable stays the one that
+     * carries the whole failure information.
+     */
+    public static void addSuppressed(final Throwable original, final Throwable suppressed) {
+        if (suppressed != null && suppressed != original) {
+            original.addSuppressed(suppressed);
+        }
     }
 
     public static IndexOutOfBoundsException newIndexOutOfBoundsException(final int index) {

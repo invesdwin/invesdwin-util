@@ -11,8 +11,7 @@ final class DummyDurationAggregate implements IDurationAggregate {
 
     public static final DummyDurationAggregate INSTANCE = new DummyDurationAggregate();
 
-    private DummyDurationAggregate() {
-    }
+    private DummyDurationAggregate() {}
 
     @Override
     public IDurationAggregate reverse() {

@@ -20,8 +20,7 @@ public class MemoryBufferOutputStream extends OutputStream {
     /**
      * Default constructor.
      */
-    public MemoryBufferOutputStream() {
-    }
+    public MemoryBufferOutputStream() {}
 
     /**
      * Constructs output stream wrapping the given buffer.
@@ -172,13 +171,11 @@ public class MemoryBufferOutputStream extends OutputStream {
      * Override to remove {@link IOException}. This method does nothing.
      */
     @Override
-    public void flush() {
-    }
+    public void flush() {}
 
     /**
      * Override to remove {@link IOException}. This method does nothing.
      */
     @Override
-    public void close() {
-    }
+    public void close() {}
 }

@@ -3,6 +3,7 @@ package de.invesdwin.util.swing;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
@@ -36,9 +37,25 @@ import de.invesdwin.util.swing.text.Hotkey;
 import de.invesdwin.util.swing.text.KeyGrabberTextField;
 import de.invesdwin.util.swing.text.ToolTipFormatter;
 import de.invesdwin.util.time.date.millis.FDateMillis;
+import de.invesdwin.util.time.date.millis.FDateNanos;
+import de.invesdwin.util.time.duration.Duration;
 
 @Immutable
 public final class Components {
+
+    /**
+     * The ToolTipManager re-posts a tooltip on every mouseMoved it receives with changed
+     * text: {@code hideTipWindow()} plus a fresh {@code createToolTip()} and HTML layout,
+     * or - while the tip has not appeared yet - an {@code enterTimer.restart()}, which
+     * starts the initial delay from scratch. A label whose text changes several times a
+     * second (the status bar task line, the heap indicator) therefore blinks or never
+     * shows at all, since a repost faster than the initial delay unschedules it again.
+     * The text itself is still set on every change, only the repost into the visible
+     * tooltip is throttled, so a hovering user reads a stable tooltip that refreshes at
+     * most this often.
+     */
+    public static final Duration TOOLTIP_UPDATE_INTERVAL = Duration.ONE_SECOND;
+    static final String CLIENTPROP_LAST_TOOLTIP_UPDATE_NANOS = "LAST_TOOLTIP_UPDATE_NANOS";
 
     private static ToolTipFormatter defaultToolTipFormatter = new ToolTipFormatter();
     private static MouseMotionListener lazyTooltipManagerMotionListener = new ADelegateMouseMotionListener() {
@@ -50,6 +67,9 @@ public final class Components {
 
     private static final long COMPONENT_MINSIZE_FIELD_OFFSET;
     private static final long COMPONENT_MINSIZESET_FIELD_OFFSET;
+
+    private static final String ABBREVIATION_MARKER = "...";
+    private static final int MIN_ABBREVIATED_CHARS = ABBREVIATION_MARKER.length() + 2;
 
     static {
         final Field minSizeField = Reflections.findField(Component.class, "minSize");
@@ -151,7 +171,23 @@ public final class Components {
     }
 
     public static void updateToolTip(final JComponent component) {
+        if (!isToolTipUpdateDue(component, FDateNanos.elapsedNanos())) {
+            return;
+        }
         triggerMouseMovedWithWindowActive(component, lazyTooltipManagerMotionListener);
+    }
+
+    /**
+     * Leading edge of {@link #TOOLTIP_UPDATE_INTERVAL}: the first repost after the
+     * interval records the moment and is due, every one inside the interval is not.
+     */
+    static boolean isToolTipUpdateDue(final JComponent component, final long nowNanos) {
+        final Object lastNanos = component.getClientProperty(CLIENTPROP_LAST_TOOLTIP_UPDATE_NANOS);
+        if (lastNanos instanceof Long && !TOOLTIP_UPDATE_INTERVAL.isLessThanNanos(nowNanos - (Long) lastNanos)) {
+            return false;
+        }
+        component.putClientProperty(CLIENTPROP_LAST_TOOLTIP_UPDATE_NANOS, nowNanos);
+        return true;
     }
 
     /**
@@ -397,6 +433,46 @@ public final class Components {
         if (component.getSelectionEnd() != selectionEnd) {
             component.setSelectionEnd(selectionEnd);
         }
+    }
+
+    /**
+     * Abbreviates only what is displayed - the text is never changed in place, so the
+     * caller can keep the full string (tooltip, log, model). The middle is cut
+     * (leading part + marker + trailing part) so a meaningful suffix like
+     * " (N%) | ETA: ..." stays visible. A maxWidth of 0 means the layout is not known
+     * yet and returns the text unchanged.
+     */
+    public static String abbreviateToFit(final JComponent component, final String text, final int maxWidth) {
+        if (maxWidth <= 0) {
+            return text;
+        }
+        final FontMetrics fontMetrics = component.getFontMetrics(component.getFont());
+        if (fontMetrics.stringWidth(text) <= maxWidth) {
+            return text;
+        }
+        //largest char count whose abbreviated form fits - every candidate is measured
+        //as the exact string that will be returned, so no monotonicity is assumed
+        int low = MIN_ABBREVIATED_CHARS;
+        int high = text.length() - 1;
+        while (low < high) {
+            final int mid = (low + high + 1) / 2;
+            if (fontMetrics.stringWidth(abbreviateMiddle(text, mid)) <= maxWidth) {
+                low = mid;
+            } else {
+                high = mid - 1;
+            }
+        }
+        return abbreviateMiddle(text, low);
+    }
+
+    private static String abbreviateMiddle(final String text, final int maxChars) {
+        if (text.length() <= maxChars) {
+            return text;
+        }
+        final int content = maxChars - ABBREVIATION_MARKER.length();
+        final int prefix = (content + 1) / 2;
+        final int suffix = content - prefix;
+        return text.substring(0, prefix) + ABBREVIATION_MARKER + text.substring(text.length() - suffix);
     }
 
 }

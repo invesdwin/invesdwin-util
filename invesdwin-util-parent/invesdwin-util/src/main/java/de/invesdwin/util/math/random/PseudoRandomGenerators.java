@@ -14,8 +14,7 @@ public final class PseudoRandomGenerators {
         }
     };
 
-    private PseudoRandomGenerators() {
-    }
+    private PseudoRandomGenerators() {}
 
     public static IRandomGenerator getThreadLocalPseudoRandom() {
         return THREAD_LOCAL.get();

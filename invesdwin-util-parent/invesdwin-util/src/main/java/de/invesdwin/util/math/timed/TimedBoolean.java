@@ -72,7 +72,9 @@ public class TimedBoolean implements IHistoricalValue<TimedBoolean>, Comparable<
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(TimedBoolean.class, time, value);
+        // equals is value-only (also cross-type against the raw Boolean), so the hash must be
+        // value-only too — folding time or the class token in here breaks equal-but-different-hash.
+        return Objects.hashCode(value);
     }
 
     @Override

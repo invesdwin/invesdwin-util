@@ -19,7 +19,7 @@ public class BitSetBooleanPrimitiveArray implements IBooleanPrimitiveArray {
     private final IPrimitiveBitSet bitSet;
 
     public BitSetBooleanPrimitiveArray(final int size) {
-        this.bitSet = ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(size);
+        this.bitSet = ILockCollectionFactory.getInstance(false).primitive().newBitSet(size);
     }
 
     public BitSetBooleanPrimitiveArray(final IPrimitiveBitSet values) {

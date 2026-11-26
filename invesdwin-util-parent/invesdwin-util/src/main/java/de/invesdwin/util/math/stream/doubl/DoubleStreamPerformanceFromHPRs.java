@@ -6,8 +6,7 @@ import de.invesdwin.norva.marker.ISerializableValueObject;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 
 @NotThreadSafe
-public class DoubleStreamPerformanceFromHPRs
-        implements IDoubleStreamAlgorithm, ISerializableValueObject {
+public class DoubleStreamPerformanceFromHPRs implements IDoubleStreamAlgorithm, ISerializableValueObject {
 
     private final double initialPerformance = getInitialPerformance();
     private final DoubleStreamProduct product = new DoubleStreamProduct() {

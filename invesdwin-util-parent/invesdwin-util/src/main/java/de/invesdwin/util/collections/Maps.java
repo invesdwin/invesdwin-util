@@ -10,7 +10,6 @@ import de.invesdwin.util.collections.internal.AMapsStaticFacade;
         org.apache.commons.collections4.MapUtils.class, com.google.common.collect.Maps.class })
 public final class Maps extends AMapsStaticFacade {
 
-    private Maps() {
-    }
+    private Maps() {}
 
 }

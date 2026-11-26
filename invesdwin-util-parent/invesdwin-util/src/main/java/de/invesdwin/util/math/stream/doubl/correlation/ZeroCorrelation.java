@@ -9,8 +9,7 @@ public final class ZeroCorrelation implements ICorrelation {
 
     public static final ZeroCorrelation INSTANCE = new ZeroCorrelation();
 
-    private ZeroCorrelation() {
-    }
+    private ZeroCorrelation() {}
 
     @Override
     public Percent getCorrelation() {

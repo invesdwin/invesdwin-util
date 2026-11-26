@@ -10,8 +10,7 @@ public final class EmptyInputStream extends InputStream {
 
     public static final EmptyInputStream INSTANCE = new EmptyInputStream();
 
-    private EmptyInputStream() {
-    }
+    private EmptyInputStream() {}
 
     @Override
     public int read() throws IOException {

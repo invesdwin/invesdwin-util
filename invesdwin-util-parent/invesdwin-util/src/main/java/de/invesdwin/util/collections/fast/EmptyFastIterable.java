@@ -15,8 +15,7 @@ public final class EmptyFastIterable<E> implements IFastIterable<E> {
     @SuppressWarnings("unchecked")
     private E[] array = (E[]) Objects.EMPTY_ARRAY;
 
-    private EmptyFastIterable() {
-    }
+    private EmptyFastIterable() {}
 
     @Override
     public ICloseableIterator<E> iterator() {

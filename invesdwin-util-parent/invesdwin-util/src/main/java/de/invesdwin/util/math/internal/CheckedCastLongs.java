@@ -17,8 +17,7 @@ import de.invesdwin.util.math.decimal.ADecimal;
 @Immutable
 public final class CheckedCastLongs {
 
-    private CheckedCastLongs() {
-    }
+    private CheckedCastLongs() {}
 
     public static long checkedCast(final Object value) {
         if (value instanceof Number) {

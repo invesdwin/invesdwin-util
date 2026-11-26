@@ -89,71 +89,6 @@ public class DataOutputDelegateMemoryBuffer implements IMemoryBuffer, ISafeClose
     }
 
     @Override
-    public byte getByte(final long index) {
-        throw newUnsupportedOperationException();
-    }
-
-    @Override
-    public long getLong(final long index) {
-        throw newUnsupportedOperationException();
-    }
-
-    @Override
-    public long getLongReverse(final long index) {
-        throw newUnsupportedOperationException();
-    }
-
-    @Override
-    public int getInt(final long index) {
-        throw newUnsupportedOperationException();
-    }
-
-    @Override
-    public int getIntReverse(final long index) {
-        throw newUnsupportedOperationException();
-    }
-
-    @Override
-    public double getDouble(final long index) {
-        throw newUnsupportedOperationException();
-    }
-
-    @Override
-    public double getDoubleReverse(final long index) {
-        throw newUnsupportedOperationException();
-    }
-
-    @Override
-    public float getFloat(final long index) {
-        throw newUnsupportedOperationException();
-    }
-
-    @Override
-    public float getFloatReverse(final long index) {
-        throw newUnsupportedOperationException();
-    }
-
-    @Override
-    public short getShort(final long index) {
-        throw newUnsupportedOperationException();
-    }
-
-    @Override
-    public short getShortReverse(final long index) {
-        throw newUnsupportedOperationException();
-    }
-
-    @Override
-    public char getChar(final long index) {
-        throw newUnsupportedOperationException();
-    }
-
-    @Override
-    public char getCharReverse(final long index) {
-        throw newUnsupportedOperationException();
-    }
-
-    @Override
     public void getBytes(final long index, final byte[] dst, final int dstIndex, final int length) {
         throw newUnsupportedOperationException();
     }
@@ -204,6 +139,16 @@ public class DataOutputDelegateMemoryBuffer implements IMemoryBuffer, ISafeClose
     }
 
     @Override
+    public byte getByte(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public byte getByteVolatile(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
     public void putByte(final long index, final byte value) {
         checkPosition(index, Byte.BYTES);
         try {
@@ -214,87 +159,98 @@ public class DataOutputDelegateMemoryBuffer implements IMemoryBuffer, ISafeClose
     }
 
     @Override
-    public void putLong(final long index, final long value) {
-        checkPosition(index, Long.BYTES);
+    public void putByteVolatile(final long index, final byte value) {
+        //write-once stream delegate - same semantics as putByte, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Byte.BYTES);
         try {
-            out.writeLong(value);
+            out.writeByte(value);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     @Override
-    public void putLongReverse(final long index, final long value) {
-        checkPosition(index, Long.BYTES);
+    public char getChar(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public char getCharReverse(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public char getCharVolatile(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public char getCharVolatileReverse(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public void putChar(final long index, final char value) {
+        checkPosition(index, Character.BYTES);
         try {
-            final long bits = Long.reverseBytes(value);
-            out.writeLong(bits);
+            out.writeChar(value);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     @Override
-    public void putInt(final long index, final int value) {
-        checkPosition(index, Integer.BYTES);
+    public void putCharReverse(final long index, final char value) {
+        checkPosition(index, Character.BYTES);
         try {
-            out.writeInt(value);
+            final short bits = Short.reverseBytes((short) value);
+            out.writeShort(bits);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     @Override
-    public void putIntReverse(final long index, final int value) {
-        checkPosition(index, Integer.BYTES);
+    public void putCharVolatile(final long index, final char value) {
+        //write-once stream delegate - same semantics as putChar, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Character.BYTES);
         try {
-            final int bits = Integer.reverseBytes(value);
-            out.writeInt(bits);
+            out.writeChar(value);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     @Override
-    public void putDouble(final long index, final double value) {
-        checkPosition(index, Double.BYTES);
+    public void putCharVolatileReverse(final long index, final char value) {
+        //write-once stream delegate - same semantics as the non-reverse twin, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Character.BYTES);
         try {
-            out.writeDouble(value);
+            final short bits = Short.reverseBytes((short) value);
+            out.writeShort(bits);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     @Override
-    public void putDoubleReverse(final long index, final double value) {
-        checkPosition(index, Double.BYTES);
-        try {
-            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
-            out.writeLong(bits);
-        } catch (final IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    public short getShort(final long index) {
+        throw newUnsupportedOperationException();
     }
 
     @Override
-    public void putFloat(final long index, final float value) {
-        checkPosition(index, Float.BYTES);
-        try {
-            out.writeFloat(value);
-        } catch (final IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    public short getShortReverse(final long index) {
+        throw newUnsupportedOperationException();
     }
 
     @Override
-    public void putFloatReverse(final long index, final float value) {
-        checkPosition(index, Float.BYTES);
-        try {
-            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
-            out.writeInt(bits);
-        } catch (final IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    public short getShortVolatile(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public short getShortVolatileReverse(final long index) {
+        throw newUnsupportedOperationException();
     }
 
     @Override
@@ -319,21 +275,391 @@ public class DataOutputDelegateMemoryBuffer implements IMemoryBuffer, ISafeClose
     }
 
     @Override
-    public void putChar(final long index, final char value) {
-        checkPosition(index, Character.BYTES);
+    public void putShortVolatile(final long index, final short value) {
+        //write-once stream delegate - same semantics as putShort, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Short.BYTES);
         try {
-            out.writeChar(value);
+            out.writeShort(value);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     @Override
-    public void putCharReverse(final long index, final char value) {
-        checkPosition(index, Character.BYTES);
+    public void putShortVolatileReverse(final long index, final short value) {
+        //write-once stream delegate - same semantics as the non-reverse twin, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Short.BYTES);
         try {
-            final short bits = Short.reverseBytes((short) value);
+            final short bits = Short.reverseBytes(value);
             out.writeShort(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public int getInt(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public int getIntReverse(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public int getIntVolatile(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public int getIntVolatileReverse(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public int getIntAcquire(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public int getIntAcquireReverse(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public void putInt(final long index, final int value) {
+        checkPosition(index, Integer.BYTES);
+        try {
+            out.writeInt(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putIntReverse(final long index, final int value) {
+        checkPosition(index, Integer.BYTES);
+        try {
+            final int bits = Integer.reverseBytes(value);
+            out.writeInt(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putIntVolatile(final long index, final int value) {
+        //write-once stream delegate - same semantics as putInt, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Integer.BYTES);
+        try {
+            out.writeInt(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putIntVolatileReverse(final long index, final int value) {
+        //write-once stream delegate - same semantics as the non-reverse twin, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Integer.BYTES);
+        try {
+            final int bits = Integer.reverseBytes(value);
+            out.writeInt(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putIntRelease(final long index, final int value) {
+        //write-once stream delegate - same semantics as putInt, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Integer.BYTES);
+        try {
+            out.writeInt(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putIntReleaseReverse(final long index, final int value) {
+        //write-once stream delegate - same semantics as the non-reverse twin, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Integer.BYTES);
+        try {
+            final int bits = Integer.reverseBytes(value);
+            out.writeInt(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putIntOrdered(final long index, final int value) {
+        //write-once stream delegate - same semantics as putInt, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Integer.BYTES);
+        try {
+            out.writeInt(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putIntOrderedReverse(final long index, final int value) {
+        //write-once stream delegate - same semantics as the non-reverse twin, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Integer.BYTES);
+        try {
+            final int bits = Integer.reverseBytes(value);
+            out.writeInt(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public long getLong(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public long getLongReverse(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public long getLongVolatile(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public long getLongVolatileReverse(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public long getLongAcquire(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public long getLongAcquireReverse(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public void putLong(final long index, final long value) {
+        checkPosition(index, Long.BYTES);
+        try {
+            out.writeLong(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putLongReverse(final long index, final long value) {
+        checkPosition(index, Long.BYTES);
+        try {
+            final long bits = Long.reverseBytes(value);
+            out.writeLong(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putLongVolatile(final long index, final long value) {
+        //write-once stream delegate - same semantics as putLong, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Long.BYTES);
+        try {
+            out.writeLong(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putLongVolatileReverse(final long index, final long value) {
+        //write-once stream delegate - same semantics as the non-reverse twin, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Long.BYTES);
+        try {
+            final long bits = Long.reverseBytes(value);
+            out.writeLong(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putLongRelease(final long index, final long value) {
+        //write-once stream delegate - same semantics as putLong, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Long.BYTES);
+        try {
+            out.writeLong(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putLongReleaseReverse(final long index, final long value) {
+        //write-once stream delegate - same semantics as the non-reverse twin, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Long.BYTES);
+        try {
+            final long bits = Long.reverseBytes(value);
+            out.writeLong(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putLongOrdered(final long index, final long value) {
+        //write-once stream delegate - same semantics as putLong, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Long.BYTES);
+        try {
+            out.writeLong(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putLongOrderedReverse(final long index, final long value) {
+        //write-once stream delegate - same semantics as the non-reverse twin, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Long.BYTES);
+        try {
+            final long bits = Long.reverseBytes(value);
+            out.writeLong(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public float getFloat(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public float getFloatReverse(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public float getFloatVolatile(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public float getFloatVolatileReverse(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public void putFloat(final long index, final float value) {
+        checkPosition(index, Float.BYTES);
+        try {
+            out.writeFloat(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putFloatReverse(final long index, final float value) {
+        checkPosition(index, Float.BYTES);
+        try {
+            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
+            out.writeInt(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putFloatVolatile(final long index, final float value) {
+        //write-once stream delegate - same semantics as putFloat, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Float.BYTES);
+        try {
+            out.writeFloat(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putFloatVolatileReverse(final long index, final float value) {
+        //write-once stream delegate - same semantics as the non-reverse twin, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Float.BYTES);
+        try {
+            final int bits = Integer.reverseBytes(Float.floatToRawIntBits(value));
+            out.writeInt(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public double getDouble(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public double getDoubleReverse(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public double getDoubleVolatile(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public double getDoubleVolatileReverse(final long index) {
+        throw newUnsupportedOperationException();
+    }
+
+    @Override
+    public void putDouble(final long index, final double value) {
+        checkPosition(index, Double.BYTES);
+        try {
+            out.writeDouble(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putDoubleReverse(final long index, final double value) {
+        checkPosition(index, Double.BYTES);
+        try {
+            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
+            out.writeLong(bits);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putDoubleVolatile(final long index, final double value) {
+        //write-once stream delegate - same semantics as putDouble, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Double.BYTES);
+        try {
+            out.writeDouble(value);
+        } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void putDoubleVolatileReverse(final long index, final double value) {
+        //write-once stream delegate - same semantics as the non-reverse twin, the DataOutput flush ordering provides the visibility
+        checkPosition(index, Double.BYTES);
+        try {
+            final long bits = Long.reverseBytes(Double.doubleToRawLongBits(value));
+            out.writeLong(bits);
         } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -12,8 +12,8 @@ import com.google.common.base.Optional;
  * @see <a href="http://code.google.com/p/google-collections/issues/detail?id=166">Source</a>
  */
 @ThreadSafe
-public class OptionalValueWrapperConcurrentMap<K, V> extends OptionalValueWrapperMap<K, V> implements
-        ConcurrentMap<K, V> {
+public class OptionalValueWrapperConcurrentMap<K, V> extends OptionalValueWrapperMap<K, V>
+        implements ConcurrentMap<K, V> {
 
     private final ConcurrentMap<K, Optional<V>> delegate;
 

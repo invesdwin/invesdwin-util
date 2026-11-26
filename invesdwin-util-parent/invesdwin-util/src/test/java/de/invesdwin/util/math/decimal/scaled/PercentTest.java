@@ -51,8 +51,9 @@ public class PercentTest {
         final Percent permilleValue = new Percent(0.001D, PercentScale.PERCENT).asScale(PercentScale.PERMILLE);
         Assertions.assertThat(permilleValue.toString(PercentScale.PERMILLE))
                 .isEqualTo("0.01" + PercentScale.PERMILLE.getSymbol());
-        Assertions.assertThat(
-                permilleValue.toStringBuilder().setScale(PercentScale.PERMILLE).setDecimalDigits(2).toString())
+        Assertions
+                .assertThat(
+                        permilleValue.toStringBuilder().setScale(PercentScale.PERMILLE).setDecimalDigits(2).toString())
                 .isEqualTo("0.01" + PercentScale.PERMILLE.getSymbol());
     }
 }

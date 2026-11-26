@@ -67,7 +67,8 @@ public final class EmptyGenericPrimitiveArray<E> implements IGenericPrimitiveArr
     }
 
     @Override
-    public void getGenerics(final int srcPos, final IGenericPrimitiveArray<E> dest, final int destPos, final int length) {
+    public void getGenerics(final int srcPos, final IGenericPrimitiveArray<E> dest, final int destPos,
+            final int length) {
         //noop
     }
 

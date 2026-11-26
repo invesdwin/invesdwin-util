@@ -26,13 +26,14 @@ public final class JUnit5CheckEquals {
 
     private static final int COMPARISON_FAILURE_MESSAGE_LIMIT = Assertions.COMPARISON_FAILURE_MESSAGE_LIMIT;
 
-    private JUnit5CheckEquals() {
-    }
+    private JUnit5CheckEquals() {}
 
     public static void checkEqualsJunit(final String expected, final String actual, final String message,
             final Object... args) {
         try {
-            org.junit.jupiter.api.Assertions.assertEquals(TextDescription.format(message, args), expected, actual);
+            //jupiter takes the message LAST: for three Strings the only applicable overload is
+            //(Object,Object,String), so the junit4 argument order compares the label against the expected value.
+            org.junit.jupiter.api.Assertions.assertEquals(expected, actual, TextDescription.format(message, args));
         } catch (final org.opentest4j.AssertionFailedError e) {
             final String abbreviatedMessage = Strings.abbreviate(e.getMessage(), COMPARISON_FAILURE_MESSAGE_LIMIT);
             throw new ComparisonFailure(abbreviatedMessage, e.getExpected(), e.getActual());

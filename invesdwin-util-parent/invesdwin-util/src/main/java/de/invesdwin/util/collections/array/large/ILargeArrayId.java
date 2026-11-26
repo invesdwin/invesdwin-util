@@ -22,21 +22,21 @@ public interface ILargeArrayId extends IBaseArrayId {
     }
 
     static int newId(final ILargeArrayId o1, final ILargeArrayId o2, final ILargeArrayId o3) {
-        return Objects.hashCode(getId(o1), getId(o2), getId(o3), getId(o3));
+        return Objects.hashCode(getId(o1), getId(o2), getId(o3));
     }
 
     static int newId(final ILargeArrayId o1, final ILargeArrayId o2, final ILargeArrayId o3, final ILargeArrayId o4) {
-        return Objects.hashCode(getId(o1), getId(o2), getId(o3), getId(o3), getId(o4));
+        return Objects.hashCode(getId(o1), getId(o2), getId(o3), getId(o4));
     }
 
     static int newId(final ILargeArrayId o1, final ILargeArrayId o2, final ILargeArrayId o3, final ILargeArrayId o4,
             final ILargeArrayId o5) {
-        return Objects.hashCode(getId(o1), getId(o2), getId(o3), getId(o3), getId(o4), getId(o5));
+        return Objects.hashCode(getId(o1), getId(o2), getId(o3), getId(o4), getId(o5));
     }
 
     static int newId(final ILargeArrayId o1, final ILargeArrayId o2, final ILargeArrayId o3, final ILargeArrayId o4,
             final ILargeArrayId o5, final ILargeArrayId o6) {
-        return Objects.hashCode(getId(o1), getId(o2), getId(o3), getId(o3), getId(o4), getId(o5), getId(o6));
+        return Objects.hashCode(getId(o1), getId(o2), getId(o3), getId(o4), getId(o5), getId(o6));
     }
 
     static int newId(@Nullable final ILargeArrayId... objects) {

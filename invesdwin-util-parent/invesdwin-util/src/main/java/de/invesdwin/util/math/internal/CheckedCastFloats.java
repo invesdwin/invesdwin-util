@@ -18,8 +18,7 @@ import de.invesdwin.util.math.decimal.ADecimal;
 @Immutable
 public final class CheckedCastFloats {
 
-    private CheckedCastFloats() {
-    }
+    private CheckedCastFloats() {}
 
     public static float checkedCast(final Object value) {
         if (value instanceof Number) {

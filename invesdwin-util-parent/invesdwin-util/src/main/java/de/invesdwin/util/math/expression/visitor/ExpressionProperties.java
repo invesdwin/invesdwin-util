@@ -66,8 +66,7 @@ public final class ExpressionProperties {
      */
     public static final String OPTIMIZATION_VARIABLES = "OPTIMIZATION_VARIABLES";
 
-    private ExpressionProperties() {
-    }
+    private ExpressionProperties() {}
 
     public static boolean isCompress(final IExpression expression) {
         if (Booleans.isFalse((Boolean) expression.getProperty(COMPRESS))) {

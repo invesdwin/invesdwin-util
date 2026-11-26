@@ -10,8 +10,7 @@ import de.invesdwin.util.lang.string.description.TextDescription;
 @Immutable
 public final class AssertThrows {
 
-    private AssertThrows() {
-    }
+    private AssertThrows() {}
 
     static <T extends Throwable> T assertThrows(final Class<T> expectedType, final Executable executable) {
         return assertThrows(expectedType, executable, () -> null);

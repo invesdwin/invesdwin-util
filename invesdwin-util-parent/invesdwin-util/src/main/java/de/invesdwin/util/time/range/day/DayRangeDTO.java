@@ -15,8 +15,7 @@ public class DayRangeDTO implements IDayRangeData, ISerializableValueObject {
         to = new DayTimeDTO(dayRangeData.getTo());
     }
 
-    public DayRangeDTO() {
-    }
+    public DayRangeDTO() {}
 
     @Override
     public IDayTimeData getFrom() {

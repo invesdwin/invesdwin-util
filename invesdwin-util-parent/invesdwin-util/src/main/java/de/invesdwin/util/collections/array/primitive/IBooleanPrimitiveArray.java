@@ -27,7 +27,7 @@ public interface IBooleanPrimitiveArray extends IPrimitiveArray, IBooleanPrimiti
         if (size == 0) {
             return EmptyBooleanPrimitiveArray.INSTANCE;
         }
-        return new BitSetBooleanPrimitiveArray(ILockCollectionFactory.getInstance(false).newPrimitiveBitSet(size));
+        return new BitSetBooleanPrimitiveArray(ILockCollectionFactory.getInstance(false).primitive().newBitSet(size));
     }
 
     /**

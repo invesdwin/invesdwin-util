@@ -14,6 +14,8 @@ import java.util.concurrent.TimeoutException;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.slf4j.helpers.Reporter;
+
 import de.invesdwin.norva.apt.staticfacade.StaticFacadeDefinition;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Arrays;
@@ -32,6 +34,16 @@ public final class Futures extends AFuturesStaticFacade {
     @SuppressWarnings("rawtypes")
     public static final FutureTask[] FUTURETASK_EMPTY_ARRAY = new FutureTask[0];
 
+    /**
+     * How long the join keeps waiting for a unit that is still running once ANOTHER unit has already failed. Bounded on
+     * purpose: past a failure the wait exists to let in-flight siblings finish work already started, not to fund the rest
+     * of the run — and a fork that dies on {@code forkedProcessTimeoutInSeconds} reports no tally at all. While nothing
+     * has failed there is no bound at all, so a good run takes as long as it takes.
+     */
+    private static final Duration POST_FAILURE_GRACE = new Duration(5, FTimeUnit.MINUTES);
+
+    private static final long CANCEL_JOIN_CHECK_MILLIS = 100L;
+
     private Futures() {}
 
     //////////// GET ////////////
@@ -49,7 +61,7 @@ public final class Futures extends AFuturesStaticFacade {
                 }
             }
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -74,7 +86,7 @@ public final class Futures extends AFuturesStaticFacade {
                 }
             }
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -104,7 +116,7 @@ public final class Futures extends AFuturesStaticFacade {
                 }
             }
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -148,7 +160,7 @@ public final class Futures extends AFuturesStaticFacade {
         try {
             return future.get(timeout, unit);
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -165,7 +177,7 @@ public final class Futures extends AFuturesStaticFacade {
         try {
             return future.get(timeout, unit);
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -187,7 +199,7 @@ public final class Futures extends AFuturesStaticFacade {
         try {
             return future.get(timeout, unit);
         } catch (final InterruptedException e) {
-            future.cancel(true);
+            cancelAndJoin(future, e);
             throw e;
         } catch (final ExecutionException e) {
             final InterruptedException iCause = Throwables.getCauseByType(e, InterruptedException.class);
@@ -298,7 +310,7 @@ public final class Futures extends AFuturesStaticFacade {
             }
             return results;
         } catch (final Throwable e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
             throw e;
         }
     }
@@ -311,7 +323,7 @@ public final class Futures extends AFuturesStaticFacade {
             }
             return results;
         } catch (final Throwable e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
             throw e;
         }
     }
@@ -324,10 +336,10 @@ public final class Futures extends AFuturesStaticFacade {
             }
             return results;
         } catch (final InterruptedException e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
             throw e;
         } catch (final Throwable e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
             throw Throwables.propagate(e);
         }
     }
@@ -373,6 +385,57 @@ public final class Futures extends AFuturesStaticFacade {
         if (!future.isDone() && !future.isCancelled()) {
             future.cancel(true);
         }
+    }
+
+    /**
+     * Await-multiple loops must not abandon siblings: on an exceptional exit all unfinished futures are cancelled
+     * best effort and then joined (waited until done) before the original throwable is rethrown, so that when this
+     * class returns or throws no awaited task can outlive the master. Join errors are attached as suppressed
+     * exceptions to the original throwable; an interrupt arriving while joining is preserved (re-armed or propagated
+     * with the original) and never swallowed.
+     */
+    private static void cancelAndJoin(final Iterable<? extends Future<?>> futures, final Throwable original) {
+        for (final Future<?> future : futures) {
+            try {
+                cancel(future);
+            } catch (final Throwable t) {
+                Throwables.addSuppressed(original, t);
+            }
+        }
+        boolean joinInterrupted = false;
+        for (final Future<?> future : futures) {
+            boolean done = false;
+            while (!done) {
+                try {
+                    done = future.isDone();
+                } catch (final Throwable t) {
+                    //best effort join, a future that cannot answer isDone() must not deadlock the master
+                    Throwables.addSuppressed(original, t);
+                    break;
+                }
+                if (!done) {
+                    try {
+                        Thread.sleep(CANCEL_JOIN_CHECK_MILLIS);
+                    } catch (final InterruptedException e) {
+                        joinInterrupted = true;
+                    }
+                }
+            }
+        }
+        if (joinInterrupted && !(original instanceof InterruptedException)) {
+            //the original throwable is rethrown as-is, so keep the interrupt visible to the caller
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Await-one paths have the same contract as the await-multiple ones: a single awaited future is cancelled best
+     * effort and then joined (waited until done) before the throwable is rethrown, so that the caller never proceeds
+     * while the cancelled task body is still unwinding (FutureTask.cancel(true) marks the future done before its run
+     * method has returned).
+     */
+    private static void cancelAndJoin(final Future<?> future, final Throwable original) {
+        cancelAndJoin(Arrays.asList(future), original);
     }
 
     //////////// SUBMIT AND GET
@@ -588,7 +651,10 @@ public final class Futures extends AFuturesStaticFacade {
                 wait(future);
             }
         } catch (final InterruptedException e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
+            throw e;
+        } catch (final Throwable e) {
+            cancelAndJoin(futures, e);
             throw e;
         }
     }
@@ -599,7 +665,10 @@ public final class Futures extends AFuturesStaticFacade {
                 waitRethrowing(future);
             }
         } catch (final InterruptedException e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
+            throw e;
+        } catch (final Throwable e) {
+            cancelAndJoin(futures, e);
             throw e;
         }
     }
@@ -611,8 +680,11 @@ public final class Futures extends AFuturesStaticFacade {
                 waitPropagating(future);
             }
         } catch (final InterruptedException e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
             throw e;
+        } catch (final Throwable e) {
+            cancelAndJoin(futures, e);
+            throw Throwables.propagate(e);
         }
     }
 
@@ -622,7 +694,10 @@ public final class Futures extends AFuturesStaticFacade {
                 wait(future);
             }
         } catch (final InterruptedException e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
+            throw Throwables.propagate(e);
+        } catch (final Throwable e) {
+            cancelAndJoin(futures, e);
             throw Throwables.propagate(e);
         }
     }
@@ -634,8 +709,11 @@ public final class Futures extends AFuturesStaticFacade {
                 waitRethrowing(future);
             }
         } catch (final InterruptedException e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
             throw Throwables.propagate(e);
+        } catch (final Throwable e) {
+            cancelAndJoin(futures, e);
+            throw e;
         }
     }
 
@@ -645,9 +723,106 @@ public final class Futures extends AFuturesStaticFacade {
                 waitPropagating(future);
             }
         } catch (final InterruptedException e) {
-            cancel(futures);
+            cancelAndJoin(futures, e);
+            throw Throwables.propagate(e);
+        } catch (final Throwable e) {
+            cancelAndJoin(futures, e);
             throw Throwables.propagate(e);
         }
+    }
+
+    //////////// WAIT ALL, COLLECTING FAILURES
+
+    /**
+     * Awaits every future of a batch and reports all failures together instead of only the first one: unbounded while
+     * the batch is healthy, and {@link #POST_FAILURE_GRACE} per remaining future once something has failed.
+     */
+    public static <T> void waitAllCollectingFailures(final Iterable<? extends Future<? extends T>> futures,
+            final Object batchLabel) {
+        waitAllCollectingFailures(futures, batchLabel, POST_FAILURE_GRACE);
+    }
+
+    /**
+     * The collecting join. Package-private for the cells that pin the post-failure path on a measurable timescale — a
+     * caller does not choose a budget, and the 5-minute grace is the fleet's answer for that.
+     * <p>
+     * A healthy batch is never cut short: a slow unit is indistinguishable from a stuck one until something has failed,
+     * and no budget can be picked for a run nobody has measured. After the first failure, each future that has not
+     * already finished gets up to {@code postFailureGrace}; one that overruns it is cancelled and then joined (a cancel
+     * must be followed by a join, so no body unwinds behind the caller) and counted as a unit that was still running,
+     * which is a different claim from a unit that failed.
+     */
+    static <T> void waitAllCollectingFailures(final Iterable<? extends Future<? extends T>> futures,
+            final Object batchLabel, final Duration postFailureGrace) {
+        //An iterable may be single-pass, so the batch is materialised: after the first failure the still-unawaited
+        //futures must be reachable in order to cancel and join them.
+        final List<Future<? extends T>> batch = new ArrayList<>();
+        for (final Future<? extends T> future : futures) {
+            batch.add(future);
+        }
+        final List<Throwable> failures = new ArrayList<>();
+        final int total = batch.size();
+        int cancelledAfterFailure = 0;
+        for (int i = 0; i < batch.size(); i++) {
+            final Future<? extends T> future = batch.get(i);
+            try {
+                if (failures.isEmpty() || future.isDone()) {
+                    //Nothing has failed yet — and a slow unit is indistinguishable from a stuck one at that point — so a
+                    //healthy batch is awaited as long as it takes; no budget can be chosen for it from out here. A
+                    //future that has already finished costs nothing either way.
+                    waitPropagating(future);
+                } else {
+                    //Something HAS failed, so a unit that never returns now costs the report rather than the whole fork.
+                    waitPropagating(future, postFailureGrace);
+                }
+            } catch (final TimeoutException e) {
+                //This unit was still running when the post-failure grace expired: cancel it, then join its body (a cancel
+                //must be followed by a join, so nothing unwinds behind the caller), and count it separately — "this unit
+                //was stopped after an earlier one failed" is not "this unit failed".
+                cancelledAfterFailure++;
+                Reporter.error("Futures.waitAllCollectingFailures: " + batchLabel + ": unit " + (i + 1) + " of " + total
+                        + " was still running " + postFailureGrace + " after the first failure; cancelled and joined");
+                failures.add(new RuntimeException("future " + (i + 1) + " of " + batchLabel
+                        + " was still running when the post-failure grace of " + postFailureGrace + " expired", e));
+                cancelAndJoin(future, e);
+            } catch (final Throwable t) {
+                //the number of failures is part of the answer, so one failure must not end the join
+                if (failures.isEmpty()) {
+                    //Reported where the run can still see it: from here on the batch keeps awaiting the rest, and a
+                    //suite that takes minutes to fail gives nobody a clue unless the first failure says so at the time
+                    //it happens. Without this line a hung or slow join is indistinguishable from a hung suite.
+                    //util sits below invesdwin-context, so there is no house Log here; Reporter is util's own
+                    //precedent (TextDescriptionFormatter:218) and it prints even with no binding configured, which is
+                    //what makes it usable as a hang diagnostic.
+                    Reporter.error("Futures.waitAllCollectingFailures: " + batchLabel + ": unit " + (i + 1) + " of "
+                            + total + " failed; still awaiting " + (total - i - 1) + " more, each with a grace of "
+                            + postFailureGrace, t);
+                }
+                failures.add(t);
+                if (Throwables.getCauseByType(t, InterruptedException.class) != null) {
+                    //keep the interrupt armed: without it the next get() would block again and the join could not finish
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+        if (failures.isEmpty()) {
+            return;
+        }
+        if (failures.size() == 1 && cancelledAfterFailure == 0) {
+            throw Throwables.propagate(failures.get(0));
+        }
+        final StringBuilder builder = new StringBuilder(batchLabel + ": " + failures.size() + " of " + total
+                + " futures failed"
+                + (cancelledAfterFailure > 0 ? " (" + cancelledAfterFailure
+                        + " were still running when the post-failure grace expired and were cancelled)" : ""));
+        for (final Throwable failure : failures) {
+            builder.append("\n  - ").append(Throwables.getMessagesAndStackTraceIfDebugEnabled(failure));
+        }
+        final RuntimeException aggregate = new RuntimeException(builder.toString());
+        for (final Throwable failure : failures) {
+            Throwables.addSuppressed(aggregate, failure);
+        }
+        throw aggregate;
     }
 
     //////////// SUBMIT AND WAIT
@@ -792,9 +967,7 @@ public final class Futures extends AFuturesStaticFacade {
                         try {
                             Assertions.checkNull(Futures.get(future));
                         } catch (final Throwable t) {
-                            for (final Future<?> f : futures) {
-                                f.cancel(true);
-                            }
+                            cancelAndJoin(futures, t);
                             throw Throwables.propagate(t);
                         }
                     }
@@ -820,9 +993,7 @@ public final class Futures extends AFuturesStaticFacade {
                         try {
                             Assertions.checkNull(Futures.getRethrowing(future));
                         } catch (final Throwable t) {
-                            for (final Future<?> f : futures) {
-                                f.cancel(true);
-                            }
+                            cancelAndJoin(futures, t);
                             throw t;
                         }
                     }
@@ -848,9 +1019,7 @@ public final class Futures extends AFuturesStaticFacade {
                         try {
                             Assertions.checkNull(Futures.getPropagating(future));
                         } catch (final Throwable t) {
-                            for (final Future<?> f : futures) {
-                                f.cancel(true);
-                            }
+                            cancelAndJoin(futures, t);
                             throw Throwables.propagate(t);
                         }
                     }

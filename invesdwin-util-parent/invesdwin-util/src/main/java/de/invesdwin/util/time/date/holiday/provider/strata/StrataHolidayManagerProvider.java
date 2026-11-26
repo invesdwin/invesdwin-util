@@ -33,8 +33,7 @@ public final class StrataHolidayManagerProvider implements IHolidayManagerProvid
     @GuardedBy("none for performance")
     private static String availableCalendarIdsInfo;
 
-    private StrataHolidayManagerProvider() {
-    }
+    private StrataHolidayManagerProvider() {}
 
     @Override
     public IHolidayManager getInstance(final String calendarId) {

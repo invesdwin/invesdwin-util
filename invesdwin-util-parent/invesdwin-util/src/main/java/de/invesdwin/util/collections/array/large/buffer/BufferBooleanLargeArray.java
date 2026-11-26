@@ -34,7 +34,8 @@ public class BufferBooleanLargeArray implements IBooleanLargeArray {
         final long expectedSize = buffer.getLong(LENGTH_INDEX);
         final LongArrayLargeBitSetBase bitSet = new LongArrayLargeBitSetBase(
                 new BufferLongLargeArray(buffer.sliceFrom(ARRAY_INDEX)), expectedSize);
-        this.delegate = new BitSetBooleanLargeArray(new LongArrayLargeBitSet(delegateCopyFactory, bitSet, expectedSize));
+        this.delegate = new BitSetBooleanLargeArray(
+                new LongArrayLargeBitSet(delegateCopyFactory, bitSet, expectedSize));
         assert buffer.getId() == delegate.getId();
     }
 
@@ -43,7 +44,8 @@ public class BufferBooleanLargeArray implements IBooleanLargeArray {
         this.buffer = buffer;
         final LongArrayLargeBitSetBase bitSet = new LongArrayLargeBitSetBase(new BufferLongLargeArray(buffer),
                 expectedSize);
-        this.delegate = new BitSetBooleanLargeArray(new LongArrayLargeBitSet(delegateCopyFactory, bitSet, expectedSize));
+        this.delegate = new BitSetBooleanLargeArray(
+                new LongArrayLargeBitSet(delegateCopyFactory, bitSet, expectedSize));
     }
 
     @Override

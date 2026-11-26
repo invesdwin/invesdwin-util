@@ -18,8 +18,7 @@ public final class DisabledList<E> implements List<E> {
     @SuppressWarnings("rawtypes")
     private static final DisabledList INSTANCE = new DisabledList<>();
 
-    private DisabledList() {
-    }
+    private DisabledList() {}
 
     @Override
     public int size() {
@@ -87,8 +86,7 @@ public final class DisabledList<E> implements List<E> {
     }
 
     @Override
-    public void clear() {
-    }
+    public void clear() {}
 
     @Override
     public E get(final int index) {
@@ -101,8 +99,7 @@ public final class DisabledList<E> implements List<E> {
     }
 
     @Override
-    public void add(final int index, final E element) {
-    }
+    public void add(final int index, final E element) {}
 
     @Override
     public E remove(final int index) {
